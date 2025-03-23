@@ -1,0 +1,337 @@
+[
+  {
+    "submenu": "Finance",
+    "submenuIcon": "/sidebar/finance.svg",
+    "path": "/finance",
+    "paths": [
+      "/finance/risk-management",
+      "/finance/control-management",
+      "/finance/issue-management"
+    ],
+    "menuItems": [
+      {
+        "name": "Risk Management",
+        "path": "/finance/risk-management"
+      },
+      {
+        "name": "Control Management",
+        "path": "/finance/control-management"
+      },
+      {
+        "name": "Issue Management",
+        "path": "/finance/issue-management"
+      }
+    ]
+  },
+  {
+    "submenu": "Continuous Monitoring",
+    "submenuIcon": "/sidebar/continuous-monitoring.svg",
+    "path": "/continuous-monitoring",
+    "paths": [
+      "/continuous-monitoring/continuous-control-management",
+      "/continuous-monitoring/result-management"
+    ],
+    "menuItems": [
+      {
+        "name": "Continuous Control Management",
+        "path": "/continuous-monitoring/continuous-control-management"
+      },
+      {
+        "name": "Result Management",
+        "path": "/continuous-monitoring/result-management"
+      }
+    ]
+  },
+  {
+    "submenu": "Enterprise Security Controls",
+    "submenuIcon": "/sidebar/manage-administration.svg",
+    "path": "/enterprise-security-controls",
+    "paths": [
+      "/enterprise-security-controls",
+      "/enterprise-security-controls/access-models",
+      "/enterprise-security-controls/access-models/manage-access-models",
+      "/enterprise-security-controls/controls",
+      "/enterprise-security-controls/controls/manage-controls",
+      "/enterprise-security-controls/controls/manage-results",
+      "/enterprise-security-controls/setup",
+      "/enterprise-security-controls/setup/manage-control-environments",
+      "/enterprise-security-controls/manage-access-entitlements",
+      "/enterprise-security-controls/manage-access-global-conditions",
+      "/enterprise-security-controls/create-access-global-conditions",
+      "/enterprise-security-controls/manage-access-path-conditions",
+      "/enterprise-security-controls/manage-user-defined-objects",
+      "/enterprise-security-controls/manage-access-points",
+      "/enterprise-security-controls/manage-global-conditions",
+      "/enterprise-security-controls/manage-local-conditions"
+    ],
+    "menuItems": [
+      {
+        "_comment": "This is for the nested menu",
+        "name": "Access Models",
+        "path": "/enterprise-security-controls/access-models",
+        "paths": [
+          "/enterprise-security-controls/access-models",
+          "/enterprise-security-controls/access-models/manage-access-models"
+        ],
+        "subItems": [
+          {
+            "name": "Manage Access Models",
+            "path": "/enterprise-security-controls/access-models/manage-access-models"
+          }
+        ]
+      },
+      {
+        "_comment": "This is for the nested menu",
+        "name": "Controls",
+        "path": "/enterprise-security-controls/controls",
+        "paths": [
+          "/enterprise-security-controls/controls",
+          "/enterprise-security-controls/controls/manage-controls",
+          "/enterprise-security-controls/controls/manage-results"
+        ],
+        "subItems": [
+          {
+            "name": "Manage Controls",
+            "path": "/enterprise-security-controls/controls/manage-controls"
+          },
+          {
+            "name": "Manage Results",
+            "path": "/enterprise-security-controls/controls/manage-results"
+          }
+        ]
+      },
+      {
+        "_comment": "This is for the nested menu",
+        "name": "Setup",
+        "path": "/enterprise-security-controls/setup",
+        "paths": [
+          "/enterprise-security-controls/setup",
+          "/enterprise-security-controls/setup/manage-control-environments"
+        ],
+        "subItems": [
+          {
+            "name": "Manage Control Environments",
+            "path": "/enterprise-security-controls/setup/manage-control-environments"
+          }
+        ]
+      },
+      {
+        "name": "Manage Access Entitlements",
+        "path": "/enterprise-security-controls/manage-access-entitlements"
+      },
+      {
+        "name": "Manage Access Points",
+        "path": "/enterprise-security-controls/manage-access-points"
+      },
+      {
+        "name": "Manage Global Conditions",
+        "path": "/enterprise-security-controls/manage-global-conditions"
+      },
+      {
+        "name": "Manage Local Conditions",
+        "path": "/enterprise-security-controls/manage-local-conditions"
+      }
+    ]
+  },
+  {
+    "submenu": "Enterprise Access Monitoring (EAM)",
+    "submenuIcon": "/sidebar/enterprise-access-monitoring.svg",
+    "path": "/enterprise-access-monitoring",
+    "paths": [
+      "/enterprise-access-monitoring",
+      "/enterprise-access-monitoring/privileged-access-review",
+      "/enterprise-access-monitoring/service-accounts-audit",
+      "/enterprise-access-monitoring/user-access-visibility",
+      "/enterprise-access-monitoring/auditor-reporting"
+    ],
+    "menuItems": [
+      {
+        "name": "Privileged Access Review",
+        "path": "/enterprise-access-monitoring/privileged-access-review"
+      },
+      {
+        "name": "Service Accounts Audit",
+        "path": "/enterprise-access-monitoring/service-accounts-audit"
+      },
+      {
+        "name": "User Access Visibility",
+        "path": "/enterprise-access-monitoring/user-access-visibility"
+      },
+      {
+        "name": "Auditor Reporting",
+        "path": "/enterprise-access-monitoring/auditor-reporting"
+      }
+    ]
+  },
+  {
+    "submenu": "Tools",
+    "submenuIcon": "/sidebar/tools.svg",
+    "path": "/tools",
+    "paths": [
+      "/tools",
+      "/tools/security-console",
+      "/tools/security-console/manage-users",
+      "/tools/manage-data-sources"
+    ],
+    "menuItems": [
+      {
+        "_comment": "This is for the nested menu",
+        "name": "Security Console",
+        "path": "/tools/security-console",
+        "paths": [
+          "/tools/security-console/manage-users",
+          "/tools/security-console/manage-privileges-and-roles"
+        ],
+        "subItems": [
+          {
+            "name": "Manage Users",
+            "path": "/tools/security-console/manage-users"
+          },
+          {
+            "name": "Manage Privileges and Roles",
+            "path": "/tools/security-console/manage-privileges-and-roles"
+          }
+        ]
+      },
+      {
+        "_comment": "This is for the nested menu",
+        "name": "Enterprise Process Modeler",
+        "path": "/tools/enterprise-process-modeler",
+        "paths": [
+          "/tools/enterprise-process-modeler/orchestration-studio",
+          "/tools/enterprise-process-modeler/orchestration-studio-2"
+        ],
+        "subItems": [
+          {
+            "name": "Orchestration Studio",
+            "path": "/tools/enterprise-process-modeler/orchestration-studio"
+          },
+          {
+            "name": "Orchestration Studio 2",
+            "path": "/tools/enterprise-process-modeler/orchestration-studio-2"
+          }
+        ]
+      },
+      {
+        "_comment": "This is for the nested menu",
+        "name": "Enterprise System Integrations",
+        "path": "/tools/enterprise-system-integrations",
+        "paths": [
+          "/tools/enterprise-system-integrations/manage-data-sources"
+        ],
+        "subItems": [
+          {
+            "name": "Manage Data Sources",
+            "path": "/tools/enterprise-system-integrations/manage-data-sources"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "submenu": "Asynchronous Request Manager (ARM)",
+    "submenuIcon": "/sidebar/asynchronous-manager.svg",
+    "path": "/asynchronous-request-manager",
+    "paths": [
+      "/asynchronous-request-manager",
+      "/asynchronous-request-manager/administration",
+      "/asynchronous-request-manager/administration/manage-configurations",
+      "/asynchronous-request-manager/administration/manage-schedulers",
+      "/asynchronous-request-manager/administration/manage-workers",
+      "/asynchronous-request-manager/development",
+      "/asynchronous-request-manager/development/manage-execution-methods",
+      "/asynchronous-request-manager/development/register-edit-asynchronous-tasks",
+      "/asynchronous-request-manager/development/manage-task-parameters"
+    ],
+    "menuItems": [
+      {
+        "name": "Administration",
+        "path": "/asynchronous-request-manager/administration",
+        "paths": [
+          "/asynchronous-request-manager/administration/manage-configurations",
+          "/asynchronous-request-manager/administration",
+          "/asynchronous-request-manager/administration/manage-schedulers",
+          "/asynchronous-request-manager/administration/manage-workers"
+        ],
+        "subItems": [
+          {
+            "name": "Manage Configurations",
+            "path": "/asynchronous-request-manager/administration/manage-configurations"
+          },
+          {
+            "name": "Manage Schedulers",
+            "path": "/asynchronous-request-manager/administration/manage-schedulers"
+          },
+          {
+            "name": "Manage Workers",
+            "path": "/asynchronous-request-manager/administration/manage-workers"
+          }
+        ]
+      },
+      {
+        "name": "Development",
+        "path": "/asynchronous-request-manager/development",
+        "paths": [
+          "/asynchronous-request-manager/development",
+          "/asynchronous-request-manager/development/manage-execution-methods",
+          "/asynchronous-request-manager/development/register-edit-asynchronous-tasks",
+          "/asynchronous-request-manager/development/manage-task-parameters"
+        ],
+        "subItems": [
+          {
+            "name": "Manage Execution Methods",
+            "path": "/asynchronous-request-manager/development/manage-execution-methods"
+          },
+          {
+            "name": "Register/Edit Asynchronous Tasks",
+            "path": "/asynchronous-request-manager/development/register-edit-asynchronous-tasks"
+          },
+          {
+            "name": "Manage Task Parameters",
+            "path": "/asynchronous-request-manager/development/manage-task-parameters"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "submenu": "Asynchronous Requests and Task Schedules",
+    "submenuIcon": "/sidebar/asychronous-task-schedule.svg",
+    "path": "/asynchronous-requests-and-task-schedules",
+    "paths": [
+      "/asynchronous-requests-and-task-schedules",
+      "/asynchronous-requests-and-task-schedules/schedule-a-task",
+      "/asynchronous-requests-and-task-schedules/v1/schedule-a-task",
+      "/asynchronous-requests-and-task-schedules/view-edit-scheduled-tasks",
+      "/asynchronous-requests-and-task-schedules/v1/view-edit-scheduled-tasks",
+      "/asynchronous-requests-and-task-schedules/run-an-ad-hoc-request",
+      "/asynchronous-requests-and-task-schedules/view-requests"
+    ],
+    "menuItems": [
+      {
+        "name": "Schedule a Task",
+        "path": "/asynchronous-requests-and-task-schedules/schedule-a-task"
+      },
+      {
+        "name": "Schedule a Task (v1)",
+        "path": "/asynchronous-requests-and-task-schedules/v1/schedule-a-task"
+      },
+      {
+        "name": "View/Edit Scheduled Tasks",
+        "path": "/asynchronous-requests-and-task-schedules/view-edit-scheduled-tasks"
+      },
+      {
+        "name": "View/Edit Scheduled Tasks (v1)",
+        "path": "/asynchronous-requests-and-task-schedules/v1/view-edit-scheduled-tasks"
+      },
+      {
+        "name": "Run a Request",
+        "path": "/asynchronous-requests-and-task-schedules/run-an-ad-hoc-request"
+      },
+      {
+        "name": "View Requests",
+        "path": "/asynchronous-requests-and-task-schedules/view-requests"
+      }
+    ]
+  }
+]
