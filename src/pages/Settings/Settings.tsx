@@ -2,7 +2,7 @@ import { Copy } from "lucide-react";
 import { QRCodeCanvas } from "qrcode.react";
 
 const Settings = () => {
-  const url = import.meta.env.VITE_API_URL;
+  const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
   return (
     <div>
       <div className="bg-[#cedef2] p-4 inline-block">

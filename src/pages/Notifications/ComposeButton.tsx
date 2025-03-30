@@ -42,7 +42,7 @@ const ComposeButton = () => {
     profile_picture: token?.profile_picture.thumbnail,
   };
   const id = uuidv4();
-  const apiUrl = import.meta.env.VITE_API_URL;
+  const apiUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
 
   const receiverNames = recivers.map((rcvr) => rcvr.name);
 
