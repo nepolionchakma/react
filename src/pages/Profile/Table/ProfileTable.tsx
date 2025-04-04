@@ -1,6 +1,6 @@
 import { FilePenLine, Trash2 } from "lucide-react";
 import { useState } from "react";
-import CustomModal from "../CustomModal/CustomModal";
+import UpdateProfileIDModal from "../UpdateProfileIDModal/UpdateProfileIDModal";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -93,7 +93,10 @@ const ProfileTable = ({
   };
 
   const displayOrder = ["Email", "Mobile Number", "GUID"];
-  const sortedProfiles = profiles.sort(
+  const sortedProfilesBySerialNumber = profiles.sort(
+    (a, b) => b.serial_number - a.serial_number
+  );
+  const sortedProfiles = sortedProfilesBySerialNumber.sort(
     (a, b) =>
       displayOrder.indexOf(a.profile_type) -
       displayOrder.indexOf(b.profile_type)
@@ -121,7 +124,7 @@ const ProfileTable = ({
   return (
     <div className="w-full">
       {isUpdateProfile && (
-        <CustomModal
+        <UpdateProfileIDModal
           editableProfile={editableProfile}
           setIsOpenModal={setIsUpdateProfile}
           isLoading={isLoading}

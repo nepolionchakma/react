@@ -128,7 +128,7 @@ export function GlobalContextProvider({
   const user = token?.user_name || "";
 
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(10);
+  const [limit, setLimit] = useState<number>(3);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -278,13 +278,10 @@ export function GlobalContextProvider({
         });
       }
     } catch (error) {
-      if (error instanceof AxiosError && error.response) {
-        toast({
-          title: "Info !!!",
-          variant: "destructive",
-          description: `${error.response.data.message}`,
-        });
-      }
+      toast({
+        variant: "destructive",
+        description: `Failed to reset password.`,
+      });
 
       return;
     } finally {

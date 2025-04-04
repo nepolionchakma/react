@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
@@ -204,6 +203,26 @@ const ManageAccessEntitlementsTable = () => {
     setSelected([]);
   };
 
+  // default hidden columns
+  const hiddenColumns = [
+    "comments",
+    "effective_date",
+    "revison",
+    "revision_date",
+    "created_on",
+    "created_by",
+    "last_updated_on",
+    "last_updated_by",
+  ];
+
+  React.useEffect(() => {
+    table.getAllColumns().forEach((column) => {
+      if (hiddenColumns.includes(column.id)) {
+        column.toggleVisibility(false);
+      }
+    });
+  }, [table]);
+
   // Table Render
   return (
     <div className="px-3">
@@ -237,7 +256,7 @@ const ManageAccessEntitlementsTable = () => {
               <FileEdit className="cursor-not-allowed text-slate-200" />
             )}
             <Plus
-              className="cursor-pointer hover:scale-110 duration-300 text-green-500"
+              className="cursor-pointer hover:scale-110 duration-300 "
               onClick={() => {
                 setEditManageAccessEntitlement(true);
                 setSelectedManageAccessEntitlements(
@@ -257,7 +276,7 @@ const ManageAccessEntitlementsTable = () => {
                   <Trash
                     className={`hover:scale-110 duration-300 ${
                       selected.length > 0
-                        ? "text-red-500 cursor-pointer"
+                        ? " cursor-pointer"
                         : "text-slate-200 cursor-not-allowed"
                     }`}
                     onClick={handleGenerateAccessPointsDelete}
@@ -318,19 +337,6 @@ const ManageAccessEntitlementsTable = () => {
             </div>
           </div>
         </div>
-        <Input
-          placeholder="Filter Entitlement Name..."
-          value={
-            (table.getColumn("entitlement_name")?.getFilterValue() as string) ??
-            ""
-          }
-          onChange={(event) =>
-            table
-              .getColumn("entitlement_name")
-              ?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm px-4 py-2"
-        />
         {/* Columns */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

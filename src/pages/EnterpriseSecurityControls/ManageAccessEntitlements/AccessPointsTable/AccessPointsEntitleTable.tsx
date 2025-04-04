@@ -9,7 +9,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Plus } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import Pagination5 from "@/components/Pagination/Pagination5";
@@ -99,6 +99,22 @@ const AccessPointsEntitleTable = () => {
     table.toggleAllRowsSelected(false); // Reset row selection
   }, [page, totalPage, selected.length]);
 
+  // default hidden columns
+  const hiddenColumns = [
+    "element_type",
+    "access_control",
+    "change_control",
+    "audit",
+  ];
+
+  useEffect(() => {
+    table.getAllColumns().forEach((column) => {
+      if (hiddenColumns.includes(column.id)) {
+        column.toggleVisibility(false);
+      }
+    });
+  }, [table]);
+  console.log(data, "data");
   // Table Rendering
   return (
     <div className="px-3">
@@ -107,7 +123,7 @@ const AccessPointsEntitleTable = () => {
         <div className="flex gap-2">
           {/* Access Points Button */}
           <Button
-            className="px-4 py-2 border rounded shadow"
+            className="px-4 py-2 rounded hover:shadow bg-white border text-black hover:bg-white"
             onClick={() => {
               setIsOpenModal("access_points");
               setPage(1);
@@ -124,12 +140,19 @@ const AccessPointsEntitleTable = () => {
 
           {/* Create Access Point Button */}
           <Button
+            className="bg-white border text-black hover:bg-white hover:shadow"
             onClick={() => {
               setIsOpenModal("create_access_point");
               setAccessPointStatus("create");
             }}
+            disabled={
+              !selectedManageAccessEntitlements?.entitlement_id ||
+              selected[0]?.entitlement_id !==
+                selectedManageAccessEntitlements?.entitlement_id ||
+              selected.length === 0
+            }
           >
-            Create Access Point
+            <Plus />
           </Button>
         </div>
 
@@ -176,7 +199,7 @@ const AccessPointsEntitleTable = () => {
                 {headerGroup.headers.map((header) => (
                   <TableHead
                     key={header.id}
-                    className="border bg-slate-200 py-0 px-1 h-9"
+                    className="border h-9 py-0 px-1 border-slate-400 bg-slate-200"
                   >
                     {header.isPlaceholder
                       ? null
