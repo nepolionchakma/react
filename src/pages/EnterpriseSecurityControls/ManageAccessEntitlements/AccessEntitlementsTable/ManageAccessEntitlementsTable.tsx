@@ -191,6 +191,7 @@ const ManageAccessEntitlementsTable = () => {
     }
     table.getRowModel().rows.forEach((row) => row.toggleSelected(false));
     setSelectedAccessEntitlements([]);
+    setDeleteAccessPointsElements([]);
   };
 
   // default hidden columns
