@@ -1,10 +1,10 @@
 import { TaskParametersTable } from "@/components/ARM/TaskParameters/TaskParametersTable";
-import { TopTable } from "@/components/ARM/TaskParameters/TopTasksTable";
+import { TaskNameTable } from "@/components/ARM/TaskParameters/TaskNameTable";
 
 const TaskParameters = () => {
   return (
     <div>
-      <TopTable />
+      <TaskNameTable />
       <TaskParametersTable />
     </div>
   );

@@ -63,7 +63,6 @@ const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
         }
       } catch (error) {
         console.log(error);
-      } finally {
       }
     };
 
@@ -108,17 +107,17 @@ const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
   const handleAdd = async () => {
     try {
       const selectedIds = selectedItem?.map((item) => item.access_point_id);
-      createAccessEntitlementElements(
+      await createAccessEntitlementElements(
         selectedManageAccessEntitlements?.entitlement_id
           ? selectedManageAccessEntitlements.entitlement_id
           : 0,
         selectedIds
       );
-      console.log(selectedIds, "selectedIds");
     } catch (error) {
       console.log(error);
     }
   };
+
   const handleRemoveAccessEntitlementElements = () => {
     for (const item of selectedAccessEntitlementElements) {
       deleteAccessEntitlementElement(
@@ -215,8 +214,8 @@ const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
                       Are you absolutely sure?
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      your account and remove your data from our servers.
+                      This action will remove Access Point from the Entitlement
+                      table.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>

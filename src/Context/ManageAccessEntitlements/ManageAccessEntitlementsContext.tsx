@@ -18,12 +18,15 @@ import {
 import { useGlobalContext } from "../GlobalContext/GlobalContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { Table } from "@tanstack/react-table";
+import { AxiosError } from "axios";
 interface IManageAccessEntitlementsProviderProps {
   children: React.ReactNode;
 }
 interface IContextTypes {
-  selected: IManageAccessEntitlementsTypes[];
-  setSelected: Dispatch<SetStateAction<IManageAccessEntitlementsTypes[]>>;
+  selectedAccessEntitlements: IManageAccessEntitlementsTypes[];
+  setSelectedAccessEntitlements: Dispatch<
+    SetStateAction<IManageAccessEntitlementsTypes[]>
+  >;
   fetchManageAccessEntitlements: (
     page: number,
     limit: number
@@ -40,8 +43,10 @@ interface IContextTypes {
   >;
   isLoading: boolean;
   isLoadingAccessPoints: boolean;
-  selectedRow: ICreateAccessPointsElementTypes[];
-  setSelectedRow: Dispatch<SetStateAction<ICreateAccessPointsElementTypes[]>>;
+  selectedAccessPoints: ICreateAccessPointsElementTypes[];
+  setSelectedAccessPoints: Dispatch<
+    SetStateAction<ICreateAccessPointsElementTypes[]>
+  >;
   selectedManageAccessEntitlements: IManageAccessEntitlementsTypes | undefined;
   setSelectedManageAccessEntitlements: Dispatch<
     SetStateAction<IManageAccessEntitlementsTypes | undefined>
@@ -118,13 +123,13 @@ export const ManageAccessEntitlementsProvider = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingAccessPoints, setIsLoadingAccessPoints] =
     useState<boolean>(false);
-  const [selected, setSelected] = useState<IManageAccessEntitlementsTypes[]>(
-    []
-  );
+  const [selectedAccessEntitlements, setSelectedAccessEntitlements] = useState<
+    IManageAccessEntitlementsTypes[]
+  >([]);
   const [filteredData, setFilteredData] = useState<
     IFetchCombinedAccessPointsElementAndDatasourceTypes[]
   >([]);
-  const [selectedRow, setSelectedRow] = useState<
+  const [selectedAccessPoints, setSelectedAccessPoints] = useState<
     ICreateAccessPointsElementTypes[]
   >([]);
   const [
@@ -183,6 +188,7 @@ export const ManageAccessEntitlementsProvider = ({
   const [limit, setLimit] = useState<number>(5);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
+
   // access entitlement elements lazy loading
   // const fetchAccessEtitlementElenentsLazyLoading = useCallback(
   //   async (data: IFetchAccessPointsElementTypes[]) => {
@@ -201,11 +207,12 @@ export const ManageAccessEntitlementsProvider = ({
   //   [page, limit]
   // );
   // Fetch Access Points Entitlement
+
   const fetchAccessPointsEntitlement = useCallback(
     async (fetchData: IManageAccessEntitlementsTypes) => {
       setIsLoading(true);
       try {
-        if (fetchData) {
+        if (fetchData.entitlement_id) {
           const response = await api.get<
             IFetchAccessEntitlementElementsTypes[]
           >(`/access-entitlement-elements/${fetchData.entitlement_id}`);
@@ -224,6 +231,8 @@ export const ManageAccessEntitlementsProvider = ({
           setFilteredData(
             filterAccessPointsById.data as IFetchCombinedAccessPointsElementAndDatasourceTypes[]
           );
+        } else {
+          setFilteredData([]);
         }
       } catch (error) {
         console.log(error);
@@ -274,32 +283,28 @@ export const ManageAccessEntitlementsProvider = ({
     } = postData;
     setIsLoading(true);
     try {
-      const res = await api.post<IManageAccessEntitlementsTypes>(
-        `/manage-access-entitlements`,
-        {
-          entitlement_name,
-          description,
-          comments,
-          status,
-          last_updated_by,
-          created_by,
-        }
-      );
+      const res = await api.post(`/manage-access-entitlements`, {
+        entitlement_name,
+        description,
+        comments,
+        status,
+        last_updated_by,
+        created_by,
+      });
+
+      if (res.status === 200) {
+        toast({
+          description: `${res.data.message}`,
+        });
+      }
       if (res.status === 201) {
         toast({
-          title: "Info !!!",
-          description: `User added successfully.`,
+          description: `${res.data.message}`,
         });
         setEditManageAccessEntitlement(false);
       }
     } catch (error) {
-      // if (error.response.status) {
-      //   toast({
-      //     title: "Info !!!",
-      //     description: `${error.message}`,
-      //   });
-      // }
-      console.log(error);
+      console.log(error, "error");
     } finally {
       setSave((prevSave) => prevSave + 1);
       setIsLoading(false);
@@ -321,33 +326,35 @@ export const ManageAccessEntitlementsProvider = ({
       created_by,
     } = putData;
     try {
-      const res = await api.put<IManageAccessEntitlementsTypes>(
-        `/manage-access-entitlements/${id}`,
-        {
-          entitlement_id,
-          entitlement_name,
-          description,
-          comments,
-          status,
-          last_updated_by,
-          created_by,
-        }
-      );
+      const res = await api.put(`/manage-access-entitlements/${id}`, {
+        entitlement_id,
+        entitlement_name,
+        description,
+        comments,
+        status,
+        last_updated_by,
+        created_by,
+      });
 
       if (res.status === 200) {
         toast({
-          title: "Info !!!",
-          description: `Update successfully.`,
+          description: `${res.data.message}`,
         });
+      }
+      if (res.status === 201) {
+        toast({
+          description: `${res.data.message}`,
+        });
+
         setEditManageAccessEntitlement(false);
       }
     } catch (error) {
-      // if (error.response.status) {
-      //   toast({
-      //     title: "Info !!!",
-      //     description: `${error.message}`,
-      //   });
-      // }
+      if (error instanceof AxiosError) {
+        toast({
+          title: "Info !!!",
+          description: `${error.response}`,
+        });
+      }
       console.log(error);
     } finally {
       setSave((prevSave) => prevSave + 1);
@@ -415,7 +422,6 @@ export const ManageAccessEntitlementsProvider = ({
       // setSave((prevSave) => prevSave + 1);
       if (res.status === 201) {
         toast({
-          title: "Info !!!",
           description: `Add successfully.`,
         });
         setSave2((prevSave) => prevSave + 1);
@@ -440,7 +446,6 @@ export const ManageAccessEntitlementsProvider = ({
       const res = await api.delete(`/access-points-element/${id}`);
       if (res.status === 200) {
         toast({
-          title: "Info !!!",
           description: `Deleted successfully.`,
         });
       }
@@ -462,7 +467,6 @@ export const ManageAccessEntitlementsProvider = ({
     entitlement_id: number,
     accessPointsMaxId: (number | undefined)[]
   ) => {
-    //post data
     try {
       setIsLoadingAccessPoints(true);
       for (const id of accessPointsMaxId) {
@@ -476,17 +480,20 @@ export const ManageAccessEntitlementsProvider = ({
           }
         );
       }
+      toast({
+        description: `${
+          selectedManageAccessEntitlements?.entitlement_id
+            ? `Data added successfully to ${selectedManageAccessEntitlements?.entitlement_name}`
+            : "Data added successfully"
+        } `,
+      });
     } catch (error) {
       console.log(error);
     } finally {
       setIsLoadingAccessPoints(false);
-      toast({
-        title: "Info !!!",
-        description: `Data added successfully to ${selectedManageAccessEntitlements?.entitlement_name}`,
-      });
     }
 
-    fetchAccessPointsEntitlement(selected[0]);
+    fetchAccessPointsEntitlement(selectedAccessEntitlements[0]);
   };
   const deleteAccessEntitlementElement = async (
     entitlementId: number,
@@ -500,13 +507,19 @@ export const ManageAccessEntitlementsProvider = ({
             data: { entitlementId, accessPointId },
           })
           .then((res) => {
-            console.log(res);
+            if (res.status === 200) {
+              toast({
+                description: `Data remove successfully.`,
+              });
+            }
           })
           .catch((error) => {
             console.log(error);
           })
           .finally(() => {
-            fetchAccessPointsEntitlementForDelete(selected[0]);
+            fetchAccessPointsEntitlementForDelete(
+              selectedAccessEntitlements[0]
+            );
           }),
         // await api.delete(`/access-points-element/${accessPointId}`),
       ]);
@@ -518,16 +531,16 @@ export const ManageAccessEntitlementsProvider = ({
   };
   const value = {
     fetchManageAccessEntitlements,
-    setSelected,
-    selected,
+    selectedAccessEntitlements,
+    setSelectedAccessEntitlements,
     fetchAccessPointsEntitlement,
     fetchAccessPointsEntitlementForDelete,
     filteredData,
     setFilteredData,
     isLoading,
     isLoadingAccessPoints,
-    selectedRow,
-    setSelectedRow,
+    selectedAccessPoints,
+    setSelectedAccessPoints,
     selectedManageAccessEntitlements,
     setSelectedManageAccessEntitlements,
     createAccessPointsEntitlement,

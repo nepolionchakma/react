@@ -32,14 +32,13 @@ interface IManageAccessEntitlementsProps {
 const ManageAccessPointsEntitleModal: FC<IManageAccessEntitlementsProps> = ({
   selectedItem,
 }) => {
-  console.log(selectedItem);
   const { token } = useGlobalContext();
   const {
     mangeAccessEntitlementAction,
     createManageAccessEntitlements,
     updateManageAccessEntitlements,
     isLoading,
-    setSelected,
+    setSelectedAccessEntitlements: setSelected,
     table,
   } = useManageAccessEntitlementsContext();
   const currentDate = new Date().toLocaleDateString();
