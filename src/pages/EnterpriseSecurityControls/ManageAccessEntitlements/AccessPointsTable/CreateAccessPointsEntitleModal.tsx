@@ -66,10 +66,7 @@ const AccessPointsEntitleModal = () => {
       audit: "",
     },
   });
-  console.log(
-    selectedManageAccessEntitlements,
-    "selectedManageAccessEntitlements"
-  );
+
   function onSubmit(data: z.infer<typeof FormSchema>) {
     const postData = {
       data_source_id: Number(data.data_source_id),

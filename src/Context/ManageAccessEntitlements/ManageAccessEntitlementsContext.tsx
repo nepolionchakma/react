@@ -254,12 +254,15 @@ export const ManageAccessEntitlementsProvider = ({
           const accessPointsId = response.data.map(
             (data) => data.access_point_id
           );
-
           // fetch access points data by IDS array
-          const filterAccessPointsById = await api.get(
-            `/access-points-element/${accessPointsId}`
-          );
-          return filterAccessPointsById.data ?? [];
+          if (accessPointsId.length > 0) {
+            const filterAccessPointsById = await api.get(
+              `/access-points-element/${accessPointsId}`
+            );
+            return filterAccessPointsById.data;
+          } else {
+            return [];
+          }
         }
       } catch (error) {
         console.log(error);
@@ -267,7 +270,7 @@ export const ManageAccessEntitlementsProvider = ({
         setIsLoading(false);
       }
     },
-    [page]
+    [page, selectedAccessEntitlements.length]
   );
   // create manage-access-entitlement
   const createManageAccessEntitlements = async (
@@ -365,7 +368,7 @@ export const ManageAccessEntitlementsProvider = ({
     try {
       //fetch access entitlements
       const response = await api.get(`/access-entitlement-elements/${id}`);
-      console.log(response.data, "response");
+
       if (response.data.length > 0) {
         for (const element of response.data) {
           await deleteAccessEntitlementElement(
