@@ -11,17 +11,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -65,7 +56,7 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
   },
 ];
 
-export function TopTable() {
+export function TaskNameTable() {
   const { getAsyncTasksLazyLoading, isLoading, setSelectedTask, totalPage } =
     useARMContext();
   const { page, setPage } = useGlobalContext();
@@ -134,7 +125,7 @@ export function TopTable() {
     <div className="px-3">
       {/* top icon and columns*/}
       <div className="flex gap-3 items-center py-2">
-        <Input
+        {/* <Input
           placeholder="Filter User Task Name"
           value={
             (table.getColumn("user_task_name")?.getFilterValue() as string) ??
@@ -146,9 +137,9 @@ export function TopTable() {
               ?.setFilterValue(event.target.value)
           }
           className="max-w-sm px-4 py-2"
-        />
+        /> */}
         {/* Columns */}
-        <DropdownMenu>
+        {/* <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
               Columns <ChevronDown className="ml-2 h-4 w-4" />
@@ -173,7 +164,7 @@ export function TopTable() {
                 );
               })}
           </DropdownMenuContent>
-        </DropdownMenu>
+        </DropdownMenu> */}
       </div>
       {/* Table */}
       <div className="rounded-md border">

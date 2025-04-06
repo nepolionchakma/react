@@ -27,7 +27,7 @@ import Pagination5 from "@/components/Pagination/Pagination5";
 
 const AccessPointsEditModal = () => {
   const {
-    selected,
+    selectedAccessEntitlements: selected,
     filteredData: data,
     fetchAccessPointsEntitlement,
     isLoadingAccessPoints,
@@ -44,10 +44,7 @@ const AccessPointsEditModal = () => {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0, //initial page index
-    pageSize: 6, //default page size
-  });
+
   // React.useEffect(() => {
   //   fetchAccessPointsEntitlement(selected[0]);
   //   // setLimit(10);
@@ -61,7 +58,6 @@ const AccessPointsEditModal = () => {
 
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onPaginationChange: setPagination,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -71,7 +67,6 @@ const AccessPointsEditModal = () => {
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination,
     },
   });
   const handleSelectItem = (accessPointIds: number) => {

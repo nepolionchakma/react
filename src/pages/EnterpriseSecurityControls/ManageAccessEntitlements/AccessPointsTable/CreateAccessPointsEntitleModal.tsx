@@ -31,7 +31,6 @@ const AccessPointsEntitleModal = () => {
     createAccessPointsEntitlement,
     isLoading,
     createAccessEntitlementElements,
-    accessPointStatus,
   } = useManageAccessEntitlementsContext();
   const { token } = useGlobalContext();
   const [dataSources, setDataSources] = useState<IDataSourceTypes[]>([]);
@@ -67,7 +66,10 @@ const AccessPointsEntitleModal = () => {
       audit: "",
     },
   });
-
+  console.log(
+    selectedManageAccessEntitlements,
+    "selectedManageAccessEntitlements"
+  );
   function onSubmit(data: z.infer<typeof FormSchema>) {
     const postData = {
       data_source_id: Number(data.data_source_id),
@@ -81,9 +83,7 @@ const AccessPointsEntitleModal = () => {
       created_by: token.user_name,
       last_updated_by: token.user_name,
     };
-    console.log(postData, selectedManageAccessEntitlements);
-    console.log(data.data_source_id, "datasource");
-    console.log(typeof data.data_source_id, "datasource");
+
     const postAccessPointsElement = async () => {
       const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
       //get max access point id
@@ -97,26 +97,20 @@ const AccessPointsEntitleModal = () => {
             ) + 1
           : 1;
 
-      await createAccessPointsEntitlement(postData)
-        .then((res) => {
-          if (accessPointStatus === "createWithEntitlementId") {
-            if (res === 201) {
-              createAccessEntitlementElements(
-                selectedManageAccessEntitlements?.entitlement_id
-                  ? selectedManageAccessEntitlements.entitlement_id
-                  : 0,
-                [accessPointsMaxId]
-              );
-            }
-          }
-        })
-        .catch((err) => {
-          console.log(err);
-        })
-        .finally(() => {
-          form.reset();
-          // await fetchAccessPointsEntitlement(selected[0]);
-        });
+      try {
+        await createAccessPointsEntitlement(postData);
+        await createAccessEntitlementElements(
+          selectedManageAccessEntitlements?.entitlement_id
+            ? selectedManageAccessEntitlements.entitlement_id
+            : 0,
+          [accessPointsMaxId]
+        );
+      } catch (error) {
+        console.log(error);
+      } finally {
+        form.reset();
+        // await fetchAccessPointsEntitlement(selected[0]);
+      }
     };
     postAccessPointsElement();
   }

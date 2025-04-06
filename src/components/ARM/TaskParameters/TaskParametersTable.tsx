@@ -26,7 +26,6 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -224,7 +223,7 @@ export function TaskParametersTable() {
             </div>
           </div>
         </div>
-        <Input
+        {/* <Input
           placeholder="Filter Parameter Name"
           value={
             (table.getColumn("parameter_name")?.getFilterValue() as string) ??
@@ -236,8 +235,8 @@ export function TaskParametersTable() {
               ?.setFilterValue(event.target.value)
           }
           className="max-w-sm px-4 py-2"
-        />
-        <h3 className="font-bold">
+        /> */}
+        <h3 className="font-bold mx-auto">
           {selectedTask?.arm_task_id &&
             `Selected : ${selectedTask?.user_task_name}`}
         </h3>
