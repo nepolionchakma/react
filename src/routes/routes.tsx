@@ -61,7 +61,6 @@ import ScheduleATask from "@/pages/AsynchronousRequestsAndTaskSchedules/Schedule
 import ManageExecutionMethods from "@/pages/AsynchronousRequestManager/Development/ManageExecutionMethods/ManageExecutionMethods";
 import ManagePriviedgesAndRoles from "@/pages/Tools/SecurityConsole/ManagePrivilegesAndRoles/ManagePrivilegesAndRoles";
 import EnterpriseProcessModeler from "@/pages/Tools/EnterpriseProcessModeler/EnterpriseProcessModeler";
-import OrchestrationStudio from "@/pages/Tools/EnterpriseProcessModeler/OrchestrationStudio/OrchestrationStudio";
 import EnterpriseSystemIntegrations from "@/pages/Tools/EnterpriseSystemIntegrations/EnterpriseSystemIntegrations";
 import OrchestrationStudio2 from "@/pages/Tools/EnterpriseProcessModeler/OrchestrationStudio2/OrchestrationStudio2";
 
@@ -207,10 +206,6 @@ const routes = createBrowserRouter([
               },
               {
                 path: "orchestration-studio",
-                element: <OrchestrationStudio />,
-              },
-              {
-                path: "orchestration-studio-2",
                 element: <OrchestrationStudio2 />,
               },
             ],
