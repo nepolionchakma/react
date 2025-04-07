@@ -184,11 +184,11 @@ const TaskRequestV1: FC<ITaskRequestProps> = ({
       setIsLoading(true);
       const res = await (action === "Schedule A Task"
         ? api.post(
-            "/api/v1/asynchronous-requests-and-task-schedules/create-task-schedule-v1",
+            "/asynchronous-requests-and-task-schedules/create-task-schedule",
             payload
           )
         : api.put(
-            `/asynchronous-requests-and-task-schedules/update-task-schedule-v1/${selected?.task_name}`,
+            `/asynchronous-requests-and-task-schedules/update-task-schedule/${selected?.task_name}`,
             payload
           ));
       console.log(res, "res");

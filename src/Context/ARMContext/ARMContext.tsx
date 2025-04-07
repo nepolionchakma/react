@@ -253,10 +253,10 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     try {
       const [allTasksSchedules, taskSchedules] = await Promise.all([
         api.get<IAsynchronousRequestsAndTaskSchedulesTypesV1[]>(
-          `/api/v1/asynchronous-requests-and-task-schedules/task-schedules`
+          `/asynchronous-requests-and-task-schedules/task-schedules`
         ),
         api.get<IAsynchronousRequestsAndTaskSchedulesTypesV1[]>(
-          `/api/v1/asynchronous-requests-and-task-schedules/task-schedules/${page}/${limit}`
+          `/asynchronous-requests-and-task-schedules/task-schedules/${page}/${limit}`
         ),
       ]);
 
@@ -297,7 +297,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
           try {
             console.log("Making request for:", item.task_name); // Log item details
             const response = await api.put(
-              `/api/v1/asynchronous-requests-and-task-schedules/cancel-task-schedule-v1/${item.task_name}`,
+              `/asynchronous-requests-and-task-schedules/cancel-task-schedule/${item.task_name}`,
               {
                 redbeat_schedule_name: item.redbeat_schedule_name,
               }
