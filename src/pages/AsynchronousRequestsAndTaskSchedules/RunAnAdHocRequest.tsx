@@ -1,13 +1,9 @@
-import TaskRequest from "@/components/AsynchronousRequestsAndTaskSchedules/TaskRequest/TaskRequest";
+import AdHocRequest from "@/components/AsynchronousRequestsAndTaskSchedules/TaskRequest/AdHocRequest";
 
 const RunAnAdHocRequest = () => {
   return (
     <div>
-      <TaskRequest
-        user_schedule_name="Ad Hoc"
-        action="Ad Hoc"
-        handleCloseModal={() => {}}
-      />
+      <AdHocRequest action="Ad Hoc" handleCloseModal={() => {}} />
     </div>
   );
 };

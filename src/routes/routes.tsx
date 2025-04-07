@@ -34,8 +34,6 @@ import ManageSchedulers from "@/pages/AsynchronousRequestManager/Administration/
 import ManageWorkers from "@/pages/AsynchronousRequestManager/Administration/ManageWorkers";
 import RegisterEditAsynchronousTasks from "@/pages/AsynchronousRequestManager/Development/RegisterEditAsynchronousTasks/RegisterEditAsynchronousTasks";
 import TaskParameters from "@/pages/AsynchronousRequestManager/Development/TaskParameters/TaskParameters";
-import ScheduleATask from "@/pages/AsynchronousRequestsAndTaskSchedules/ScheduleATask";
-import ViewEditScheduledTasks from "@/pages/AsynchronousRequestsAndTaskSchedules/ViewEditScheduledTasks";
 import RunAnAdHocRequest from "@/pages/AsynchronousRequestsAndTaskSchedules/RunAnAdHocRequest";
 import ViewRequests from "@/pages/AsynchronousRequestsAndTaskSchedules/ViewRequests";
 import EnterpriseSecurityControls from "@/pages/EnterpriseSecurityControls/EnterpriseSecurityControls";
@@ -58,12 +56,11 @@ import AuditorReporting from "@/pages/EnterpriseAccessMonitoring/AuditorReportin
 import NotificatonsRoutes from "@/pages/Notifications/NotificatonsRoutes";
 import ContinuousMonitoring from "@/pages/ContinuousMonitoring/ContinuousMonitoring";
 import Finance from "@/pages/Finance/Finance";
-import { ViewEditScheduledTasksTableV1 } from "@/components/AsynchronousRequestsAndTaskSchedules/ViewEditScheduledTasksV1/ViewEditScheduledTasksTableV1";
-import ScheduleATaskV1 from "@/pages/AsynchronousRequestsAndTaskSchedules/ScheduleATaskV1";
+import { ViewEditScheduledTasksTable } from "@/components/AsynchronousRequestsAndTaskSchedules/ViewEditScheduledTasks/ViewEditScheduledTasksTable";
+import ScheduleATask from "@/pages/AsynchronousRequestsAndTaskSchedules/ScheduleATask";
 import ManageExecutionMethods from "@/pages/AsynchronousRequestManager/Development/ManageExecutionMethods/ManageExecutionMethods";
 import ManagePriviedgesAndRoles from "@/pages/Tools/SecurityConsole/ManagePrivilegesAndRoles/ManagePrivilegesAndRoles";
 import EnterpriseProcessModeler from "@/pages/Tools/EnterpriseProcessModeler/EnterpriseProcessModeler";
-import OrchestrationStudio from "@/pages/Tools/EnterpriseProcessModeler/OrchestrationStudio/OrchestrationStudio";
 import EnterpriseSystemIntegrations from "@/pages/Tools/EnterpriseSystemIntegrations/EnterpriseSystemIntegrations";
 import OrchestrationStudio2 from "@/pages/Tools/EnterpriseProcessModeler/OrchestrationStudio2/OrchestrationStudio2";
 
@@ -209,10 +206,6 @@ const routes = createBrowserRouter([
               },
               {
                 path: "orchestration-studio",
-                element: <OrchestrationStudio />,
-              },
-              {
-                path: "orchestration-studio-2",
                 element: <OrchestrationStudio2 />,
               },
             ],
@@ -364,17 +357,8 @@ const routes = createBrowserRouter([
             element: <ScheduleATask />,
           },
           {
-            path: "v1/schedule-a-task",
-            element: <ScheduleATaskV1 />,
-          },
-          {
             path: "view-edit-scheduled-tasks",
-            element: <ViewEditScheduledTasks />,
-          },
-
-          {
-            path: "v1/view-edit-scheduled-tasks",
-            element: <ViewEditScheduledTasksTableV1 />,
+            element: <ViewEditScheduledTasksTable />,
           },
           {
             path: "run-an-ad-hoc-request",

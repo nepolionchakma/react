@@ -204,17 +204,12 @@
         "name": "Enterprise Process Modeler",
         "path": "/tools/enterprise-process-modeler",
         "paths": [
-          "/tools/enterprise-process-modeler/orchestration-studio",
-          "/tools/enterprise-process-modeler/orchestration-studio-2"
+          "/tools/enterprise-process-modeler/orchestration-studio"
         ],
         "subItems": [
           {
             "name": "Orchestration Studio",
             "path": "/tools/enterprise-process-modeler/orchestration-studio"
-          },
-          {
-            "name": "Orchestration Studio 2",
-            "path": "/tools/enterprise-process-modeler/orchestration-studio-2"
           }
         ]
       },
@@ -307,9 +302,7 @@
     "paths": [
       "/asynchronous-requests-and-task-schedules",
       "/asynchronous-requests-and-task-schedules/schedule-a-task",
-      "/asynchronous-requests-and-task-schedules/v1/schedule-a-task",
       "/asynchronous-requests-and-task-schedules/view-edit-scheduled-tasks",
-      "/asynchronous-requests-and-task-schedules/v1/view-edit-scheduled-tasks",
       "/asynchronous-requests-and-task-schedules/run-an-ad-hoc-request",
       "/asynchronous-requests-and-task-schedules/view-requests"
     ],
@@ -319,16 +312,8 @@
         "path": "/asynchronous-requests-and-task-schedules/schedule-a-task"
       },
       {
-        "name": "Schedule a Task (v1)",
-        "path": "/asynchronous-requests-and-task-schedules/v1/schedule-a-task"
-      },
-      {
         "name": "View/Edit Scheduled Tasks",
         "path": "/asynchronous-requests-and-task-schedules/view-edit-scheduled-tasks"
-      },
-      {
-        "name": "View/Edit Scheduled Tasks (v1)",
-        "path": "/asynchronous-requests-and-task-schedules/v1/view-edit-scheduled-tasks"
       },
       {
         "name": "Run a Request",

@@ -49,33 +49,37 @@ import {
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import columns from "./Columns";
 import Pagination5 from "@/components/Pagination/Pagination5";
-import { IAsynchronousRequestsAndTaskSchedulesTypes } from "@/types/interfaces/ARM.interface";
+import { IAsynchronousRequestsAndTaskSchedulesTypesV1 } from "@/types/interfaces/ARM.interface";
 import { toast } from "@/components/ui/use-toast";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import TaskRequest from "../TaskRequest/TaskRequest";
-import CustomModal3 from "@/components/CustomModal/CustomModal3";
+import CustomModal2 from "@/components/CustomModal/CustomModal2";
 
 export function ViewEditScheduledTasksTable() {
   const {
     totalPage,
-    getAsynchronousRequestsAndTaskSchedules,
+    getAsynchronousRequestsAndTaskSchedulesV1,
     isLoading,
     setIsLoading,
-    deleteAsynchronousRequestsAndTaskSchedules,
+    deleteAsynchronousRequestsAndTaskSchedulesV1,
     isSubmit,
     setIsSubmit,
   } = useARMContext();
   const [data, setData] = React.useState<
-    IAsynchronousRequestsAndTaskSchedulesTypes[] | []
+    IAsynchronousRequestsAndTaskSchedulesTypesV1[] | []
   >([]);
   const limit = 8;
   const [page, setPage] = React.useState<number>(1);
   const { isOpenModal, setIsOpenModal } = useGlobalContext();
+
   React.useEffect(() => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const res = await getAsynchronousRequestsAndTaskSchedules(page, limit);
+        const res = await getAsynchronousRequestsAndTaskSchedulesV1(
+          page,
+          limit
+        );
 
         if (res) setData(res);
       } catch (error) {
@@ -100,11 +104,11 @@ export function ViewEditScheduledTasksTable() {
   });
 
   const [selected, setSelected] = React.useState<
-    IAsynchronousRequestsAndTaskSchedulesTypes[]
+    IAsynchronousRequestsAndTaskSchedulesTypesV1[]
   >([]);
 
   const handleRowSelection = (
-    rowSelection: IAsynchronousRequestsAndTaskSchedulesTypes
+    rowSelection: IAsynchronousRequestsAndTaskSchedulesTypesV1
   ) => {
     setSelected((prevSelected) => {
       if (prevSelected.includes(rowSelection)) {
@@ -117,15 +121,11 @@ export function ViewEditScheduledTasksTable() {
   const handleDelete = async () => {
     setIsLoading(true);
     try {
-      await deleteAsynchronousRequestsAndTaskSchedules(selected);
+      await deleteAsynchronousRequestsAndTaskSchedulesV1(selected);
 
       //table toggle empty
       table.getRowModel().rows.map((row) => row.toggleSelected(false));
       setSelected([]);
-      toast({
-        title: "Info !!!",
-        description: `Cancel successfully.`,
-      });
     } catch (error) {
       toast({
         title: "Info !!!",
@@ -167,6 +167,7 @@ export function ViewEditScheduledTasksTable() {
     "last_updated_by",
     "last_update_date",
     "ready_for_redbeat",
+    "task_name",
   ];
 
   React.useEffect(() => {
@@ -195,14 +196,14 @@ export function ViewEditScheduledTasksTable() {
   return (
     <div className="px-3">
       {isOpenModal === "edit_task_schedule" && (
-        <CustomModal3>
+        <CustomModal2>
           <TaskRequest
             action="Edit Task Schedule"
             selected={selected[0]}
             user_schedule_name="run_script"
             handleCloseModal={handleCloseModal}
           />
-        </CustomModal3>
+        </CustomModal2>
       )}
       {/* top icon and columns*/}
       <div className="flex gap-3 items-center py-2">
@@ -266,7 +267,8 @@ export function ViewEditScheduledTasksTable() {
                             key={item.arm_task_sche_id}
                             className="block text-red-500"
                           >
-                            {index + 1}. User task name : {item.args[1]}
+                            {index + 1}. User schedule name :{" "}
+                            {item.user_schedule_name}
                           </span>
                         ))}
                       <br />

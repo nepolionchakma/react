@@ -1,9 +1,9 @@
 const frequencyType = [
-  { name: "Month(s)", value: "MONTHS" },
-  { name: "Week(s)", value: "WEEKS" },
-  { name: "Day(s)", value: "DAYS" },
-  { name: "Hour(s)", value: "HOURS" },
-  { name: "Minute(s)", value: "MINUTES" },
+  { name: "Month(s)", value: "MONTH(S)" },
+  { name: "Week(s)", value: "WEEK(S)" },
+  { name: "Day(s)", value: "DAY(S)" },
+  { name: "Hour(s)", value: "HOUR(S)" },
+  { name: "Minute(s)", value: "MINUTE(S)" },
 ];
 const scheduler = [
   { name: "Immediate", value: "IMMEDIATE" },
