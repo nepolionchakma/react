@@ -195,7 +195,7 @@ export function ViewEditScheduledTasksTable() {
 
   return (
     <div className="px-3">
-      {isOpenModal === "edit_task_schedule_v1" && (
+      {isOpenModal === "edit_task_schedule" && (
         <CustomModal2>
           <TaskRequest
             action="Edit Task Schedule"
@@ -221,7 +221,7 @@ export function ViewEditScheduledTasksTable() {
                             ? "text-slate-200 cursor-not-allowed"
                             : "cursor-pointer"
                         }`}
-                        onClick={() => handleOpenModal("edit_task_schedule_v1")}
+                        onClick={() => handleOpenModal("edit_task_schedule")}
                       />
                     </TooltipTrigger>
                     <TooltipContent>

@@ -191,8 +191,10 @@ const TaskRequest: FC<ITaskRequestProps> = ({
             `/asynchronous-requests-and-task-schedules/update-task-schedule/${selected?.task_name}`,
             payload
           ));
-      console.log(res, "res");
-      if (res) toast({ title: "Success", description: `${res.data.message}` });
+      if (res.status === 200) {
+        toast({ title: "Success", description: `${res.data.message}` });
+        handleCloseModal();
+      }
     } catch (error) {
       console.log(error, "er");
       toast({
