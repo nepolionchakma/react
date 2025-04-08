@@ -324,18 +324,12 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   const getViewRequests = async (page: number, limit: number) => {
     try {
       setIsLoading(true);
-      const [ViewRequest, resultLazyLoading] = await Promise.all([
-        api.get<IARMViewRequestsTypes[]>(
-          `/asynchronous-requests-and-task-schedules/view-requests`
-        ),
-        api.get<IARMViewRequestsTypes[]>(
-          `/asynchronous-requests-and-task-schedules/view-requests/${page}/${limit}`
-        ),
-      ]);
-      const totalCount = ViewRequest.data.length;
-      const totalPages = Math.ceil(totalCount / limit);
-      setTotalPage(totalPages);
-      return resultLazyLoading.data;
+      const resultLazyLoading = await api.get(
+        `/asynchronous-requests-and-task-schedules/view-requests/${page}/${limit}`
+      );
+
+      setTotalPage(resultLazyLoading.data.total_pages);
+      return resultLazyLoading.data.requests;
     } catch (error) {
       console.log(error);
     } finally {
