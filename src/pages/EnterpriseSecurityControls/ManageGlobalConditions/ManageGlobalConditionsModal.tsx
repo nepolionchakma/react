@@ -74,7 +74,10 @@ const ManageGlobalConditionsModal: FC<IManageGlobalConditionProps> = () => {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-2"
+      >
         <div className="grid grid-cols-2 gap-2 p-2">
           <FormField
             control={form.control}
@@ -142,19 +145,21 @@ const ManageGlobalConditionsModal: FC<IManageGlobalConditionProps> = () => {
             )}
           />
         </div>
-        <Button className="ml-2" type="submit">
-          {isLoading ? (
-            <l-ring
-              size="20"
-              stroke="5"
-              bg-opacity="0"
-              speed="2"
-              color="white"
-            ></l-ring>
-          ) : (
-            "Submit"
-          )}
-        </Button>
+        <div className="flex justify-end">
+          <Button type="submit">
+            {isLoading ? (
+              <l-ring
+                size="20"
+                stroke="5"
+                bg-opacity="0"
+                speed="2"
+                color="white"
+              ></l-ring>
+            ) : (
+              "Submit"
+            )}
+          </Button>
+        </div>
       </form>
     </Form>
   );

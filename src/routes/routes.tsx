@@ -45,7 +45,6 @@ import Administration from "@/pages/AsynchronousRequestManager/Administration/Ad
 import Development from "@/pages/AsynchronousRequestManager/Development/Development";
 import ManageControlEnvironments from "@/pages/EnterpriseSecurityControls/Setup/ManageControlEnvironments/ManageControlEnvironments";
 import Setup from "@/pages/EnterpriseSecurityControls/Setup/Setup";
-import ManageAccessPoints from "@/pages/EnterpriseSecurityControls/ManageAccessPoints/ManageAccessPoints";
 import Tools from "@/pages/Tools/Tools";
 import SecurityConsole from "@/pages/Tools/SecurityConsole/SecurityConsole";
 import EnterpriseAccessMonitoring from "@/pages/EnterpriseAccessMonitoring/EnterpriseAccessMonitoring";
@@ -63,6 +62,8 @@ import ManagePriviedgesAndRoles from "@/pages/Tools/SecurityConsole/ManagePrivil
 import EnterpriseProcessModeler from "@/pages/Tools/EnterpriseProcessModeler/EnterpriseProcessModeler";
 import EnterpriseSystemIntegrations from "@/pages/Tools/EnterpriseSystemIntegrations/EnterpriseSystemIntegrations";
 import OrchestrationStudio2 from "@/pages/Tools/EnterpriseProcessModeler/OrchestrationStudio2/OrchestrationStudio2";
+import ManageTenancyandEnterpriseSetup from "@/pages/Tools/ManageTenancyandEnterpriseSetup/ManageTenancyandEnterpriseSetup";
+import MobileAppAdminConsole from "@/pages/Tools/MobileAppAdminConsole/MobileAppAdminConsole";
 
 const routes = createBrowserRouter([
   {
@@ -223,6 +224,14 @@ const routes = createBrowserRouter([
               },
             ],
           },
+          {
+            path: "manage-tenancy-and-enterprise-setup",
+            element: <ManageTenancyandEnterpriseSetup />,
+          },
+          {
+            path: "mobile-app-admin-console",
+            element: <MobileAppAdminConsole />,
+          },
         ],
       },
       {
@@ -279,10 +288,6 @@ const routes = createBrowserRouter([
           {
             path: "manage-access-entitlements",
             element: <ManageAccessEntitlements />,
-          },
-          {
-            path: "manage-access-points",
-            element: <ManageAccessPoints />,
           },
           {
             path: "manage-global-conditions",

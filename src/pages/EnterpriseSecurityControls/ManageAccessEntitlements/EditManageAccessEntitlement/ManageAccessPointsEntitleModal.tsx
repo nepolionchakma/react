@@ -116,7 +116,7 @@ const ManageAccessPointsEntitleModal: FC<IManageAccessEntitlementsProps> = ({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="grid grid-cols-2 gap-2 p-2">
+        <div className="grid grid-cols-2 gap-2">
           <FormField
             control={form.control}
             name="entitlement_name"
@@ -183,9 +183,11 @@ const ManageAccessPointsEntitleModal: FC<IManageAccessEntitlementsProps> = ({
             )}
           />
         </div>
-        <Button className="ml-2" type="submit">
-          {isLoading ? <Spinner color="white" size="20" /> : "Submit"}
-        </Button>
+        <div className="flex justify-end">
+          <Button className=" " type="submit">
+            {isLoading ? <Spinner color="white" size="20" /> : "Submit"}
+          </Button>
+        </div>
       </form>
     </Form>
   );

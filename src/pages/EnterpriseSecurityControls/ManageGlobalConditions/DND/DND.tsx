@@ -352,9 +352,9 @@ const DND: FC = () => {
                   : undefined
               }
               size={30}
-              className={` bg-green-400 rounded p-1 duration-300 z-50 ${
+              className={` bg-slate-400 rounded p-1 duration-300 z-50 ${
                 items.length > 0 || isChangedAccessGlobalCondition
-                  ? "bg-green-300 hover:text-white hover:bg-green-500 hover:scale-110 cursor-pointer"
+                  ? "bg-slate-300 hover:text-white hover:bg-slate-500 hover:scale-110 cursor-pointer"
                   : "opacity-40 cursor-not-allowed"
               }`}
             />
@@ -367,7 +367,7 @@ const DND: FC = () => {
               // Change the state
               setStateChange((prev) => prev + 1);
             }}
-            className="cursor-pointer hover:text-white bg-red-300 hover:bg-red-500  rounded p-1 hover:scale-110 duration-300 z-50"
+            className="cursor-pointer hover:text-white bg-slate-300 hover:bg-slate-500  rounded p-1 hover:scale-110 duration-300 z-50"
           />
         </div>
       </div>
