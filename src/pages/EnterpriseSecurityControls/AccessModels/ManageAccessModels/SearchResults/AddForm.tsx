@@ -18,20 +18,20 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import {
-  IManageAccessEntitlementsTypes,
-  IManageAccessModelsTypes,
-} from "@/types/interfaces/ManageAccessEntitlements.interface";
+import { IManageAccessModelsTypes } from "@/types/interfaces/ManageAccessEntitlements.interface";
 import { FC } from "react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useManageAccessEntitlementsContext } from "@/Context/ManageAccessEntitlements/ManageAccessEntitlementsContext";
 import { ring } from "ldrs";
 import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
 interface IManageAccessEntitlementsProps {
-  selectedItem?: IManageAccessEntitlementsTypes;
   items: IManageAccessModelsTypes[];
+  setOpenAddModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
-const AddForm: FC<IManageAccessEntitlementsProps> = ({ items }) => {
+const AddForm: FC<IManageAccessEntitlementsProps> = ({
+  items,
+  setOpenAddModal,
+}) => {
   const { createManageAccessModel } = useAACContext();
   const { token } = useGlobalContext();
   const maxId = Math.max(...items.map((data) => data.manage_access_model_id));
@@ -72,16 +72,24 @@ const AddForm: FC<IManageAccessEntitlementsProps> = ({ items }) => {
       revision: 0,
       revision_date: dateToday,
     };
-    createManageAccessModel(postData);
-    form.reset();
+    try {
+      createManageAccessModel(postData);
+      form.reset();
+      setOpenAddModal(false);
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   ring.register();
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="grid grid-cols-2 gap-2 p-2">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-4"
+      >
+        <div className="grid grid-cols-2 gap-2">
           <FormField
             control={form.control}
             name="model_name"
@@ -159,19 +167,21 @@ const AddForm: FC<IManageAccessEntitlementsProps> = ({ items }) => {
             )}
           />
         </div>
-        <Button className="ml-2" type="submit">
-          {isLoading ? (
-            <l-ring
-              size="20"
-              stroke="5"
-              bg-opacity="0"
-              speed="2"
-              color="white"
-            ></l-ring>
-          ) : (
-            "Submit"
-          )}
-        </Button>
+        <div className="flex justify-end">
+          <Button className="" type="submit">
+            {isLoading ? (
+              <l-ring
+                size="20"
+                stroke="5"
+                bg-opacity="0"
+                speed="2"
+                color="white"
+              ></l-ring>
+            ) : (
+              "Submit"
+            )}
+          </Button>
+        </div>
       </form>
     </Form>
   );

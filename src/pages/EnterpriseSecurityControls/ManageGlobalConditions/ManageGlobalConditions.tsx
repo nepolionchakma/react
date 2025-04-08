@@ -42,7 +42,7 @@ const ManageGlobalConditions = () => {
               />
             </div>
             {/* Card start */}
-            <div className="p-2">
+            <div className="px-6 py-4">
               <ManageGlobalConditionsModal />
             </div>
           </CustomModal3>

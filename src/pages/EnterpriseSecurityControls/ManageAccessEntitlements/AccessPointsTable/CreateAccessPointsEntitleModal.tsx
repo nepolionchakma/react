@@ -114,8 +114,11 @@ const AccessPointsEntitleModal = () => {
   ring.register();
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className="grid grid-cols-2 gap-2 p-2">
+      <form
+        onSubmit={form.handleSubmit(onSubmit)}
+        className="flex flex-col gap-2"
+      >
+        <div className="grid grid-cols-2 gap-2">
           <FormField
             control={form.control}
             name="element_name"
@@ -255,19 +258,21 @@ const AccessPointsEntitleModal = () => {
             )}
           />
         </div>
-        <Button className="ml-2" type="submit">
-          {isLoading ? (
-            <l-ring
-              size="20"
-              stroke="5"
-              bg-opacity="0"
-              speed="2"
-              color="white"
-            ></l-ring>
-          ) : (
-            "Submit"
-          )}
-        </Button>
+        <div className="flex justify-end">
+          <Button type="submit">
+            {isLoading ? (
+              <l-ring
+                size="20"
+                stroke="5"
+                bg-opacity="0"
+                speed="2"
+                color="white"
+              ></l-ring>
+            ) : (
+              "Submit"
+            )}
+          </Button>
+        </div>
       </form>
     </Form>
   );

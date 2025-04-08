@@ -243,16 +243,6 @@ const ManageGlobalConditionsTable = () => {
         <div className="flex gap-3">
           <div className="flex gap-3 items-center px-4 py-2 border rounded">
             <div>
-              {selectedManageGlobalConditionItem.length === 1 ? (
-                <FileEdit
-                  className="cursor-pointer"
-                  onClick={handleEditClick}
-                />
-              ) : (
-                <FileEdit className="cursor-not-allowed text-slate-200" />
-              )}
-            </div>
-            <div>
               <Plus
                 className="cursor-pointer"
                 onClick={() => {
@@ -263,6 +253,17 @@ const ManageGlobalConditionsTable = () => {
                 }}
               />
             </div>
+            <div>
+              {selectedManageGlobalConditionItem.length === 1 ? (
+                <FileEdit
+                  className="cursor-pointer"
+                  onClick={handleEditClick}
+                />
+              ) : (
+                <FileEdit className="cursor-not-allowed text-slate-200" />
+              )}
+            </div>
+
             <div className="flex items-center">
               <AlertDialog>
                 <AlertDialogTrigger
@@ -285,7 +286,7 @@ const ManageGlobalConditionsTable = () => {
                     </AlertDialogTitle>
                     <AlertDialogDescription>
                       <span>
-                        <span>
+                        <span className="text-red-500">
                           NAME : {selectedManageGlobalConditionItem[0]?.name}
                         </span>
                         <br />
@@ -311,10 +312,7 @@ const ManageGlobalConditionsTable = () => {
                     <AlertDialogCancel onClick={() => setWillBeDelete([])}>
                       Cancel
                     </AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleDelete}
-                      className="bg-red-500 hover:bg-red-600 text-white"
-                    >
+                    <AlertDialogAction onClick={handleDelete}>
                       Continue
                     </AlertDialogAction>
                   </AlertDialogFooter>

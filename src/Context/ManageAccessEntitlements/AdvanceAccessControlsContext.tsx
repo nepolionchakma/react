@@ -353,12 +353,15 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       if (res.status === 201) {
         setStateChange((prev) => prev + 1);
         toast({
-          title: "Info !!!",
           description: `Added successfully.`,
         });
       }
     } catch (error) {
       console.log(error);
+      toast({
+        variant: "destructive",
+        description: `Failed to add.`,
+      });
     } finally {
       setIsLoading(false);
     }

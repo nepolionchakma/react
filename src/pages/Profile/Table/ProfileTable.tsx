@@ -20,44 +20,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { IProfilesType } from "@/types/interfaces/users.interface";
 tailspin.register();
 
-// interface IAccessProfiles {
-//   user_name?: string;
-//   email?: string;
-//   email_1?: string;
-//   email_2?: string;
-//   email_3?: string;
-//   email_4?: string;
-//   phone_1?: string;
-//   phone_2?: string;
-//   phone_3?: string;
-// }
-
-// const profiles = [
-//   {
-//     id: 1,
-//     email_addresses: ["kallany_01@gmail.com", "kallany_02@gmaiI.com"],
-//     phones: ["+8801234567890", "+8801234567890"],
-//     guid: "5678299308765268",
-//     username: "Kchakma",
-//   },
-// ];
-// const d = [
-//   {
-//     id: 1,
-//     email: "kallany_01@gmail.com",
-//     primary: true,
-//   },
-//   {
-//     id: 2,
-//     email: "kallany_02@gmail.com",
-//     primary: false,
-//   },
-//   {
-//     id: 3,
-//     username: "kchakma",
-//     primary: false,
-//   },
-// ];
 export interface IProfilesType1 {
   primary_yn: string;
   profile_id: string;

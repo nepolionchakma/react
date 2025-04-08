@@ -35,7 +35,7 @@ const ManageAccessEntitlements = () => {
               />
             </div>
             {/* Card start */}
-            <div className="p-2">
+            <div className="px-6 py-4">
               <ManageAccessPointsEntitleModal selectedItem={selectedItem} />
             </div>
           </CustomModal3>

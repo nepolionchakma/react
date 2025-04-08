@@ -225,21 +225,6 @@ const ManageAccessEntitlementsTable = () => {
             <h3>View</h3>
           </div>
           <div className="flex gap-3 items-center px-4 py-2 border rounded">
-            {selectedAccessEntitlements.length === 1 ? (
-              <FileEdit
-                className="cursor-pointer hover:scale-110 duration-300"
-                onClick={() => {
-                  setEditManageAccessEntitlement(true);
-                  setSelectedManageAccessEntitlements(
-                    selectedAccessEntitlements[0]
-                  );
-                  setMangeAccessEntitlementAction("edit");
-                  setTable(table);
-                }}
-              />
-            ) : (
-              <FileEdit className="cursor-not-allowed text-slate-200" />
-            )}
             <Plus
               className="cursor-pointer hover:scale-110 duration-300 "
               onClick={() => {
@@ -255,6 +240,21 @@ const ManageAccessEntitlementsTable = () => {
                 setMangeAccessEntitlementAction("add");
               }}
             />
+            {selectedAccessEntitlements.length === 1 ? (
+              <FileEdit
+                className="cursor-pointer hover:scale-110 duration-300"
+                onClick={() => {
+                  setEditManageAccessEntitlement(true);
+                  setSelectedManageAccessEntitlements(
+                    selectedAccessEntitlements[0]
+                  );
+                  setMangeAccessEntitlementAction("edit");
+                  setTable(table);
+                }}
+              />
+            ) : (
+              <FileEdit className="cursor-not-allowed text-slate-200" />
+            )}
             <div className="flex items-center">
               <AlertDialog>
                 <AlertDialogTrigger

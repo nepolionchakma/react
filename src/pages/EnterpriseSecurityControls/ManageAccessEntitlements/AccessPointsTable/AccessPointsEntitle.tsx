@@ -37,7 +37,7 @@ const AccessPointsEntitle = () => {
                 />
               </div>
               {/* Card start */}
-              <div className="p-2">
+              <div className="p-4">
                 <AccessPointsEditModal />
               </div>
             </CustomModal1>
@@ -56,7 +56,7 @@ const AccessPointsEntitle = () => {
                 />
               </div>
               {/* Card start */}
-              <div className="p-2">
+              <div className="px-6 py-4">
                 <AccessPointsEntitleModal />
               </div>
             </CustomModal3>

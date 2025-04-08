@@ -19,8 +19,8 @@ const AddModel: FC<IManageAccessModelProps> = ({ setOpenAddModal, items }) => {
           className="cursor-pointer"
         />
       </div>
-      <div className="p-2">
-        <AddForm items={items} />
+      <div className="px-6 py-4 ">
+        <AddForm items={items} setOpenAddModal={setOpenAddModal} />
       </div>
     </CustomModal3>
   );
