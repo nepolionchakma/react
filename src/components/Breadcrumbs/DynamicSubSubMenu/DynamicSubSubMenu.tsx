@@ -13,11 +13,11 @@ const DynamicSubSubMenu = () => {
     <div>
       {menus.map((item) => {
         return (
-          <div key={item.submenu}>
-            {item.menuItems.map((menu) => {
+          <div key={item.menu}>
+            {item.subMenus.map((menu) => {
               return (
                 <div key={menu.name}>
-                  {menu.name.toLowerCase() === name && menu.subItems && (
+                  {menu.name.toLowerCase() === name && menu.subMenus && (
                     <SubSubMenuItem {...menu} />
                   )}
                 </div>
@@ -31,8 +31,8 @@ const DynamicSubSubMenu = () => {
 };
 export default DynamicSubSubMenu;
 // {
-//   item.submenu === "Enterprise Security Controls" &&
-//     item.menuItems.map((menu) => {
+//   item.menu === "Enterprise Security Controls" &&
+//     item.subMenus.map((menu) => {
 //       return (
 //         <div key={menu.name}>
 //           {/* Change menu name here */}

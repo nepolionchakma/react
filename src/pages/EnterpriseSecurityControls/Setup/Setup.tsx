@@ -8,13 +8,13 @@ const Setup = () => {
     <div>
       {menus.map((item) => {
         return (
-          <div key={item.submenu}>
-            {item.submenu === "Enterprise Security Controls" &&
-              item.menuItems.map((menu) => {
+          <div key={item.menu}>
+            {item.menu === "Enterprise Security Controls" &&
+              item.subMenus.map((menu) => {
                 return (
                   <div key={menu.name}>
                     {/* Nested Sub Menu Here */}
-                    {menu.name === "Setup" && menu.subItems && (
+                    {menu.name === "Setup" && menu.subMenus && (
                       <SubSubMenuItem {...menu} />
                     )}
                   </div>

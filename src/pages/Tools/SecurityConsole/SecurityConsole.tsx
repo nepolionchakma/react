@@ -8,14 +8,14 @@ const SecurityConsole = () => {
     <div>
       {menus.map((item) => {
         return (
-          <div key={item.submenu}>
-            {/* Change submenu name here */}
-            {item.submenu === "Tools" &&
-              item.menuItems.map((menu) => {
+          <div key={item.menu}>
+            {/* Change menu name here */}
+            {item.menu === "Tools" &&
+              item.subMenus.map((menu) => {
                 return (
                   <div key={menu.name}>
                     {/* Change menu name here */}
-                    {menu.name === "Security Console" && menu.subItems && (
+                    {menu.name === "Security Console" && menu.subMenus && (
                       <SubSubMenuItem {...menu} />
                     )}
                   </div>

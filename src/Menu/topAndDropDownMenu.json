@@ -1,21 +1,21 @@
 [
   {
-    "submenu": "Action Items",
-    "submenuIcon": "/sidebar/asynchronous-manager.svg",
+    "menu": "Action Items",
+    "menuIcon": "/sidebar/asynchronous-manager.svg",
     "path": "/action-items",
-    "menuItems": []
+    "subMenus": []
   },
   {
-    "submenu": "Alerts",
-    "submenuIcon": "/sidebar/asynchronous-manager.svg",
+    "menu": "Alerts",
+    "menuIcon": "/sidebar/asynchronous-manager.svg",
     "path": "/alerts",
-    "menuItems": []
+    "subMenus": []
   },
   {
-    "submenu": "Notifications",
-    "submenuIcon": "/sidebar/asynchronous-manager.svg",
+    "menu": "Notifications",
+    "menuIcon": "/sidebar/asynchronous-manager.svg",
     "path": "/notifications",
-    "menuItems": [
+    "subMenus": [
       {
         "name": "Inbox",
         "path": "/notifications/inbox"
@@ -35,21 +35,21 @@
     ]
   },
   {
-    "submenu": "Access Profiles",
-    "submenuIcon": "/sidebar/asynchronous-manager.svg",
+    "menu": "Access Profiles",
+    "menuIcon": "/sidebar/asynchronous-manager.svg",
     "path": "/access-profiles",
-    "menuItems": []
+    "subMenus": []
   },
   {
-    "submenu": "Security",
-    "submenuIcon": "/sidebar/asynchronous-manager.svg",
+    "menu": "Security",
+    "menuIcon": "/sidebar/asynchronous-manager.svg",
     "path": "/security",
-    "menuItems": []
+    "subMenus": []
   },
   {
     "submenu": "Settings",
     "submenuIcon": "/sidebar/asynchronous-manager.svg",
     "path": "/settings",
-    "menuItems": []
+    "subMenus": []
   }
 ]

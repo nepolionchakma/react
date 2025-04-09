@@ -8,13 +8,13 @@ const AccessModels = () => {
     <div>
       {menus.map((item) => {
         return (
-          <div key={item.submenu}>
-            {item.submenu === "Enterprise Security Controls" &&
-              item.menuItems.map((menu) => {
+          <div key={item.menu}>
+            {item.menu === "Enterprise Security Controls" &&
+              item.subMenus.map((menu) => {
                 return (
                   <div key={menu.name}>
                     {/* Change menu name here */}
-                    {menu.name === "Access Models" && menu.subItems && (
+                    {menu.name === "Access Models" && menu.subMenus && (
                       <SubSubMenuItem {...menu} />
                     )}
                   </div>

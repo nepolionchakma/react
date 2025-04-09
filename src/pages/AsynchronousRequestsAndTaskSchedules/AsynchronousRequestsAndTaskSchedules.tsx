@@ -9,8 +9,8 @@ const AsynchronousRequestsAndTaskSchedules = () => {
     <div>
       {menus.map((item) => {
         return (
-          <div key={item.submenu}>
-            {item.submenu === "Asynchronous Requests and Task Schedules" && (
+          <div key={item.menu}>
+            {item.menu === "Asynchronous Requests and Task Schedules" && (
               <SubMenuItem {...item} />
             )}
           </div>

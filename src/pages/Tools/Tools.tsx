@@ -8,9 +8,9 @@ const Tools = () => {
     <div>
       {menus.map((item) => {
         return (
-          <div key={item.submenu}>
-            {/* Change submenu name here */}
-            {item.submenu === "Tools" && <SubMenuItem {...item} />}
+          <div key={item.menu}>
+            {/* Change menu name here */}
+            {item.menu === "Tools" && <SubMenuItem {...item} />}
           </div>
         );
       })}

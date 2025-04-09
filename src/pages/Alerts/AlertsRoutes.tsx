@@ -9,8 +9,8 @@ const Alerts = () => {
     <div>
       {menus.map((item) => {
         return (
-          <div key={item.submenu}>
-            {item.submenu === "Action Items" && <SubMenuItem {...item} />}
+          <div key={item.menu}>
+            {item.menu === "Action Items" && <SubMenuItem {...item} />}
           </div>
         );
       })}

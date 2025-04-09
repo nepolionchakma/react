@@ -6,7 +6,7 @@ import { Link } from "react-router-dom";
 const SubMenuItem = (item: MenuData) => {
   return (
     <>
-      {item.menuItems.map((menu) => {
+      {item.subMenus.map((menu) => {
         return (
           <div key={menu.name} className="flex items-center">
             {/* Nested Sub Menu Here */}

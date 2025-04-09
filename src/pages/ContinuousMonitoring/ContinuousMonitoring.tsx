@@ -9,10 +9,8 @@ const ContinuousMonitoring = () => {
     <div>
       {menus.map((item) => {
         return (
-          <div key={item.submenu}>
-            {item.submenu === "Continuous Monitoring" && (
-              <SubMenuItem {...item} />
-            )}
+          <div key={item.menu}>
+            {item.menu === "Continuous Monitoring" && <SubMenuItem {...item} />}
           </div>
         );
       })}

@@ -10,23 +10,23 @@ import { Link, useLocation } from "react-router-dom";
 import menu from "@/Menu/menu.json";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 
-interface SubMenuItems {
+interface subSubMenus {
   name: string;
   icon: string;
   path: string;
 }
-export interface MenuItems {
+export interface subMenus {
   name: string;
   icon: string;
   path: string;
   paths?: string[] | undefined;
-  subItems?: SubMenuItems[];
+  subMenus?: subSubMenus[];
 }
 
 export interface MenuData {
-  submenu: string;
-  submenuIcon: string;
-  menuItems: MenuItems[];
+  menu: string;
+  menuIcon: string;
+  subMenus: subMenus[];
   paths: string[];
   path: string;
 }
@@ -105,13 +105,13 @@ const Sidbar = () => {
         {menuData.map((menu) => (
           <SubMenu
             className={`my-1 ${getSubMenuStyle(menu.paths)}`}
-            key={menu.submenu}
-            label={menu.submenu}
+            key={menu.menu}
+            label={menu.menu}
             icon={
-              menu.submenuIcon && (
+              menu.menuIcon && (
                 <img
-                  src={menu.submenuIcon}
-                  alt={`${menu.submenu} icon`}
+                  src={menu.menuIcon}
+                  alt={`${menu.menu} icon`}
                   className="w-[20px] h-[20px]"
                 />
               )
@@ -128,8 +128,8 @@ const Sidbar = () => {
               },
             }}
           >
-            {menu.menuItems.map((subMenuItem) =>
-              subMenuItem.subItems ? (
+            {menu.subMenus.map((subMenuItem) =>
+              subMenuItem.subMenus ? (
                 <SubMenu
                   className={`my-1 ${getSubMenuItemStyle(subMenuItem.paths!)}`}
                   key={subMenuItem.name}
@@ -143,7 +143,7 @@ const Sidbar = () => {
                     },
                   }}
                 >
-                  {subMenuItem.subItems.map((subItem) => (
+                  {subMenuItem.subMenus.map((subItem) => (
                     <MenuItem
                       className={`my-1 ${getMenuItemStyle(subItem.path)}`}
                       key={subItem.name}
