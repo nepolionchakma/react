@@ -20,12 +20,12 @@ const Breadcrumb = () => {
       currentPath += `/${segment}`;
       let found = false;
 
-      topAndDropDownMenuData?.forEach((menu) => {
-        if (menu.path === currentPath) {
-          breadcrumbs.push({ name: menu.submenu, path: menu.path });
+      topAndDropDownMenuData?.forEach((m) => {
+        if (m.path === currentPath) {
+          breadcrumbs.push({ name: m.menu!, path: m.path });
           found = true;
         }
-        menu.menuItems?.forEach((item) => {
+        m.subMenus?.forEach((item) => {
           if (item.path === currentPath) {
             breadcrumbs.push({ name: item.name, path: item.path });
             found = true;
@@ -51,15 +51,15 @@ const Breadcrumb = () => {
 
       sideMenuData.forEach((menu) => {
         if (menu.path === currentPath) {
-          breadcrumbs.push({ name: menu.submenu, path: menu.path });
+          breadcrumbs.push({ name: menu.menu, path: menu.path });
           found = true;
         }
-        menu.menuItems.forEach((item) => {
+        menu.subMenus.forEach((item) => {
           if (item.path === currentPath) {
             breadcrumbs.push({ name: item.name, path: item.path });
             found = true;
           }
-          item.subItems?.forEach((sub) => {
+          item.subMenus?.forEach((sub) => {
             if (sub.path === currentPath) {
               breadcrumbs.push({ name: sub.name, path: sub.path });
               found = true;

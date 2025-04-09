@@ -8,13 +8,13 @@ const Development = () => {
     <div>
       {menus.map((item) => {
         return (
-          <div key={item.submenu}>
-            {item.submenu === "Asynchronous Request Manager (ARM)" &&
-              item.menuItems.map((menu) => {
+          <div key={item.menu}>
+            {item.menu === "Asynchronous Request Manager (ARM)" &&
+              item.subMenus.map((menu) => {
                 return (
                   <div key={menu.name}>
                     {/* Change menu name here */}
-                    {menu.name === "Development" && menu.subItems && (
+                    {menu.name === "Development" && menu.subMenus && (
                       <SubSubMenuItem {...menu} />
                     )}
                   </div>

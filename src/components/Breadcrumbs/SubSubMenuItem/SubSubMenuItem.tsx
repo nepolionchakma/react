@@ -1,11 +1,11 @@
-import { MenuItems } from "@/components/Sidebar/Sidbar";
+import { subMenus } from "@/components/Sidebar/Sidbar";
 import { Link } from "react-router-dom";
 
-const SubSubMenuItem = (menu: MenuItems) => {
+const SubSubMenuItem = (menu: subMenus) => {
   return (
     <div>
-      {menu.subItems &&
-        menu.subItems.map((subMenu) => {
+      {menu.subMenus &&
+        menu.subMenus.map((subMenu) => {
           return (
             <div key={subMenu.name}>
               {subMenu.path && (

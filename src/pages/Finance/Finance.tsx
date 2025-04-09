@@ -9,8 +9,8 @@ const Finance = () => {
     <div>
       {menus.map((item) => {
         return (
-          <div key={item.submenu}>
-            {item.submenu === "Finance" && <SubMenuItem {...item} />}
+          <div key={item.menu}>
+            {item.menu === "Finance" && <SubMenuItem {...item} />}
           </div>
         );
       })}

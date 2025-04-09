@@ -9,8 +9,8 @@ const NotificatonsRoutes = () => {
     <div>
       {menus.map((item) => {
         return (
-          <div key={item.submenu}>
-            {item.submenu === "Notifications" && <SubMenuItem {...item} />}
+          <div key={item.menu}>
+            {item.menu === "Notifications" && <SubMenuItem {...item} />}
           </div>
         );
       })}
