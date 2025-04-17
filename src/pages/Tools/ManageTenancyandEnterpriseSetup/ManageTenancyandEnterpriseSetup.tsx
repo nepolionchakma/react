@@ -1,5 +1,11 @@
+import TenancyAndEnterpriseTable from "./Table/TenancyAndEnterpriseTable";
+
 const ManageTenancyandEnterpriseSetup = () => {
-  return <div>Manage Tenancy and Enterprise Setup</div>;
+  return (
+    <div>
+      <TenancyAndEnterpriseTable />
+    </div>
+  );
 };
 
 export default ManageTenancyandEnterpriseSetup;

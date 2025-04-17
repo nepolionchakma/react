@@ -208,8 +208,8 @@ const SingleMessage = () => {
                             <DropdownMenuContent>
                               {msg.recivers
                                 .slice(1, msg.recivers.length + 1)
-                                .map((rcvr) => (
-                                  <p>{rcvr.name}</p>
+                                .map((rcvr, i) => (
+                                  <p key={i}>{rcvr.name}</p>
                                 ))}
                             </DropdownMenuContent>
                           </DropdownMenu>
