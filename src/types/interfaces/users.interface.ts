@@ -77,6 +77,11 @@ export interface ITenantsTypes {
   tenant_id: number;
   tenant_name: string;
 }
+export interface ITenantsAndEnterprisesTypes {
+  enterprise_name: string;
+  enterprise_type: string;
+  tenant_name: string;
+}
 export interface IPersonsTypes {
   user_id: number;
   first_name: string;

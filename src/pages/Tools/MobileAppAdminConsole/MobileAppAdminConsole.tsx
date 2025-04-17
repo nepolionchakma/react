@@ -1,8 +1,12 @@
+// import ControlledExpandedNode from "./Test";
+import TreeView from "./TreeView";
 
 const MobileAppAdminConsole = () => {
   return (
-    <div>Mobile App Admin Console</div>
-  )
-}
+    <div>
+      <TreeView />
+    </div>
+  );
+};
 
-export default MobileAppAdminConsole
+export default MobileAppAdminConsole;
