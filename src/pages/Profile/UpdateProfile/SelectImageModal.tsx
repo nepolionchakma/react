@@ -16,10 +16,8 @@ interface Props {
 }
 const SelectImageModal = ({ setIsEditProfileImage }: Props) => {
   const api = useAxiosPrivate();
-  const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
-  const { combinedUser, setCombinedUser, isCombinedUserLoading } =
+  const { combinedUser, setUpdateProfileImage, isCombinedUserLoading } =
     useGlobalContext();
-
   const [profileImage, setProfileImage] = useState<string>("");
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -86,16 +84,7 @@ const SelectImageModal = ({ setIsEditProfileImage }: Props) => {
       );
 
       if (response.status === 200) {
-        setCombinedUser((prev) => {
-          if (!prev) return undefined;
-          return {
-            ...prev,
-            profile_picture: {
-              original: `${url}/uploads/profiles/${combinedUser?.user_name}/${file?.name}`,
-              thumbnail: `${url}/uploads/profiles/${combinedUser?.user_name}/thumbnail.jpg`,
-            },
-          };
-        });
+        setUpdateProfileImage(Math.random() + 23 * 3000);
         toast({
           description: "Your profile has been updated successfully.",
         });

@@ -52,6 +52,7 @@ interface GlobalContex {
   isCombinedUserLoading: boolean;
   setIsCombinedUserLoading: Dispatch<SetStateAction<boolean>>;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setUpdateProfileImage: React.Dispatch<React.SetStateAction<number>>;
   createDataSource: (postData: IDataSourcePostTypes) => Promise<void>;
   updateDataSource: (
     id: number,
@@ -125,6 +126,7 @@ export function GlobalContextProvider({
   const [isOpenScheduleModalV1, setIsOpenScheduleModalV1] =
     useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [updateProfileImage, setUpdateProfileImage] = useState(0);
   const user = token?.user_name || "";
 
   const [page, setPage] = useState<number>(1);
@@ -171,9 +173,8 @@ export function GlobalContextProvider({
     };
 
     fetchUsers();
-  }, [api, token?.user_id, combinedUser?.profile_picture.original]);
+  }, [api, token?.user_id, updateProfileImage]);
 
-  // access entitlement elements lazy loading
   const fetchCombinedUser = async () => {
     try {
       setIsLoading(true);
@@ -193,6 +194,7 @@ export function GlobalContextProvider({
       setIsLoading(false);
     }
   };
+
   //user info
   const createUser = async (postData: IAddUserTypes) => {
     setIsLoading(true);
@@ -265,6 +267,7 @@ export function GlobalContextProvider({
       fetchCombinedUser();
     }
   };
+
   // reset password
   const resetPassword = async (resetData: IUserPasswordResetTypes) => {
     try {
@@ -322,6 +325,7 @@ export function GlobalContextProvider({
       setIsLoading(false);
     }
   };
+
   //Fetch DataSources
   const fetchDataSources = async (page: number, limit: number) => {
     try {
@@ -334,6 +338,7 @@ export function GlobalContextProvider({
       console.log(error);
     }
   };
+
   //Fetch SingleDataSource
   const fetchDataSource = async (id: number): Promise<IDataSourceTypes> => {
     try {
@@ -351,6 +356,7 @@ export function GlobalContextProvider({
       throw error;
     }
   };
+
   // Create Data Source
   const createDataSource = async (postData: IDataSourcePostTypes) => {
     const {
@@ -397,6 +403,7 @@ export function GlobalContextProvider({
       console.log(error);
     }
   };
+
   // Update Data Source
   const updateDataSource = async (
     id: number,
@@ -437,6 +444,7 @@ export function GlobalContextProvider({
       console.log(error);
     }
   };
+
   // Delete DataSource
   const deleteDataSource = async (id: number) => {
     try {
@@ -461,6 +469,7 @@ export function GlobalContextProvider({
       console.log(error);
     }
   };
+
   // Tenant IDs
   const fetchTenants = async () => {
     try {
@@ -486,6 +495,7 @@ export function GlobalContextProvider({
         isCombinedUserLoading,
         setIsCombinedUserLoading,
         setIsLoading,
+        setUpdateProfileImage,
         createDataSource,
         updateDataSource,
         deleteDataSource,
