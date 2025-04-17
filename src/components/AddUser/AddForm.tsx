@@ -17,10 +17,11 @@ import {
 } from "@/components/ui/select";
 import UserTypes from "@/pages/Tools/SecurityConsole/ManageUsers/user_type.json";
 import JobTitleTypes from "@/pages/Tools/SecurityConsole/ManageUsers/job_title.json";
-import { Dispatch, FC, SetStateAction } from "react";
+import { Dispatch, FC, SetStateAction, useState } from "react";
 import { ITenantsTypes } from "@/types/interfaces/users.interface";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { FieldValues, UseFormReturn } from "react-hook-form";
+import { Eye, EyeOff } from "lucide-react";
 interface AddFormProps {
   form: UseFormReturn<FieldValues>;
   isLoading: boolean;
@@ -42,6 +43,9 @@ const AddForm: FC<AddFormProps> = ({
 }) => {
   // console.log(form.getValues(), "form");
   const { token } = useGlobalContext();
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword2, setShowPassword2] = useState(false);
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -230,21 +234,33 @@ const AddForm: FC<AddFormProps> = ({
             disabled={token.user_type !== "system" && userType === "system"}
             control={form.control}
             name="password"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-normal">Password</FormLabel>
-                <FormControl>
-                  <Input
-                    {...field}
-                    required
-                    type="password"
-                    placeholder="••••••••"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              return (
+                <FormItem>
+                  <FormLabel className="font-normal">Password</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        required
+                        type={showPassword ? "text" : "password"}
+                        placeholder="••••••••"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword((prev) => !prev)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 bg-white"
+                      >
+                        {showPassword ? <EyeOff /> : <Eye />}
+                      </button>
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
+
           <FormField
             disabled={token.user_type !== "system" && userType === "system"}
             control={form.control}
@@ -253,12 +269,21 @@ const AddForm: FC<AddFormProps> = ({
               <FormItem>
                 <FormLabel className="font-normal">Confirm Password</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    required
-                    type="password"
-                    placeholder="••••••••"
-                  />
+                  <div className="relative">
+                    <Input
+                      {...field}
+                      required
+                      type={showPassword2 ? "text" : "password"}
+                      placeholder="••••••••"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword2((prev) => !prev)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-sm text-gray-500 bg-white"
+                    >
+                      {showPassword2 ? <EyeOff /> : <Eye />}
+                    </button>
+                  </div>
                 </FormControl>
                 <FormMessage />
               </FormItem>
