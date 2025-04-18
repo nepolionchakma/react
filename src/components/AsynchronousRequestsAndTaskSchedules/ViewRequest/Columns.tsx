@@ -72,11 +72,11 @@ export const columns = (
       return <div className="min-w-max">User Schedule Name</div>;
     },
     cell: ({ row }) => {
-      const isOpen = expandedRow === row.id;
+      const isExpanded = expandedRow === row.id;
       return (
         <div className="flex items-center gap-2">
-          <button onClick={() => setExpandedRow(isOpen ? null : row.id)}>
-            {isOpen ? (
+          <button onClick={() => setExpandedRow(isExpanded ? null : row.id)}>
+            {isExpanded ? (
               <CircleChevronDown className="w-5 h-5 text-gray-600" />
             ) : (
               <CircleChevronRight className="w-5 h-5 text-gray-600" />
