@@ -1,7 +1,7 @@
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import React, { useEffect, useState } from "react";
-
 import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
+
 interface MenuItem {
   name: string;
   routeName: string;
@@ -25,6 +25,7 @@ const TreeView = () => {
   const api = useAxiosPrivate();
   const [data, setData] = useState<IMenuTypes[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [expandAll, setExpandAll] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -32,6 +33,7 @@ const TreeView = () => {
         const res = await api.get(
           "https://procg.viscorp.app/api/v1/mobile-menu"
         );
+        console.log(res.data, "res");
         setData(res.data);
       } catch (error) {
         console.error(error);
@@ -39,6 +41,10 @@ const TreeView = () => {
     };
     fetchData();
   }, []);
+
+  const toggleExpandAll = () => {
+    setExpandAll((prevState) => !prevState);
+  };
 
   return (
     <div className="p-4">
@@ -49,15 +55,31 @@ const TreeView = () => {
         onChange={(e) => setSearchTerm(e.target.value)}
         className="border p-2 mb-4 w-full"
       />
-      <MenuTreeView data={data} searchTerm={searchTerm.toLowerCase()} />
+
+      <div className="mb-4">
+        {/* Add Expand/Collapse All buttons */}
+        <button
+          className="bg-slate-400 px-2 rounded mr-2"
+          onClick={toggleExpandAll}
+        >
+          {expandAll ? "Collapse All" : "Expand All"}
+        </button>
+      </div>
+
+      <MenuTreeView
+        data={data}
+        searchTerm={searchTerm.toLowerCase()}
+        expandAll={expandAll}
+      />
     </div>
   );
 };
 
-const MenuTreeView: React.FC<{ data: IMenuTypes[]; searchTerm: string }> = ({
-  data,
-  searchTerm,
-}) => {
+const MenuTreeView: React.FC<{
+  data: IMenuTypes[];
+  searchTerm: string;
+  expandAll: boolean;
+}> = ({ data, searchTerm, expandAll }) => {
   return (
     <div>
       {data.map((menu) => (
@@ -69,6 +91,7 @@ const MenuTreeView: React.FC<{ data: IMenuTypes[]; searchTerm: string }> = ({
               key={index}
               node={menuStructure}
               searchTerm={searchTerm}
+              expandAll={expandAll}
             />
           ))}
         </div>
@@ -80,27 +103,29 @@ const MenuTreeView: React.FC<{ data: IMenuTypes[]; searchTerm: string }> = ({
 interface TreeNodeProps {
   node: MenuStructure;
   searchTerm: string;
+  expandAll: boolean;
 }
 
-const TreeNode: React.FC<TreeNodeProps> = ({ node, searchTerm }) => {
+const TreeNode: React.FC<TreeNodeProps> = ({ node, searchTerm, expandAll }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    const hasMatch =
-      node.submenu.toLowerCase().includes(searchTerm) ||
-      node.subMenus.some(
-        (item) =>
-          item.name.toLowerCase().includes(searchTerm) ||
-          item.routeName?.toLowerCase().includes(searchTerm) ||
-          (item.menuItems &&
-            item.menuItems.some(
-              (subItem) =>
-                subItem.name.toLowerCase().includes(searchTerm) ||
-                subItem.routeName?.toLowerCase().includes(searchTerm)
-            ))
-      );
-    setIsOpen(searchTerm ? hasMatch : false);
-  }, [searchTerm]);
+    if (expandAll) {
+      setIsOpen(true);
+    } else {
+      const hasMatch =
+        node.submenu.toLowerCase().includes(searchTerm) ||
+        node.subMenus.some(
+          (item) =>
+            item.name.toLowerCase().includes(searchTerm) ||
+            (item.menuItems &&
+              item.menuItems.some((subItem) =>
+                subItem.name.toLowerCase().includes(searchTerm)
+              ))
+        );
+      setIsOpen(searchTerm ? hasMatch : false);
+    }
+  }, [searchTerm, expandAll]);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -117,7 +142,12 @@ const TreeNode: React.FC<TreeNodeProps> = ({ node, searchTerm }) => {
       {isOpen && (
         <div className="pl-5">
           {node.subMenus.map((submenu, index) => (
-            <TreeNodeItem key={index} node={submenu} searchTerm={searchTerm} />
+            <TreeNodeItem
+              key={index}
+              node={submenu}
+              searchTerm={searchTerm}
+              expandAll={expandAll}
+            />
           ))}
         </div>
       )}
@@ -128,23 +158,29 @@ const TreeNode: React.FC<TreeNodeProps> = ({ node, searchTerm }) => {
 interface TreeNodeItemProps {
   node: MenuItem;
   searchTerm: string;
+  expandAll: boolean;
 }
 
-const TreeNodeItem: React.FC<TreeNodeItemProps> = ({ node, searchTerm }) => {
+const TreeNodeItem: React.FC<TreeNodeItemProps> = ({
+  node,
+  searchTerm,
+  expandAll,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    const hasMatch =
-      node.name.toLowerCase().includes(searchTerm) ||
-      node.routeName?.toLowerCase().includes(searchTerm) ||
-      (node.menuItems &&
-        node.menuItems.some(
-          (subItem) =>
-            subItem.name.toLowerCase().includes(searchTerm) ||
-            subItem.routeName?.toLowerCase().includes(searchTerm)
-        ));
-    setIsOpen(searchTerm ? hasMatch! : false);
-  }, [searchTerm]);
+    if (expandAll) {
+      setIsOpen(true);
+    } else {
+      const hasMatch =
+        node.name.toLowerCase().includes(searchTerm) ||
+        (node.menuItems &&
+          node.menuItems.some((subItem) =>
+            subItem.name.toLowerCase().includes(searchTerm)
+          ));
+      setIsOpen(searchTerm ? hasMatch! : false);
+    }
+  }, [searchTerm, expandAll]);
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -168,7 +204,12 @@ const TreeNodeItem: React.FC<TreeNodeItemProps> = ({ node, searchTerm }) => {
       {isOpen && node.menuItems && (
         <div className="pl-5">
           {node.menuItems.map((subItem, index) => (
-            <TreeNodeItem key={index} node={subItem} searchTerm={searchTerm} />
+            <TreeNodeItem
+              key={index}
+              node={subItem}
+              searchTerm={searchTerm}
+              expandAll={expandAll}
+            />
           ))}
         </div>
       )}
