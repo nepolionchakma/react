@@ -28,7 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import columns from "./Columns";
+import { columns as getColumns } from "./Columns";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { IARMViewRequestsTypes } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
@@ -38,18 +38,8 @@ export function ViewRequestTable() {
   const [data, setData] = React.useState<IARMViewRequestsTypes[] | []>([]);
   const [page, setPage] = React.useState(1);
   const limit = 8;
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await getViewRequests(page, limit);
-        if (res) setData(res);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchData();
-  }, [page]);
 
+  const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -57,20 +47,29 @@ export function ViewRequestTable() {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0, //initial page index
-    pageSize: 10, //default page size
-  });
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await getViewRequests(page, limit);
+        if (res) {
+          setData(res);
+          setExpandedRow(null);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    fetchData();
+  }, [page]);
 
   const table = useReactTable({
     data,
-    columns,
+    columns: getColumns(expandedRow, setExpandedRow),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onPaginationChange: setPagination,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -80,10 +79,10 @@ export function ViewRequestTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination,
     },
   });
-  // default hidden columns
+
+  // Hide default columns
   const hiddenColumns = [
     "redbeat_schedule_name",
     "task_id",
@@ -91,6 +90,9 @@ export function ViewRequestTable() {
     "kwargs",
     "task_name",
     "executor",
+    "schedule",
+    "parameters",
+    "result",
   ];
 
   React.useEffect(() => {
@@ -103,7 +105,7 @@ export function ViewRequestTable() {
 
   return (
     <div className="px-3">
-      {/* top icon and columns*/}
+      {/* Filter + Column Controls */}
       <div className="flex gap-3 items-center py-2">
         <Input
           placeholder="Filter User Task Name"
@@ -111,14 +113,12 @@ export function ViewRequestTable() {
             (table.getColumn("user_task_name")?.getFilterValue() as string) ??
             ""
           }
-          onChange={(event) =>
-            table
-              .getColumn("user_task_name")
-              ?.setFilterValue(event.target.value)
+          onChange={(e) =>
+            table.getColumn("user_task_name")?.setFilterValue(e.target.value)
           }
           className="max-w-sm px-4 py-2"
         />
-        {/* Columns */}
+
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -129,120 +129,172 @@ export function ViewRequestTable() {
             {table
               .getAllColumns()
               .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize overflow-y-auto h-9"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
+              .map((column) => (
+                <DropdownMenuCheckboxItem
+                  key={column.id}
+                  className="capitalize"
+                  checked={column.getIsVisible()}
+                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
+                >
+                  {column.id}
+                </DropdownMenuCheckboxItem>
+              ))}
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      {/* Table */}
+
+      {/* Table Section */}
       <div className="rounded-md border">
-        <div
-        // className="h-[23rem]"
-        >
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead
-                        key={header.id}
-                        className="border border-slate-400 bg-slate-200 p-1 h-9"
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                        {/* Example: Checkbox for selecting all rows */}
-                        {header.id === "select" && (
-                          <Checkbox
-                            checked={
-                              table.getIsAllPageRowsSelected() ||
-                              (table.getIsSomePageRowsSelected() &&
-                                "indeterminate")
-                            }
-                            onCheckedChange={(value) => {
-                              // Toggle all page rows selected
-                              table.toggleAllPageRowsSelected(!!value);
-                            }}
-                            className="mr-1"
-                            aria-label="Select all"
-                          />
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead
+                    key={header.id}
+                    className="border border-slate-400 bg-slate-200 p-1 h-9"
+                  >
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
                         )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-[17rem] text-center"
-                  >
-                    <l-tailspin
-                      size="40"
-                      stroke="5"
-                      speed="0.9"
-                      color="black"
-                    ></l-tailspin>
-                  </TableCell>
-                </TableRow>
-              ) : table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell, index) => (
-                      <TableCell key={cell.id} className="border p-1 h-8">
-                        {index === 0 ? (
-                          <Checkbox
-                            className=""
-                            checked={row.getIsSelected()}
-                            onCheckedChange={(value) =>
-                              row.toggleSelected(!!value)
-                            }
-                          />
-                        ) : (
-                          flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                    {header.id === "select" && (
+                      <Checkbox
+                        checked={
+                          table.getIsAllPageRowsSelected() ||
+                          (table.getIsSomePageRowsSelected() && "indeterminate")
+                        }
+                        onCheckedChange={(value) =>
+                          table.toggleAllPageRowsSelected(!!value)
+                        }
+                        className="mr-1"
+                        aria-label="Select all"
+                      />
+                    )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={table.getVisibleFlatColumns().length}
+                  className="h-[17rem] text-center mx-auto"
+                >
+                  <l-tailspin
+                    size="40"
+                    stroke="5"
+                    speed="0.9"
+                    color="black"
+                  ></l-tailspin>
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row) => {
+                const isExpanded = expandedRow === row.id;
+                // console.log(row.original, "row");
+                return (
+                  <React.Fragment key={row.id}>
+                    <TableRow data-state={row.getIsSelected() && "selected"}>
+                      {row.getVisibleCells().map((cell, index) => (
+                        <TableCell key={cell.id} className="border p-1 h-8">
+                          {index === 0 ? (
+                            <div className="flex items-center gap-2">
+                              <Checkbox
+                                checked={row.getIsSelected()}
+                                onCheckedChange={(value) =>
+                                  row.toggleSelected(!!value)
+                                }
+                              />
+                            </div>
+                          ) : (
+                            flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+
+                    {isExpanded && (
+                      <TableRow className="bg-slate-100">
+                        <TableCell
+                          colSpan={row.getVisibleCells().length}
+                          className="p-1"
+                        >
+                          <div className="flex gap-10 justify-between p-3 text-sm text-gray-700 w-[30rem] mx-auto">
+                            {/* Schedule */}
+                            <div>
+                              <strong>Schedule:</strong>
+                              <div className="flex gap-1">
+                                {row.original.schedule &&
+                                  Object.entries(row.original.schedule).map(
+                                    ([key, value]) => (
+                                      <span className="lowercase " key={key}>
+                                        {String(value)}
+                                      </span>
+                                    )
+                                  )}
+                              </div>
+                            </div>
+
+                            {/* Parameters */}
+                            <div>
+                              <strong>Parameters:</strong>
+                              <div className="flex gap-1">
+                                {row.original.parameters
+                                  ? Object.entries(row.original.parameters).map(
+                                      ([key, value]) => (
+                                        <span key={key}>
+                                          <span className=""> {key}:</span>{" "}
+                                          {String(value)}
+                                        </span>
+                                      )
+                                    )
+                                  : "none"}
+                              </div>
+                            </div>
+
+                            {/* Result */}
+                            <div>
+                              <strong>Result:</strong>
+                              <div className="flex gap-1 ">
+                                {row.original.result &&
+                                  Object.entries(row.original.result).map(
+                                    ([key, value]) => (
+                                      <p className="w-full" key={key}>
+                                        {String(value)}
+                                      </p>
+                                    )
+                                  )}
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
+                );
+              })
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={getColumns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+
+        {/* Pagination and Status */}
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
             {table.getFilteredSelectedRowModel().rows.length} of{" "}
