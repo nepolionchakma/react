@@ -1,7 +1,11 @@
 import { IARMViewRequestsTypes } from "@/types/interfaces/ARM.interface";
 import { Checkbox } from "@radix-ui/react-checkbox";
 import { ColumnDef } from "@tanstack/react-table";
-export const columns: ColumnDef<IARMViewRequestsTypes>[] = [
+import { CircleChevronDown, CircleChevronRight } from "lucide-react";
+export const columns = (
+  expandedRow: string | null,
+  setExpandedRow: (row: string | null) => void
+): ColumnDef<IARMViewRequestsTypes>[] => [
   {
     id: "select",
     cell: ({ row }) => (
@@ -35,7 +39,9 @@ export const columns: ColumnDef<IARMViewRequestsTypes>[] = [
     header: () => {
       return <div>Status</div>;
     },
-    cell: ({ row }) => <div className="">{row.getValue("status")}</div>,
+    cell: ({ row }) => (
+      <div className="min-w-max">{row.getValue("status")}</div>
+    ),
   },
   {
     accessorKey: "user_task_name",
@@ -65,9 +71,21 @@ export const columns: ColumnDef<IARMViewRequestsTypes>[] = [
     header: () => {
       return <div className="min-w-max">User Schedule Name</div>;
     },
-    cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("user_schedule_name")}</div>
-    ),
+    cell: ({ row }) => {
+      const isOpen = expandedRow === row.id;
+      return (
+        <div className="flex items-center gap-2">
+          <button onClick={() => setExpandedRow(isOpen ? null : row.id)}>
+            {isOpen ? (
+              <CircleChevronDown className="w-5 h-5 text-gray-600" />
+            ) : (
+              <CircleChevronRight className="w-5 h-5 text-gray-600" />
+            )}
+          </button>
+          <span>{row.getValue("user_schedule_name")}</span>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "redbeat_schedule_name",
