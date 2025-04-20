@@ -201,11 +201,24 @@ const SingleSent = () => {
                               {" "}
                               <Ellipsis strokeWidth={1} size={16} />
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent>
+                            <DropdownMenuContent className="p-2">
                               {msg.recivers
                                 .slice(1, msg.recivers.length + 1)
-                                .map((rcvr) => (
-                                  <p>{rcvr.name}</p>
+                                .map((rcvr, i) => (
+                                  <div
+                                    className="flex items-center gap-2 mb-1"
+                                    key={i}
+                                  >
+                                    <Avatar className="w-5 h-5 ">
+                                      <AvatarImage
+                                        src={`${url}/${rcvr.profile_picture}`}
+                                      />
+                                      <AvatarFallback>
+                                        {rcvr.name.slice(0, 1)}
+                                      </AvatarFallback>
+                                    </Avatar>
+                                    <p>{rcvr.name}</p>
+                                  </div>
                                 ))}
                             </DropdownMenuContent>
                           </DropdownMenu>

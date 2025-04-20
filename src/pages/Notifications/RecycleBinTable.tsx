@@ -47,6 +47,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
     recycleBinMsg,
     setRecycleBinMsg,
     totalRecycleBinMsg,
+    handleRestoreMessage,
   } = useSocketContext();
 
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -129,7 +130,9 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
         }
       }
     } catch (error) {
-      console.log("Error deleting message.");
+      toast({
+        title: "There is an error deleting message.",
+      });
     }
   };
   const emptyRecycleBin = async () => {
@@ -177,6 +180,34 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
     navigate(`/notifications/recycle-bin/${id}`);
   };
 
+  const restoreMessage = async (id: string) => {
+    try {
+      const response = await api.put(`/messages/restore-message/${id}/${user}`);
+      if (response.status === 200) {
+        handleRestoreMessage(id, user);
+        toast({
+          title: "Message has been restored.",
+        });
+      }
+    } catch (error) {
+      toast({
+        title: "There is an error restoring message.",
+      });
+    }
+  };
+
+  const findOrigin = (msg: Message) => {
+    if (msg.status === "Draft") {
+      return "Drafts";
+    } else {
+      if (msg.sender.name === user) {
+        return "Sent";
+      } else {
+        return "Inbox";
+      }
+    }
+  };
+
   return (
     <>
       <div className="ml-[11rem] border rounded-md shadow-sm p-4 mb-4">
@@ -184,12 +215,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
           <h1 className="text-lg font-bold mb-6 ">{path} </h1>
           <div>
             <AlertDialog>
-              <AlertDialogTrigger
-                className="bg-white text-white cursor-default"
-                //     className="flex gap-1 bg-red-50 rounded p-2 items-center
-                // justify-center hover:bg-red-500 hover:text-white duration-200
-                // cursor-pointer"
-              >
+              <AlertDialogTrigger className="bg-white text-white cursor-default">
                 <Trash /> <span>Empty Bin</span>
               </AlertDialogTrigger>
               <AlertDialogContent>
@@ -248,12 +274,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
                 <TableRow key={msg.id}>
                   <>
                     <TableCell className="py-2 font-bold">
-                      {msg.recivers.includes({
-                        name: user,
-                        profile_picture: token.profile_picture.thumbnail,
-                      })
-                        ? "Inbox"
-                        : msg.status}
+                      {findOrigin(msg)}
                     </TableCell>
                     <TableCell className="py-2">
                       {msg.recivers.length === 0
@@ -296,7 +317,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
                       <TooltipProvider>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <span>
+                            <span onClick={() => restoreMessage(msg.id)}>
                               <RotateCcw className="cursor-pointer" />
                             </span>
                           </TooltipTrigger>
