@@ -23,6 +23,7 @@ interface IMenuTypes {
 
 const TreeView = () => {
   const api = useAxiosPrivate();
+  const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const [data, setData] = useState<IMenuTypes[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [expandAll, setExpandAll] = useState(false);
@@ -30,10 +31,7 @@ const TreeView = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await api.get(
-          "https://procg.viscorp.app/api/v1/mobile-menu"
-        );
-        console.log(res.data, "res");
+        const res = await api.get(`${url}/mobile-menu`);
         setData(res.data);
       } catch (error) {
         console.error(error);
@@ -84,8 +82,7 @@ const MenuTreeView: React.FC<{
     <div>
       {data.map((menu) => (
         <div key={menu.menu_id} className="mb-4">
-          <div className="text-2xl font-bold">{menu.menu_name}</div>
-          <div className="text-sm text-gray-600">{menu.menu_desc}</div>
+          <div className=" ">{menu.menu_name}</div>
           {menu.menu_structure.map((menuStructure, index) => (
             <TreeNode
               key={index}
@@ -133,11 +130,11 @@ const TreeNode: React.FC<TreeNodeProps> = ({ node, searchTerm, expandAll }) => {
     <div>
       <div className="flex items-center cursor-pointer" onClick={toggleMenu}>
         {isOpen ? (
-          <ChevronDownIcon className="w-5 h-5 mr-2" />
+          <ChevronDownIcon size={15} />
         ) : (
-          <ChevronRightIcon className="w-5 h-5 mr-2" />
+          <ChevronRightIcon size={15} />
         )}
-        <span className="font-semibold text-lg">{node.submenu}</span>
+        <span className=" ">{node.submenu}</span>
       </div>
       {isOpen && (
         <div className="pl-5">
@@ -190,15 +187,12 @@ const TreeNodeItem: React.FC<TreeNodeItemProps> = ({
         className="flex items-center cursor-pointer ml-5"
         onClick={toggleMenu}
       >
-        {node.menuItems ? (
-          isOpen ? (
-            <ChevronDownIcon className="w-5 h-5 mr-2" />
+        {node.menuItems &&
+          (isOpen ? (
+            <ChevronDownIcon size={15} />
           ) : (
-            <ChevronRightIcon className="w-5 h-5 mr-2" />
-          )
-        ) : (
-          <span className="w-5 h-5 mr-2" />
-        )}
+            <ChevronRightIcon size={15} />
+          ))}
         <span className="ml-5 text-md">{node.name}</span>
       </div>
       {isOpen && node.menuItems && (

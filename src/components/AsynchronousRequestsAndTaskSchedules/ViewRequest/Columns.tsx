@@ -1,10 +1,20 @@
 import { IARMViewRequestsTypes } from "@/types/interfaces/ARM.interface";
 import { Checkbox } from "@radix-ui/react-checkbox";
 import { ColumnDef } from "@tanstack/react-table";
-import { CircleChevronDown, CircleChevronRight } from "lucide-react";
+import {
+  CircleChevronDown,
+  CircleChevronRight,
+  CircleChevronUp,
+} from "lucide-react";
 export const columns = (
   expandedRow: string | null,
-  setExpandedRow: (row: string | null) => void
+  setExpandedRow: (row: string | null) => void,
+  viewParameters: string,
+  setViewParameters: (row: string) => void,
+  viewResult: string,
+  setViewResult: (row: string) => void,
+  clickedRowId: string,
+  setClickedRowId: (row: string) => void
 ): ColumnDef<IARMViewRequestsTypes>[] => [
   {
     id: "select",
@@ -141,8 +151,23 @@ export const columns = (
     },
     cell: ({ row }) => {
       return (
-        <div className="min-w-max">
-          {JSON.stringify(row.getValue("parameters"))}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              setViewParameters(row.original.parameters);
+              setClickedRowId(row.id);
+            }}
+          >
+            {viewParameters && clickedRowId === row.id ? (
+              <CircleChevronDown className="w-5 h-5 text-gray-600" />
+            ) : (
+              <CircleChevronUp className="w-5 h-5 text-gray-600" />
+            )}
+          </button>
+          <span>
+            {JSON.stringify(row.getValue("parameters")).slice(0, 10)}
+            {JSON.stringify(row.getValue("parameters")).length > 10 && "..."}
+          </span>
         </div>
       );
     },
@@ -154,8 +179,23 @@ export const columns = (
     },
     cell: ({ row }) => {
       return (
-        <div className="min-w-max">
-          {JSON.stringify(row.getValue("result"))}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              setViewResult(row.original.result);
+              setClickedRowId(row.id);
+            }}
+          >
+            {viewResult && clickedRowId === row.id ? (
+              <CircleChevronDown className="w-5 h-5 text-gray-600" />
+            ) : (
+              <CircleChevronUp className="w-5 h-5 text-gray-600" />
+            )}
+          </button>
+          <span>
+            {JSON.stringify(row.getValue("result")).slice(0, 10)}
+            {JSON.stringify(row.getValue("result")).length > 10 && "..."}
+          </span>
         </div>
       );
     },
