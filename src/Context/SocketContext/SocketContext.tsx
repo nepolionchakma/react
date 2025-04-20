@@ -48,6 +48,7 @@ interface SocketContext {
   inactiveDevice: (data: IUserLinkedDevices) => void;
   linkedDevices: IUserLinkedDevices[];
   setLinkedDevices: React.Dispatch<React.SetStateAction<IUserLinkedDevices[]>>;
+  handleRestoreMessage: (id: string, user: string) => void;
 }
 
 const SocketContext = createContext({} as SocketContext);
@@ -313,6 +314,33 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       }
     });
 
+    socket.on("restoreMessage", (id) => {
+      const message = recycleBinMsg.find((msg) => msg.id === id);
+      console.log(id, message, "restoreMessage");
+
+      try {
+        if (!message) return;
+        if (message.status === "Draft") {
+          setDraftMessages((prev) => [message, ...prev]);
+          setTotalDraftMessages((prev) => prev + 1);
+        } else {
+          if (message.sender.name === user) {
+            setSentMessages((prev) => [message, ...prev]);
+            setTotalSentMessages((prev) => prev + 1);
+          } else {
+            setReceivedMessages((prev) => [message, ...prev]);
+            setTotalReceivedMessages((prev) => prev + 1);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        const newRecycle = recycleBinMsg.filter((msg) => msg.id !== id);
+        setRecycleBinMsg(newRecycle);
+        setTotalRecycleBinMsg((prev) => prev - 1);
+      }
+    });
+
     // device Action
     socket.on("addDevice", (data) => {
       setLinkedDevices((prev) => {
@@ -346,31 +374,6 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       });
     });
 
-    // socket.on("deletedMessage", (id) => {
-    //   if (receivedMessages.some((msg) => msg.id === id)) {
-    //     // if receive message includes the id then remove it
-    //     setReceivedMessages((prev) => prev.filter((msg) => msg.id !== id));
-    //     setTotalReceivedMessages((prev) => prev - 1);
-    //     setSocketMessages((prev) => prev.filter((msg) => msg.id !== id));
-    //     setTotalRecycleBinMsg((prev) => prev + 1);
-    //   } else if (sentMessages.some((msg) => msg.id === id)) {
-    //     console.log("sentMessage");
-    //     // if sent message includes the id then remove it
-    //     setSentMessages((prev) => prev.filter((msg) => msg.id !== id));
-    //     setTotalSentMessages((prev) => prev - 1);
-    //     setTotalRecycleBinMsg((prev) => prev + 1);
-    //   } else if (draftMessages.some((msg) => msg.id === id)) {
-    //     // if draft message includes the id then remove it
-    //     setDraftMessages((prev) => prev.filter((msg) => msg.id !== id));
-    //     setTotalDraftMessages((prev) => prev - 1);
-    //     setTotalRecycleBinMsg((prev) => prev + 1);
-    //   } else if (recycleBinMsg.some((msg) => msg.id === id)) {
-    //     // if receive message includes the id then remove it
-    //     setRecycleBinMsg((prev) => prev.filter((msg) => msg.id !== id));
-    //     setTotalRecycleBinMsg((prev) => prev - 1);
-    //   }
-    // });
-
     return () => {
       socket.off("receivedMessage");
       socket.off("sentMessage");
@@ -380,6 +383,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       socket.off("deletedMessage");
       socket.off("addDevice");
       socket.off("inactiveDevice");
+      socket.off("restoreMessage");
       // socket.disconnect();
     };
   }, [
@@ -415,6 +419,10 @@ export function SocketContextProvider({ children }: SocketContextProps) {
 
   const handleDraftMsgId = (id: string) => {
     socket.emit("draftMsgId", { id, user });
+  };
+
+  const handleRestoreMessage = (id: string, user: string) => {
+    socket.emit("restoreMessage", { id, user });
   };
 
   // device Action
@@ -456,6 +464,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
         inactiveDevice,
         linkedDevices,
         setLinkedDevices,
+        handleRestoreMessage,
       }}
     >
       {children}
