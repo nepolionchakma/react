@@ -32,6 +32,7 @@ import { columns as getColumns } from "./Columns";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { IARMViewRequestsTypes } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
+import ResultPopUp from "./PopUp/ResultPopUp";
 
 export function ViewRequestTable() {
   const { totalPage, getViewRequests, isLoading } = useARMContext();
@@ -40,6 +41,9 @@ export function ViewRequestTable() {
   const limit = 8;
 
   const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
+  const [viewParameters, setViewParameters] = React.useState("");
+  const [viewResult, setViewResult] = React.useState("");
+  const [clickedRowId, setClickedRowId] = React.useState("");
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -65,7 +69,16 @@ export function ViewRequestTable() {
 
   const table = useReactTable({
     data,
-    columns: getColumns(expandedRow, setExpandedRow),
+    columns: getColumns(
+      expandedRow,
+      setExpandedRow,
+      viewParameters,
+      setViewParameters,
+      viewResult,
+      setViewResult,
+      clickedRowId,
+      setClickedRowId
+    ),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -91,8 +104,6 @@ export function ViewRequestTable() {
     "task_name",
     "executor",
     "schedule",
-    "parameters",
-    "result",
   ];
 
   React.useEffect(() => {
@@ -105,6 +116,14 @@ export function ViewRequestTable() {
 
   return (
     <div className="px-3">
+      {(viewParameters || viewResult) && (
+        <ResultPopUp
+          action={viewParameters ? "Parameters" : "Result"}
+          data={viewParameters ? viewParameters : viewResult}
+          setData={viewParameters ? setViewParameters : setViewResult}
+        />
+      )}
+
       {/* Filter + Column Controls */}
       <div className="flex gap-3 items-center py-2">
         <Input
@@ -227,7 +246,12 @@ export function ViewRequestTable() {
                           colSpan={row.getVisibleCells().length}
                           className="p-1"
                         >
-                          <div className="flex gap-10 justify-between p-3 text-sm text-gray-700 w-[30rem] mx-auto">
+                          <div className="flex gap-10 justify-between p-3 text-sm text-gray-700 w-[20rem] mx-auto">
+                            {/* Schedule Type */}
+                            <div>
+                              <strong>Schedule Type:</strong>
+                              <div className="flex gap-1"></div>
+                            </div>
                             {/* Schedule */}
                             <div>
                               <strong>Schedule:</strong>
@@ -238,38 +262,6 @@ export function ViewRequestTable() {
                                       <span className="lowercase " key={key}>
                                         {String(value)}
                                       </span>
-                                    )
-                                  )}
-                              </div>
-                            </div>
-
-                            {/* Parameters */}
-                            <div>
-                              <strong>Parameters:</strong>
-                              <div className="flex gap-1">
-                                {row.original.parameters
-                                  ? Object.entries(row.original.parameters).map(
-                                      ([key, value]) => (
-                                        <span key={key}>
-                                          <span className=""> {key}:</span>{" "}
-                                          {String(value)}
-                                        </span>
-                                      )
-                                    )
-                                  : "none"}
-                              </div>
-                            </div>
-
-                            {/* Result */}
-                            <div>
-                              <strong>Result:</strong>
-                              <div className="flex gap-1 ">
-                                {row.original.result &&
-                                  Object.entries(row.original.result).map(
-                                    ([key, value]) => (
-                                      <p className="w-full" key={key}>
-                                        {String(value)}
-                                      </p>
                                     )
                                   )}
                               </div>
