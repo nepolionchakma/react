@@ -171,7 +171,8 @@
       "/tools/enterprise-process-modeler/orchestration-studio",
       "/tools/enterprise-system-integrations",
       "/tools/enterprise-system-integrations/manage-data-sources",
-      "/tools/manage-data-sources"
+      "/tools/manage-tenancy-and-enterprise-setup",
+      "/tools/mobile-app-admin-console"
     ],
     "subMenus": [
       {

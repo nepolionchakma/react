@@ -59,10 +59,10 @@ import PopUp from "./PopUp/PopUp";
 export function ViewEditScheduledTasksTable() {
   const {
     totalPage,
-    getAsynchronousRequestsAndTaskSchedulesV1,
+    getAsynchronousRequestsAndTaskSchedules,
     isLoading,
     setIsLoading,
-    deleteAsynchronousRequestsAndTaskSchedulesV1,
+    deleteAsynchronousRequestsAndTaskSchedules,
     isSubmit,
     setIsSubmit,
   } = useARMContext();
@@ -80,12 +80,12 @@ export function ViewEditScheduledTasksTable() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const res = await getAsynchronousRequestsAndTaskSchedulesV1(
-          page,
-          limit
-        );
+        const res = await getAsynchronousRequestsAndTaskSchedules(page, limit);
 
-        if (res) setData(res);
+        if (res) {
+          setData(res);
+          setExpandedRow(null);
+        }
       } catch (error) {
         console.log(error);
       } finally {
@@ -121,7 +121,7 @@ export function ViewEditScheduledTasksTable() {
   const handleDelete = async () => {
     setIsLoading(true);
     try {
-      await deleteAsynchronousRequestsAndTaskSchedulesV1(selected);
+      await deleteAsynchronousRequestsAndTaskSchedules(selected);
 
       //table toggle empty
       table.getRowModel().rows.map((row) => row.toggleSelected(false));

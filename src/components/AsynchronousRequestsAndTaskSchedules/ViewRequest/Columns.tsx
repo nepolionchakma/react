@@ -120,6 +120,18 @@ export const columns = (
     },
   },
   {
+    accessorKey: "schedule_type",
+    header: () => {
+      return <div className="min-w-max">Schedule Type</div>;
+    },
+    cell: ({ row }) => {
+      const schedule_type = row.getValue("schedule_type");
+      const result =
+        schedule_type === null ? "null" : JSON.parse(schedule_type as string);
+      return <div className="min-w-max capitalize">{result.toLowerCase()}</div>;
+    },
+  },
+  {
     accessorKey: "args",
     header: () => {
       return <div className="w-[30rem]">Args</div>;
@@ -150,6 +162,7 @@ export const columns = (
       return <div className="min-w-max">Parameters</div>;
     },
     cell: ({ row }) => {
+      const parameters = JSON.stringify(row.getValue("parameters"));
       return (
         <div className="flex items-center gap-2">
           <button
@@ -165,8 +178,8 @@ export const columns = (
             )}
           </button>
           <span>
-            {JSON.stringify(row.getValue("parameters")).slice(0, 10)}
-            {JSON.stringify(row.getValue("parameters")).length > 10 && "..."}
+            {parameters.slice(0, 10)}
+            {parameters.length > 10 && "..."}
           </span>
         </div>
       );

@@ -63,12 +63,12 @@ const Schedule: FC<IScheduleProps> = ({
   setIsOpenScheduleModalV1,
   selected,
 }) => {
-  const [scheduleHere, setScheduleHere] = useState<
+  const [scheduleTimes, setScheduleTimes] = useState<
     | ISchedulePropsPeriodic
     | ISchedulePropsNonPeriodic
     | IScheduleOnce
     | undefined
-  >();
+  >(schedule);
 
   const [frequency, setFrequency] = useState<number>();
   const [frequency_type, setFrequency_type] = useState<string>();
@@ -109,16 +109,16 @@ const Schedule: FC<IScheduleProps> = ({
     if (scheduleType === "" || scheduleType === "IMMEDIATE") {
       form.reset({ schedule_type: scheduleType, schedule: undefined });
       setScheduleType("IMMEDIATE");
-      setScheduleHere(undefined);
+      setScheduleTimes(undefined);
     } else {
-      setScheduleHere(() => {
+      setScheduleTimes(() => {
         if (selected) {
-          if (selected.schedule_type === scheduleType) {
-            return selected.schedule;
+          if (scheduleType === "ONCE") {
+            return { VALUES: parse };
           } else if (scheduleType === "PERIODIC") {
             return {} as ISchedulePropsPeriodic;
-          } else if (scheduleType === "ONCE") {
-            return { VALUES: parse };
+          } else if (scheduleType === selected.schedule_type) {
+            return selected.schedule;
           } else if (scheduleType === "WEEKLY_SPECIFIC_DAYS") {
             form.reset({
               schedule_type: scheduleType,
@@ -133,10 +133,10 @@ const Schedule: FC<IScheduleProps> = ({
             return { VALUES: [] };
           }
         } else {
-          if (scheduleType === "PERIODIC") {
-            return {} as ISchedulePropsPeriodic;
-          } else if (scheduleType === "ONCE") {
+          if (scheduleType === "ONCE") {
             return { VALUES: parse };
+          } else if (scheduleType === "PERIODIC") {
+            return {} as ISchedulePropsPeriodic;
           } else if (scheduleType === "WEEKLY_SPECIFIC_DAYS") {
             form.reset({ schedule_type: scheduleType, schedule: undefined });
             return { VALUES: [] };
@@ -167,17 +167,17 @@ const Schedule: FC<IScheduleProps> = ({
   };
   // Date and Time selections
   const handleDateSelect = (time: string) => {
-    if (scheduleHere && "VALUES" in scheduleHere) {
-      if (Array.isArray(scheduleHere.VALUES)) {
+    if (scheduleTimes && "VALUES" in scheduleTimes) {
+      if (Array.isArray(scheduleTimes.VALUES)) {
         {
-          scheduleHere.VALUES.includes(time)
-            ? setScheduleHere({
+          scheduleTimes.VALUES.includes(time)
+            ? setScheduleTimes({
                 VALUES: sequenceRecords(
-                  scheduleHere.VALUES.filter((d) => d !== time)
+                  scheduleTimes.VALUES.filter((d) => d !== time)
                 ),
               })
-            : setScheduleHere({
-                VALUES: sequenceRecords([...scheduleHere.VALUES, time]),
+            : setScheduleTimes({
+                VALUES: sequenceRecords([...scheduleTimes.VALUES, time]),
               });
         }
       }
@@ -255,7 +255,12 @@ const Schedule: FC<IScheduleProps> = ({
             />
 
             {/* Frequency & Frequency Type Selection */}
-            {form.getValues().schedule_type === "PERIODIC" ? (
+            {form.getValues().schedule_type === "ONCE" ? (
+              <OnceScheduleType
+                form={form}
+                setScheduleHere={setScheduleTimes}
+              />
+            ) : form.getValues().schedule_type === "PERIODIC" ? (
               <div className="flex gap-2">
                 <FormField
                   control={form.control}
@@ -321,18 +326,41 @@ const Schedule: FC<IScheduleProps> = ({
                   )}
                 />
               </div>
+            ) : form.getValues().schedule_type === "WEEKLY_SPECIFIC_DAYS" ? (
+              <div>
+                <div>
+                  <h3>Days of Every Week:</h3>
+                  <div className="grid grid-cols-7 py-2 gap-[6px]">
+                    {daysOfWeek.map((day) => (
+                      <div
+                        key={day.value}
+                        className={`${
+                          scheduleTimes &&
+                          "VALUES" in scheduleTimes &&
+                          Array.isArray(scheduleTimes.VALUES) &&
+                          scheduleTimes.VALUES.includes(day.value) &&
+                          "bg-slate-400"
+                        } flex items-center justify-center h-8 border border-slate-500 rounded cursor-pointer hover:bg-slate-200 p-2`}
+                        onClick={() => handleDateSelect(day.value)}
+                      >
+                        {day.name}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             ) : form.getValues().schedule_type === "MONTHLY_SPECIFIC_DATES" ? (
               <div>
                 <h3>Dates of Every Month:</h3>
-                <div className="grid grid-cols-7 py-2">
+                <div className="grid grid-cols-7 py-2 gap-[6px]">
                   {dates.map((date) => (
                     <div
                       key={date.value}
                       className={`${
-                        scheduleHere &&
-                        "VALUES" in scheduleHere &&
-                        Array.isArray(scheduleHere.VALUES) &&
-                        scheduleHere.VALUES.includes(date.value) &&
+                        scheduleTimes &&
+                        "VALUES" in scheduleTimes &&
+                        Array.isArray(scheduleTimes.VALUES) &&
+                        scheduleTimes.VALUES.includes(date.value) &&
                         "bg-slate-400"
                       } text-center border border-slate-500 rounded cursor-pointer hover:bg-slate-200 p-2 ${
                         date.value === "L" && "col-span-4"
@@ -346,37 +374,7 @@ const Schedule: FC<IScheduleProps> = ({
                   ))}
                 </div>
               </div>
-            ) : form.getValues().schedule_type === "WEEKLY_SPECIFIC_DAYS" ? (
-              <div>
-                <div>
-                  <h3>Days of Every Week:</h3>
-                  <div className="grid grid-cols-7 py-2">
-                    {daysOfWeek.map((day) => (
-                      <div
-                        key={day.value}
-                        className={`${
-                          scheduleHere &&
-                          "VALUES" in scheduleHere &&
-                          Array.isArray(scheduleHere.VALUES) &&
-                          scheduleHere.VALUES.includes(day.value) &&
-                          "bg-slate-400"
-                        } flex items-center justify-center h-8 border border-slate-500 rounded cursor-pointer hover:bg-slate-200 p-2`}
-                        onClick={() => handleDateSelect(day.value)}
-                      >
-                        {day.name}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            ) : (
-              form.getValues().schedule_type === "ONCE" && (
-                <OnceScheduleType
-                  form={form}
-                  setScheduleHere={setScheduleHere}
-                />
-              )
-            )}
+            ) : null}
           </div>
 
           {/* Action Buttons */}
