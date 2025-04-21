@@ -5,7 +5,7 @@ interface IResultsProps {
   data: string;
   setData: React.Dispatch<React.SetStateAction<string>>;
 }
-const ResultPopUp = ({ action, data, setData }: IResultsProps) => {
+const PopUp = ({ action, data, setData }: IResultsProps) => {
   return (
     <CustomModal4 className="w-[400px] h-auto">
       <div className=" ">
@@ -16,13 +16,9 @@ const ResultPopUp = ({ action, data, setData }: IResultsProps) => {
         <div className="p-2 flex flex-col ">
           {Object.entries(data).map(([key, value]) => (
             <div key={key}>
-              {action === "Parameters" ? (
-                <span>
-                  {key}: {value}
-                </span>
-              ) : (
-                <span>{value}</span>
-              )}
+              <span className="capitalize">
+                {key.toLowerCase().replace("_", " ")}: {value}
+              </span>
             </div>
           ))}
         </div>
@@ -31,4 +27,4 @@ const ResultPopUp = ({ action, data, setData }: IResultsProps) => {
   );
 };
 
-export default ResultPopUp;
+export default PopUp;

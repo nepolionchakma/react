@@ -5,7 +5,6 @@ import {
   IARMTaskParametersTypes,
   IARMViewRequestsTypes,
   IAsynchronousRequestsAndTaskSchedulesTypes,
-  IAsynchronousRequestsAndTaskSchedulesTypesV1,
   IExecutionMethodsTypes,
 } from "@/types/interfaces/ARM.interface";
 import React, { ReactNode, createContext, useContext, useState } from "react";
@@ -62,12 +61,12 @@ interface ARMContext {
   getAsynchronousRequestsAndTaskSchedulesV1: (
     page: number,
     limit: number
-  ) => Promise<IAsynchronousRequestsAndTaskSchedulesTypesV1[] | undefined>;
+  ) => Promise<IAsynchronousRequestsAndTaskSchedulesTypes[] | undefined>;
   deleteAsynchronousRequestsAndTaskSchedules: (
     selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
   ) => Promise<void>;
   deleteAsynchronousRequestsAndTaskSchedulesV1: (
-    selectedItems: IAsynchronousRequestsAndTaskSchedulesTypesV1[]
+    selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
   ) => Promise<void>;
   getViewRequests: (
     page: number,
@@ -252,10 +251,10 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   ) => {
     try {
       const [allTasksSchedules, taskSchedules] = await Promise.all([
-        api.get<IAsynchronousRequestsAndTaskSchedulesTypesV1[]>(
+        api.get<IAsynchronousRequestsAndTaskSchedulesTypes[]>(
           `/asynchronous-requests-and-task-schedules/task-schedules`
         ),
-        api.get<IAsynchronousRequestsAndTaskSchedulesTypesV1[]>(
+        api.get<IAsynchronousRequestsAndTaskSchedulesTypes[]>(
           `/asynchronous-requests-and-task-schedules/task-schedules/${page}/${limit}`
         ),
       ]);
@@ -288,7 +287,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     }
   };
   const deleteAsynchronousRequestsAndTaskSchedulesV1 = async (
-    selectedItems: IAsynchronousRequestsAndTaskSchedulesTypesV1[]
+    selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
   ) => {
     try {
       setIsLoading(true);
