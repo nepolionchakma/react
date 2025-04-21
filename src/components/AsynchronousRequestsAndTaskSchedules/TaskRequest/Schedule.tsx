@@ -23,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
 import {
-  IAsynchronousRequestsAndTaskSchedulesTypesV1,
+  IAsynchronousRequestsAndTaskSchedulesTypes,
   IScheduleOnce,
   ISchedulePropsNonPeriodic,
   ISchedulePropsPeriodic,
@@ -49,7 +49,7 @@ interface IScheduleProps {
   setScheduleType: Dispatch<SetStateAction<string>>;
   action: string;
   setIsOpenScheduleModalV1: Dispatch<SetStateAction<string>>;
-  selected?: IAsynchronousRequestsAndTaskSchedulesTypesV1;
+  selected?: IAsynchronousRequestsAndTaskSchedulesTypes;
   periodic: ISchedulePropsPeriodic | undefined;
   setPeriodic: Dispatch<SetStateAction<ISchedulePropsPeriodic | undefined>>;
 }

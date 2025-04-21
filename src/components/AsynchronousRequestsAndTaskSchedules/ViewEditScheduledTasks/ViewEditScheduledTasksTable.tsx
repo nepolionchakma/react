@@ -47,13 +47,14 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import columns from "./Columns";
+import { columns as getColumns } from "./Columns";
 import Pagination5 from "@/components/Pagination/Pagination5";
-import { IAsynchronousRequestsAndTaskSchedulesTypesV1 } from "@/types/interfaces/ARM.interface";
+import { IAsynchronousRequestsAndTaskSchedulesTypes } from "@/types/interfaces/ARM.interface";
 import { toast } from "@/components/ui/use-toast";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import TaskRequest from "../TaskRequest/TaskRequest";
 import CustomModal2 from "@/components/CustomModal/CustomModal2";
+import PopUp from "./PopUp/PopUp";
 
 export function ViewEditScheduledTasksTable() {
   const {
@@ -66,8 +67,11 @@ export function ViewEditScheduledTasksTable() {
     setIsSubmit,
   } = useARMContext();
   const [data, setData] = React.useState<
-    IAsynchronousRequestsAndTaskSchedulesTypesV1[] | []
+    IAsynchronousRequestsAndTaskSchedulesTypes[] | []
   >([]);
+  const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
+  const [viewParameters, setViewParameters] = React.useState("");
+  const [clickedRowId, setClickedRowId] = React.useState("");
   const limit = 8;
   const [page, setPage] = React.useState<number>(1);
   const { isOpenModal, setIsOpenModal } = useGlobalContext();
@@ -98,17 +102,13 @@ export function ViewEditScheduledTasksTable() {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0, //initial page index
-    pageSize: 10, //default page size
-  });
 
   const [selected, setSelected] = React.useState<
-    IAsynchronousRequestsAndTaskSchedulesTypesV1[]
+    IAsynchronousRequestsAndTaskSchedulesTypes[]
   >([]);
 
   const handleRowSelection = (
-    rowSelection: IAsynchronousRequestsAndTaskSchedulesTypesV1
+    rowSelection: IAsynchronousRequestsAndTaskSchedulesTypes
   ) => {
     setSelected((prevSelected) => {
       if (prevSelected.includes(rowSelection)) {
@@ -138,13 +138,19 @@ export function ViewEditScheduledTasksTable() {
   };
   const table = useReactTable({
     data,
-    columns,
+    columns: getColumns(
+      expandedRow,
+      setExpandedRow,
+      viewParameters,
+      setViewParameters,
+      clickedRowId,
+      setClickedRowId
+    ),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
 
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onPaginationChange: setPagination,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -154,7 +160,6 @@ export function ViewEditScheduledTasksTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination,
     },
   });
   // default hidden columns
@@ -168,6 +173,8 @@ export function ViewEditScheduledTasksTable() {
     "last_update_date",
     "ready_for_redbeat",
     "task_name",
+    "schedule_type",
+    "schedule",
   ];
 
   React.useEffect(() => {
@@ -205,6 +212,13 @@ export function ViewEditScheduledTasksTable() {
           />
         </CustomModal2>
       )}
+      {viewParameters && (
+        <PopUp
+          action="Parameters"
+          data={viewParameters}
+          setData={setViewParameters}
+        />
+      )}
       {/* top icon and columns*/}
       <div className="flex gap-3 items-center py-2">
         <div className="flex gap-3">
@@ -230,6 +244,7 @@ export function ViewEditScheduledTasksTable() {
                   </Tooltip>
                 </TooltipProvider>
               </button>
+              {/* delete  */}
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <button disabled={selected.length === 0}>
@@ -387,7 +402,7 @@ export function ViewEditScheduledTasksTable() {
               {isLoading ? (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={getColumns.length}
                     className="h-[17rem] text-center"
                   >
                     <l-tailspin
@@ -399,39 +414,100 @@ export function ViewEditScheduledTasksTable() {
                   </TableCell>
                 </TableRow>
               ) : table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                    // aria-disabled={row.original.user_schedule_name === "ad-hoc"}
-                  >
-                    {row.getVisibleCells().map((cell, index) => (
-                      <TableCell key={cell.id} className="border p-1 h-8">
-                        {index === 0 ? (
-                          <Checkbox
-                            disabled={
-                              row.original.cancelled_yn.toLowerCase() === "y"
-                            }
-                            checked={row.getIsSelected()}
-                            onCheckedChange={(value) => {
-                              row.toggleSelected(!!value);
-                            }}
-                            onClick={() => handleRowSelection(row.original)}
-                          />
-                        ) : (
-                          flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
+                table.getRowModel().rows.map((row) => {
+                  const isExpanded = expandedRow === row.id;
+                  return (
+                    <React.Fragment key={row.id}>
+                      <TableRow
+                        data-state={row.getIsSelected() && "selected"}
+                        // aria-disabled={row.original.user_schedule_name === "ad-hoc"}
+                      >
+                        {row.getVisibleCells().map((cell, index) => (
+                          <TableCell key={cell.id} className="border p-1 h-8">
+                            {index === 0 ? (
+                              <Checkbox
+                                disabled={
+                                  row.original.cancelled_yn.toLowerCase() ===
+                                  "y"
+                                }
+                                checked={row.getIsSelected()}
+                                onCheckedChange={(value) => {
+                                  row.toggleSelected(!!value);
+                                }}
+                                onClick={() => handleRowSelection(row.original)}
+                              />
+                            ) : (
+                              flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                              )
+                            )}
+                          </TableCell>
+                        ))}
+                      </TableRow>
+                      {isExpanded && (
+                        <TableRow className="bg-slate-100">
+                          <TableCell
+                            colSpan={row.getVisibleCells().length}
+                            className="p-1"
+                          >
+                            <div className="flex gap-10 justify-between p-3 text-sm text-gray-700 w-[20rem] mx-auto">
+                              {/* Schedule Type */}
+                              <div>
+                                <strong>Schedule Type:</strong>
+                                <div className="">
+                                  {row.original.schedule_type &&
+                                    Object.entries(
+                                      row.original.schedule_type
+                                    ).map(([key, value]) => (
+                                      <span className="capitalize " key={key}>
+                                        {value.toLowerCase().replace(/_/g, " ")}
+                                      </span>
+                                    ))}
+                                </div>
+                              </div>
+                              {/* Schedule */}
+                              <div>
+                                <strong>Schedule:</strong>
+                                <div className="flex gap-1">
+                                  {row.original.schedule &&
+                                    Object.entries(row.original.schedule).map(
+                                      ([key, value]) => {
+                                        return (
+                                          <span
+                                            className="capitalize flex flex-col"
+                                            key={key}
+                                          >
+                                            {typeof value !== "object" ? (
+                                              <span className="capitalize">
+                                                {typeof value === "string"
+                                                  ? value.toLowerCase()
+                                                  : value}
+                                              </span>
+                                            ) : (
+                                              value?.map((item: string) => (
+                                                <span key={item}>
+                                                  {item.toLowerCase()}
+                                                </span>
+                                              ))
+                                            )}
+                                          </span>
+                                        );
+                                      }
+                                    )}
+                                </div>
+                              </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </React.Fragment>
+                  );
+                })
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={getColumns.length}
                     className="h-24 text-center"
                   >
                     No results.

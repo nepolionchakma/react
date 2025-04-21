@@ -32,7 +32,7 @@ import { columns as getColumns } from "./Columns";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { IARMViewRequestsTypes } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
-import ResultPopUp from "./PopUp/ResultPopUp";
+import PopUp from "./PopUp/PopUp";
 
 export function ViewRequestTable() {
   const { totalPage, getViewRequests, isLoading } = useARMContext();
@@ -117,7 +117,7 @@ export function ViewRequestTable() {
   return (
     <div className="px-3">
       {(viewParameters || viewResult) && (
-        <ResultPopUp
+        <PopUp
           action={viewParameters ? "Parameters" : "Result"}
           data={viewParameters ? viewParameters : viewResult}
           setData={viewParameters ? setViewParameters : setViewResult}
@@ -259,8 +259,23 @@ export function ViewRequestTable() {
                                 {row.original.schedule &&
                                   Object.entries(row.original.schedule).map(
                                     ([key, value]) => (
-                                      <span className="lowercase " key={key}>
-                                        {String(value)}
+                                      <span
+                                        className="capitalize flex flex-col"
+                                        key={key}
+                                      >
+                                        {typeof value !== "object" ? (
+                                          <span className="capitalize">
+                                            {typeof value === "string"
+                                              ? value.toLowerCase()
+                                              : value}
+                                          </span>
+                                        ) : (
+                                          value?.map((item: string) => (
+                                            <span key={item}>
+                                              {item.toLowerCase()}
+                                            </span>
+                                          ))
+                                        )}
                                       </span>
                                     )
                                   )}

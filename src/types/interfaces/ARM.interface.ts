@@ -32,25 +32,25 @@ export interface IARMTaskParametersTypes {
   parameter_name: string;
   task_name: string;
 }
-export interface IAsynchronousRequestsAndTaskSchedulesTypes {
-  args: string[];
-  arm_task_sche_id: number;
-  cancelled_yn: string;
-  created_by: number;
-  creation_date: string;
-  kwargs: {
-    employee_id: number;
-  };
-  last_update_date: string;
-  last_updated_by: number;
-  redbeat_schedule_name: string;
-  schedule: number;
-  task_name: string;
-  user_schedule_name: string;
-  parameters: string;
-  schedule_type: string;
-  ready_for_redbeat: string;
-}
+// export interface IAsynchronousRequestsAndTaskSchedulesTypes {
+//   args: string[];
+//   arm_task_sche_id: number;
+//   cancelled_yn: string;
+//   created_by: number;
+//   creation_date: string;
+//   kwargs: {
+//     employee_id: number;
+//   };
+//   last_update_date: string;
+//   last_updated_by: number;
+//   redbeat_schedule_name: string;
+//   schedule: number;
+//   task_name: string;
+//   user_schedule_name: string;
+//   parameters: string;
+//   schedule_type: string;
+//   ready_for_redbeat: string;
+// }
 
 export interface ISchedulePropsPeriodic {
   FREQUENCY: number;
@@ -63,7 +63,7 @@ export interface IScheduleOnce {
   VALUES: string;
 }
 
-export interface IAsynchronousRequestsAndTaskSchedulesTypesV1 {
+export interface IAsynchronousRequestsAndTaskSchedulesTypes {
   args: string[];
   arm_task_sche_id: number;
   cancelled_yn: string;

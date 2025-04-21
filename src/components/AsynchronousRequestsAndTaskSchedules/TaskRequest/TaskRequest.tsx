@@ -32,7 +32,7 @@ import {
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import {
   IARMAsynchronousTasksTypes,
-  IAsynchronousRequestsAndTaskSchedulesTypesV1,
+  IAsynchronousRequestsAndTaskSchedulesTypes,
   IScheduleOnce,
   ISchedulePropsNonPeriodic,
   ISchedulePropsPeriodic,
@@ -46,7 +46,7 @@ interface ITaskRequestProps {
   action: string;
   handleCloseModal: () => void;
   user_schedule_name: string;
-  selected?: IAsynchronousRequestsAndTaskSchedulesTypesV1;
+  selected?: IAsynchronousRequestsAndTaskSchedulesTypes;
 }
 
 const TaskRequest: FC<ITaskRequestProps> = ({
