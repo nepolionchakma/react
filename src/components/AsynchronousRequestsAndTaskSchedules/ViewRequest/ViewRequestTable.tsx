@@ -104,6 +104,7 @@ export function ViewRequestTable() {
     "task_name",
     "executor",
     "schedule",
+    "schedule_type",
   ];
 
   React.useEffect(() => {
@@ -250,7 +251,17 @@ export function ViewRequestTable() {
                             {/* Schedule Type */}
                             <div>
                               <strong>Schedule Type:</strong>
-                              <div className="flex gap-1"></div>
+                              <div className="flex ">
+                                {row.original.schedule_type ? (
+                                  <span className="capitalize">
+                                    {JSON.parse(
+                                      row.original.schedule_type
+                                    ).toLowerCase()}
+                                  </span>
+                                ) : (
+                                  "Null"
+                                )}
+                              </div>
                             </div>
                             {/* Schedule */}
                             <div>

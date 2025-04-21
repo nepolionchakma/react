@@ -228,7 +228,7 @@ const TaskRequest: FC<ITaskRequestProps> = ({
       {isOpenScheduleModalV1 === "Schedule" && (
         <CustomModal4 className="w-[770px] h-[450px]">
           <Schedule
-            schedule={selected?.schedule ?? schedule}
+            schedule={schedule}
             setSchedule={setSchedule}
             scheduleType={scheduleType}
             setScheduleType={setScheduleType}

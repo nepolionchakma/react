@@ -58,14 +58,7 @@ interface ARMContext {
     page: number,
     limit: number
   ) => Promise<IAsynchronousRequestsAndTaskSchedulesTypes[] | undefined>;
-  getAsynchronousRequestsAndTaskSchedulesV1: (
-    page: number,
-    limit: number
-  ) => Promise<IAsynchronousRequestsAndTaskSchedulesTypes[] | undefined>;
   deleteAsynchronousRequestsAndTaskSchedules: (
-    selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
-  ) => Promise<void>;
-  deleteAsynchronousRequestsAndTaskSchedulesV1: (
     selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
   ) => Promise<void>;
   getViewRequests: (
@@ -215,37 +208,15 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       const res = await api.get<IARMAsynchronousTasksParametersTypes[]>(
         `/arm-tasks/task-params/${task_name}`
       );
-      console.log(res, "res");
+
       return res.data ?? [];
     } catch (error) {
       console.log("Task Parameters Item Not found");
       return [];
     }
   };
+
   const getAsynchronousRequestsAndTaskSchedules = async (
-    page: number,
-    limit: number
-  ) => {
-    try {
-      const [allTasksSchedules, taskSchedules] = await Promise.all([
-        api.get<IAsynchronousRequestsAndTaskSchedulesTypes[]>(
-          `/asynchronous-requests-and-task-schedules`
-        ),
-        api.get<IAsynchronousRequestsAndTaskSchedulesTypes[]>(
-          `/asynchronous-requests-and-task-schedules/${page}/${limit}`
-        ),
-      ]);
-      const totalCount = allTasksSchedules.data.length;
-      const totalPages = Math.ceil(totalCount / limit);
-      setTotalPage(totalPages);
-      return taskSchedules.data ?? [];
-    } catch (error) {
-      console.log("Task Parameters Item Not found");
-      return [];
-    }
-  };
-  // V1 API
-  const getAsynchronousRequestsAndTaskSchedulesV1 = async (
     page: number,
     limit: number
   ) => {
@@ -268,25 +239,8 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       return [];
     }
   };
+
   const deleteAsynchronousRequestsAndTaskSchedules = async (
-    selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
-  ) => {
-    try {
-      setIsLoading(true);
-      await Promise.all(
-        selectedItems.map(async (item) => {
-          await api.put(
-            `/asynchronous-requests-and-task-schedules/cancel-task-schedule/${item.task_name}/${item.redbeat_schedule_name}`
-          );
-        })
-      );
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  const deleteAsynchronousRequestsAndTaskSchedulesV1 = async (
     selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
   ) => {
     try {
@@ -357,9 +311,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     isSubmit,
     setIsSubmit,
     getAsynchronousRequestsAndTaskSchedules,
-    getAsynchronousRequestsAndTaskSchedulesV1,
     deleteAsynchronousRequestsAndTaskSchedules,
-    deleteAsynchronousRequestsAndTaskSchedulesV1,
     getViewRequests,
   };
   return <ARMContext.Provider value={values}>{children}</ARMContext.Provider>;

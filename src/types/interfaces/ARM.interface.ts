@@ -98,6 +98,7 @@ export interface IARMViewRequestsTypes {
   user_schedule_name: string;
   redbeat_schedule_name: string;
   schedule: number;
+  schedule_type: string;
   args: string;
   kwargs: string;
   parameters: string;
