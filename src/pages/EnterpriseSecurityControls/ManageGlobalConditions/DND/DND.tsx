@@ -19,11 +19,12 @@ import { z } from "zod";
 import { ring } from "ldrs";
 import { arrayMove } from "@dnd-kit/sortable";
 import { toast } from "@/components/ui/use-toast";
-import axios from "axios";
 import { Save, X } from "lucide-react";
 import DragOverlayComponent from "./DragOverlayComponent";
+import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 
 const DND: FC = () => {
+  const api = useAxiosPrivate();
   const {
     isLoading,
     setStateChange,
@@ -35,8 +36,7 @@ const DND: FC = () => {
     isActionLoading,
     setIsActionLoading,
   } = useAACContext();
-  // console.log(attrMaxId, "attrMaxId");
-  const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
+
   const iniLeftWidget = [
     {
       id: attrMaxId ? attrMaxId + 1 : 1,
@@ -107,7 +107,10 @@ const DND: FC = () => {
     (item) => item.manage_global_condition_logic_id === activeId
   );
 
-  const attrmaxId = Math.max(...rightWidgets?.map((item) => item.id));
+  const attrmaxId =
+    rightWidgets.length > 0
+      ? Math.max(...rightWidgets.map((item) => item.id))
+      : 0;
 
   const getId = rightWidgets.length > 0 ? attrmaxId + 1 : 1;
 
@@ -278,9 +281,9 @@ const DND: FC = () => {
     try {
       setIsActionLoading(true);
       if (isChangedAccessGlobalCondition) {
-        axios
+        api
           .put(
-            `${url}/manage-global-conditions/${selectedItem[0].manage_global_condition_id}`,
+            `/manage-global-conditions/${selectedItem[0].manage_global_condition_id}`,
             changedAccessGlobalCondition
           )
           .then((logicResult) => {
@@ -301,10 +304,10 @@ const DND: FC = () => {
       }
       if (items.length > 0) {
         Promise.all([
-          axios.post(`${url}/manage-global-condition-logics/upsert`, {
+          api.post(`/manage-global-condition-logics/upsert`, {
             upsertLogics,
           }),
-          axios.post(`${url}/manage-global-condition-logic-attributes/upsert`, {
+          api.post(`/manage-global-condition-logic-attributes/upsert`, {
             upsertAttributes,
           }),
         ])

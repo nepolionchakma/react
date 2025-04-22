@@ -6,7 +6,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import axios from "axios";
 import { ArrowLeft, Ellipsis, Trash } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -22,8 +21,10 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 
 const SingleMessage = () => {
+  const api = useAxiosPrivate();
   const { handleDeleteMessage } = useSocketContext();
   const { token, user } = useGlobalContext();
   const { toast } = useToast();
@@ -53,8 +54,8 @@ const SingleMessage = () => {
   useEffect(() => {
     const fetchMessage = async () => {
       try {
-        const response = await axios.get<Message[]>(
-          `${url}/messages/reply/${id}/${user}`
+        const response = await api.get<Message[]>(
+          `/messages/reply/${id}/${user}`
         );
         const result = response.data;
         setTotalMessages(result);
@@ -71,13 +72,13 @@ const SingleMessage = () => {
     };
 
     fetchMessage();
-  }, [id, toast, url, user]);
+  }, [id, toast, api, user]);
 
   //Fetch SingleMessage
   useEffect(() => {
     const fetchMessage = async () => {
       try {
-        const response = await axios.get<Message>(`${url}/messages/${id}`);
+        const response = await api.get<Message>(`/messages/${id}`);
         const result = response.data;
         setParrentMessage(result);
       } catch (error) {
@@ -92,7 +93,7 @@ const SingleMessage = () => {
     };
 
     fetchMessage();
-  }, [id, toast, url, user]);
+  }, [id, toast, api, user]);
 
   useEffect(() => {
     if (totalMessages.length === 0 && isLoaded) {
@@ -104,8 +105,8 @@ const SingleMessage = () => {
 
   const handleDelete = async (msgId: string) => {
     try {
-      const response = await axios.put(
-        `${url}/messages/set-user-into-recyclebin/${msgId}/${token.user_name}`
+      const response = await api.put(
+        `/messages/set-user-into-recyclebin/${msgId}/${token.user_name}`
       );
       if (response.status === 200) {
         handleDeleteMessage(msgId as string);

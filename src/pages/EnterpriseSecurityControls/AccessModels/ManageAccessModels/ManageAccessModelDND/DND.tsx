@@ -20,10 +20,10 @@ import { z } from "zod";
 import { ring } from "ldrs";
 import { arrayMove } from "@dnd-kit/sortable";
 import { toast } from "@/components/ui/use-toast";
-import axios from "axios";
 import { Save, X } from "lucide-react";
 import DragOverlayComponent from "./DragOverlayComponent";
 import ManageAccessModelUpdate from "../Update/ManageAccessModelUpdate";
+import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 interface IManageAccessModelDNDProps {
   setOpenEditModal: React.Dispatch<React.SetStateAction<boolean>>;
   isOpenEditModal: boolean;
@@ -32,6 +32,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   setOpenEditModal,
   isOpenEditModal,
 }) => {
+  const api=useAxiosPrivate()
   const {
     isLoading,
     selectedAccessModelItem: selectedItem,
@@ -41,8 +42,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     setIsActionLoading,
     setStateChange,
   } = useAACContext();
-  // console.log(attrMaxId, "attrMaxId");
-  const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
+
   const iniLeftWidget = [
     {
       id: manageAccessModelAttrMaxId ? manageAccessModelAttrMaxId + 1 : 1,
@@ -286,9 +286,9 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     try {
       setIsActionLoading(true);
       if (isChangedAccessGlobalCondition) {
-        axios
+        api
           .put(
-            `${url}/manage-access-models/${selectedItem[0].manage_access_model_id}`,
+            `/manage-access-models/${selectedItem[0].manage_access_model_id}`,
             changedAccessGlobalCondition
           )
           .then((logicResult) => {
@@ -317,10 +317,10 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       }
       if (items.length > 0) {
         Promise.all([
-          axios.post(`${url}/manage-access-model-logics/upsert`, {
+          api.post(`/manage-access-model-logics/upsert`, {
             upsertLogics,
           }),
-          axios.post(`${url}/manage-access-model-logic-attributes/upsert`, {
+          api.post(`/manage-access-model-logic-attributes/upsert`, {
             upsertAttributes,
           }),
         ])

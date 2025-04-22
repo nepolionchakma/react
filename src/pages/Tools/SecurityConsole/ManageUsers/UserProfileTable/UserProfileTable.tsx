@@ -70,7 +70,6 @@ export function UserProfileTable({
   primaryCheckedItem,
 }: Props) {
   const api = useAxiosPrivate();
-  const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const { fetchCombinedUser, page, setPage, totalPage } = useGlobalContext();
   const [openModalName, setOpenModalName] = React.useState("");
   const [isCreateNewProfile, setIsCreateNewProfile] = React.useState(false);
@@ -122,7 +121,7 @@ export function UserProfileTable({
     for (const element of selectedProfile) {
       try {
         const res = await api.delete(
-          `${url}/access-profiles/${element.user_id}/${element.serial_number}`
+          `/access-profiles/${element.user_id}/${element.serial_number}`
         );
         if (res.status === 200) {
           toast({

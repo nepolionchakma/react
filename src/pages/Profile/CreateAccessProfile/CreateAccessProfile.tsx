@@ -28,7 +28,6 @@ const CreateAccessProfile = ({
   setIsUpdated,
 }: ICreateAccessProfileTypes) => {
   const api = useAxiosPrivate();
-  const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const { combinedUser } = useGlobalContext();
   const [profileType, setProfileType] = useState("");
   const [profileId, setProfileId] = useState<string>("");
@@ -41,7 +40,7 @@ const CreateAccessProfile = ({
       const data = { profile_type: profileType, profile_id: profileId };
       // console.log(data, "data");
       const res = await api.post(
-        `${url}/access-profiles/${combinedUser?.user_id}`,
+        `/access-profiles/${combinedUser?.user_id}`,
         data
       );
       console.log(data, res, "data");

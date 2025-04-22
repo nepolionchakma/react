@@ -29,7 +29,6 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
   const { setToken, isLoading, setIsLoading } = useGlobalContext();
   const navigate = useNavigate();
   const location = useLocation();
-  const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const initialUserInfo = useInitialUserInfo();
 
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -43,7 +42,7 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
   const handleSubmit = async (data: z.infer<typeof loginSchema>) => {
     try {
       setIsLoading(true);
-      const response = await api.post(`${url}/login`, data);
+      const response = await api.post(`/login`, data);
       if (!response.data) return;
       await initialUserInfo(response.data.user_id);
 

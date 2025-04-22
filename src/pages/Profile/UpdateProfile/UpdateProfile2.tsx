@@ -9,17 +9,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const UpdateProfile: React.FC = () => {
   const api = useAxiosPrivate();
+  const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const { token, combinedUser, setCombinedUser, isCombinedUserLoading } =
     useGlobalContext();
   const profileLogo = isCombinedUserLoading
     ? DefaultLogo
     : combinedUser?.profile_picture
-    ? `${import.meta.env.VITE_NODE_ENDPOINT_URL}/${
-        combinedUser.profile_picture.original
-      }`
-    : `${
-        import.meta.env.VITE_NODE_ENDPOINT_URL
-      }/uploads/profiles/default/loading.gif`;
+    ? `${url}/${combinedUser.profile_picture.original}`
+    : `${url}/uploads/profiles/default/loading.gif`;
 
   const [formData, setFormData] = useState({
     user_name: combinedUser?.user_name || "",
@@ -127,12 +124,8 @@ const UpdateProfile: React.FC = () => {
             last_name: formData.last_name,
             email_addresses: formData.email_addresses,
             profile_picture: {
-              original: `${
-                import.meta.env.VITE_NODE_ENDPOINT_URL
-              }/uploads/profiles/${combinedUser?.user_name}/${file?.name}`,
-              thumbnail: `${
-                import.meta.env.VITE_NODE_ENDPOINT_URL
-              }/uploads/profiles/${combinedUser?.user_name}/thumbnail.jpg`,
+              original: `${url}/uploads/profiles/${combinedUser?.user_name}/${file?.name}`,
+              thumbnail: `${url}/uploads/profiles/${combinedUser?.user_name}/thumbnail.jpg`,
             },
           };
         });

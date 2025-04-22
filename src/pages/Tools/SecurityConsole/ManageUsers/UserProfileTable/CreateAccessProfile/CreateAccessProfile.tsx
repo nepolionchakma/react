@@ -30,7 +30,6 @@ const CreateAccessProfile = ({
   selectedUsers,
 }: ICreateAccessProfileTypes) => {
   const api = useAxiosPrivate();
-  const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const [profileType, setProfileType] = useState("");
   const [profileId, setProfileId] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
@@ -42,7 +41,7 @@ const CreateAccessProfile = ({
       const data = { profile_type: profileType, profile_id: profileId };
       // console.log(data, "data");
       const res = await api.post(
-        `${url}/access-profiles/${selectedUsers[0].user_id}`,
+        `/access-profiles/${selectedUsers[0].user_id}`,
         data
       );
       console.log(data, res, "data");
