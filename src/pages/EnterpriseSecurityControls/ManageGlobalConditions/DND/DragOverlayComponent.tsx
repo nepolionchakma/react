@@ -21,8 +21,8 @@ export interface DroppableListProps {
 }
 import { FC } from "react";
 import { IManageGlobalConditionLogicExtendTypes } from "@/types/interfaces/ManageAccessEntitlements.interface";
-import axios from "axios";
 import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
+import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 interface DroppableItemProps {
   id: string;
   item: IManageGlobalConditionLogicExtendTypes;
@@ -37,7 +37,7 @@ const DragOverlayComponent: FC<DroppableItemProps> = ({
   index,
   setItems,
 }) => {
-  const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
+  const api=useAxiosPrivate();
   const {
     attributes,
     isDragging,
@@ -64,10 +64,8 @@ const DragOverlayComponent: FC<DroppableItemProps> = ({
     try {
       if (res === 200) {
         Promise.all([
-          axios.delete(`${url}/manage-global-condition-logics/${logicId}`),
-          axios.delete(
-            `${url}/manage-global-condition-logic-attributes/${attrId}`
-          ),
+          api.delete(`/manage-global-condition-logics/${logicId}`),
+          api.delete(`/manage-global-condition-logic-attributes/${attrId}`),
         ])
           // .then(([logicResult, attributeResult]) => {
           //   console.log("Logic Result:", logicResult);

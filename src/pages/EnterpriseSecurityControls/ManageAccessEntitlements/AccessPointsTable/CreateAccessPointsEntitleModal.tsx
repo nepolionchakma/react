@@ -23,9 +23,10 @@ import { ring } from "ldrs";
 import { useEffect, useState } from "react";
 import { IDataSourceTypes } from "@/types/interfaces/datasource.interface";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import axios from "axios";
 import { IFetchAccessPointsElementTypes } from "@/types/interfaces/ManageAccessEntitlements.interface";
+import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 const AccessPointsEntitleModal = () => {
+  const api = useAxiosPrivate();
   const {
     selectedManageAccessEntitlements,
     createAccessPointsEntitlement,
@@ -34,10 +35,10 @@ const AccessPointsEntitleModal = () => {
   } = useManageAccessEntitlementsContext();
   const { token } = useGlobalContext();
   const [dataSources, setDataSources] = useState<IDataSourceTypes[]>([]);
-  const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
+
   useEffect(() => {
     const res = async () => {
-      const res = await axios.get<IDataSourceTypes[]>(`${url}/data-sources`);
+      const res = await api.get<IDataSourceTypes[]>(`/data-sources`);
       setDataSources(res.data);
     };
     res();
@@ -82,9 +83,8 @@ const AccessPointsEntitleModal = () => {
     };
 
     const postAccessPointsElement = async () => {
-      const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
       //get max access point id
-      const res = await axios.get(`${url}/access-points-element`);
+      const res = await api.get(`/access-points-element`);
       const accessPointsMaxId =
         res.data.length > 0
           ? Math.max(

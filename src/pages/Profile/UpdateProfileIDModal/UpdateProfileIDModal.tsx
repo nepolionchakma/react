@@ -30,7 +30,6 @@ const UpdateProfileIDModal = ({
   primaryCheckedItem,
 }: ICustomModalTypes) => {
   const api = useAxiosPrivate();
-  const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const [profileId, setProfileId] = useState<string>(
     editableProfile.profile_id
   );
@@ -67,7 +66,7 @@ const UpdateProfileIDModal = ({
         ) {
           try {
             await api.put(
-              `${url}/access-profiles/${primaryCheckedItem.user_id}/${primaryCheckedItem.serial_number}`,
+              `/access-profiles/${primaryCheckedItem.user_id}/${primaryCheckedItem.serial_number}`,
               { ...primaryCheckedItem, primary_yn: "N" }
             );
             // console.log(response.data, "response");
@@ -78,7 +77,7 @@ const UpdateProfileIDModal = ({
       }
 
       const res = await api.put(
-        `${url}/access-profiles/${editableProfile.user_id}/${editableProfile.serial_number}`,
+        `/access-profiles/${editableProfile.user_id}/${editableProfile.serial_number}`,
         data
       );
 

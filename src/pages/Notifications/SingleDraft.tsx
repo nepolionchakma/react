@@ -16,7 +16,6 @@ import {
 import { ChangeEvent, useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import axios from "axios";
 import { useToast } from "@/components/ui/use-toast";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { DropdownMenu } from "@radix-ui/react-dropdown-menu";
@@ -28,7 +27,7 @@ import { Message, UserModel } from "@/types/interfaces/users.interface";
 import Spinner from "@/components/Spinner/Spinner";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { api } from "@/Api/Api";
+import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 // import { v4 as uuidv4 } from "uuid";
 
 interface IOldMsgTypes {
@@ -37,6 +36,7 @@ interface IOldMsgTypes {
   body?: string;
 }
 const SingleDraft = () => {
+  const api = useAxiosPrivate();
   const { users, token, user } = useGlobalContext();
   const {
     handlesendMessage,
@@ -74,7 +74,7 @@ const SingleDraft = () => {
   useEffect(() => {
     const fetchMessage = async () => {
       try {
-        const response = await axios.get<Message>(`${url}/messages/${id}`);
+        const response = await api.get<Message>(`/messages/${id}`);
         const result = response.data;
         setParentid(result.parentid);
         setStatus(result.status);
@@ -94,7 +94,7 @@ const SingleDraft = () => {
     };
 
     fetchMessage();
-  }, [id, url]);
+  }, [id, api]);
 
   const actualUsers = users.filter((usr) => usr.user_name !== user);
 
@@ -169,8 +169,8 @@ const SingleDraft = () => {
     try {
       setIsSending(true);
 
-      const deletedMsg = await api.delete(`${url}/messages/${id}`);
-      const newMsg = await api.post(`${url}/messages`, data);
+      const deletedMsg = await api.delete(`/messages/${id}`);
+      const newMsg = await api.post(`/messages`, data);
       if (newMsg.data && deletedMsg.data) {
         handleDraftMsgId(id as string);
         handlesendMessage(data);
@@ -214,7 +214,7 @@ const SingleDraft = () => {
     // handlesendMessage(data);
     try {
       setSaveDraftLoading(true);
-      const response = await axios.put(`${url}/messages/${id}`, data);
+      const response = await api.put(`/messages/${id}`, data);
       if (response.status === 200) {
         handleDraftMessage(data);
         toast({
@@ -236,8 +236,8 @@ const SingleDraft = () => {
 
   const handleDelete = async () => {
     try {
-      const response = await axios.put(
-        `${url}/messages/set-user-into-recyclebin/${id}/${token.user_name}`
+      const response = await api.put(
+        `/messages/set-user-into-recyclebin/${id}/${token.user_name}`
       );
       if (response.status === 200) {
         handleDeleteMessage(id as string);

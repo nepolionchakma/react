@@ -21,7 +21,6 @@ const Modal1 = ({ setTwoStepModal1 }: Props) => {
   const [selectedID, setSelectedID] = useState("");
 
   const api = useAxiosPrivate();
-  const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const { combinedUser } = useGlobalContext();
   const [data, setData] = useState<IProfilesType[]>([]);
   const [errorCode, setErrorCode] = useState(false);
@@ -31,7 +30,7 @@ const Modal1 = ({ setTwoStepModal1 }: Props) => {
       try {
         if (combinedUser?.user_id) {
           const resData = await api.get<IProfilesType[]>(
-            `${url}/access-profiles/${combinedUser?.user_id}`
+            `/access-profiles/${combinedUser?.user_id}`
           );
           if (resData) {
             setData(

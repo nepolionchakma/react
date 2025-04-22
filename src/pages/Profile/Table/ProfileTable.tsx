@@ -42,7 +42,6 @@ const ProfileTable = ({
   primaryCheckedItem,
 }: ProfileTableProps) => {
   const api = useAxiosPrivate();
-  const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const [isUpdateProfile, setIsUpdateProfile] = useState(false);
   const [editableProfile, setEditableProfile] = useState<IProfilesType1>(
     {} as IProfilesType1
@@ -67,7 +66,7 @@ const ProfileTable = ({
   const handleDelete = async (user_id: number, serial_number: number) => {
     try {
       const res = await api.delete(
-        `${url}/access-profiles/${user_id}/${serial_number}`
+        `/access-profiles/${user_id}/${serial_number}`
       );
       if (res.status === 200) {
         toast({

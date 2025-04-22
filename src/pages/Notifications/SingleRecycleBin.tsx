@@ -25,15 +25,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import axios from "axios";
 import { useToast } from "@/components/ui/use-toast";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { Message } from "@/types/interfaces/users.interface";
 import Spinner from "@/components/Spinner/Spinner";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
-import { api } from "@/Api/Api";
+import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 
 const SingleRecycleBin = () => {
+  const api = useAxiosPrivate();
   const { user } = useGlobalContext();
   const { handleDeleteMessage, handleRestoreMessage } = useSocketContext();
   const navigate = useNavigate();
@@ -61,7 +61,7 @@ const SingleRecycleBin = () => {
   useEffect(() => {
     const fetchMessage = async () => {
       try {
-        const response = await axios.get<Message>(`${url}/messages/${id}`);
+        const response = await api.get<Message>(`/messages/${id}`);
         const result = response.data;
         setMessage(result);
       } catch (error) {
@@ -72,12 +72,12 @@ const SingleRecycleBin = () => {
     };
 
     fetchMessage();
-  }, [id, url]);
+  }, [id, api]);
 
   const handleDelete = async () => {
     try {
-      const response = await axios.put(
-        `${url}/messages/remove-user-from-recyclebin/${id}/${user}`
+      const response = await api.put(
+        `/messages/remove-user-from-recyclebin/${id}/${user}`
       );
       if (response.status === 200) {
         handleDeleteMessage(id as string);

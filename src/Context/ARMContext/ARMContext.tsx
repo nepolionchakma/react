@@ -150,7 +150,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
           `/arm-tasks/show-tasks/${page}/${limit}`
         ),
       ]);
-      console.log(countTasks, "IARMAsynchronousTasksTypes");
+
       const totalCount = countTasks.data.length;
       const totalPages = Math.ceil(totalCount / limit);
       setTotalPage(totalPages);
@@ -192,7 +192,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
           `/arm-tasks/task-params/${task_name}/${page}/${limit}`
         ),
       ]);
-      console.log(tasksParameters.data, "tasksParameters");
+
       const totalCount = countTasksParameters.data.length;
       const totalPages = Math.ceil(totalCount / limit);
       setTotalPage2(totalPages);

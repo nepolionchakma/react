@@ -9,7 +9,6 @@ import { UserProfileTable } from "./UserProfileTable/UserProfileTable";
 
 const SetupAndAdministration = () => {
   const api = useAxiosPrivate();
-  const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<IProfilesType[]>([]);
   // const [filterUserID, setFilterUserID] = useState<number[]>([]);
@@ -23,7 +22,7 @@ const SetupAndAdministration = () => {
         if (selectedUsers.length === 1) {
           setIsLoading(true);
           const resData = await api.get(
-            `${url}/access-profiles/${selectedUsers[0].user_id}`
+            `/access-profiles/${selectedUsers[0].user_id}`
           );
           // is primary available
           const filterPrimaryData = resData.data.find(

@@ -13,7 +13,6 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { Message } from "@/types/interfaces/users.interface";
-import axios from "axios";
 import { MessageCircleReply, Reply, Save } from "lucide-react";
 import { ChangeEvent, useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -79,7 +78,7 @@ const ReplyDialog = ({
     };
     try {
       setIsSending(true);
-      const response = await axios.post(`${url}/messages`, data);
+      const response = await api.post(`/messages`, data);
       console.log(data);
       console.log(response.data);
       if (response.status === 201) {
