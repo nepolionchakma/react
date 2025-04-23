@@ -101,7 +101,7 @@ const TaskRequest: FC<ITaskRequestProps> = ({
     form.reset({
       ...form.getValues(),
       parameters: parameters,
-      // kwargs: action === "Edit Task Schedule" ? selected?.kwargs : parameters,
+      // kwargs: action === "Edit Scheduled Task" ? selected?.kwargs : parameters,
     });
   }, [parameters]);
 
@@ -145,7 +145,7 @@ const TaskRequest: FC<ITaskRequestProps> = ({
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     if (!(await form.trigger())) return;
 
-    if (action !== "Edit Task Schedule") {
+    if (action !== "Edit Scheduled Task") {
       if (
         (scheduleType !== "IMMEDIATE" && data.user_schedule_name === "") ||
         data.task_name === "" ||
@@ -214,14 +214,14 @@ const TaskRequest: FC<ITaskRequestProps> = ({
   return (
     <div
       className={`${
-        action === "Edit Task Schedule"
+        action === "Edit Scheduled Task"
           ? ""
           : "w-[900px] h-[450px] mx-auto my-10 border rounded"
       } `}
     >
-      {action === "Edit Task Schedule" && (
+      {action === "Edit Scheduled Task" && (
         <div className="p-2 bg-slate-300 rounded-t mx-auto text-center font-bold flex justify-between">
-          <h2>Edit Task Schedule</h2>
+          <h2>Edit Scheduled Task</h2>
           <X onClick={() => handleCloseModal()} className="cursor-pointer" />
         </div>
       )}
@@ -267,7 +267,7 @@ const TaskRequest: FC<ITaskRequestProps> = ({
               )}
           </div>
           <div className="grid grid-cols-2 gap-4 pb-2">
-            {action !== "Edit Task Schedule" && (
+            {action !== "Edit Scheduled Task" && (
               <FormField
                 control={form.control}
                 name="task_name"

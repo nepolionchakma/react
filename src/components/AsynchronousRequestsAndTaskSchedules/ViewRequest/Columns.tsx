@@ -83,16 +83,23 @@ export const columns = (
     },
     cell: ({ row }) => {
       const isExpanded = expandedRow === row.id;
+      const user_schedule_name: string = row.getValue("user_schedule_name");
       return (
         <div className="flex items-center gap-2">
-          <button onClick={() => setExpandedRow(isExpanded ? null : row.id)}>
+          <button
+            disabled={
+              !user_schedule_name || user_schedule_name === "" ? true : false
+            }
+            className="disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={() => setExpandedRow(isExpanded ? null : row.id)}
+          >
             {isExpanded ? (
               <CircleChevronDown className="w-5 h-5 text-gray-600" />
             ) : (
               <CircleChevronRight className="w-5 h-5 text-gray-600" />
             )}
           </button>
-          <span>{row.getValue("user_schedule_name")}</span>
+          <span>{user_schedule_name}</span>
         </div>
       );
     },
@@ -163,9 +170,12 @@ export const columns = (
     },
     cell: ({ row }) => {
       const parameters = JSON.stringify(row.getValue("parameters"));
+      const length = Object.keys(row.getValue("parameters") ?? {}).length === 0;
       return (
         <div className="flex items-center gap-2">
           <button
+            disabled={length}
+            className="disabled:cursor-not-allowed disabled:opacity-50"
             onClick={() => {
               setViewParameters(row.original.parameters);
               setClickedRowId(row.id);
@@ -191,9 +201,13 @@ export const columns = (
       return <div className="min-w-max">Result</div>;
     },
     cell: ({ row }) => {
+      const result = JSON.stringify(row.getValue("result"));
+      const length = Object.keys(row.getValue("result") ?? {}).length === 0;
       return (
         <div className="flex items-center gap-2">
           <button
+            disabled={length}
+            className="disabled:cursor-not-allowed disabled:opacity-50"
             onClick={() => {
               setViewResult(row.original.result);
               setClickedRowId(row.id);
@@ -206,8 +220,8 @@ export const columns = (
             )}
           </button>
           <span>
-            {JSON.stringify(row.getValue("result")).slice(0, 10)}
-            {JSON.stringify(row.getValue("result")).length > 10 && "..."}
+            {result.slice(0, 10)}
+            {result.length > 10 && "..."}
           </span>
         </div>
       );

@@ -62,7 +62,7 @@ export function ViewEditScheduledTasksTable() {
     getAsynchronousRequestsAndTaskSchedules,
     isLoading,
     setIsLoading,
-    deleteAsynchronousRequestsAndTaskSchedules,
+    cancelScheduledTask,
     isSubmit,
     setIsSubmit,
   } = useARMContext();
@@ -118,17 +118,16 @@ export function ViewEditScheduledTasksTable() {
       }
     });
   };
-  const handleDelete = async () => {
+  const handleCancelSchedule = async () => {
     setIsLoading(true);
     try {
-      await deleteAsynchronousRequestsAndTaskSchedules(selected);
+      await cancelScheduledTask(selected);
 
       //table toggle empty
       table.getRowModel().rows.map((row) => row.toggleSelected(false));
       setSelected([]);
     } catch (error) {
       toast({
-        title: "Info !!!",
         description: `Error : ${error}`,
       });
     } finally {
@@ -205,7 +204,7 @@ export function ViewEditScheduledTasksTable() {
       {isOpenModal === "edit_task_schedule" && (
         <CustomModal2>
           <TaskRequest
-            action="Edit Task Schedule"
+            action="Edit Scheduled Task"
             selected={selected[0]}
             user_schedule_name="run_script"
             handleCloseModal={handleCloseModal}
@@ -293,7 +292,7 @@ export function ViewEditScheduledTasksTable() {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete}>
+                    <AlertDialogAction onClick={handleCancelSchedule}>
                       Continue
                     </AlertDialogAction>
                   </AlertDialogFooter>

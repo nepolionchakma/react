@@ -19,7 +19,7 @@ export const columns: ColumnDef<IProfilesType>[] = [
   },
   {
     accessorKey: "profile_id",
-    header: "profile_id",
+    header: "Profile Id",
     cell: ({ row }) => <div>{row.getValue("profile_id")}</div>,
   },
   {
