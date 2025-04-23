@@ -58,7 +58,7 @@ interface ARMContext {
     page: number,
     limit: number
   ) => Promise<IAsynchronousRequestsAndTaskSchedulesTypes[] | undefined>;
-  deleteAsynchronousRequestsAndTaskSchedules: (
+  cancelScheduledTask: (
     selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
   ) => Promise<void>;
   getViewRequests: (
@@ -240,7 +240,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     }
   };
 
-  const deleteAsynchronousRequestsAndTaskSchedules = async (
+  const cancelScheduledTask = async (
     selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
   ) => {
     try {
@@ -248,23 +248,21 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       const responses = await Promise.all(
         selectedItems.map(async (item) => {
           try {
-            console.log("Making request for:", item.task_name); // Log item details
             const response = await api.put(
               `/asynchronous-requests-and-task-schedules/cancel-task-schedule/${item.task_name}`,
               {
                 redbeat_schedule_name: item.redbeat_schedule_name,
               }
             );
-            return response; // Ensure you are returning the actual response
+            return response;
           } catch (error) {
             console.error("Error canceling task schedule:", error);
-            return null; // Return null or handle the error as needed
+            return null;
           }
         })
       );
       responses.map((i) => {
         return toast({
-          title: "Info !!!",
           description: `${i?.data?.message}`,
         });
       });
@@ -311,7 +309,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     isSubmit,
     setIsSubmit,
     getAsynchronousRequestsAndTaskSchedules,
-    deleteAsynchronousRequestsAndTaskSchedules,
+    cancelScheduledTask,
     getViewRequests,
   };
   return <ARMContext.Provider value={values}>{children}</ARMContext.Provider>;

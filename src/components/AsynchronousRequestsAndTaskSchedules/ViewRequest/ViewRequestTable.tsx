@@ -128,13 +128,16 @@ export function ViewRequestTable() {
       {/* Filter + Column Controls */}
       <div className="flex gap-3 items-center py-2">
         <Input
-          placeholder="Filter User Task Name"
+          placeholder="Filter User Schedule Name"
           value={
-            (table.getColumn("user_task_name")?.getFilterValue() as string) ??
-            ""
+            (table
+              .getColumn("user_schedule_name")
+              ?.getFilterValue() as string) ?? ""
           }
           onChange={(e) =>
-            table.getColumn("user_task_name")?.setFilterValue(e.target.value)
+            table
+              .getColumn("user_schedule_name")
+              ?.setFilterValue(e.target.value)
           }
           className="max-w-sm px-4 py-2"
         />

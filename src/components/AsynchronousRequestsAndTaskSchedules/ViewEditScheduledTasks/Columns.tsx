@@ -89,9 +89,13 @@ export const columns = (
       return <div className="min-w-max">Parameters</div>;
     },
     cell: ({ row }) => {
+      const parameters = JSON.stringify(row.getValue("parameters"));
+      const length = Object.keys(row.getValue("parameters")).length === 0;
       return (
         <div className="flex items-center gap-2">
           <button
+            disabled={length}
+            className="disabled:cursor-not-allowed disabled:opacity-50"
             onClick={() => {
               setViewParameters(row.original.parameters);
               setClickedRowId(row.id);
@@ -104,8 +108,8 @@ export const columns = (
             )}
           </button>
           <span>
-            {JSON.stringify(row.getValue("parameters")).slice(0, 10)}
-            {JSON.stringify(row.getValue("parameters")).length > 10 && "..."}
+            {parameters.slice(0, 10)}
+            {parameters.length > 10 && "..."}
           </span>
         </div>
       );
