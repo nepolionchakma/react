@@ -6,7 +6,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { format } from "date-fns";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
@@ -48,10 +47,8 @@ interface IScheduleProps {
   scheduleType: string;
   setScheduleType: Dispatch<SetStateAction<string>>;
   action: string;
-  setIsOpenScheduleModalV1: Dispatch<SetStateAction<string>>;
+  setIsOpenScheduleModal: Dispatch<SetStateAction<string>>;
   selected?: IAsynchronousRequestsAndTaskSchedulesTypes;
-  periodic: ISchedulePropsPeriodic | undefined;
-  setPeriodic: Dispatch<SetStateAction<ISchedulePropsPeriodic | undefined>>;
 }
 
 const Schedule: FC<IScheduleProps> = ({
@@ -60,18 +57,12 @@ const Schedule: FC<IScheduleProps> = ({
   scheduleType,
   setScheduleType,
   action,
-  setIsOpenScheduleModalV1,
+  setIsOpenScheduleModal,
   selected,
 }) => {
-  const [scheduleTimes, setScheduleTimes] = useState<
-    | ISchedulePropsPeriodic
-    | ISchedulePropsNonPeriodic
-    | IScheduleOnce
-    | undefined
-  >(schedule);
-
   const [frequency, setFrequency] = useState<number>();
   const [frequency_type, setFrequency_type] = useState<string>();
+
   const FormSchema = z.object({
     schedule_type: z.string(),
     schedule: z
@@ -101,54 +92,6 @@ const Schedule: FC<IScheduleProps> = ({
     },
   });
 
-  useEffect(() => {
-    const currentTime = new Date();
-    currentTime.setMinutes(currentTime.getMinutes() + 1);
-    const parse = format(currentTime, "yyyy-MM-dd HH:mm");
-
-    if (scheduleType === "" || scheduleType === "IMMEDIATE") {
-      form.reset({ schedule_type: scheduleType, schedule: undefined });
-      setScheduleType("IMMEDIATE");
-      setScheduleTimes(undefined);
-    } else {
-      setScheduleTimes(() => {
-        if (selected) {
-          if (scheduleType === "ONCE") {
-            return { VALUES: parse };
-          } else if (scheduleType === "PERIODIC") {
-            return {} as ISchedulePropsPeriodic;
-          } else if (scheduleType === selected.schedule_type) {
-            return selected.schedule;
-          } else if (scheduleType === "WEEKLY_SPECIFIC_DAYS") {
-            form.reset({
-              schedule_type: scheduleType,
-              schedule: selected.schedule ?? undefined,
-            });
-            return { VALUES: [] };
-          } else if (scheduleType === "MONTHLY_SPECIFIC_DATES") {
-            form.reset({
-              schedule_type: scheduleType,
-              schedule: selected.schedule ?? undefined,
-            });
-            return { VALUES: [] };
-          }
-        } else {
-          if (scheduleType === "ONCE") {
-            return { VALUES: parse };
-          } else if (scheduleType === "PERIODIC") {
-            return {} as ISchedulePropsPeriodic;
-          } else if (scheduleType === "WEEKLY_SPECIFIC_DAYS") {
-            form.reset({ schedule_type: scheduleType, schedule: undefined });
-            return { VALUES: [] };
-          } else if (scheduleType === "MONTHLY_SPECIFIC_DATES") {
-            form.reset({ schedule_type: scheduleType, schedule: undefined });
-            return { VALUES: [] };
-          }
-        }
-      });
-    }
-  }, [scheduleType]);
-
   // Sequence Records
   const sequenceRecords = (items: string[]) => {
     const weekOrder =
@@ -167,17 +110,18 @@ const Schedule: FC<IScheduleProps> = ({
   };
   // Date and Time selections
   const handleDateSelect = (time: string) => {
-    if (scheduleTimes && "VALUES" in scheduleTimes) {
-      if (Array.isArray(scheduleTimes.VALUES)) {
+    if (schedule && "VALUES" in schedule) {
+      console.log(time, "time");
+      if (Array.isArray(schedule.VALUES)) {
         {
-          scheduleTimes.VALUES.includes(time)
-            ? setScheduleTimes({
+          schedule?.VALUES.includes(time)
+            ? setSchedule({
                 VALUES: sequenceRecords(
-                  scheduleTimes.VALUES.filter((d) => d !== time)
+                  schedule.VALUES.filter((d) => d !== time)
                 ),
               })
-            : setScheduleTimes({
-                VALUES: sequenceRecords([...scheduleTimes.VALUES, time]),
+            : setSchedule({
+                VALUES: sequenceRecords([...schedule.VALUES, time]),
               });
         }
       }
@@ -191,17 +135,22 @@ const Schedule: FC<IScheduleProps> = ({
       }
     }
     try {
-      setSchedule(
-        scheduleType === "IMMEDIATE"
-          ? ({} as ISchedulePropsPeriodic)
-          : data.schedule
-      );
+      setSchedule(scheduleType === "IMMEDIATE" ? undefined : data.schedule);
       setScheduleType(data.schedule_type);
-      setIsOpenScheduleModalV1("");
+      setIsOpenScheduleModal("");
     } catch (error) {
       console.log(error);
     }
   };
+
+  useEffect(() => {
+    if (scheduleType === "" || scheduleType === "IMMEDIATE") {
+      setScheduleType("IMMEDIATE");
+      setSchedule(undefined);
+    } else if (scheduleType === selected?.schedule_type) {
+      form.reset({ schedule_type: scheduleType, schedule: selected?.schedule });
+    }
+  }, [scheduleType]);
 
   return (
     <div>
@@ -209,7 +158,7 @@ const Schedule: FC<IScheduleProps> = ({
         <div className="p-2 bg-slate-300 rounded-t mx-auto text-center font-bold flex justify-between">
           <h2>{action}</h2>
           <X
-            onClick={() => setIsOpenScheduleModalV1("")}
+            onClick={() => setIsOpenScheduleModal("")}
             className="cursor-pointer"
           />
         </div>
@@ -256,10 +205,7 @@ const Schedule: FC<IScheduleProps> = ({
 
             {/* Frequency & Frequency Type Selection */}
             {form.getValues().schedule_type === "ONCE" ? (
-              <OnceScheduleType
-                form={form}
-                setScheduleHere={setScheduleTimes}
-              />
+              <OnceScheduleType form={form} setScheduleHere={setSchedule} />
             ) : form.getValues().schedule_type === "PERIODIC" ? (
               <div className="flex gap-2">
                 <FormField
@@ -335,10 +281,10 @@ const Schedule: FC<IScheduleProps> = ({
                       <div
                         key={day.value}
                         className={`${
-                          scheduleTimes &&
-                          "VALUES" in scheduleTimes &&
-                          Array.isArray(scheduleTimes.VALUES) &&
-                          scheduleTimes.VALUES.includes(day.value) &&
+                          schedule &&
+                          "VALUES" in schedule &&
+                          Array.isArray(schedule.VALUES) &&
+                          schedule.VALUES.includes(day.value) &&
                           "bg-slate-400"
                         } flex items-center justify-center h-8 border border-slate-500 rounded cursor-pointer hover:bg-slate-200 p-2`}
                         onClick={() => handleDateSelect(day.value)}
@@ -357,10 +303,10 @@ const Schedule: FC<IScheduleProps> = ({
                     <div
                       key={date.value}
                       className={`${
-                        scheduleTimes &&
-                        "VALUES" in scheduleTimes &&
-                        Array.isArray(scheduleTimes.VALUES) &&
-                        scheduleTimes.VALUES.includes(date.value) &&
+                        schedule &&
+                        "VALUES" in schedule &&
+                        Array.isArray(schedule.VALUES) &&
+                        schedule.VALUES.includes(date.value) &&
                         "bg-slate-400"
                       } text-center border border-slate-500 rounded cursor-pointer hover:bg-slate-200 p-2 ${
                         date.value === "L" && "col-span-4"
@@ -379,12 +325,22 @@ const Schedule: FC<IScheduleProps> = ({
 
           {/* Action Buttons */}
           <div className="fixed bottom-4 right-4 flex gap-2">
-            <Button variant="secondary" type="submit">
+            <Button
+              variant="secondary"
+              type="submit"
+              disabled={
+                scheduleType !== "IMMEDIATE" &&
+                scheduleType !== "PERIODIC" &&
+                schedule &&
+                "VALUES" in schedule &&
+                schedule.VALUES.length === 0
+              }
+            >
               OK
             </Button>
             <Button
               variant="secondary"
-              onClick={() => setIsOpenScheduleModalV1("")}
+              onClick={() => setIsOpenScheduleModal("")}
             >
               Cancel
             </Button>
