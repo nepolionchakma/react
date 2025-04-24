@@ -41,6 +41,7 @@ import { X } from "lucide-react";
 import Schedule from "./Schedule";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
+import { format } from "date-fns";
 
 interface ITaskRequestProps {
   action: string;
@@ -58,8 +59,7 @@ const TaskRequest: FC<ITaskRequestProps> = ({
   const api = useAxiosPrivate();
   const { getAsyncTasks, getTaskParametersByTaskName, setIsSubmit } =
     useARMContext();
-  const { isOpenScheduleModalV1, setIsOpenScheduleModalV1 } =
-    useGlobalContext();
+  const { isOpenScheduleModal, setIsOpenScheduleModal } = useGlobalContext();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [asyncTaskNames, setAsyncTaskNames] = useState<
     IARMAsynchronousTasksTypes[] | undefined
@@ -67,9 +67,6 @@ const TaskRequest: FC<ITaskRequestProps> = ({
   const [parameters, setParameters] = useState<Record<string, string | number>>(
     selected?.kwargs || {}
   );
-  const [periodic, setPeriodic] = useState<
-    ISchedulePropsPeriodic | undefined
-  >();
   const [scheduleType, setScheduleType] = useState<string>(
     selected?.schedule_type ?? ""
   );
@@ -79,31 +76,6 @@ const TaskRequest: FC<ITaskRequestProps> = ({
     | IScheduleOnce
     | undefined
   >(selected?.schedule);
-
-  useEffect(() => {
-    const fetchAsyncTasks = async () => {
-      try {
-        setIsLoading(true);
-        const tasks = await getAsyncTasks();
-        if (tasks) {
-          setAsyncTaskNames(tasks.filter((item) => item.srs === "Y"));
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchAsyncTasks();
-  }, []);
-
-  useEffect(() => {
-    form.reset({
-      ...form.getValues(),
-      parameters: parameters,
-      // kwargs: action === "Edit Scheduled Task" ? selected?.kwargs : parameters,
-    });
-  }, [parameters]);
 
   const handleGetParameters = async (task_name: string) => {
     try {
@@ -211,6 +183,67 @@ const TaskRequest: FC<ITaskRequestProps> = ({
     }
   };
 
+  useEffect(() => {
+    const fetchAsyncTasks = async () => {
+      try {
+        setIsLoading(true);
+        const tasks = await getAsyncTasks();
+        if (tasks) {
+          setAsyncTaskNames(tasks.filter((item) => item.srs === "Y"));
+        }
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchAsyncTasks();
+  }, []);
+
+  useEffect(() => {
+    form.reset({
+      ...form.getValues(),
+      parameters: parameters,
+      // kwargs: action === "Edit Scheduled Task" ? selected?.kwargs : parameters,
+    });
+  }, [form, parameters]);
+
+  useEffect(() => {
+    const currentTime = new Date();
+    currentTime.setMinutes(currentTime.getMinutes() + 1);
+    const parse = format(currentTime, "yyyy-MM-dd HH:mm");
+
+    setSchedule(() => {
+      if (selected) {
+        if (scheduleType === selected.schedule_type) {
+          return selected.schedule;
+        } else if (scheduleType === "IMMEDIATE") {
+          return undefined;
+        } else if (scheduleType === "ONCE") {
+          return { VALUES: parse };
+        } else if (scheduleType === "PERIODIC") {
+          return selected.schedule;
+        } else if (scheduleType === "WEEKLY_SPECIFIC_DAYS") {
+          return { VALUES: [] };
+        } else if (scheduleType === "MONTHLY_SPECIFIC_DATES") {
+          return { VALUES: [] };
+        }
+      } else {
+        if (scheduleType === "IMMEDIATE") {
+          return undefined;
+        } else if (scheduleType === "ONCE") {
+          return { VALUES: parse };
+        } else if (scheduleType === "PERIODIC") {
+          return {} as ISchedulePropsPeriodic;
+        } else if (scheduleType === "WEEKLY_SPECIFIC_DAYS") {
+          return { VALUES: [] };
+        } else if (scheduleType === "MONTHLY_SPECIFIC_DATES") {
+          return { VALUES: [] };
+        }
+      }
+    });
+  }, [scheduleType, selected]);
+
   return (
     <div
       className={`${
@@ -225,7 +258,7 @@ const TaskRequest: FC<ITaskRequestProps> = ({
           <X onClick={() => handleCloseModal()} className="cursor-pointer" />
         </div>
       )}
-      {isOpenScheduleModalV1 === "Schedule" && (
+      {isOpenScheduleModal === "Schedule" && (
         <CustomModal4 className="w-[770px] h-[450px]">
           <Schedule
             schedule={schedule}
@@ -233,10 +266,8 @@ const TaskRequest: FC<ITaskRequestProps> = ({
             scheduleType={scheduleType}
             setScheduleType={setScheduleType}
             action="Schedule"
-            setIsOpenScheduleModalV1={setIsOpenScheduleModalV1}
+            setIsOpenScheduleModal={setIsOpenScheduleModal}
             selected={selected}
-            periodic={periodic}
-            setPeriodic={setPeriodic}
           />
         </CustomModal4>
       )}
@@ -305,7 +336,7 @@ const TaskRequest: FC<ITaskRequestProps> = ({
               <div className="flex flex-col gap-[18px] pt-8">
                 <h3
                   className="bg-gray-400 rounded p-[7px] border text-white font-bold hover:bg-gray-500 text-center cursor-pointer"
-                  onClick={() => setIsOpenScheduleModalV1("Schedule")}
+                  onClick={() => setIsOpenScheduleModal("Schedule")}
                 >
                   Schedule
                 </h3>

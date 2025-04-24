@@ -79,8 +79,8 @@ interface GlobalContex {
   updateUser: (id: number, userInfo: IUpdateUserTypes) => void;
   isOpenModal: string;
   setIsOpenModal: Dispatch<SetStateAction<string>>;
-  isOpenScheduleModalV1: string;
-  setIsOpenScheduleModalV1: Dispatch<SetStateAction<string>>;
+  isOpenScheduleModal: string;
+  setIsOpenScheduleModal: Dispatch<SetStateAction<string>>;
   resetPassword: (resetData: IUserPasswordResetTypes) => Promise<void>;
   isUserLoading: boolean;
   presentDevice: IUserLinkedDevices;
@@ -123,8 +123,7 @@ export function GlobalContextProvider({
   const [isCombinedUserLoading, setIsCombinedUserLoading] = useState(true);
   const [usersInfo, setUsersInfo] = useState<IUsersInfoTypes[]>([]);
   const [isOpenModal, setIsOpenModal] = useState<string>("");
-  const [isOpenScheduleModalV1, setIsOpenScheduleModalV1] =
-    useState<string>("");
+  const [isOpenScheduleModal, setIsOpenScheduleModal] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [updateProfileImage, setUpdateProfileImage] = useState(0);
   const user = token?.user_name || "";
@@ -516,8 +515,8 @@ export function GlobalContextProvider({
         updateUser,
         isOpenModal,
         setIsOpenModal,
-        isOpenScheduleModalV1,
-        setIsOpenScheduleModalV1,
+        isOpenScheduleModal,
+        setIsOpenScheduleModal,
         resetPassword,
         isUserLoading,
         presentDevice,
