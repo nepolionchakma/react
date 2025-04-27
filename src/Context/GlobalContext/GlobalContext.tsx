@@ -247,10 +247,13 @@ export function GlobalContextProvider({
     }
   };
 
-  const updateUser = async (id: number, userInfo: IUpdateUserTypes) => {
+  const updateUser = async (user_id: number, userInfo: IUpdateUserTypes) => {
     setIsLoading(true);
     try {
-      const res = await api.put(`/combined-user/${id}`, userInfo);
+      const res = await api.put<IUpdateUserTypes>(
+        `/combined-user/${user_id}`,
+        userInfo
+      );
       if (res.status === 200) {
         setIsLoading(false);
         setIsOpenModal("");
@@ -271,7 +274,10 @@ export function GlobalContextProvider({
   const resetPassword = async (resetData: IUserPasswordResetTypes) => {
     try {
       setIsLoading(true);
-      const res = await api.put(`/user-credentials/reset-password`, resetData);
+      const res = await api.put(
+        `/user-credentials/reset-password/${resetData.user_id}`,
+        resetData
+      );
 
       if (res.status === 200) {
         toast({
@@ -390,15 +396,10 @@ export function GlobalContextProvider({
         });
       }
     } catch (error) {
-      if (error instanceof AxiosError && error.response) {
-        if (error.response.status === 408) {
-          toast({
-            title: "Info !!!",
-            description: `Can't add data already exist !.`,
-          });
-        }
-      }
-
+      toast({
+        variant: "destructive",
+        description: `Failed to add data.`,
+      });
       console.log(error);
     }
   };

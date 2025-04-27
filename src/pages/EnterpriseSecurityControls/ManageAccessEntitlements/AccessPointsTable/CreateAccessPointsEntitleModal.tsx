@@ -238,7 +238,11 @@ const AccessPointsEntitleModal = () => {
               <FormItem>
                 <FormLabel>Change Control</FormLabel>
                 <FormControl>
-                  <Input placeholder="Change Control" {...field} />
+                  <Input
+                    placeholder="Change Control"
+                    {...field}
+                    maxLength={10}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>

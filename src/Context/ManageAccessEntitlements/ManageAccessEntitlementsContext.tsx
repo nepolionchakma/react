@@ -18,7 +18,7 @@ import {
 import { useGlobalContext } from "../GlobalContext/GlobalContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { Table } from "@tanstack/react-table";
-import { AxiosError } from "axios";
+import { AxiosError, AxiosResponse } from "axios";
 interface IManageAccessEntitlementsProviderProps {
   children: React.ReactNode;
 }
@@ -189,25 +189,6 @@ export const ManageAccessEntitlementsProvider = ({
   const [totalPage, setTotalPage] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
-  // access entitlement elements lazy loading
-  // const fetchAccessEtitlementElenentsLazyLoading = useCallback(
-  //   async (data: IFetchAccessPointsElementTypes[]) => {
-  //     try {
-  //       const totalCount = data.length;
-  //       const offset = (page - 1) * limit;
-  //       const results = data.slice(offset, offset + limit);
-  //       const totalPages = Math.ceil(totalCount / limit);
-  //       setFilteredData(results);
-  //       setTotalPage(totalPages);
-  //       setCurrentPage(page);
-  //     } catch (error) {
-  //       console.log(error);
-  //     }
-  //   },
-  //   [page, limit]
-  // );
-  // Fetch Access Points Entitlement
-
   const fetchAccessPointsEntitlement = useCallback(
     async (fetchData: IManageAccessEntitlementsTypes) => {
       setIsLoading(true);
@@ -240,7 +221,7 @@ export const ManageAccessEntitlementsProvider = ({
         setIsLoading(false);
       }
     },
-    [page]
+    [api, limit, page]
   );
   const fetchAccessPointsEntitlementForDelete = useCallback(
     async (fetchData: IManageAccessEntitlementsTypes) => {
@@ -431,13 +412,13 @@ export const ManageAccessEntitlementsProvider = ({
       }
       return res.status;
     } catch (error) {
-      // if (error.response.status) {
-      //   toast({
-      //     title: "Info !!!",
-      //     description: `${error.message}`,
-      //   });
-      // }
-      console.log(error);
+      if (error instanceof Error) {
+        console.log(error.message);
+        toast({
+          description: `Failed: ${error.message}`,
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
       setSave2((prevSave) => prevSave + 1);
@@ -473,23 +454,27 @@ export const ManageAccessEntitlementsProvider = ({
     try {
       setIsLoadingAccessPoints(true);
       for (const id of accessPointsMaxId) {
-        await api.post<IFetchAccessEntitlementElementsTypes>(
-          `/access-entitlement-elements`,
-          {
-            entitlement_id: entitlement_id,
-            access_point_id: id,
-            created_by: token.user_name,
-            last_updated_by: token.user_name,
-          }
-        );
+        const response: AxiosResponse<IFetchAccessEntitlementElementsTypes> =
+          await api.post<IFetchAccessEntitlementElementsTypes>(
+            `/access-entitlement-elements`,
+            {
+              entitlement_id: entitlement_id,
+              access_point_id: id,
+              created_by: token.user_name,
+              last_updated_by: token.user_name,
+            }
+          );
+
+        if (response.status === 201) {
+          toast({
+            description: `${
+              selectedManageAccessEntitlements?.entitlement_id
+                ? `Data added successfully to ${selectedManageAccessEntitlements?.entitlement_name}`
+                : "Data added successfully"
+            } `,
+          });
+        }
       }
-      toast({
-        description: `${
-          selectedManageAccessEntitlements?.entitlement_id
-            ? `Data added successfully to ${selectedManageAccessEntitlements?.entitlement_name}`
-            : "Data added successfully"
-        } `,
-      });
     } catch (error) {
       console.log(error);
     } finally {
@@ -506,9 +491,9 @@ export const ManageAccessEntitlementsProvider = ({
     try {
       await Promise.all([
         await api
-          .delete(`/access-entitlement-elements`, {
-            data: { entitlementId, accessPointId },
-          })
+          .delete(
+            `/access-entitlement-elements/${entitlementId}/${accessPointId}`
+          )
           .then((res) => {
             if (res.status === 200) {
               toast({

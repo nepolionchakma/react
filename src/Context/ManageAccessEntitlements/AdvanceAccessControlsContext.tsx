@@ -376,7 +376,6 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         .then((res) => {
           if (res.status === 200) {
             toast({
-              title: "Info !!!",
               description: `Data deleted successfully.`,
             });
           }
