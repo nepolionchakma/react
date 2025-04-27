@@ -56,7 +56,9 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
     cell: ({ row }) => {
       const dataSource: IDataSourceTypes = row.getValue("dataSource");
       return (
-        <div className="capitalize min-w-max">{dataSource.datasource_name}</div>
+        <div className="capitalize min-w-max">
+          {dataSource?.datasource_name}
+        </div>
       );
     },
   },
