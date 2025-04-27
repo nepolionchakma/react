@@ -4,7 +4,8 @@ import { ColumnDef } from "@tanstack/react-table";
 import {
   CircleChevronDown,
   CircleChevronRight,
-  CircleChevronUp,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 export const columns = (
   expandedRow: string | null,
@@ -89,10 +90,9 @@ export const columns = (
       return <div className="min-w-max">Parameters</div>;
     },
     cell: ({ row }) => {
-      const parameters = JSON.stringify(row.getValue("parameters"));
       const length = Object.keys(row.getValue("parameters")).length === 0;
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-2">
           <button
             disabled={length}
             className="disabled:cursor-not-allowed disabled:opacity-50"
@@ -102,15 +102,11 @@ export const columns = (
             }}
           >
             {viewParameters && clickedRowId === row.id ? (
-              <CircleChevronDown className="w-5 h-5 text-gray-600" />
+              <EyeOff className="w-5 h-5" />
             ) : (
-              <CircleChevronUp className="w-5 h-5 text-gray-600" />
+              <Eye className="w-5 h-5" />
             )}
           </button>
-          <span>
-            {parameters.slice(0, 10)}
-            {parameters.length > 10 && "..."}
-          </span>
         </div>
       );
     },
