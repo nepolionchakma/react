@@ -349,7 +349,7 @@ const TaskRequest: FC<ITaskRequestProps> = ({
                 <TableHead className="border border-winter-400">
                   Parameter Name
                 </TableHead>
-                <TableHead className="border border-winter-400">
+                <TableHead className="border border-winter-400 w-60">
                   Parameter Value
                 </TableHead>
               </TableRow>
