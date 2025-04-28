@@ -20,30 +20,26 @@ import {
 } from "@/components/ui/table";
 import columns from "./Columns";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
-import {
-  IEnterprisesTypes,
-  ITenantsTypes,
-} from "@/types/interfaces/users.interface";
+import { ITenantsTypes } from "@/types/interfaces/users.interface";
 import Pagination5 from "@/components/Pagination/Pagination5";
-import TenancyAndEnterpriseSetupModal from "../Modal/TenancyAndEnterpriseSetupModal";
+import TenancyCreateAndEditModal from "../Modal/TenancyCreateAndEditModal";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface ITenantsDataProps {
   tabName: string;
   action: string;
   setAction: React.Dispatch<React.SetStateAction<string>>;
-  selectedData: ITenantsTypes[] | IEnterprisesTypes[];
-  setSelectedData: React.Dispatch<
-    React.SetStateAction<ITenantsTypes[] | IEnterprisesTypes[]>
-  >;
+  selectedTenancyRows: ITenantsTypes[];
+  setSelectedTenancyRows: React.Dispatch<React.SetStateAction<ITenantsTypes[]>>;
 }
 
 export function TenancyDataTable({
   tabName,
   action,
   setAction,
-  selectedData,
-}: // setSelectedData,
-ITenantsDataProps) {
+  selectedTenancyRows,
+  setSelectedTenancyRows,
+}: ITenantsDataProps) {
   const api = useAxiosPrivate();
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [updateNumber, setUpdateNumber] = React.useState<number>(0);
@@ -52,7 +48,6 @@ ITenantsDataProps) {
   const [totalPage, setTotalPage] = React.useState<number>(1);
   const limit = 8;
 
-  console.log(data, "data");
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -80,6 +75,28 @@ ITenantsDataProps) {
     },
   });
 
+  const handleRowSelection = (rowSelection: ITenantsTypes) => {
+    setSelectedTenancyRows((prevSelected) => {
+      if (prevSelected.includes(rowSelection)) {
+        return prevSelected.filter((item) => item !== rowSelection);
+      } else {
+        return [...prevSelected, rowSelection];
+      }
+    });
+  };
+  console.log(selectedTenancyRows, "selectedTenancyRows");
+
+  const handleCloseModal = () => {
+    setAction(""); // close modal
+    setSelectedTenancyRows([]);
+    //table toggle false
+    table.toggleAllRowsSelected(false);
+  };
+
+  React.useEffect(() => {
+    handleCloseModal();
+  }, [page]);
+
   React.useEffect(() => {
     const fetch = async () => {
       try {
@@ -100,12 +117,12 @@ ITenantsDataProps) {
     <div className="w-full">
       <>
         {tabName && tabName === "tenancy" && action && (
-          <TenancyAndEnterpriseSetupModal
+          <TenancyCreateAndEditModal
             action={action}
-            setAction={setAction}
             tabName={tabName}
-            selectedData={selectedData}
+            selectedTenancyRows={selectedTenancyRows}
             setUpdateNumber={setUpdateNumber}
+            handleCloseModal={handleCloseModal}
           />
         )}
       </>
@@ -155,11 +172,22 @@ ITenantsDataProps) {
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
-                  {row.getVisibleCells().map((cell) => (
+                  {row.getVisibleCells().map((cell, index) => (
                     <TableCell key={cell.id} className={`border p-1 h-8`}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext()
+                      {index === 0 ? (
+                        <Checkbox
+                          className=""
+                          checked={row.getIsSelected()}
+                          onCheckedChange={(value) => {
+                            row.toggleSelected(!!value);
+                          }}
+                          onClick={() => handleRowSelection(row.original)}
+                        />
+                      ) : (
+                        flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )
                       )}
                     </TableCell>
                   ))}

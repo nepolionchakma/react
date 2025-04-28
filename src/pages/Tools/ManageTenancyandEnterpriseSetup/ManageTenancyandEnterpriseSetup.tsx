@@ -18,14 +18,38 @@ import {
   IEnterprisesTypes,
   ITenantsTypes,
 } from "@/types/interfaces/users.interface";
+import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+import { toast } from "@/components/ui/use-toast";
 
 const ManageTenancyandEnterpriseSetup = () => {
+  const api = useAxiosPrivate();
   const [tabName, setTabName] = useState<string>("tenancy");
   const [action, setAction] = useState("");
   // const [openedModalName, setOpenedModalName] = useState<string>("");
-  const [selectedData, setSelectedData] = useState<
-    ITenantsTypes[] | IEnterprisesTypes[]
+  const [selectedTenancyRows, setSelectedTenancyRows] = useState<
+    ITenantsTypes[]
   >([]);
+  const [selectedEnterpriseRows, setSelectedEnterpriseRows] = useState<
+    IEnterprisesTypes[]
+  >([]);
+
+  const handleDelete = async () => {
+    try {
+      if (tabName === "tenancy") {
+        const res = await api.delete(
+          `/def-tenants/${selectedTenancyRows[0].tenant_id}`
+        );
+        if (res) {
+          toast({
+            description: `${res.data.message}`,
+          });
+        }
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  console.log(selectedTenancyRows);
   return (
     <div>
       <div className="flex gap-3 mb-1">
@@ -36,34 +60,45 @@ const ManageTenancyandEnterpriseSetup = () => {
               onClick={() => setAction("create")}
             />
             <button
-            // disabled={
-            //   selectedUsers.length > 1 || selectedUsers.length === 0
-            // }
+              disabled={
+                (selectedTenancyRows.length > 1 ||
+                  selectedTenancyRows.length === 0) &&
+                (selectedEnterpriseRows.length > 1 ||
+                  selectedEnterpriseRows.length === 0)
+              }
             >
               <FileEdit
-              // className={`${
-              //   selectedUsers.length > 1 || selectedUsers.length === 0
-              //     ? "text-slate-200 cursor-not-allowed"
-              //     : "cursor-pointer"
-              // }`}
-              // onClick={() => handleOpenModal("edit_user")}
+                className={`${
+                  (selectedTenancyRows.length > 1 ||
+                    selectedTenancyRows.length === 0) &&
+                  (selectedEnterpriseRows.length > 1 ||
+                    selectedEnterpriseRows.length === 0)
+                    ? "text-slate-200 cursor-not-allowed"
+                    : "cursor-pointer"
+                }`}
+                onClick={() => setAction("edit")}
               />
             </button>
 
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <button
-                // disabled={
-                //   token.user_type !== "system" || selectedUsers.length === 0
-                // }
+                  disabled={
+                    (selectedTenancyRows.length > 1 ||
+                      selectedTenancyRows.length === 0) &&
+                    (selectedEnterpriseRows.length > 1 ||
+                      selectedEnterpriseRows.length === 0)
+                  }
                 >
                   <Trash
-                  // className={`${
-                  //   token.user_type !== "system" ||
-                  //   selectedUsers.length === 0
-                  //     ? "cursor-not-allowed text-slate-200"
-                  //     : "cursor-pointer"
-                  // }`}
+                    className={`${
+                      (selectedTenancyRows.length > 1 ||
+                        selectedTenancyRows.length === 0) &&
+                      (selectedEnterpriseRows.length > 1 ||
+                        selectedEnterpriseRows.length === 0)
+                        ? "cursor-not-allowed text-slate-200"
+                        : "cursor-pointer"
+                    }`}
                   />
                 </button>
               </AlertDialogTrigger>
@@ -71,20 +106,33 @@ const ManageTenancyandEnterpriseSetup = () => {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    {/* {selectedUsers.map((item, index) => (
-                      <span key={item.user_id} className="block text-red-500">
-                        {index + 1}. username : {item.user_name}
-                      </span>
-                    ))} */}
-                    This action cannot be undone. This will permanently delete
-                    your account and remove your data from our servers.
+                    {selectedTenancyRows
+                      ? selectedTenancyRows.map((item, index) => (
+                          <span
+                            key={item.tenant_id}
+                            className="block text-red-500"
+                          >
+                            {index + 1}. Tenant Name : {item.tenant_name}
+                          </span>
+                        ))
+                      : selectedEnterpriseRows.map((item, index) => (
+                          <span
+                            key={item.tenant_id}
+                            className="block text-red-500"
+                          >
+                            {index + 1}. enterprise_name :{" "}
+                            {item.enterprise_name}
+                          </span>
+                        ))}
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      This action cannot be undone. This will permanently delete
+                      your account and remove your data from our servers.
+                    </p>
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                  // onClick={handleDelete}
-                  >
+                  <AlertDialogAction onClick={handleDelete}>
                     Continue
                   </AlertDialogAction>
                 </AlertDialogFooter>
@@ -112,8 +160,8 @@ const ManageTenancyandEnterpriseSetup = () => {
               tabName={tabName}
               action={action}
               setAction={setAction}
-              selectedData={selectedData}
-              setSelectedData={setSelectedData}
+              selectedTenancyRows={selectedTenancyRows}
+              setSelectedTenancyRows={setSelectedTenancyRows}
             />
           </div>
         </TabsContent>
@@ -124,8 +172,8 @@ const ManageTenancyandEnterpriseSetup = () => {
               tabName={tabName}
               action={action}
               setAction={setAction}
-              selectedData={selectedData}
-              setSelectedData={setSelectedData}
+              selectedEnterpriseRows={selectedEnterpriseRows}
+              setSelectedEnterpriseRows={setSelectedEnterpriseRows}
             />
           </div>
         </TabsContent>
