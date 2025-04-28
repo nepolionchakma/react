@@ -20,18 +20,15 @@ import {
 } from "@/components/ui/table";
 import columns from "./Columns";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
-import {
-  IEnterprisesTypes,
-  ITenantsTypes,
-} from "@/types/interfaces/users.interface";
+import { IEnterprisesTypes } from "@/types/interfaces/users.interface";
 
 interface IEnterpriseDataProps {
   tabName: string;
   action: string;
   setAction: React.Dispatch<React.SetStateAction<string>>;
-  selectedData: ITenantsTypes[] | IEnterprisesTypes[];
-  setSelectedData: React.Dispatch<
-    React.SetStateAction<ITenantsTypes[] | IEnterprisesTypes[]>
+  selectedEnterpriseRows: IEnterprisesTypes[];
+  setSelectedEnterpriseRows: React.Dispatch<
+    React.SetStateAction<IEnterprisesTypes[]>
   >;
 }
 
@@ -39,15 +36,15 @@ export function EnterpriseDataTable({
   tabName,
   action,
   setAction,
-  selectedData,
-  setSelectedData,
+  selectedEnterpriseRows,
+  setSelectedEnterpriseRows,
 }: IEnterpriseDataProps) {
   console.log(
     tabName,
     action,
     setAction,
-    selectedData,
-    setSelectedData,
+    selectedEnterpriseRows,
+    setSelectedEnterpriseRows,
     "tabName action setAction selectedData setSelectedData"
   );
   const api = useAxiosPrivate();
