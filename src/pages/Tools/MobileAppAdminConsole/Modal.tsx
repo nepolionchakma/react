@@ -26,14 +26,15 @@ export default function Modal({
 }: ModalProps) {
   const alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"];
 
-  const toSnakeCase = (str: string) =>
-    str
-      .replace(/\s+/g, "_")
-      .replace(/[^\w_]/g, "")
-      .toLowerCase();
+  const formatToUnderscore = (str: string) => {
+    return str
+      .split(" ")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+      .join("_");
+  };
 
   const handleAddSubmenu = () => {
-    const newSubMenu = { name: "", routeName: "" };
+    const newSubMenu = { name: "", routeName: "", order: 1 };
 
     setEditable((prev) => ({
       ...prev,
@@ -47,7 +48,7 @@ export default function Modal({
     updatedSubMenus[index] = {
       ...updatedSubMenus[index],
       name: value,
-      routeName: toSnakeCase(value),
+      routeName: formatToUnderscore(value),
     };
 
     setEditable({
@@ -69,12 +70,14 @@ export default function Modal({
       updatedMenuItems[itemIndex] = {
         ...updatedMenuItems[itemIndex],
         name: value,
-        routeName: toSnakeCase(value),
+        routeName: formatToUnderscore(value),
       };
 
       updatedSubMenus[subMenuIndex] = {
         ...subMenu,
         menuItems: updatedMenuItems,
+        routeName: undefined,
+        order: 0,
       };
 
       setEditable({ ...editable, subMenus: updatedSubMenus });
@@ -90,6 +93,7 @@ export default function Modal({
       if (!target) return prev;
 
       target.menuItems = [...(target.menuItems || []), newMenuItem];
+      (target.order = 0), (target.routeName = undefined);
 
       return { ...prev, subMenus: updatedSubMenus };
     });
@@ -108,6 +112,13 @@ export default function Modal({
       updatedSubMenus[submenuIndex].menuItems = menuItems.filter(
         (_, i) => i !== itemIndex
       );
+      if (updatedSubMenus[submenuIndex].menuItems.length === 0) {
+        updatedSubMenus[submenuIndex] = {
+          ...updatedSubMenus[submenuIndex],
+          order: 1,
+          routeName: formatToUnderscore(updatedSubMenus[submenuIndex].name),
+        };
+      }
     }
 
     setEditable({ ...editable, subMenus: updatedSubMenus });
@@ -117,14 +128,14 @@ export default function Modal({
     <div>
       {showModal && (
         <CustomModal4>
-          <div className="min-w-[700px] pb-4">
-            <div className="bg-winter-300 h-[2rem] w-full flex justify-between items-center px-4">
+          <div className="min-w-[700px] max-h-[80vh] overflow-y-auto pb-4">
+            <div className="bg-winter-300 h-[2rem] w-full flex justify-between items-center px-4 fixed z-50">
               <p>Menu Structure</p>
               <button onClick={handleX}>
                 <X size={20} />
               </button>
             </div>
-            <div className="flex gap-1 px-4 mt-4">
+            <div className="flex gap-1 px-4 mt-12">
               <p>Name:</p>
 
               <input
