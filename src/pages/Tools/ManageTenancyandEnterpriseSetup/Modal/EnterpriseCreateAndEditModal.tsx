@@ -3,27 +3,32 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
-import { ITenantsTypes } from "@/types/interfaces/users.interface";
+import { IEnterprisesTypes } from "@/types/interfaces/users.interface";
 import { X } from "lucide-react";
 import React, { useState } from "react";
 interface ICustomModalTypes {
   action: string;
   tabName: string;
-  selectedTenancyRows?: ITenantsTypes[];
+  selectedEnterpriseRows?: IEnterprisesTypes[];
   setStateChanged: React.Dispatch<React.SetStateAction<number>>;
   handleCloseModal: () => void;
 }
-const TenancyCreateAndEditModal = ({
+const EnterpriseCreateAndEditModal = ({
   action,
   tabName,
-  selectedTenancyRows,
+  selectedEnterpriseRows,
   setStateChanged,
   handleCloseModal,
 }: ICustomModalTypes) => {
   const api = useAxiosPrivate();
-  const [tenantName, setTenantName] = useState<string>(
-    selectedTenancyRows && action === "edit"
-      ? selectedTenancyRows[0].tenant_name
+  const [enterpriseName, setEnterpriseName] = useState<string>(
+    selectedEnterpriseRows && action === "edit"
+      ? selectedEnterpriseRows[0].enterprise_name
+      : ""
+  );
+  const [enterpriseType, setEnterpriseType] = useState<string>(
+    selectedEnterpriseRows && action === "edit"
+      ? selectedEnterpriseRows[0].enterprise_type
       : ""
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -32,8 +37,13 @@ const TenancyCreateAndEditModal = ({
     e.preventDefault();
     try {
       setIsLoading(true);
+      const data = {
+        enterprise_name: enterpriseName,
+        enterprise_type: enterpriseType,
+      };
+
       if (action === "create") {
-        const res = await api.post(`/def-tenants`, { tenant_name: tenantName });
+        const res = await api.post(`/def-tenant-enterprise-setup`, data);
         if (res) {
           toast({
             description: `${res.data.message}`,
@@ -41,8 +51,8 @@ const TenancyCreateAndEditModal = ({
         }
       } else {
         const res = await api.put(
-          `/def-tenants/${selectedTenancyRows?.[0].tenant_id}`,
-          { tenant_name: tenantName }
+          `/def-tenant-enterprise-setup/${selectedEnterpriseRows?.[0].tenant_id}`,
+          data
         );
         if (res) {
           toast({
@@ -60,7 +70,8 @@ const TenancyCreateAndEditModal = ({
   };
 
   const handleClose = () => {
-    setTenantName("");
+    setEnterpriseName("");
+    setEnterpriseType("");
     handleCloseModal();
   };
 
@@ -75,14 +86,24 @@ const TenancyCreateAndEditModal = ({
       <div className="p-4 h-full flex flex-col justify-between">
         <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
           <div className="flex flex-col gap-2">
-            <label htmlFor="tenant_name">Tenancy Name</label>
+            <label htmlFor="enterprise_name">Enterprise Name</label>
             <Input
               type="text"
-              name="tenant_name"
-              id="tenant_name"
-              value={tenantName}
+              name="enterprise_name"
+              id="enterprise_name"
+              value={enterpriseName}
               autoFocus
-              onChange={(e) => setTenantName(e.target.value)}
+              onChange={(e) => setEnterpriseName(e.target.value)}
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="enterprise_type">Enterprise Type</label>
+            <Input
+              type="text"
+              name="enterprise_type"
+              id="enterprise_type"
+              value={enterpriseType}
+              onChange={(e) => setEnterpriseType(e.target.value)}
             />
           </div>
           <div className="flex justify-end">
@@ -94,4 +115,4 @@ const TenancyCreateAndEditModal = ({
   );
 };
 
-export default TenancyCreateAndEditModal;
+export default EnterpriseCreateAndEditModal;

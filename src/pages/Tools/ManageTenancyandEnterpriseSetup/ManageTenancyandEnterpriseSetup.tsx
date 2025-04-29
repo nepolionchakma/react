@@ -25,13 +25,13 @@ const ManageTenancyandEnterpriseSetup = () => {
   const api = useAxiosPrivate();
   const [tabName, setTabName] = useState<string>("tenancy");
   const [action, setAction] = useState("");
-  // const [openedModalName, setOpenedModalName] = useState<string>("");
   const [selectedTenancyRows, setSelectedTenancyRows] = useState<
     ITenantsTypes[]
   >([]);
   const [selectedEnterpriseRows, setSelectedEnterpriseRows] = useState<
     IEnterprisesTypes[]
   >([]);
+  const [stateChanged, setStateChanged] = useState<number>(0);
 
   const handleDelete = async () => {
     try {
@@ -44,12 +44,23 @@ const ManageTenancyandEnterpriseSetup = () => {
             description: `${res.data.message}`,
           });
         }
+      } else {
+        const res = await api.delete(
+          `/def-tenant-enterprise-setup/${selectedEnterpriseRows[0].tenant_id}`
+        );
+        if (res) {
+          toast({
+            description: `${res.data.message}`,
+          });
+        }
       }
     } catch (error) {
       console.log(error);
+    } finally {
+      setStateChanged(Math.random() + 23 * 3000);
     }
   };
-  console.log(selectedTenancyRows);
+
   return (
     <div>
       <div className="flex gap-3 mb-1">
@@ -106,11 +117,11 @@ const ManageTenancyandEnterpriseSetup = () => {
                 <AlertDialogHeader>
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    {selectedTenancyRows
+                    {tabName === "tenancy"
                       ? selectedTenancyRows.map((item, index) => (
                           <span
                             key={item.tenant_id}
-                            className="block text-red-500"
+                            className="block text-black"
                           >
                             {index + 1}. Tenant Name : {item.tenant_name}
                           </span>
@@ -118,16 +129,16 @@ const ManageTenancyandEnterpriseSetup = () => {
                       : selectedEnterpriseRows.map((item, index) => (
                           <span
                             key={item.tenant_id}
-                            className="block text-red-500"
+                            className="block text-black"
                           >
-                            {index + 1}. enterprise_name :{" "}
+                            {index + 1}. Enterprise Name :{" "}
                             {item.enterprise_name}
                           </span>
                         ))}
-                    <p className="mt-2 text-sm text-muted-foreground">
+                    <span className="mt-2 text-sm text-muted-foreground block">
                       This action cannot be undone. This will permanently delete
                       your account and remove your data from our servers.
-                    </p>
+                    </span>
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -150,7 +161,7 @@ const ManageTenancyandEnterpriseSetup = () => {
             value="enterprise"
             onClick={() => setTabName("enterprise")}
           >
-            Enterprise Setup
+            Enterprise
           </TabsTrigger>
         </TabsList>
 
@@ -162,6 +173,8 @@ const ManageTenancyandEnterpriseSetup = () => {
               setAction={setAction}
               selectedTenancyRows={selectedTenancyRows}
               setSelectedTenancyRows={setSelectedTenancyRows}
+              stateChanged={stateChanged}
+              setStateChanged={setStateChanged}
             />
           </div>
         </TabsContent>
@@ -174,6 +187,8 @@ const ManageTenancyandEnterpriseSetup = () => {
               setAction={setAction}
               selectedEnterpriseRows={selectedEnterpriseRows}
               setSelectedEnterpriseRows={setSelectedEnterpriseRows}
+              stateChanged={stateChanged}
+              setStateChanged={setStateChanged}
             />
           </div>
         </TabsContent>
