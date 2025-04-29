@@ -31,6 +31,8 @@ interface ITenantsDataProps {
   setAction: React.Dispatch<React.SetStateAction<string>>;
   selectedTenancyRows: ITenantsTypes[];
   setSelectedTenancyRows: React.Dispatch<React.SetStateAction<ITenantsTypes[]>>;
+  stateChanged: number;
+  setStateChanged: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export function TenancyDataTable({
@@ -39,10 +41,11 @@ export function TenancyDataTable({
   setAction,
   selectedTenancyRows,
   setSelectedTenancyRows,
+  stateChanged,
+  setStateChanged,
 }: ITenantsDataProps) {
   const api = useAxiosPrivate();
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [updateNumber, setUpdateNumber] = React.useState<number>(0);
   const [data, setData] = React.useState<ITenantsTypes[]>([]);
   const [page, setPage] = React.useState<number>(1);
   const [totalPage, setTotalPage] = React.useState<number>(1);
@@ -84,7 +87,6 @@ export function TenancyDataTable({
       }
     });
   };
-  console.log(selectedTenancyRows, "selectedTenancyRows");
 
   const handleCloseModal = () => {
     setAction(""); // close modal
@@ -95,7 +97,7 @@ export function TenancyDataTable({
 
   React.useEffect(() => {
     handleCloseModal();
-  }, [page]);
+  }, [page, stateChanged]);
 
   React.useEffect(() => {
     const fetch = async () => {
@@ -111,7 +113,7 @@ export function TenancyDataTable({
       }
     };
     fetch();
-  }, [api, page, updateNumber]);
+  }, [api, page, stateChanged]);
 
   return (
     <div className="w-full">
@@ -121,7 +123,7 @@ export function TenancyDataTable({
             action={action}
             tabName={tabName}
             selectedTenancyRows={selectedTenancyRows}
-            setUpdateNumber={setUpdateNumber}
+            setStateChanged={setStateChanged}
             handleCloseModal={handleCloseModal}
           />
         )}
