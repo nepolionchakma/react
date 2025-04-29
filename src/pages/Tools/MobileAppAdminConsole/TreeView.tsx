@@ -9,6 +9,7 @@ import {
   Minimize,
   Plus,
   Save,
+  ChevronDown,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import {
@@ -21,13 +22,19 @@ import Modal from "./Modal";
 
 interface MenuItem {
   name: string;
+  routeName: string;
+}
+
+interface Submenu {
+  name: string;
   routeName?: string;
   menuItems?: MenuItem[];
+  order: number;
 }
 
 export interface MenuStructure {
   submenu: string;
-  subMenus: MenuItem[];
+  subMenus: Submenu[];
 }
 
 interface IMenuTypes {
@@ -66,7 +73,7 @@ const TreeView = () => {
       }
     };
     fetchData();
-  }, [api, url]);
+  }, [api, toast, url]);
 
   const toggleMenu = (key: string) => {
     setOpenMenus((prev) => ({ ...prev, [key]: !prev[key] }));
@@ -238,7 +245,11 @@ const TreeView = () => {
               className="flex items-center gap-1"
               onClick={() => toggleMenu(menu.submenu)}
             >
-              <ChevronRightIcon size={20} />
+              {openMenus[menu.submenu] ? (
+                <ChevronDown size={20} />
+              ) : (
+                <ChevronRightIcon size={20} />
+              )}
               <p>{menu.submenu}</p>
             </div>
             {hovered === menu.submenu && (
@@ -285,45 +296,56 @@ const TreeView = () => {
               openMenus[menu.submenu] ? "max-h-screen" : "max-h-0"
             }`}
           >
-            {menu.subMenus.map((sub) => (
-              <div key={sub.name} className="mt-1">
-                {"menuItems" in sub ? (
-                  <>
-                    <div
-                      className="cursor-pointer flex items-center gap-1"
-                      onClick={() => toggleMenu(`${menu.submenu}-${sub.name}`)}
-                    >
-                      <ChevronRightIcon size={20} />
-                      <p className="text-gray-700">{sub.name}</p>
+            {menu.subMenus
+              .sort((a, b) => a.order - b.order)
+              .map((sub) => (
+                <div key={sub.name} className="mt-1">
+                  {"menuItems" in sub ? (
+                    <>
+                      <div
+                        className="cursor-pointer flex items-center gap-1"
+                        onClick={() =>
+                          toggleMenu(`${menu.submenu}-${sub.name}`)
+                        }
+                      >
+                        {openMenus[`${menu.submenu}-${sub.name}`] ? (
+                          <ChevronDown size={20} />
+                        ) : (
+                          <ChevronRightIcon size={20} />
+                        )}
+
+                        <p className="text-gray-700">{sub.name}</p>
+                      </div>
+                      <div
+                        className={`pl-4 transition-all duration-300 ease-in-out overflow-hidden ${
+                          openMenus[`${menu.submenu}-${sub.name}`]
+                            ? "max-h-screen"
+                            : "max-h-0"
+                        }`}
+                      >
+                        {sub.menuItems !== undefined &&
+                          sub.menuItems.map((item) => (
+                            <div
+                              key={item.routeName}
+                              className="flex items-center gap-1 mt-1"
+                            >
+                              <Dot size={20} />
+                              <p className="text-sm text-gray-600">
+                                {item.name}
+                              </p>
+                            </div>
+                          ))}
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex items-center gap-1">
+                      {" "}
+                      <Dot size={20} />
+                      <p className="text-sm text-gray-600">{sub.name}</p>
                     </div>
-                    <div
-                      className={`pl-4 transition-all duration-300 ease-in-out overflow-hidden ${
-                        openMenus[`${menu.submenu}-${sub.name}`]
-                          ? "max-h-screen"
-                          : "max-h-0"
-                      }`}
-                    >
-                      {sub.menuItems !== undefined &&
-                        sub.menuItems.map((item) => (
-                          <div
-                            key={item.routeName}
-                            className="flex items-center gap-1 mt-1"
-                          >
-                            <Dot size={20} />
-                            <p className="text-sm text-gray-600">{item.name}</p>
-                          </div>
-                        ))}
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex items-center gap-1">
-                    {" "}
-                    <Dot size={20} />
-                    <p className="text-sm text-gray-600">{sub.name}</p>
-                  </div>
-                )}
-              </div>
-            ))}
+                  )}
+                </div>
+              ))}
           </div>
         </div>
       ))}

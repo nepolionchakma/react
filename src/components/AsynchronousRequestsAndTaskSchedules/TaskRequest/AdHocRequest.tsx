@@ -50,6 +50,8 @@ const AdHocRequest: FC<ITaskRequestTypes> = ({ action, handleCloseModal }) => {
   const [parameters, setParameters] = useState<Record<string, string | number>>(
     {}
   );
+
+  console.log(parameters);
   useEffect(() => {
     const fetchAsyncTasks = async () => {
       try {
