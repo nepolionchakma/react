@@ -174,6 +174,7 @@ export function GlobalContextProvider({
     fetchUsers();
   }, [api, token?.user_id, updateProfileImage]);
 
+  //user info
   const fetchCombinedUser = async () => {
     try {
       setIsLoading(true);
@@ -193,8 +194,6 @@ export function GlobalContextProvider({
       setIsLoading(false);
     }
   };
-
-  //user info
   const createUser = async (postData: IAddUserTypes) => {
     setIsLoading(true);
     const {
@@ -227,7 +226,6 @@ export function GlobalContextProvider({
       if (res.status === 201) {
         setIsLoading(false);
         toast({
-          title: "Info !!!",
           description: `User added successfully.`,
         });
       }
@@ -235,7 +233,6 @@ export function GlobalContextProvider({
       if (error instanceof AxiosError && error.response) {
         if (error.response.status) {
           toast({
-            title: "Info !!!",
             description: `${error.message}`,
           });
         }
@@ -246,7 +243,6 @@ export function GlobalContextProvider({
       fetchCombinedUser();
     }
   };
-
   const updateUser = async (user_id: number, userInfo: IUpdateUserTypes) => {
     setIsLoading(true);
     try {
@@ -259,8 +255,7 @@ export function GlobalContextProvider({
         setIsOpenModal("");
         fetchCombinedUser();
         toast({
-          title: "Info !!!",
-          description: `Update successfully.`,
+          description: `Updated successfully.`,
         });
       }
     } catch (error) {
@@ -269,8 +264,6 @@ export function GlobalContextProvider({
       fetchCombinedUser();
     }
   };
-
-  // reset password
   const resetPassword = async (resetData: IUserPasswordResetTypes) => {
     try {
       setIsLoading(true);
@@ -281,8 +274,7 @@ export function GlobalContextProvider({
 
       if (res.status === 200) {
         toast({
-          title: "Info !!!",
-          description: `Reset password successfully.`,
+          description: `Password reset successfully.`,
         });
       }
     } catch (error) {
@@ -311,8 +303,7 @@ export function GlobalContextProvider({
           credentials.status === 200
         ) {
           toast({
-            title: "Info !!!",
-            description: `Delete successfully.`,
+            description: `Deleted successfully.`,
           });
         }
       }
@@ -321,7 +312,6 @@ export function GlobalContextProvider({
       if (error instanceof Error) {
         fetchCombinedUser();
         toast({
-          title: "Info !!!",
           description: `Error: ${error.message}`,
         });
       }
@@ -343,8 +333,6 @@ export function GlobalContextProvider({
       console.log(error);
     }
   };
-
-  //Fetch SingleDataSource
   const fetchDataSource = async (id: number): Promise<IDataSourceTypes> => {
     try {
       const response = await api.get<IDataSourceTypes>(`/data-sources/${id}`);
@@ -361,8 +349,6 @@ export function GlobalContextProvider({
       throw error;
     }
   };
-
-  // Create Data Source
   const createDataSource = async (postData: IDataSourcePostTypes) => {
     const {
       datasource_name,
@@ -403,8 +389,6 @@ export function GlobalContextProvider({
       console.log(error);
     }
   };
-
-  // Update Data Source
   const updateDataSource = async (
     id: number,
     postData: IDataSourcePostTypes
@@ -444,8 +428,6 @@ export function GlobalContextProvider({
       console.log(error);
     }
   };
-
-  // Delete DataSource
   const deleteDataSource = async (id: number) => {
     try {
       const res = await api.delete<IDataSourceTypes>(`/data-sources/${id}`);
@@ -470,7 +452,7 @@ export function GlobalContextProvider({
     }
   };
 
-  // Tenant IDs
+  // Tenants
   const fetchTenants = async () => {
     try {
       const res = await api.get<ITenantsTypes[]>(`/def-tenants`);

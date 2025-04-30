@@ -123,6 +123,11 @@ export const ManageAccessEntitlementsProvider = ({
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingAccessPoints, setIsLoadingAccessPoints] =
     useState<boolean>(false);
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(5);
+  const [totalPage, setTotalPage] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+
   const [selectedAccessEntitlements, setSelectedAccessEntitlements] = useState<
     IManageAccessEntitlementsTypes[]
   >([]);
@@ -154,22 +159,8 @@ export const ManageAccessEntitlementsProvider = ({
     selectedAccessEntitlementElements,
     setSelectedAccessEntitlementElements,
   ] = useState<number[]>([]);
-  //Fetch Manage Access Entitlements
-  const fetchManageAccessEntitlements = async (page: number, limit: number) => {
-    setIsLoading(true);
-    try {
-      const response = await api.get<IManageAccessEntitlementsPerPageTypes>(
-        `/manage-access-entitlements/${page}/${limit}`
-      );
-      const sortingData = response.data;
-      return sortingData ?? {};
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  // fetch access points element data
+
+  // Access points element
   const fetchAccessPointsData = async () => {
     setIsLoading(true);
     try {
@@ -184,11 +175,6 @@ export const ManageAccessEntitlementsProvider = ({
       setIsLoading(false);
     }
   };
-  const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(5);
-  const [totalPage, setTotalPage] = useState<number>(1);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-
   const fetchAccessPointsEntitlement = useCallback(
     async (fetchData: IManageAccessEntitlementsTypes) => {
       setIsLoading(true);
@@ -253,124 +239,6 @@ export const ManageAccessEntitlementsProvider = ({
     },
     [page, selectedAccessEntitlements.length]
   );
-  // create manage-access-entitlement
-  const createManageAccessEntitlements = async (
-    postData: IManageAccessEntitlementsTypes
-  ) => {
-    const {
-      entitlement_name,
-      description,
-      comments,
-      status,
-      last_updated_by,
-      created_by,
-    } = postData;
-    setIsLoading(true);
-    try {
-      const res = await api.post(`/manage-access-entitlements`, {
-        entitlement_name,
-        description,
-        comments,
-        status,
-        last_updated_by,
-        created_by,
-      });
-
-      if (res.status === 200) {
-        toast({
-          description: `${res.data.message}`,
-        });
-      }
-      if (res.status === 201) {
-        toast({
-          description: `${res.data.message}`,
-        });
-        setEditManageAccessEntitlement(false);
-      }
-    } catch (error) {
-      console.log(error, "error");
-    } finally {
-      setSave((prevSave) => prevSave + 1);
-      setIsLoading(false);
-    }
-  };
-  // update manage-access-entitlement
-  const updateManageAccessEntitlements = async (
-    id: number,
-    putData: IManageAccessEntitlementsTypes
-  ) => {
-    setIsLoading(true);
-    const {
-      entitlement_id,
-      entitlement_name,
-      description,
-      comments,
-      status,
-      last_updated_by,
-      created_by,
-    } = putData;
-    try {
-      const res = await api.put(`/manage-access-entitlements/${id}`, {
-        entitlement_id,
-        entitlement_name,
-        description,
-        comments,
-        status,
-        last_updated_by,
-        created_by,
-      });
-
-      if (res.status === 200) {
-        toast({
-          description: `${res.data.message}`,
-        });
-      }
-      if (res.status === 201) {
-        toast({
-          description: `${res.data.message}`,
-        });
-
-        setEditManageAccessEntitlement(false);
-      }
-    } catch (error) {
-      if (error instanceof AxiosError) {
-        toast({
-          title: "Info !!!",
-          description: `${error.response}`,
-        });
-      }
-      console.log(error);
-    } finally {
-      setSave((prevSave) => prevSave + 1);
-      setIsLoading(false);
-    }
-  };
-  const deleteManageAccessEntitlement = async (id: number) => {
-    try {
-      //fetch access entitlements
-      const response = await api.get(`/access-entitlement-elements/${id}`);
-
-      if (response.data.length > 0) {
-        for (const element of response.data) {
-          await deleteAccessEntitlementElement(
-            element.entitlement_id,
-            element.access_point_id
-          );
-        }
-      }
-      const res = await api.delete(`/manage-access-entitlements/${id}`);
-      if (res.status === 200) {
-        toast({
-          title: "Info !!!",
-          description: `Data deleted successfully.`,
-        });
-      }
-      setSave((prevSave) => prevSave + 1);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-  // create access-points-element
   const createAccessPointsEntitlement = async (
     postData: ICreateAccessPointsElementTypes
   ) => {
@@ -406,7 +274,7 @@ export const ManageAccessEntitlementsProvider = ({
       // setSave((prevSave) => prevSave + 1);
       if (res.status === 201) {
         toast({
-          description: `Add successfully.`,
+          description: `Added successfully.`,
         });
         setSave2((prevSave) => prevSave + 1);
       }
@@ -424,7 +292,6 @@ export const ManageAccessEntitlementsProvider = ({
       setSave2((prevSave) => prevSave + 1);
     }
   };
-  // delete access-points-element
   const deleteAccessPointsElement = async (id: number) => {
     try {
       const res = await api.delete(`/access-points-element/${id}`);
@@ -439,14 +306,14 @@ export const ManageAccessEntitlementsProvider = ({
       console.log(error);
     }
   };
-  //fetch access entitlement elements
   const fetchAccessEtitlementElenents = async () => {
     const res = await api.get<IFetchAccessEntitlementElementsTypes[]>(
       `/access-entitlement-elements`
     );
     return res.data;
   };
-  //create access entitlement elements
+
+  // Access entitlement elements
   const createAccessEntitlementElements = async (
     entitlement_id: number,
     accessPointsMaxId: (number | undefined)[]
@@ -497,7 +364,7 @@ export const ManageAccessEntitlementsProvider = ({
           .then((res) => {
             if (res.status === 200) {
               toast({
-                description: `Data remove successfully.`,
+                description: `Deleted successfully.`,
               });
             }
           })
@@ -517,6 +384,136 @@ export const ManageAccessEntitlementsProvider = ({
       setIsLoadingAccessPoints(false);
     }
   };
+
+  // Manage Access Entitlements && Access points element
+  const fetchManageAccessEntitlements = async (page: number, limit: number) => {
+    setIsLoading(true);
+    try {
+      const response = await api.get<IManageAccessEntitlementsPerPageTypes>(
+        `/manage-access-entitlements/${page}/${limit}`
+      );
+      const sortingData = response.data;
+      return sortingData ?? {};
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const createManageAccessEntitlements = async (
+    postData: IManageAccessEntitlementsTypes
+  ) => {
+    const {
+      entitlement_name,
+      description,
+      comments,
+      status,
+      last_updated_by,
+      created_by,
+    } = postData;
+    setIsLoading(true);
+    try {
+      const res = await api.post(`/manage-access-entitlements`, {
+        entitlement_name,
+        description,
+        comments,
+        status,
+        last_updated_by,
+        created_by,
+      });
+
+      if (res.status === 200) {
+        toast({
+          description: `${res.data.message}`,
+        });
+      }
+      if (res.status === 201) {
+        toast({
+          description: `${res.data.message}`,
+        });
+        setEditManageAccessEntitlement(false);
+      }
+    } catch (error) {
+      console.log(error, "error");
+    } finally {
+      setSave((prevSave) => prevSave + 1);
+      setIsLoading(false);
+    }
+  };
+  const updateManageAccessEntitlements = async (
+    id: number,
+    putData: IManageAccessEntitlementsTypes
+  ) => {
+    setIsLoading(true);
+    const {
+      entitlement_id,
+      entitlement_name,
+      description,
+      comments,
+      status,
+      last_updated_by,
+      created_by,
+    } = putData;
+    try {
+      const res = await api.put(`/manage-access-entitlements/${id}`, {
+        entitlement_id,
+        entitlement_name,
+        description,
+        comments,
+        status,
+        last_updated_by,
+        created_by,
+      });
+
+      if (res.status === 200) {
+        toast({
+          description: `${res.data.message}`,
+        });
+      }
+      if (res.status === 201) {
+        toast({
+          description: `${res.data.message}`,
+        });
+
+        setEditManageAccessEntitlement(false);
+      }
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast({
+          description: `${error.response}`,
+        });
+      }
+      console.log(error);
+    } finally {
+      setSave((prevSave) => prevSave + 1);
+      setIsLoading(false);
+    }
+  };
+  const deleteManageAccessEntitlement = async (id: number) => {
+    try {
+      //fetch access entitlements
+      const response = await api.get(`/access-entitlement-elements/${id}`);
+
+      if (response.data.length > 0) {
+        for (const element of response.data) {
+          await deleteAccessEntitlementElement(
+            element.entitlement_id,
+            element.access_point_id
+          );
+        }
+      }
+      const res = await api.delete(`/manage-access-entitlements/${id}`);
+      if (res.status === 200) {
+        toast({
+          description: `Deleted successfully.`,
+        });
+      }
+      setSave((prevSave) => prevSave + 1);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const value = {
     fetchManageAccessEntitlements,
     selectedAccessEntitlements,
