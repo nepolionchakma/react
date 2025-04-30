@@ -278,7 +278,7 @@ export function ViewEditScheduledTasksTable() {
                         )
                         .map((item, index) => (
                           <span
-                            key={item.arm_task_sche_id}
+                            key={item.def_task_sche_id}
                             className="block text-red-500"
                           >
                             {index + 1}. User schedule name :{" "}

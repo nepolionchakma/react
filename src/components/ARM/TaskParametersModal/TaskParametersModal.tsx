@@ -111,7 +111,7 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
       try {
         setIsLoading(true);
         await api.put(
-          `/arm-tasks/update-task-params/${selectedTask?.task_name}/${selected.arm_param_id}`,
+          `/arm-tasks/update-task-params/${selectedTask?.task_name}/${selected.def_param_id}`,
           putData
         );
 

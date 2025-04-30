@@ -319,7 +319,7 @@ const TaskRequest: FC<ITaskRequestProps> = ({
                         <SelectContent className="max-h-60">
                           {asyncTaskNames?.map((item) => (
                             <SelectItem
-                              key={item.arm_task_id}
+                              key={item.def_task_id}
                               value={item.task_name}
                             >
                               {item.user_task_name}
