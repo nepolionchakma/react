@@ -52,8 +52,8 @@ interface ARMContext {
   getTaskParametersByTaskName: (
     task_name: string
   ) => Promise<IARMAsynchronousTasksParametersTypes[] | undefined>;
-  isSubmit: number;
-  setIsSubmit: React.Dispatch<React.SetStateAction<number>>;
+  changeState: number;
+  setChangeState: React.Dispatch<React.SetStateAction<number>>;
   getAsynchronousRequestsAndTaskSchedules: (
     page: number,
     limit: number
@@ -78,7 +78,7 @@ export function useARMContext() {
 
 export function ARMContextProvider({ children }: ARMContextProviderProps) {
   const api = useAxiosPrivate();
-  const [isSubmit, setIsSubmit] = useState<number>(0);
+  const [changeState, setChangeState] = useState<number>(0);
   const [isLoading, setIsLoading] = React.useState(false);
   const [selectedTask, setSelectedTask] = useState<
     IARMAsynchronousTasksTypes | undefined
@@ -306,8 +306,8 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     setSelectedTaskParameters,
     getTaskParametersLazyLoading,
     getTaskParametersByTaskName,
-    isSubmit,
-    setIsSubmit,
+    changeState,
+    setChangeState,
     getAsynchronousRequestsAndTaskSchedules,
     cancelScheduledTask,
     getViewRequests,

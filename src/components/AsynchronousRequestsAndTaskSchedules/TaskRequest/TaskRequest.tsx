@@ -57,7 +57,7 @@ const TaskRequest: FC<ITaskRequestProps> = ({
   selected,
 }) => {
   const api = useAxiosPrivate();
-  const { getAsyncTasks, getTaskParametersByTaskName, setIsSubmit } =
+  const { getAsyncTasks, getTaskParametersByTaskName, setChangeState } =
     useARMContext();
   const { isOpenScheduleModal, setIsOpenScheduleModal } = useGlobalContext();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -179,7 +179,7 @@ const TaskRequest: FC<ITaskRequestProps> = ({
       setSchedule(undefined);
       setScheduleType("");
       setIsLoading(false);
-      setIsSubmit(Math.random() + 23 * 3000);
+      setChangeState(Math.random() + 23 * 3000);
     }
   };
 

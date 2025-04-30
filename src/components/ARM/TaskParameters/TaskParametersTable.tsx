@@ -43,8 +43,12 @@ import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import TaskParametersModal from "../TaskParametersModal/TaskParametersModal";
 
 export function TaskParametersTable() {
-  const { totalPage2, selectedTask, getTaskParametersLazyLoading, isSubmit } =
-    useARMContext();
+  const {
+    totalPage2,
+    selectedTask,
+    getTaskParametersLazyLoading,
+    changeState,
+  } = useARMContext();
   const [data, setData] = React.useState<IARMTaskParametersTypes[] | []>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const { isOpenModal, setIsOpenModal } = useGlobalContext();
@@ -105,7 +109,7 @@ export function TaskParametersTable() {
       }
     };
     fetchData();
-  }, [selectedTask?.arm_task_id, isSubmit, page]);
+  }, [selectedTask?.arm_task_id, changeState, page]);
 
   const table = useReactTable({
     data,

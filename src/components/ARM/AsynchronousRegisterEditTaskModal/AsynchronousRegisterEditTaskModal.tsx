@@ -52,7 +52,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
 }) => {
   const api = useAxiosPrivate();
   const { isOpenModal } = useGlobalContext();
-  const { setIsSubmit, getManageExecutionMethods } = useARMContext();
+  const { setChangeState, getManageExecutionMethods } = useARMContext();
   const [executionMethods, setExecutionMethods] = useState<
     IExecutionMethodsTypes[]
   >([]);
@@ -195,7 +195,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
       } finally {
         setIsLoading(false);
         reset();
-        setIsSubmit(Math.random() + 23 * 3000);
+        setChangeState(Math.random() + 23 * 3000);
       }
     };
     const editTask = async () => {
@@ -224,7 +224,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
       } finally {
         setIsLoading(false);
         reset();
-        setIsSubmit(Math.random() + 23 * 3000);
+        setChangeState(Math.random() + 23 * 3000);
       }
     };
 

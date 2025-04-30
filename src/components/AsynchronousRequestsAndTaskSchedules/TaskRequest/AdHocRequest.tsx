@@ -41,7 +41,7 @@ interface ITaskRequestTypes {
 
 const AdHocRequest: FC<ITaskRequestTypes> = ({ action, handleCloseModal }) => {
   const api = useAxiosPrivate();
-  const { getAsyncTasks, getTaskParametersByTaskName, setIsSubmit } =
+  const { getAsyncTasks, getTaskParametersByTaskName, setChangeState } =
     useARMContext();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [asyncTaskNames, setAsyncTaskNames] = useState<
@@ -124,7 +124,7 @@ const AdHocRequest: FC<ITaskRequestTypes> = ({ action, handleCloseModal }) => {
     } finally {
       setIsLoading(false);
       form.reset();
-      setIsSubmit(Math.random() + 23 * 3000);
+      setChangeState(Math.random() + 23 * 3000);
     }
   };
 

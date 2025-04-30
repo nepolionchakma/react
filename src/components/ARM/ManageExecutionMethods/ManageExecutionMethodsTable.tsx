@@ -48,7 +48,7 @@ export function ManageExecutionMethodsTable() {
     getManageExecutionMethodsLazyLoading,
     isLoading,
     setIsLoading,
-    isSubmit,
+    changeState,
   } = useARMContext();
   const { page, setPage, isOpenModal, setIsOpenModal } = useGlobalContext();
   const [data, setData] = React.useState<IExecutionMethodsTypes[] | []>([]);
@@ -68,7 +68,7 @@ export function ManageExecutionMethodsTable() {
       }
     };
     fetchData();
-  }, [isSubmit, page]);
+  }, [changeState, page]);
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(

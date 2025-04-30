@@ -37,20 +37,20 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
 }) => {
   const api = useAxiosPrivate();
   const { isOpenModal } = useGlobalContext();
-  const { setIsSubmit } = useARMContext();
+  const { setChangeState } = useARMContext();
 
   const FormSchema = z.object(
     isOpenModal === "create_execution_methods"
       ? {
-        execution_method: z.string(),
-        internal_execution_method: z.string(),
-        executor: z.string(),
-        description: z.string()
+          execution_method: z.string(),
+          internal_execution_method: z.string(),
+          executor: z.string(),
+          description: z.string(),
         }
       : {
-        execution_method: z.string(),
-        executor: z.string(),
-        description: z.string()
+          execution_method: z.string(),
+          executor: z.string(),
+          description: z.string(),
         }
   );
 
@@ -59,43 +59,46 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
     defaultValues:
       isOpenModal === "create_execution_methods"
         ? {
-          execution_method: "",
-          internal_execution_method: "",
-          executor: "",
-          description: ""
+            execution_method: "",
+            internal_execution_method: "",
+            executor: "",
+            description: "",
           }
         : {
-          execution_method: selected[0]?.execution_method,
-          executor: selected[0]?.executor,
-          description: selected[0]?.description
+            execution_method: selected[0]?.execution_method,
+            executor: selected[0]?.executor,
+            description: selected[0]?.description,
           },
   });
   const { reset } = form;
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     const postData = {
-      execution_method:data.execution_method,
+      execution_method: data.execution_method,
       internal_execution_method: data.internal_execution_method,
       executor: data.executor,
-      description: data.description
+      description: data.description,
     };
     const putData = {
-      execution_method:data.execution_method, 
+      execution_method: data.execution_method,
       executor: data.executor,
-      description: data.description
-    }; 
+      description: data.description,
+    };
     const registerTask = async () => {
       try {
         setIsLoading(true);
-        const res = await api.post(`/arm-tasks/create-execution-method`, postData);
+        const res = await api.post(
+          `/arm-tasks/create-execution-method`,
+          postData
+        );
 
-      if(res){
-        toast({
-          title: "Info !!!",
-          description: `Added successfully.`,
-        });
-        handleCloseModal();
-      }
+        if (res) {
+          toast({
+            title: "Info !!!",
+            description: `Added successfully.`,
+          });
+          handleCloseModal();
+        }
       } catch (error) {
         if (error instanceof AxiosError) {
           toast({
@@ -107,7 +110,7 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
       } finally {
         setIsLoading(false);
         reset();
-        setIsSubmit(Math.random() + 23 * 3000);
+        setChangeState(Math.random() + 23 * 3000);
       }
     };
     const editTask = async () => {
@@ -117,12 +120,13 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
           `/arm-tasks/update-execution-method/${selected[0]?.internal_execution_method}`,
           putData
         );
-        if(res){
-        toast({
-          title: "Info !!!",
-          description: `Added successfully.`,
-        });
-        handleCloseModal();}
+        if (res) {
+          toast({
+            title: "Info !!!",
+            description: `Added successfully.`,
+          });
+          handleCloseModal();
+        }
       } catch (error) {
         if (error instanceof AxiosError) {
           toast({
@@ -134,7 +138,7 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
       } finally {
         setIsLoading(false);
         reset();
-        setIsSubmit(Math.random() + 23 * 3000);
+        setChangeState(Math.random() + 23 * 3000);
       }
     };
 
@@ -166,45 +170,44 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
       <div className="px-11 p-5">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-            <div className="grid grid-cols-2 gap-10"> 
+            <div className="grid grid-cols-2 gap-10">
+              <FormField
+                control={form.control}
+                name="execution_method"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Execution Method</FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        required
+                        type="text"
+                        placeholder="Execution Method"
+                      />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              {action !== "Edit Execution Method" && (
                 <FormField
                   control={form.control}
-                  name="execution_method"
+                  name="internal_execution_method"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Execution Method</FormLabel>
+                      <FormLabel>Internal Execution Method</FormLabel>
                       <FormControl>
                         <Input
                           {...field}
                           required
                           type="text"
-                          placeholder="Execution Method"
+                          placeholder="Internal Execution Method"
                         />
                       </FormControl>
                     </FormItem>
                   )}
-                /> 
-                {
-                  action !=="Edit Execution Method" && (<FormField
-                    control={form.control}
-                    name="internal_execution_method"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Internal Execution Method</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            required
-                            type="text"
-                            placeholder="Internal Execution Method"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />)
-                }
-                
-            </div> 
+                />
+              )}
+            </div>
             <div className="grid grid-cols-2 gap-10">
               <FormField
                 control={form.control}
@@ -222,24 +225,24 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
                     </FormControl>
                   </FormItem>
                 )}
-              /> 
+              />
             </div>
-            
-            <div className=" "> 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} placeholder="Description" />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+
+            <div className=" ">
+              <FormField
+                control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Description</FormLabel>
+                    <FormControl>
+                      <Textarea {...field} placeholder="Description" />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
             </div>
-            
+
             <div className="fixed bottom-4 right-7 p-4">
               <Button type="submit">
                 {isLoading ? (

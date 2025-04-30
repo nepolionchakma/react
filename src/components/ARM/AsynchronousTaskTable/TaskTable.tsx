@@ -48,7 +48,7 @@ export function TaskTable() {
     getAsyncTasksLazyLoading,
     isLoading,
     setIsLoading,
-    isSubmit,
+    changeState,
   } = useARMContext();
   const { page, setPage, isOpenModal, setIsOpenModal } = useGlobalContext();
   const [data, setData] = React.useState<IARMAsynchronousTasksTypes[] | []>([]);
@@ -68,7 +68,7 @@ export function TaskTable() {
       }
     };
     fetchData();
-  }, [isSubmit, page]);
+  }, [changeState, page]);
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
