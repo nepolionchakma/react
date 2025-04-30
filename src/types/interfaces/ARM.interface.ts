@@ -5,7 +5,7 @@ export interface IExecutionMethodsTypes {
   internal_execution_method: string;
 }
 export interface IARMAsynchronousTasksTypes {
-  arm_task_id: number;
+  def_task_id: number;
   script_name: string;
   script_path?: string;
   task_name: string;
@@ -22,7 +22,7 @@ export interface IARMAsynchronousTasksTypes {
   sf?: string;
 }
 export interface IARMTaskParametersTypes {
-  arm_param_id: number;
+  def_param_id: number;
   created_by: number;
   creation_date: string;
   data_type: string;
@@ -34,7 +34,7 @@ export interface IARMTaskParametersTypes {
 }
 // export interface IAsynchronousRequestsAndTaskSchedulesTypes {
 //   args: string[];
-//   arm_task_sche_id: number;
+//   def_task_sche_id: number;
 //   cancelled_yn: string;
 //   created_by: number;
 //   creation_date: string;
@@ -65,7 +65,7 @@ export interface IScheduleOnce {
 
 export interface IAsynchronousRequestsAndTaskSchedulesTypes {
   args: string[];
-  arm_task_sche_id: number;
+  def_task_sche_id: number;
   cancelled_yn: string;
   created_by: number;
   creation_date: string;

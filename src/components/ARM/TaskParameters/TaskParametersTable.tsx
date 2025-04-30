@@ -43,8 +43,12 @@ import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import TaskParametersModal from "../TaskParametersModal/TaskParametersModal";
 
 export function TaskParametersTable() {
-  const { totalPage2, selectedTask, getTaskParametersLazyLoading, isSubmit } =
-    useARMContext();
+  const {
+    totalPage2,
+    selectedTask,
+    getTaskParametersLazyLoading,
+    changeState,
+  } = useARMContext();
   const [data, setData] = React.useState<IARMTaskParametersTypes[] | []>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const { isOpenModal, setIsOpenModal } = useGlobalContext();
@@ -75,7 +79,7 @@ export function TaskParametersTable() {
     setSelectedRows((prev) => {
       const allSelected = data.every((row) =>
         prev.some(
-          (selectedRow) => selectedRow.arm_param_id === row.arm_param_id
+          (selectedRow) => selectedRow.def_param_id === row.def_param_id
         )
       );
       if (allSelected) {
@@ -105,7 +109,7 @@ export function TaskParametersTable() {
       }
     };
     fetchData();
-  }, [selectedTask?.arm_task_id, isSubmit, page]);
+  }, [selectedTask?.def_task_id, changeState, page]);
 
   const table = useReactTable({
     data,
@@ -185,7 +189,7 @@ export function TaskParametersTable() {
                     <TooltipTrigger asChild>
                       <PlusIcon
                         className={`${
-                          !selectedTask?.arm_task_id
+                          !selectedTask?.def_task_id
                             ? "text-slate-200 cursor-not-allowed"
                             : "cursor-pointer"
                         }`}
@@ -237,7 +241,7 @@ export function TaskParametersTable() {
           className="max-w-sm px-4 py-2"
         /> */}
         <h3 className="font-bold mx-auto">
-          {selectedTask?.arm_task_id &&
+          {selectedTask?.def_task_id &&
             `Selected : ${selectedTask?.user_task_name}`}
         </h3>
         {/* Columns */}

@@ -113,7 +113,7 @@ export function TaskNameTable() {
 
   const handleRowSelection = (task: IARMAsynchronousTasksTypes) => {
     setSelectedTask((prev) => {
-      if (prev?.arm_task_id === task.arm_task_id) {
+      if (prev?.def_task_id === task.def_task_id) {
         return undefined;
       } else {
         return task;

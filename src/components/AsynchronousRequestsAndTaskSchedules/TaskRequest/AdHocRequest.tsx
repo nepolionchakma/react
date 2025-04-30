@@ -41,7 +41,7 @@ interface ITaskRequestTypes {
 
 const AdHocRequest: FC<ITaskRequestTypes> = ({ action, handleCloseModal }) => {
   const api = useAxiosPrivate();
-  const { getAsyncTasks, getTaskParametersByTaskName, setIsSubmit } =
+  const { getAsyncTasks, getTaskParametersByTaskName, setChangeState } =
     useARMContext();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [asyncTaskNames, setAsyncTaskNames] = useState<
@@ -126,7 +126,7 @@ const AdHocRequest: FC<ITaskRequestTypes> = ({ action, handleCloseModal }) => {
     } finally {
       setIsLoading(false);
       form.reset();
-      setIsSubmit(Math.random() + 23 * 3000);
+      setChangeState(Math.random() + 23 * 3000);
     }
   };
 
@@ -188,7 +188,7 @@ const AdHocRequest: FC<ITaskRequestTypes> = ({ action, handleCloseModal }) => {
                         <SelectContent className="max-h-60">
                           {asyncTaskNames?.map((item) => (
                             <SelectItem
-                              key={item.arm_task_id}
+                              key={item.def_task_id}
                               value={item.task_name}
                             >
                               {item.user_task_name}

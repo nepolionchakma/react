@@ -20,7 +20,7 @@ interface IDataSourceAddDataTypes {
   selected: IDataSourceTypes[];
   editAble?: boolean;
   setSave: Dispatch<SetStateAction<number>>;
-  setRowSelection: Dispatch<SetStateAction<{}>>;
+  setRowSelection: Dispatch<SetStateAction<Record<string, never>>>;
 }
 const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
   props,

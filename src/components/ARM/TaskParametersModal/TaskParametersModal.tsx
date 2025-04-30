@@ -40,7 +40,7 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
 }) => {
   const api = useAxiosPrivate();
   const { isOpenModal, token } = useGlobalContext();
-  const { selectedTask, setIsSubmit } = useARMContext();
+  const { selectedTask, setChangeState } = useARMContext();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const FormSchema = z.object({
@@ -104,14 +104,14 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
       } finally {
         setIsLoading(false);
         reset();
-        setIsSubmit(Math.random() + 23 * 3000);
+        setChangeState(Math.random() + 23 * 3000);
       }
     };
     const updateParams = async () => {
       try {
         setIsLoading(true);
         await api.put(
-          `/arm-tasks/update-task-params/${selectedTask?.task_name}/${selected.arm_param_id}`,
+          `/arm-tasks/update-task-params/${selectedTask?.task_name}/${selected.def_param_id}`,
           putData
         );
 
@@ -130,7 +130,7 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
       } finally {
         setIsLoading(false);
         reset();
-        setIsSubmit(Math.random() + 23 * 3000);
+        setChangeState(Math.random() + 23 * 3000);
       }
     };
 

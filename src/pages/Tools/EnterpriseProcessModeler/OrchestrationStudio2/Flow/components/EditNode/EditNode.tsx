@@ -311,7 +311,7 @@ const EditNode: FC<EditNodeProps> = ({
                                         <SelectGroup>
                                           {stepFunctionTasks.map((task) => (
                                             <SelectItem
-                                              key={task.arm_task_id}
+                                              key={task.def_task_id}
                                               value={task.task_name}
                                               className="cursor-pointer"
                                             >

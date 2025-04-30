@@ -63,8 +63,8 @@ export function ViewEditScheduledTasksTable() {
     isLoading,
     setIsLoading,
     cancelScheduledTask,
-    isSubmit,
-    setIsSubmit,
+    changeState,
+    setChangeState,
   } = useARMContext();
   const [data, setData] = React.useState<
     IAsynchronousRequestsAndTaskSchedulesTypes[] | []
@@ -93,7 +93,7 @@ export function ViewEditScheduledTasksTable() {
       }
     };
     fetchData();
-  }, [isSubmit, page]);
+  }, [changeState, page]);
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -131,7 +131,7 @@ export function ViewEditScheduledTasksTable() {
         description: `Error : ${error}`,
       });
     } finally {
-      setIsSubmit(Math.random() + 23 * 3000);
+      setChangeState(Math.random() + 23 * 3000);
       setIsLoading(false);
     }
   };
@@ -278,7 +278,7 @@ export function ViewEditScheduledTasksTable() {
                         )
                         .map((item, index) => (
                           <span
-                            key={item.arm_task_sche_id}
+                            key={item.def_task_sche_id}
                             className="block text-red-500"
                           >
                             {index + 1}. User schedule name :{" "}
