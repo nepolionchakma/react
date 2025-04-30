@@ -132,7 +132,39 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   >([]);
   const [deleteAndSaveState, setDeleteAndSaveState] = useState<number>(0);
   const [dataSources, setDataSources] = useState<IDataSourceTypes[]>([]);
-  // Fetch Manage Global Conditions
+
+  useEffect(() => {
+    const maxId = async () => {
+      if (token?.user_id === 0) return;
+      const [resGlobalCondition, resManageAccessModel] = await Promise.all([
+        api.get(`/manage-global-condition-logic-attributes`),
+        api.get(`/manage-access-model-logic-attributes`),
+      ]);
+      const maxIdGlobalCondition = Math.max(
+        ...resGlobalCondition.data.map(
+          (data: IManageGlobalConditionLogicAttributesTypes) => data.id
+        )
+      );
+      const maxIdManageAccessModel = Math.max(
+        ...resManageAccessModel.data.map(
+          (data: IManageAccessModelLogicAttributesTypes) => data.id
+        )
+      );
+      if (resGlobalCondition.data.length > 0) {
+        setGlobalConditionAttrMaxId(maxIdGlobalCondition);
+      } else {
+        setGlobalConditionAttrMaxId(0);
+      }
+      if (resManageAccessModel.data.length > 0) {
+        setManageAccessModelAttrMaxId(maxIdManageAccessModel);
+      } else {
+        setManageAccessModelAttrMaxId(0);
+      }
+    };
+    maxId();
+  }, [isActionLoading, stateChange]);
+
+  // Manage Global Conditions
   const fetchManageGlobalConditions = async () => {
     try {
       setIsLoading(true);
@@ -148,7 +180,6 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       setIsLoading(false);
     }
   };
-  // Create Manage Global Condition
   const createManageGlobalCondition = async (
     postData: IManageGlobalConditionTypes
   ) => {
@@ -168,7 +199,6 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       if (res.status === 201) {
         setStateChange((prev) => prev + 1);
         toast({
-          title: "Info !!!",
           description: `Added successfully.`,
         });
       }
@@ -184,7 +214,6 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       setIsLoading(false);
     }
   };
-  // Fetch Manage Global Conditions
   const fetchManageGlobalConditionLogics = async (filterId: number) => {
     try {
       setIsLoading(true);
@@ -219,39 +248,6 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    const maxId = async () => {
-      if (token?.user_id === 0) return;
-      const [resGlobalCondition, resManageAccessModel] = await Promise.all([
-        api.get(`/manage-global-condition-logic-attributes`),
-        api.get(`/manage-access-model-logic-attributes`),
-      ]);
-      const maxIdGlobalCondition = Math.max(
-        ...resGlobalCondition.data.map(
-          (data: IManageGlobalConditionLogicAttributesTypes) => data.id
-        )
-      );
-      const maxIdManageAccessModel = Math.max(
-        ...resManageAccessModel.data.map(
-          (data: IManageAccessModelLogicAttributesTypes) => data.id
-        )
-      );
-      if (resGlobalCondition.data.length > 0) {
-        setGlobalConditionAttrMaxId(maxIdGlobalCondition);
-      } else {
-        setGlobalConditionAttrMaxId(0);
-      }
-      if (resManageAccessModel.data.length > 0) {
-        setManageAccessModelAttrMaxId(maxIdManageAccessModel);
-      } else {
-        setManageAccessModelAttrMaxId(0);
-      }
-    };
-    maxId();
-  }, [isActionLoading, stateChange]);
-
-  // Manage Global Condition Delete
   const manageGlobalConditionDeleteCalculate = async (id: number) => {
     try {
       const result = await fetchManageGlobalConditionLogics(id);
@@ -260,16 +256,13 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       console.log(error);
     }
   };
-
-  // Manage Global Condition Delete
   const deleteManageGlobalCondition = async (id: number) => {
     api
       .delete(`/manage-global-conditions/${id}`)
       .then((res) => {
         if (res.status === 200) {
           toast({
-            title: "Info !!!",
-            description: `Data deleted successfully.`,
+            description: `Deleted successfully.`,
           });
         }
       })
@@ -280,8 +273,6 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         setStateChange((prev) => prev + 1);
       });
   };
-
-  // delete Logic And Attribute Data
   const deleteLogicAndAttributeData = async (
     logicId: number,
     attrId: number
@@ -296,11 +287,10 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       }
     } catch (error) {
       console.log(error);
-      // return error.response.status;
     }
   };
 
-  // fetch Manage Access Models
+  // Manage Access Models
   const fetchManageAccessModels = async () => {
     try {
       setIsLoading(true);
@@ -317,8 +307,6 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       setIsLoading(false);
     }
   };
-
-  // Create Manage Access Model
   const createManageAccessModel = async (
     postData: IManageAccessModelsTypes
   ) => {
@@ -366,8 +354,6 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       setIsLoading(false);
     }
   };
-
-  // delete Manage Access Model
   const deleteManageAccessModel = async (items: IManageAccessModelsTypes[]) => {
     for (const item of items) {
       const { manage_access_model_id: id } = item;
@@ -376,7 +362,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         .then((res) => {
           if (res.status === 200) {
             toast({
-              description: `Data deleted successfully.`,
+              description: `Deleted successfully.`,
             });
           }
         })
@@ -389,7 +375,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     }
   };
 
-  // fetch Manage Access Model Logics
+  // Manage Access Model Logics
   const fetchManageAccessModelLogics = async (filterId: number) => {
     try {
       setIsLoading(true);
@@ -422,8 +408,6 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       setIsLoading(false);
     }
   };
-
-  // Manage Access Model Delete
   const manageAccessModelLogicsDeleteCalculate = async (id: number) => {
     try {
       const result = await fetchManageAccessModelLogics(id);
@@ -432,8 +416,6 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       console.log(error);
     }
   };
-
-  // delete Manage Access Model Logic And Attribute Data
   const deleteManageModelLogicAndAttributeData = async (
     logicId: number,
     attrId: number
@@ -448,7 +430,6 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       }
     } catch (error) {
       console.log(error);
-      // return error.response.status;
     }
   };
 
@@ -484,7 +465,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     // return filterResult ?? [];
   };
 
-  // Fetch Data Source
+  // Data Source
   const fetchDataSource = async () => {
     await api.get<IDataSourceTypes[]>(`/data-sources`).then((res) => {
       if (res.status === 200) {

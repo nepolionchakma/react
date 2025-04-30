@@ -36,7 +36,8 @@ export const ControlsContextProvider = ({
   const { setIsLoading } = useAACContext();
   const [controlsData, setControlsData] = useState<IControlsTypes[]>([]);
   const [selectedControl, setSelectedControl] = useState<IControlsTypes[]>([]);
-  // fetch controls
+
+  // Controls
   const fetchControls = async () => {
     try {
       // setIsLoading(true);
@@ -55,7 +56,6 @@ export const ControlsContextProvider = ({
       .then((res) => {
         if (res.status === 201) {
           toast({
-            title: "Info !!!",
             description: `Added successfully.`,
           });
         }
