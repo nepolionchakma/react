@@ -390,7 +390,7 @@ const ManageDataSources = () => {
                     {selected.map((row, i) => (
                       <span
                         key={row.data_source_id}
-                        className="flex flex-col text-red-600"
+                        className="flex flex-col text-black"
                       >
                         {i + 1}. {row.datasource_name}
                       </span>
@@ -407,10 +407,7 @@ const ManageDataSources = () => {
                       color="black"
                     />
                   ) : (
-                    <AlertDialogAction
-                      className="bg-red-400 hover:bg-red-600"
-                      onClick={handleDelete}
-                    >
+                    <AlertDialogAction onClick={handleDelete}>
                       Continue
                     </AlertDialogAction>
                   )}

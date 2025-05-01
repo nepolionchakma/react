@@ -274,7 +274,7 @@ const ManageAccessEntitlementsTable = () => {
                     <AlertDialogTitle>
                       Are you absolutely sure?
                     </AlertDialogTitle>
-                    <AlertDialogDescription className="overflow-y-auto text-red-500">
+                    <AlertDialogDescription className="overflow-y-auto text-black">
                       <span className="flex flex-col gap-1">
                         {deleteLoading ? (
                           <span className="h-10 w-10 mx-auto p-2">
@@ -282,7 +282,7 @@ const ManageAccessEntitlementsTable = () => {
                               size="30"
                               stroke="5"
                               speed="0.9"
-                              color="red"
+                              color="black"
                             />
                           </span>
                         ) : (

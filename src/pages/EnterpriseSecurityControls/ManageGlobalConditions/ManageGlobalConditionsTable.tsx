@@ -281,19 +281,19 @@ const ManageGlobalConditionsTable = () => {
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle className="text-red-500">
+                    <AlertDialogTitle className="text-black">
                       Are you absolutely sure?
                     </AlertDialogTitle>
                     <AlertDialogDescription>
                       <span>
-                        <span className="text-red-500">
+                        <span className="text-black">
                           NAME : {selectedManageGlobalConditionItem[0]?.name}
                         </span>
                         <br />
                         {willBeDelete.map((item) => (
                           <span
                             key={item.id}
-                            className=" flex items-center text-red-500"
+                            className=" flex items-center text-black"
                           >
                             <Dot size={30} /> {item.object} {item.attribute}
                             {item.value}

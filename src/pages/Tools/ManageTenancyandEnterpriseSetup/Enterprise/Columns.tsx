@@ -27,6 +27,23 @@ export const columns: ColumnDef<IEnterprisesTypes>[] = [
     enableHiding: false,
   },
   {
+    accessorKey: "tenancy_name",
+    header: ({ column }) => {
+      return (
+        <div
+          className="flex items-center"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Tenancy Name
+          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer" />
+        </div>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("tenancy_name")}</div>
+    ),
+  },
+  {
     accessorKey: "enterprise_name",
     header: ({ column }) => {
       return (
@@ -35,7 +52,7 @@ export const columns: ColumnDef<IEnterprisesTypes>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Enterprise Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer" />
         </div>
       );
     },
