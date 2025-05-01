@@ -196,7 +196,7 @@ export function UsersTable({ selectedUsers, setSelectedUsers }: Props) {
                     </AlertDialogTitle>
                     <AlertDialogDescription>
                       {selectedUsers.map((item, index) => (
-                        <span key={item.user_id} className="block text-red-500">
+                        <span key={item.user_id} className="block text-black">
                           {index + 1}. username : {item.user_name}
                         </span>
                       ))}
