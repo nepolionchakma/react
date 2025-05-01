@@ -188,29 +188,24 @@ export const DroppableItem: FC<DroppableItemProps> = ({
                 <div className="hover:text-white rounded-md">
                   <Trash
                     size={30}
-                    className="p-1 cursor-pointer hover:text-red-600"
+                    className="p-1 cursor-pointer hover:text-black"
                   />
                 </div>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
                   <AlertDialogTitle>
-                    Really Want To <span className="text-red-600">Delete</span>{" "}
-                    ?
+                    Really Want To <span className="text-black">Delete</span> ?
                   </AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently{" "}
-                    <span className="text-red-600">delete</span> from database
-                    and <span className="text-red-600">remove</span> your data
-                    from our servers.
+                    This action cannot be undone. This will permanently delete
+                    from database and remove your data from our servers.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel className="bg-sky-700 text-white">
-                    Cancel
-                  </AlertDialogCancel>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
                   <AlertDialogAction
-                    className="bg-red-600"
+                    className="bg-black"
                     onClick={() =>
                       handleDelete(
                         item.id,

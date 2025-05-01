@@ -36,7 +36,7 @@ export const columns: ColumnDef<ITenantsTypes>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Tenant Id
-          <ArrowUpDown className="ml-2 h-4 w-4" />
+          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer" />
         </div>
       );
     },

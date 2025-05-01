@@ -142,7 +142,11 @@ export function EnterpriseDataTable({
                     <TableHead
                       key={header.id}
                       className={`border border-slate-400 bg-slate-200 p-1 h-9 ${
-                        index === 0 && "w-7"
+                        index === 0
+                          ? "w-7"
+                          : index === 1
+                          ? "w-40"
+                          : index === 3 && "w-64"
                       }`}
                     >
                       {header.isPlaceholder

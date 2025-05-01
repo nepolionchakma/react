@@ -218,10 +218,10 @@ const SearchResultsTable = () => {
             <AlertDialogContent className="overflow-y-auto max-h-[90%]">
               <AlertDialogHeader>
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription className="text-red-500">
+                <AlertDialogDescription className="text-black">
                   {selectedAccessModelItem.map((modelItem) => (
                     <span key={modelItem.manage_access_model_id}>
-                      <span className="capitalize mt-3 font-bold block">
+                      <span className="capitalize mt-3 font-medium block">
                         ACCESS_MODEL_NAME : {modelItem.model_name}
                       </span>
                       <span>
@@ -245,7 +245,7 @@ const SearchResultsTable = () => {
                               .map((item, index) => (
                                 <span
                                   key={index}
-                                  className="capitalize flex items-center text-red-500"
+                                  className="capitalize flex items-center text-black"
                                 >
                                   {index + 1}. Object - {item.object}, Attribute
                                   - {item.attribute}
