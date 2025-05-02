@@ -27,7 +27,7 @@ export const columns: ColumnDef<IEnterprisesTypes>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "tenancy_name",
+    accessorKey: "tenant_name",
     header: ({ column }) => {
       return (
         <div
@@ -40,7 +40,7 @@ export const columns: ColumnDef<IEnterprisesTypes>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("tenancy_name")}</div>
+      <div className="capitalize">{row.getValue("tenant_name")}</div>
     ),
   },
   {

@@ -43,7 +43,10 @@ const EnterpriseCreateAndEditModal = ({
       };
 
       if (action === "create") {
-        const res = await api.post(`/def-tenant-enterprise-setup`, data);
+        const res = await api.post(
+          `/def-tenant-enterprise-setup/${selectedEnterpriseRows?.[0].tenant_id}`,
+          data
+        );
         if (res) {
           toast({
             description: `${res.data.message}`,

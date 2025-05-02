@@ -66,16 +66,25 @@ const ManageTenancyandEnterpriseSetup = () => {
       <div className="flex gap-3 mb-1">
         <div className="flex gap-3 items-center px-4 py-2 border rounded">
           <div className="flex gap-3">
-            <PlusIcon
-              className="cursor-pointer"
-              onClick={() => setAction("create")}
-            />
+            <button
+              disabled={
+                (tabName === "enterprise" &&
+                  (selectedEnterpriseRows[0]?.enterprise_name !== null ||
+                    selectedEnterpriseRows[0]?.enterprise_type !== null)) ||
+                selectedEnterpriseRows.length > 1
+              }
+              className=" disabled:text-slate-200 disabled:cursor-not-allowed"
+            >
+              <PlusIcon onClick={() => setAction("create")} />
+            </button>
             <button
               disabled={
                 (selectedTenancyRows.length > 1 ||
                   selectedTenancyRows.length === 0) &&
                 (selectedEnterpriseRows.length > 1 ||
-                  selectedEnterpriseRows.length === 0)
+                  selectedEnterpriseRows.length === 0 ||
+                  !selectedEnterpriseRows[0]?.enterprise_name)
+                // || !selectedEnterpriseRows[0]?.enterprise_type
               }
             >
               <FileEdit
@@ -83,8 +92,10 @@ const ManageTenancyandEnterpriseSetup = () => {
                   (selectedTenancyRows.length > 1 ||
                     selectedTenancyRows.length === 0) &&
                   (selectedEnterpriseRows.length > 1 ||
-                    selectedEnterpriseRows.length === 0)
-                    ? "text-slate-200 cursor-not-allowed"
+                    selectedEnterpriseRows.length === 0 ||
+                    !selectedEnterpriseRows[0]?.enterprise_name)
+                    ? //  !selectedEnterpriseRows[0]?.enterprise_type
+                      "text-slate-200 cursor-not-allowed"
                     : "cursor-pointer"
                 }`}
                 onClick={() => setAction("edit")}
@@ -98,7 +109,9 @@ const ManageTenancyandEnterpriseSetup = () => {
                     (selectedTenancyRows.length > 1 ||
                       selectedTenancyRows.length === 0) &&
                     (selectedEnterpriseRows.length > 1 ||
-                      selectedEnterpriseRows.length === 0)
+                      selectedEnterpriseRows.length === 0 ||
+                      !selectedEnterpriseRows[0]?.enterprise_name)
+                    // || !selectedEnterpriseRows[0]?.enterprise_type
                   }
                 >
                   <Trash
@@ -106,8 +119,10 @@ const ManageTenancyandEnterpriseSetup = () => {
                       (selectedTenancyRows.length > 1 ||
                         selectedTenancyRows.length === 0) &&
                       (selectedEnterpriseRows.length > 1 ||
-                        selectedEnterpriseRows.length === 0)
-                        ? "cursor-not-allowed text-slate-200"
+                        selectedEnterpriseRows.length === 0 ||
+                        !selectedEnterpriseRows[0]?.enterprise_name)
+                        ? // ||  !selectedEnterpriseRows[0]?.enterprise_type
+                          "cursor-not-allowed text-slate-200"
                         : "cursor-pointer"
                     }`}
                   />
