@@ -24,6 +24,15 @@ import { IEnterprisesTypes } from "@/types/interfaces/users.interface";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import EnterpriseCreateAndEditModal from "../Modal/EnterpriseCreateAndEditModal";
 import { Checkbox } from "@/components/ui/checkbox";
+import ActionItems from "./ActionItems";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
 
 interface IEnterpriseDataProps {
   tabName: string;
@@ -33,8 +42,6 @@ interface IEnterpriseDataProps {
   setSelectedEnterpriseRows: React.Dispatch<
     React.SetStateAction<IEnterprisesTypes[]>
   >;
-  stateChanged: number;
-  setStateChanged: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export function EnterpriseDataTable({
@@ -43,8 +50,6 @@ export function EnterpriseDataTable({
   setAction,
   selectedEnterpriseRows,
   setSelectedEnterpriseRows,
-  stateChanged,
-  setStateChanged,
 }: IEnterpriseDataProps) {
   const api = useAxiosPrivate();
   const [data, setData] = React.useState<IEnterprisesTypes[]>([]);
@@ -52,6 +57,7 @@ export function EnterpriseDataTable({
   const [page, setPage] = React.useState<number>(1);
   const [totalPage, setTotalPage] = React.useState<number>(1);
   const limit = 8;
+  const [stateChanged, setStateChanged] = React.useState<number>(0);
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -132,7 +138,42 @@ export function EnterpriseDataTable({
           />
         )}
       </>
-      <>
+      {/* Action Items */}
+      <div className="flex items-center py-2">
+        <ActionItems
+          selectedEnterpriseRows={selectedEnterpriseRows}
+          setAction={setAction}
+          setStateChanged={setStateChanged}
+        />
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="outline" className="ml-auto">
+              Columns <ChevronDown />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            {table
+              .getAllColumns()
+              .filter((column) => column.getCanHide())
+              .map((column) => {
+                return (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                );
+              })}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+      {/* Table  */}
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -215,17 +256,17 @@ export function EnterpriseDataTable({
             )}
           </TableBody>
         </Table>
-      </>
-      <div className="flex justify-between p-1">
-        <div className="flex-1 text-sm text-gray-600">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+        <div className="flex justify-between p-1">
+          <div className="flex-1 text-sm text-gray-600">
+            {table.getFilteredSelectedRowModel().rows.length} of{" "}
+            {table.getFilteredRowModel().rows.length} row(s) selected.
+          </div>
+          <Pagination5
+            currentPage={page}
+            setCurrentPage={setPage}
+            totalPageNumbers={totalPage as number}
+          />
         </div>
-        <Pagination5
-          currentPage={page}
-          setCurrentPage={setPage}
-          totalPageNumbers={totalPage as number}
-        />
       </div>
     </div>
   );
