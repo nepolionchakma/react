@@ -128,7 +128,7 @@ export function EnterpriseDataTable({
   return (
     <div className="w-full">
       <>
-        {tabName && tabName === "enterprise" && action && (
+        {tabName && tabName === "Enterprise Setup" && action && (
           <EnterpriseCreateAndEditModal
             action={action}
             tabName={tabName}
@@ -139,7 +139,7 @@ export function EnterpriseDataTable({
         )}
       </>
       {/* Action Items */}
-      <div className="flex items-center py-2">
+      <div className="flex items-center py-1">
         <ActionItems
           selectedEnterpriseRows={selectedEnterpriseRows}
           setAction={setAction}

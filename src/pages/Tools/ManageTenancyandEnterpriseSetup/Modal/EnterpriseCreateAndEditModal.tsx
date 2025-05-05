@@ -42,26 +42,14 @@ const EnterpriseCreateAndEditModal = ({
         enterprise_type: enterpriseType,
       };
 
-      if (action === "create") {
-        const res = await api.post(
-          `/def-tenant-enterprise-setup/${selectedEnterpriseRows?.[0].tenant_id}`,
-          data
-        );
-        if (res) {
-          toast({
-            description: `${res.data.message}`,
-          });
-        }
-      } else {
-        const res = await api.put(
-          `/def-tenant-enterprise-setup/${selectedEnterpriseRows?.[0].tenant_id}`,
-          data
-        );
-        if (res) {
-          toast({
-            description: `${res.data.message}`,
-          });
-        }
+      const res = await api.post(
+        `/def-tenant-enterprise-setup/${selectedEnterpriseRows?.[0].tenant_id}`,
+        data
+      );
+      if (res) {
+        toast({
+          description: `${res.data.message}`,
+        });
       }
     } catch (error) {
       console.log(error);

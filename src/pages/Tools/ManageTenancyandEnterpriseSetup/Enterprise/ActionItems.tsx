@@ -12,7 +12,7 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { IEnterprisesTypes } from "@/types/interfaces/users.interface";
-import { FileEdit, PlusIcon, Trash } from "lucide-react";
+import { FileEdit, Trash } from "lucide-react";
 
 interface ActionItemsProps {
   selectedEnterpriseRows: IEnterprisesTypes[];
@@ -45,9 +45,6 @@ const ActionItems = ({
   return (
     <div className="flex gap-3 items-center px-4 py-2 border rounded">
       <div className="flex gap-3">
-        <button className=" disabled:text-slate-200 disabled:cursor-not-allowed">
-          <PlusIcon onClick={() => setAction("create")} />
-        </button>
         <button
           disabled={
             selectedEnterpriseRows.length > 1 ||

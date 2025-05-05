@@ -124,7 +124,7 @@ export function TenancyDataTable({
   return (
     <div className="w-full">
       <>
-        {tabName && tabName === "tenancy" && action && (
+        {tabName && tabName === "Tenancy" && action && (
           <TenancyCreateAndEditModal
             action={action}
             tabName={tabName}
