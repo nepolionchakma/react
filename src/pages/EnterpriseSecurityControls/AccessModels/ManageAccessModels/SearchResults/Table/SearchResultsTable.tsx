@@ -56,14 +56,14 @@ const SearchResultsTable = () => {
     selectedAccessModelItem,
     setSelectedAccessModelItem,
     stateChange,
-    fetchManageAccessModels,
+    fetchDefAccessModels,
     manageAccessModels: data,
-    deleteManageAccessModel,
+    deleteDefAccessModel,
     manageAccessModelLogicsDeleteCalculate,
     deleteManageModelLogicAndAttributeData,
   } = useAACContext();
   React.useEffect(() => {
-    fetchManageAccessModels();
+    fetchDefAccessModels();
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
     setSelectedAccessModelItem([]);
   }, [stateChange]);
@@ -123,16 +123,18 @@ const SearchResultsTable = () => {
     const results: IManageAccessModelLogicExtendTypes[] = [];
 
     try {
-      const deletePromises = selectedAccessModelItem.map((item) =>
-        manageAccessModelLogicsDeleteCalculate(item.manage_access_model_id)
-      );
+      const deletePromises = selectedAccessModelItem.map((item) => {
+        if (item.def_access_model_id) {
+          manageAccessModelLogicsDeleteCalculate(item?.def_access_model_id);
+        }
+      });
 
       const responses = await Promise.all(deletePromises);
 
       responses.forEach((res) => {
         if (Array.isArray(res)) {
           results.push(...res);
-        } else if (res) {
+        } else if (res !== undefined && res !== null) {
           results.push(res);
         }
       });
@@ -151,7 +153,7 @@ const SearchResultsTable = () => {
         );
       })
     );
-    await deleteManageAccessModel(selectedAccessModelItem);
+    await deleteDefAccessModel(selectedAccessModelItem);
     setSelectedAccessModelItem([]);
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
     setSelectedAccessModelItem([]);
@@ -220,7 +222,7 @@ const SearchResultsTable = () => {
                 <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                 <AlertDialogDescription className="text-black">
                   {selectedAccessModelItem.map((modelItem) => (
-                    <span key={modelItem.manage_access_model_id}>
+                    <span key={modelItem.def_access_model_id}>
                       <span className="capitalize mt-3 font-medium block">
                         ACCESS_MODEL_NAME : {modelItem.model_name}
                       </span>
@@ -240,7 +242,7 @@ const SearchResultsTable = () => {
                               .filter(
                                 (item) =>
                                   item.manage_access_model_id ===
-                                  modelItem.manage_access_model_id
+                                  modelItem.def_access_model_id
                               )
                               .map((item, index) => (
                                 <span

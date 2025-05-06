@@ -62,7 +62,7 @@ interface IAACContextTypes {
     attrId: number
   ) => Promise<number | undefined>;
 
-  fetchManageAccessModels: () => Promise<
+  fetchDefAccessModels: () => Promise<
     IManageAccessModelsTypes[] | [] | undefined
   >;
   manageAccessModels: IManageAccessModelsTypes[] | [];
@@ -70,10 +70,8 @@ interface IAACContextTypes {
   setSelectedAccessModelItem: Dispatch<
     SetStateAction<IManageAccessModelsTypes[]>
   >;
-  createManageAccessModel: (
-    postData: IManageAccessModelsTypes
-  ) => Promise<void>;
-  deleteManageAccessModel: (items: IManageAccessModelsTypes[]) => Promise<void>;
+  createDefAccessModel: (postData: IManageAccessModelsTypes) => Promise<void>;
+  deleteDefAccessModel: (items: IManageAccessModelsTypes[]) => Promise<void>;
   fetchManageAccessModelLogics: (
     filterId: number
   ) => Promise<IManageAccessModelLogicExtendTypes[] | undefined>;
@@ -290,12 +288,12 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     }
   };
 
-  // Manage Access Models
-  const fetchManageAccessModels = async () => {
+  // fetch Access Models
+  const fetchDefAccessModels = async () => {
     try {
       setIsLoading(true);
       const response = await api.get<IManageAccessModelsTypes[]>(
-        `/manage-access-models`
+        `/def-access-models`
       );
       if (response) {
         setManageAccessModels(response.data ?? []);
@@ -307,9 +305,9 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       setIsLoading(false);
     }
   };
-  const createManageAccessModel = async (
-    postData: IManageAccessModelsTypes
-  ) => {
+
+  // Create Acces Model
+  const createDefAccessModel = async (postData: IManageAccessModelsTypes) => {
     try {
       setIsLoading(true);
       const {
@@ -318,25 +316,17 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         type,
         state,
         run_status,
-        last_run_date,
         created_by,
         last_updated_by,
-        last_updated_date,
-        revision,
-        revision_date,
       } = postData;
-      const res = await api.post(`/manage-access-models`, {
+      const res = await api.post(`/def-access-models`, {
         model_name,
         description,
         type,
         state,
         run_status,
-        last_run_date,
         created_by,
         last_updated_by,
-        last_updated_date,
-        revision,
-        revision_date,
       });
       if (res.status === 201) {
         setStateChange((prev) => prev + 1);
@@ -354,11 +344,13 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       setIsLoading(false);
     }
   };
-  const deleteManageAccessModel = async (items: IManageAccessModelsTypes[]) => {
+
+  // delete Access Model
+  const deleteDefAccessModel = async (items: IManageAccessModelsTypes[]) => {
     for (const item of items) {
-      const { manage_access_model_id: id } = item;
+      const { def_access_model_id: id } = item;
       api
-        .delete(`/manage-access-models/${id}`)
+        .delete(`/def-access-models/${id}`)
         .then((res) => {
           if (res.status === 200) {
             toast({
@@ -435,7 +427,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
 
   // Search Filter
   const searchFilter = async (data: IManageAccessModelSearchFilterTypes) => {
-    const allAccessModel = await fetchManageAccessModels();
+    const allAccessModel = await fetchDefAccessModels();
 
     const filterResult = allAccessModel?.filter((item) => {
       setIsLoading(true);
@@ -451,10 +443,10 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         item.state.toLowerCase().includes(data.state.toLowerCase());
       const matchesDate =
         data.last_run_date.length === 0 ||
-        item.last_run_date.includes(data.last_run_date);
-      // console.log(matchesModelName);
-      // console.log(matchesDate);
-      setIsLoading(false);
+        // item.last_run_date.includes(data.last_run_date);
+        // console.log(matchesModelName);
+        // console.log(matchesDate);
+        setIsLoading(false);
       // Return true only if all conditions are met
       return (
         matchesModelName && matchesCreatedBy && matchesState && matchesDate
@@ -498,11 +490,11 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     deleteManageGlobalCondition,
     deleteLogicAndAttributeData,
     manageAccessModels,
-    fetchManageAccessModels,
+    fetchDefAccessModels,
     selectedAccessModelItem,
     setSelectedAccessModelItem,
-    createManageAccessModel,
-    deleteManageAccessModel,
+    createDefAccessModel,
+    deleteDefAccessModel,
     fetchManageAccessModelLogics,
     manageAccessModelAttrMaxId,
     manageAccessModelLogicsDeleteCalculate,
