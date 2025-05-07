@@ -57,7 +57,7 @@ interface Props {
   setIsUpdated: React.Dispatch<React.SetStateAction<number>>;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedUsers: IUsersInfoTypes[];
+  selectedUser: IUsersInfoTypes;
   primaryCheckedItem: IProfilesType | undefined;
 }
 export function UserProfileTable({
@@ -66,7 +66,7 @@ export function UserProfileTable({
   setIsUpdated,
   isLoading,
   setIsLoading,
-  selectedUsers,
+  selectedUser,
   primaryCheckedItem,
 }: Props) {
   const api = useAxiosPrivate();
@@ -77,7 +77,7 @@ export function UserProfileTable({
   const [selectedProfile, setSelectedProfile] = React.useState<IProfilesType[]>(
     []
   );
-
+  console.log(profileData, "userProfiletable, 80");
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -178,7 +178,7 @@ export function UserProfileTable({
     <div className="px-3">
       {openModalName === "create_user_profile" && isCreateNewProfile ? (
         <CreateAccessProfile
-          selectedUsers={selectedUsers}
+          selectedUser={selectedUser}
           setIsCreateNewProfile={setIsCreateNewProfile}
           setIsUpdated={setIsUpdated}
         />
@@ -200,10 +200,10 @@ export function UserProfileTable({
         <div className="flex gap-3">
           <div className="flex gap-3 items-center px-4 py-2 border rounded">
             <div className="flex gap-3">
-              <button disabled={selectedUsers.length !== 1}>
+              <button disabled={selectedUser.user_id === 0}>
                 <PlusIcon
                   className={`${
-                    selectedUsers.length !== 1
+                    selectedUser.user_id === 0
                       ? "text-slate-200 cursor-not-allowed"
                       : "cursor-pointer"
                   }`}
@@ -275,12 +275,10 @@ export function UserProfileTable({
 
         {/* Middle Selected User */}
         <div className="mx-auto">
-          {selectedUsers.length === 1 && (
+          {selectedUser.user_id !== 0 && (
             <h3>
               Selected Username:{" "}
-              <span className="font-semibold">
-                {selectedUsers[0].user_name}
-              </span>
+              <span className="font-semibold">{selectedUser.user_name}</span>
             </h3>
           )}
         </div>
