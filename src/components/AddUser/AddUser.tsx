@@ -15,7 +15,7 @@ import AddForm from "./AddForm";
 import { X } from "lucide-react";
 import EditForm from "./EditForm";
 interface IAddUserProps {
-  selected: IUsersInfoTypes[];
+  selected: IUsersInfoTypes;
   handleCloseModal: () => void;
 }
 const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
@@ -122,18 +122,18 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
             confirm_password: "",
           }
         : {
-            user_name: selected[0].user_name,
-            job_title: selected[0].job_title,
-            email_addresses: Array.isArray(selected[0].email_addresses)
-              ? selected[0].email_addresses.join(",")
+            user_name: selected.user_name,
+            job_title: selected.job_title,
+            email_addresses: Array.isArray(selected.email_addresses)
+              ? selected.email_addresses.join(",")
               : // If it's an array, join the emails into a string
-                selected[0].email_addresses,
+                selected.email_addresses,
             // If it's already a string, just leave it
             password: "",
             confirm_password: "",
-            first_name: selected[0].first_name,
-            middle_name: selected[0].middle_name,
-            last_name: selected[0].last_name,
+            first_name: selected.first_name,
+            middle_name: selected.middle_name,
+            last_name: selected.last_name,
           },
   });
   const { reset } = form;
@@ -171,7 +171,7 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
 
     try {
       isOpenModal === "create_user" && createUser(postData);
-      isOpenModal === "edit_user" && updateUser(selected[0].user_id, putData);
+      isOpenModal === "edit_user" && updateUser(selected.user_id, putData);
     } catch (error) {
       console.log(error);
     } finally {

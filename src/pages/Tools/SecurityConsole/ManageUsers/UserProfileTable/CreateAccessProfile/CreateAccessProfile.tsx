@@ -21,13 +21,13 @@ import { IUsersInfoTypes } from "@/types/interfaces/users.interface";
 interface ICreateAccessProfileTypes {
   setIsCreateNewProfile: React.Dispatch<React.SetStateAction<boolean>>;
   setIsUpdated: React.Dispatch<React.SetStateAction<number>>;
-  selectedUsers: IUsersInfoTypes[];
+  selectedUser: IUsersInfoTypes;
 }
 
 const CreateAccessProfile = ({
   setIsCreateNewProfile,
   setIsUpdated,
-  selectedUsers,
+  selectedUser,
 }: ICreateAccessProfileTypes) => {
   const api = useAxiosPrivate();
   const [profileType, setProfileType] = useState("");
@@ -41,7 +41,7 @@ const CreateAccessProfile = ({
       const data = { profile_type: profileType, profile_id: profileId };
       // console.log(data, "data");
       const res = await api.post(
-        `/access-profiles/${selectedUsers[0].user_id}`,
+        `/access-profiles/${selectedUser.user_id}`,
         data
       );
       console.log(data, res, "data");

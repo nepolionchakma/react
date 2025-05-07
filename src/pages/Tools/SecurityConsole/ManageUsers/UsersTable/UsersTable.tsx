@@ -47,10 +47,10 @@ import { IUsersInfoTypes } from "@/types/interfaces/users.interface";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
 interface Props {
-  selectedUsers: IUsersInfoTypes[];
-  setSelectedUsers: React.Dispatch<React.SetStateAction<IUsersInfoTypes[]>>;
+  selectedUser: IUsersInfoTypes;
+  setSelectedUser: React.Dispatch<React.SetStateAction<IUsersInfoTypes>>;
 }
-export function UsersTable({ selectedUsers, setSelectedUsers }: Props) {
+export function UsersTable({ selectedUser, setSelectedUser }: Props) {
   const {
     isLoading,
     fetchCombinedUser,
@@ -59,9 +59,9 @@ export function UsersTable({ selectedUsers, setSelectedUsers }: Props) {
     setPage,
     totalPage,
     deleteCombinedUser,
-    token,
     isOpenModal,
     setIsOpenModal,
+    token,
   } = useGlobalContext();
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -76,27 +76,48 @@ export function UsersTable({ selectedUsers, setSelectedUsers }: Props) {
   }, []);
 
   const handleRowSelection = (rowSelection: IUsersInfoTypes) => {
-    setSelectedUsers((prevSelected) => {
-      if (prevSelected.includes(rowSelection)) {
-        return prevSelected.filter((item) => item !== rowSelection);
-      } else {
-        return [...prevSelected, rowSelection];
-      }
-    });
+    if (selectedUser.user_name === rowSelection.user_name) {
+      setSelectedUser({
+        user_id: 0,
+        user_name: "string",
+        email_addresses: "",
+        profile_picture: {
+          original: "",
+          thumbnail: "",
+        },
+        first_name: "",
+        middle_name: "",
+        last_name: "",
+        job_title: "",
+      });
+    } else {
+      setSelectedUser(rowSelection);
+    }
   };
 
   const handleDelete = () => {
-    deleteCombinedUser(selectedUsers);
+    deleteCombinedUser([selectedUser]);
     //table toggle empty
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
-    setSelectedUsers([]);
+    setSelectedUser({
+      user_id: 0,
+      user_name: "string",
+      email_addresses: "",
+      profile_picture: {
+        original: "",
+        thumbnail: "",
+      },
+      first_name: "",
+      middle_name: "",
+      last_name: "",
+      job_title: "",
+    });
   };
   const table = useReactTable({
     data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -121,7 +142,19 @@ export function UsersTable({ selectedUsers, setSelectedUsers }: Props) {
   };
   const handleCloseModal = () => {
     setIsOpenModal(""); // close modal
-    setSelectedUsers([]);
+    setSelectedUser({
+      user_id: 0,
+      user_name: "string",
+      email_addresses: "",
+      profile_picture: {
+        original: "",
+        thumbnail: "",
+      },
+      first_name: "",
+      middle_name: "",
+      last_name: "",
+      job_title: "",
+    });
     //table toggle false
     table.toggleAllRowsSelected(false);
   };
@@ -134,7 +167,7 @@ export function UsersTable({ selectedUsers, setSelectedUsers }: Props) {
       {isOpenModal === "create_user" ? (
         <CustomModal4 className="w-[770px] ">
           <AddUser
-            selected={selectedUsers}
+            selected={selectedUser}
             handleCloseModal={handleCloseModal}
           />
         </CustomModal4>
@@ -142,7 +175,7 @@ export function UsersTable({ selectedUsers, setSelectedUsers }: Props) {
         isOpenModal === "edit_user" && (
           <CustomModal4 className="w-[770px] ">
             <AddUser
-              selected={selectedUsers}
+              selected={selectedUser}
               handleCloseModal={handleCloseModal}
             />
           </CustomModal4>
@@ -157,14 +190,10 @@ export function UsersTable({ selectedUsers, setSelectedUsers }: Props) {
                 className="cursor-pointer"
                 onClick={() => handleOpenModal("create_user")}
               />
-              <button
-                disabled={
-                  selectedUsers.length > 1 || selectedUsers.length === 0
-                }
-              >
+              <button disabled={selectedUser.user_id === 0}>
                 <FileEdit
                   className={`${
-                    selectedUsers.length > 1 || selectedUsers.length === 0
+                    selectedUser.user_id === 0
                       ? "text-slate-200 cursor-not-allowed"
                       : "cursor-pointer"
                   }`}
@@ -176,13 +205,13 @@ export function UsersTable({ selectedUsers, setSelectedUsers }: Props) {
                 <AlertDialogTrigger asChild>
                   <button
                     disabled={
-                      token.user_type !== "system" || selectedUsers.length === 0
+                      selectedUser.user_id === 0 || token.user_type !== "System"
                     }
                   >
                     <Trash
                       className={`${
-                        token.user_type !== "system" ||
-                        selectedUsers.length === 0
+                        selectedUser.user_id === 0 ||
+                        token.user_type !== "System"
                           ? "cursor-not-allowed text-slate-200"
                           : "cursor-pointer"
                       }`}
@@ -195,11 +224,9 @@ export function UsersTable({ selectedUsers, setSelectedUsers }: Props) {
                       Are you absolutely sure?
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                      {selectedUsers.map((item, index) => (
-                        <span key={item.user_id} className="block text-black">
-                          {index + 1}. username : {item.user_name}
-                        </span>
-                      ))}
+                      <span className="block text-black">
+                        1. username : {selectedUser.user_name}
+                      </span>
                       This action cannot be undone. This will permanently delete
                       your account and remove your data from our servers.
                     </AlertDialogDescription>
@@ -263,7 +290,7 @@ export function UsersTable({ selectedUsers, setSelectedUsers }: Props) {
                               header.getContext()
                             )}
                         {/* Example: Checkbox for selecting all rows */}
-                        {header.id === "select" && (
+                        {/* {header.id === "select" && (
                           <Checkbox
                             checked={
                               table.getIsAllPageRowsSelected() ||
@@ -284,7 +311,7 @@ export function UsersTable({ selectedUsers, setSelectedUsers }: Props) {
                             className="mr-1"
                             aria-label="Select all"
                           />
-                        )}
+                        )} */}
                       </TableHead>
                     );
                   })}
@@ -315,12 +342,14 @@ export function UsersTable({ selectedUsers, setSelectedUsers }: Props) {
                     {row.getVisibleCells().map((cell, index) => (
                       <TableCell
                         key={cell.id}
-                        className={`border p-1 h-8 ${index === 0 && "w-3"}`}
+                        className={`border p-1 h-8 ${index === 0 && "w-6"}`}
                       >
                         {index === 0 ? (
                           <Checkbox
                             className=""
-                            checked={row.getIsSelected()}
+                            checked={
+                              row.original.user_id === selectedUser.user_id
+                            }
                             onCheckedChange={(value) => {
                               row.toggleSelected(!!value);
                             }}

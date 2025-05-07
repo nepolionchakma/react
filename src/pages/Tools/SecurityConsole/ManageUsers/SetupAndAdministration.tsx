@@ -12,17 +12,29 @@ const SetupAndAdministration = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<IProfilesType[]>([]);
   // const [filterUserID, setFilterUserID] = useState<number[]>([]);
-  const [selectedUsers, setSelectedUsers] = useState<IUsersInfoTypes[]>([]);
+  const [selectedUser, setSelectedUser] = useState<IUsersInfoTypes>({
+    user_id: 0,
+    user_name: "string",
+    email_addresses: "",
+    profile_picture: {
+      original: "",
+      thumbnail: "",
+    },
+    first_name: "",
+    middle_name: "",
+    last_name: "",
+    job_title: "",
+  });
   const [primaryCheckedItem, setPrimaryCheckedItem] = useState<IProfilesType>();
   const [isUpdated, setIsUpdated] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (selectedUsers.length === 1) {
+        if (selectedUser) {
           setIsLoading(true);
           const resData = await api.get(
-            `/access-profiles/${selectedUsers[0].user_id}`
+            `/access-profiles/${selectedUser.user_id}`
           );
           // is primary available
           const filterPrimaryData = resData.data.find(
@@ -32,7 +44,7 @@ const SetupAndAdministration = () => {
 
           setData(resData.data);
         }
-        if (selectedUsers.length > 1 || selectedUsers.length === 0) {
+        if (selectedUser.user_name === "") {
           setData([]);
         }
       } catch (error) {
@@ -42,13 +54,13 @@ const SetupAndAdministration = () => {
       }
     };
     fetchData();
-  }, [selectedUsers, isUpdated]);
+  }, [selectedUser, isUpdated]);
 
   return (
     <div>
       <UsersTable
-        selectedUsers={selectedUsers}
-        setSelectedUsers={setSelectedUsers}
+        selectedUser={selectedUser}
+        setSelectedUser={setSelectedUser}
       />
       <UserProfileTable
         profileData={data}
@@ -56,7 +68,7 @@ const SetupAndAdministration = () => {
         setIsUpdated={setIsUpdated}
         isLoading={isLoading}
         setIsLoading={setIsLoading}
-        selectedUsers={selectedUsers}
+        selectedUser={selectedUser}
         primaryCheckedItem={primaryCheckedItem}
       />
     </div>

@@ -75,7 +75,7 @@ interface GlobalContex {
   currentPage: number;
   limit: number;
   setLimit: Dispatch<React.SetStateAction<number>>;
-  deleteCombinedUser: (user_ids: IUsersInfoTypes[]) => Promise<void>;
+  deleteCombinedUser: (user_infos: IUsersInfoTypes[]) => Promise<void>;
   updateUser: (id: number, userInfo: IUpdateUserTypes) => void;
   isOpenModal: string;
   setIsOpenModal: Dispatch<SetStateAction<string>>;
@@ -288,10 +288,10 @@ export function GlobalContextProvider({
       setIsLoading(false);
     }
   };
-  const deleteCombinedUser = async (user_ids: IUsersInfoTypes[]) => {
+  const deleteCombinedUser = async (user_infos: IUsersInfoTypes[]) => {
     setIsLoading(true);
     try {
-      for (const id of user_ids) {
+      for (const id of user_infos) {
         const [users, persons, credentials] = await Promise.all([
           api.delete(`/users/${id.user_id}`),
           api.delete(`/persons/${id.user_id}`),
