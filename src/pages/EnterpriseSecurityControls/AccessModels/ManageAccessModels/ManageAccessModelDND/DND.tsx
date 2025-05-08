@@ -32,11 +32,11 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   setOpenEditModal,
   isOpenEditModal,
 }) => {
-  const api=useAxiosPrivate()
+  const api = useAxiosPrivate();
   const {
     isLoading,
     selectedAccessModelItem: selectedItem,
-    fetchManageAccessModelLogics,
+    fetchDefAccessModelLogics,
     manageAccessModelAttrMaxId,
     isActionLoading,
     setIsActionLoading,
@@ -46,10 +46,10 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   const iniLeftWidget = [
     {
       id: manageAccessModelAttrMaxId ? manageAccessModelAttrMaxId + 1 : 1,
-      manage_access_model_logic_id: manageAccessModelAttrMaxId
+      def_access_model_logic_id: manageAccessModelAttrMaxId
         ? manageAccessModelAttrMaxId + 1
         : 1,
-      manage_access_model_id: selectedItem[0].manage_access_model_id,
+      def_access_model_id: selectedItem[0].def_access_model_id ?? 0,
       filter: "",
       object: "",
       attribute: "",
@@ -66,8 +66,8 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   useEffect(() => {
     const fetchDataFunc = async () => {
       try {
-        const fetchData = await fetchManageAccessModelLogics(
-          selectedItem[0].manage_access_model_id
+        const fetchData = await fetchDefAccessModelLogics(
+          selectedItem[0]?.def_access_model_id ?? 0
         );
 
         setRightWidgets(fetchData as Extend[]);
@@ -107,10 +107,10 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   //DND START
   //Active Item
   const leftWidget = leftWidgets.find(
-    (item) => item.manage_access_model_logic_id === activeId
+    (item) => item.def_access_model_logic_id === activeId
   );
   const rightWidget = rightWidgets.find(
-    (item) => item.manage_access_model_logic_id === activeId
+    (item) => item.def_access_model_logic_id === activeId
   );
 
   const attrmaxId =
@@ -122,8 +122,8 @@ const DND: FC<IManageAccessModelDNDProps> = ({
 
   const newItem = {
     id: getId,
-    manage_access_model_logic_id: getId,
-    manage_access_model_id: selectedItem[0].manage_access_model_id,
+    def_access_model_logic_id: getId,
+    def_access_model_id: selectedItem[0].def_access_model_id ?? 0,
     filter: "",
     object: "",
     attribute: "",
@@ -154,10 +154,10 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     setActiveId(event.active.id as number);
   };
   const findContainer = (id: string | number | undefined) => {
-    if (leftWidgets.some((item) => item.manage_access_model_logic_id === id)) {
+    if (leftWidgets.some((item) => item.def_access_model_logic_id === id)) {
       return "left";
     }
-    if (rightWidgets.some((item) => item.manage_access_model_logic_id === id)) {
+    if (rightWidgets.some((item) => item.def_access_model_logic_id === id)) {
       return "right";
     }
     return id; // important for find Container where DND item
@@ -190,7 +190,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     }
 
     const activeIndexInLeft = leftWidgets.findIndex(
-      (item) => item.manage_access_model_logic_id === activeItemId
+      (item) => item.def_access_model_logic_id === activeItemId
     );
     // const activeIndexInRight = rightWidgets.findIndex(
     //   (item) => item.manage_access_model_logic_id === activeItemId
@@ -200,7 +200,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     if (overItemId) {
       // Determine new index for the item being moved
       const overIndexInRight = rightWidgets.findIndex(
-        (item) => item.manage_access_model_logic_id === overItemId
+        (item) => item.def_access_model_logic_id === overItemId
       );
       newIndex =
         overIndexInRight === -1 ? rightWidgets.length : overIndexInRight;
@@ -234,10 +234,10 @@ const DND: FC<IManageAccessModelDNDProps> = ({
 
       if (active.data.current?.sortable?.containerId === "right") {
         const oldIndex = rightWidgets.findIndex(
-          (item) => item.manage_access_model_logic_id === activeItemId
+          (item) => item.def_access_model_logic_id === activeItemId
         );
         const newIndex = rightWidgets.findIndex(
-          (item) => item.manage_access_model_logic_id === overItemId
+          (item) => item.def_access_model_logic_id === overItemId
         );
 
         if (oldIndex !== -1 && newIndex !== -1) {
@@ -267,8 +267,8 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   );
   const handleSave = async () => {
     const upsertLogics = items.map((item) => ({
-      manage_access_model_logic_id: item.manage_access_model_logic_id,
-      manage_access_model_id: item.manage_access_model_id,
+      manage_access_model_logic_id: item.def_access_model_logic_id,
+      manage_access_model_id: item.def_access_model_id,
       filter: item.filter,
       object: item.object,
       attribute: item.attribute,
@@ -277,7 +277,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     }));
     const upsertAttributes = items.map((item) => ({
       id: item.id,
-      manage_access_model_logic_id: item.manage_access_model_logic_id,
+      manage_access_model_logic_id: item.def_access_model_logic_id,
       widget_position: item.widget_position,
       widget_state: item.widget_state,
     }));
@@ -288,7 +288,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       if (isChangedAccessGlobalCondition) {
         api
           .put(
-            `/manage-access-models/${selectedItem[0].manage_access_model_id}`,
+            `/manage-access-models/${selectedItem[0].def_access_model_id}`,
             changedAccessGlobalCondition
           )
           .then((logicResult) => {
@@ -317,10 +317,10 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       }
       if (items.length > 0) {
         Promise.all([
-          api.post(`/manage-access-model-logics/upsert`, {
+          api.post(`/def-access-model-logics/upsert`, {
             upsertLogics,
           }),
-          api.post(`/manage-access-model-logic-attributes/upsert`, {
+          api.post(`/def-access-model-logic-attributes/upsert`, {
             upsertAttributes,
           }),
         ])
@@ -432,7 +432,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
             {activeItem ? (
               <DragOverlayComponent
                 item={activeItem}
-                id={String(activeItem.manage_access_model_logic_id)}
+                id={String(activeItem.def_access_model_logic_id)}
                 items={
                   leftWidgets.includes(activeItem) ? leftWidgets : rightWidgets
                 }

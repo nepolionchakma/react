@@ -24,7 +24,7 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 
 const SearchModels = () => {
   const { users } = useGlobalContext();
-  const { searchFilter, fetchManageAccessModels } = useAACContext();
+  const { searchFilter, fetchDefAccessModels } = useAACContext();
   const FormSchema = z.object({
     match: z.string(),
     created_by: z.string(),
@@ -178,7 +178,7 @@ const SearchModels = () => {
                 type="button"
                 onClick={() => {
                   form.reset();
-                  fetchManageAccessModels();
+                  fetchDefAccessModels();
                 }}
               >
                 Reset

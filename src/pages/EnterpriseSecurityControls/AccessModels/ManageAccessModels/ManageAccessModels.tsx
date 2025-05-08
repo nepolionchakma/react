@@ -11,7 +11,7 @@ const ManageAccessModels = () => {
   const [isSearchResultsOpen, setIsSearchResultsOpen] = useState(true);
   useEffect(() => {
     fetchDataSource();
-  }, [fetchDataSource]);
+  }, []);
 
   ring.register();
   return (

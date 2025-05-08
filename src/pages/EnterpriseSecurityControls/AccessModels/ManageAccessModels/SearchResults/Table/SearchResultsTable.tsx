@@ -45,10 +45,10 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { ring } from "ldrs";
-import Pagination from "@/components/Pagination/Pagination";
 import AddModel from "../AddModel";
 import EditModel from "../EditModel";
 import columns from "./Columns";
+import Pagination5 from "@/components/Pagination/Pagination5";
 
 const SearchResultsTable = () => {
   const {
@@ -61,14 +61,11 @@ const SearchResultsTable = () => {
     deleteDefAccessModel,
     manageAccessModelLogicsDeleteCalculate,
     deleteManageModelLogicAndAttributeData,
+    page,
+    setPage,
+    totalPage,
   } = useAACContext();
-  React.useEffect(() => {
-    fetchDefAccessModels();
-    table.getRowModel().rows.map((row) => row.toggleSelected(false));
-    setSelectedAccessModelItem([]);
-  }, [stateChange]);
-  // const data = manageAccessModels ? [...manageAccessModels] : [];
-  ring.register();
+
   const [isOpenAddModal, setIsOpenAddModal] = React.useState<boolean>(false);
   const [isOpenEditModal, setIsOpenEditModal] = React.useState<boolean>(false);
   const [willBeDelete, setWillBeDelete] = React.useState<
@@ -83,10 +80,10 @@ const SearchResultsTable = () => {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0, //initial page index
-    pageSize: 5, //default page size
-  });
+  // const [pagination, setPagination] = React.useState({
+  //   pageIndex: 0, //initial page index
+  //   pageSize: 5, //default page size
+  // });
   const table = useReactTable({
     data,
     columns,
@@ -95,7 +92,6 @@ const SearchResultsTable = () => {
 
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onPaginationChange: setPagination,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -105,9 +101,23 @@ const SearchResultsTable = () => {
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination,
     },
   });
+
+  React.useEffect(() => {
+    if (page > 1 || page < totalPage) {
+      fetchDefAccessModels();
+    }
+  }, [page, totalPage]);
+
+  React.useEffect(() => {
+    fetchDefAccessModels();
+    table.getRowModel().rows.map((row) => row.toggleSelected(false));
+    setSelectedAccessModelItem([]);
+  }, [stateChange]);
+  // const data = manageAccessModels ? [...manageAccessModels] : [];
+  ring.register();
+
   const handleRowSelection = (rowData: IManageAccessModelsTypes) => {
     setSelectedAccessModelItem((prevSelected) => {
       if (prevSelected.includes(rowData)) {
@@ -148,7 +158,7 @@ const SearchResultsTable = () => {
     await Promise.all(
       await willBeDelete.map(async (item) => {
         await deleteManageModelLogicAndAttributeData(
-          item.manage_access_model_logic_id,
+          item.def_access_model_logic_id,
           item.id
         );
       })
@@ -241,7 +251,7 @@ const SearchResultsTable = () => {
                             {willBeDelete
                               .filter(
                                 (item) =>
-                                  item.manage_access_model_id ===
+                                  item.def_access_model_id ===
                                   modelItem.def_access_model_id
                               )
                               .map((item, index) => (
@@ -429,8 +439,18 @@ const SearchResultsTable = () => {
           </TableBody>
         </Table>
       </div>
-      {/* Start Pagination */}
-      <Pagination table={table} />
+      {/* Pagination and Status */}
+      <div className="flex justify-between p-1">
+        <div className="flex-1 text-sm text-gray-600">
+          {table.getFilteredSelectedRowModel().rows.length} of{" "}
+          {table.getFilteredRowModel().rows.length} row(s) selected.
+        </div>
+        <Pagination5
+          currentPage={page}
+          setCurrentPage={setPage}
+          totalPageNumbers={totalPage as number}
+        />
+      </div>
     </div>
   );
 };
