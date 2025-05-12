@@ -114,7 +114,6 @@ export const DroppableItem: FC<DroppableItemProps> = ({
 
   const handleDelete = async (id: number, logicId: number, attrId: number) => {
     // check if logicId and attrId exist in the database
-
     const res = items.filter(
       (item) =>
         !originalData?.some(
@@ -122,6 +121,7 @@ export const DroppableItem: FC<DroppableItemProps> = ({
             ori.def_access_model_logic_id === item.def_access_model_logic_id
         )
     );
+    console.log(res);
     if (res.length === 0) {
       // check if logicId and attrId exist in the database
       await deleteLogicAndAttributeData(logicId, attrId);
@@ -131,6 +131,7 @@ export const DroppableItem: FC<DroppableItemProps> = ({
     const remainingUser = items.filter(
       (item) => item.def_access_model_logic_id !== id
     );
+    console.log(items, "Drop");
     setItems(remainingUser);
     toast({
       title: "Info !!!",

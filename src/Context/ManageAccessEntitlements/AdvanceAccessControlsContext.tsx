@@ -65,6 +65,8 @@ interface IAACContextTypes {
   fetchDefAccessModels: () => Promise<
     IManageAccessModelsTypes[] | [] | undefined
   >;
+  fetchAccessModelAttributes: () => Promise<void>;
+  accessModelLogicAttributes: IManageAccessModelLogicAttributesTypes[];
   manageAccessModels: IManageAccessModelsTypes[] | [];
   selectedAccessModelItem: IManageAccessModelsTypes[];
   setSelectedAccessModelItem: Dispatch<
@@ -72,10 +74,12 @@ interface IAACContextTypes {
   >;
   createDefAccessModel: (postData: IManageAccessModelsTypes) => Promise<void>;
   deleteDefAccessModel: (items: IManageAccessModelsTypes[]) => Promise<void>;
+  fetchAccessModelLogics: () => Promise<void>;
   fetchDefAccessModelLogics: (
     filterId: number
   ) => Promise<IManageAccessModelLogicExtendTypes[] | undefined>;
   manageAccessModelAttrMaxId: number | undefined;
+  maxLogicId: number | undefined;
   manageAccessModelLogicsDeleteCalculate: (
     id: number
   ) => Promise<IManageAccessModelLogicExtendTypes[] | [] | undefined>;
@@ -137,6 +141,10 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   >([]);
   const [deleteAndSaveState, setDeleteAndSaveState] = useState<number>(0);
   const [dataSources, setDataSources] = useState<IDataSourceTypes[]>([]);
+  const [accessModelLogicAttributes, setAccessModelLogicAttributes] = useState<
+    IManageAccessModelLogicAttributesTypes[]
+  >([]);
+  const [maxLogicId, setMaxLogicId] = useState<number>();
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(5);
   const [totalPage, setTotalPage] = useState<number>(1);
@@ -172,6 +180,31 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     };
     maxId();
   }, [isActionLoading, stateChange]);
+
+  useEffect(() => {
+    const maxLogicId = async () => {
+      const result = await api.get("/def-access-model-logics");
+
+      const maxAccessLogicId = Math.max(
+        ...result.data.map(
+          (data: IManageAccessModelLogicsTypes) =>
+            data.def_access_model_logic_id
+        )
+      );
+      setMaxLogicId(maxAccessLogicId);
+      console.log(maxAccessLogicId);
+    };
+    maxLogicId();
+  }, []);
+  useEffect(() => {
+    const fetchAccessModelAttributes = async () => {
+      const result = await api.get("/def-access-model-logic-attributes");
+      if (result) {
+        setAccessModelLogicAttributes(result.data);
+      }
+    };
+    fetchAccessModelAttributes();
+  }, []);
 
   // Manage Global Conditions
   const fetchManageGlobalConditions = async () => {
@@ -288,8 +321,8 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   ) => {
     try {
       const [isExistLogicId, isExistAttrId] = await Promise.all([
-        api.delete(`/manage-access-model-logics/${logicId}`),
-        api.delete(`/manage-access-model-logic-attributes/${attrId}`),
+        api.delete(`/def-access-model-logics/${logicId}`),
+        api.delete(`/def-access-model-logic-attributes/${attrId}`),
       ]);
       if (isExistLogicId.status === 200 && isExistAttrId.status === 200) {
         return isExistLogicId.status;
@@ -318,7 +351,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         setTotalPage(totalPages);
         setCurrentPage(page);
         const formattedData = paginatedData.map((data) => {
-          const [day, month, year] = data.last_run_date
+          const [day, month, year] = (data?.last_run_date ?? "01-01-1970")
             .split(" ")[0]
             .split("-");
 
@@ -397,6 +430,24 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     }
   };
 
+  // fetch access model logics
+  const fetchAccessModelLogics = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.get<IManageAccessModelLogicsTypes[]>(
+        `/def-access-model-logics`
+      );
+      const maxId = Math.max(
+        ...response.data.map((data) => data.def_access_model_logic_id)
+      );
+      setMaxLogicId(maxId);
+      console.log(maxId, "context");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   // Manage Access Model Logics
   const fetchDefAccessModelLogics = async (filterId: number) => {
     try {
@@ -449,6 +500,21 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       }
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  // fetch access model attribute
+  const fetchAccessModelAttributes = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.get<IManageAccessModelLogicAttributesTypes[]>(
+        `/def-access-model-logic-attributes`
+      );
+      setAccessModelLogicAttributes(response.data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -522,8 +588,12 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     setSelectedAccessModelItem,
     createDefAccessModel,
     deleteDefAccessModel,
+    fetchAccessModelLogics,
     fetchDefAccessModelLogics,
+    fetchAccessModelAttributes,
+    accessModelLogicAttributes,
     manageAccessModelAttrMaxId,
+    maxLogicId,
     manageAccessModelLogicsDeleteCalculate,
     deleteManageModelLogicAndAttributeData,
     searchFilter,

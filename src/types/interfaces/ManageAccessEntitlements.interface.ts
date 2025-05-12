@@ -108,7 +108,7 @@ export interface IManageAccessModelsTypes {
   state: string;
   created_by: string;
   last_updated_by: string;
-  last_run_date: string;
+  last_run_date?: string;
 }
 export interface IManageAccessModelLogicsTypes {
   def_access_model_logic_id: number;

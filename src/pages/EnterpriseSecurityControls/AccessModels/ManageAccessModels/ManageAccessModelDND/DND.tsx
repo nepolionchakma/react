@@ -37,18 +37,20 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     isLoading,
     selectedAccessModelItem: selectedItem,
     fetchDefAccessModelLogics,
-    manageAccessModelAttrMaxId,
+    accessModelLogicAttributes,
+    maxLogicId,
     isActionLoading,
     setIsActionLoading,
     setStateChange,
   } = useAACContext();
 
+  const [rightWidgets, setRightWidgets] = useState<Extend[]>([]);
+  const [originalData, setOriginalData] = useState<Extend[]>([]);
+  const [activeId, setActiveId] = useState<number | null>(null);
   const iniLeftWidget = [
     {
-      id: manageAccessModelAttrMaxId ? manageAccessModelAttrMaxId + 1 : 1,
-      def_access_model_logic_id: manageAccessModelAttrMaxId
-        ? manageAccessModelAttrMaxId + 1
-        : 1,
+      id: maxLogicId ? maxLogicId + 1 : 1,
+      def_access_model_logic_id: maxLogicId ? maxLogicId + 1 : 1,
       def_access_model_id: selectedItem[0].def_access_model_id ?? 0,
       filter: "",
       object: "",
@@ -59,10 +61,8 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       widget_state: 0,
     },
   ];
-  const [rightWidgets, setRightWidgets] = useState<Extend[]>([]);
   const [leftWidgets, setLeftWidgets] = useState<Extend[]>(iniLeftWidget);
-  const [originalData, setOriginalData] = useState<Extend[]>([]);
-  const [activeId, setActiveId] = useState<number | null>(null);
+
   useEffect(() => {
     const fetchDataFunc = async () => {
       try {
@@ -115,11 +115,10 @@ const DND: FC<IManageAccessModelDNDProps> = ({
 
   const attrmaxId =
     rightWidgets.length > 0
-      ? Math.max(...rightWidgets.map((item) => item.id))
+      ? Math.max(...rightWidgets.map((item) => item.def_access_model_logic_id))
       : 0;
 
   const getId = rightWidgets.length > 0 ? attrmaxId + 1 : 1;
-
   const newItem = {
     id: getId,
     def_access_model_logic_id: getId,
@@ -265,30 +264,101 @@ const DND: FC<IManageAccessModelDNDProps> = ({
           ori.widget_state === item.widget_state
       )
   );
+
+  const existIds = new Set(
+    originalData
+      .map((data) => data.def_access_model_logic_id)
+      .filter((id) => id !== undefined && id !== null)
+  );
+
+  const attributeIds = new Set(
+    accessModelLogicAttributes.map((item) => item.id)
+  );
   const handleSave = async () => {
-    const upsertLogics = items.map((item) => ({
-      manage_access_model_logic_id: item.def_access_model_logic_id,
-      manage_access_model_id: item.def_access_model_id,
-      filter: item.filter,
-      object: item.object,
-      attribute: item.attribute,
-      condition: item.condition,
-      value: item.value,
-    }));
-    const upsertAttributes = items.map((item) => ({
-      id: item.id,
-      manage_access_model_logic_id: item.def_access_model_logic_id,
-      widget_position: item.widget_position,
-      widget_state: item.widget_state,
-    }));
-    // console.log(upsertAttributes, upsertLogics);
+    const upsertLogics = items.map((item) => {
+      const {
+        def_access_model_logic_id,
+        def_access_model_id,
+        filter,
+        object,
+        attribute,
+        condition,
+        value,
+      } = item;
+
+      const logic: {
+        def_access_model_id: number;
+        filter: string;
+        object: string;
+        attribute: string;
+        condition: string;
+        value: string;
+        def_access_model_logic_id?: number;
+      } = {
+        def_access_model_id,
+        filter,
+        object,
+        attribute,
+        condition,
+        value,
+      };
+
+      // Conditionally add def_access_model_logic_id only if it exists in the backend
+      if (
+        def_access_model_logic_id &&
+        existIds.has(def_access_model_logic_id)
+      ) {
+        logic.def_access_model_logic_id = def_access_model_logic_id;
+      }
+
+      return logic;
+    });
+
+    // const upsertLogics = items.map((item) => ({
+    //   def_access_model_logic_id: originalData.includes(item)?item.def_access_model_logic_id:0,
+    //   def_access_model_id: item.def_access_model_id,
+    //   filter: item.filter,
+    //   object: item.object,
+    //   attribute: item.attribute,
+    //   condition: item.condition,
+    //   value: item.value,
+    // }));
+
+    const upsertAttributes = items.map((item) => {
+      const { id, widget_position, widget_state, def_access_model_logic_id } =
+        item;
+
+      const payLoad: {
+        id?: number;
+        widget_position: number;
+        widget_state: number;
+        def_access_model_logic_id: number;
+      } = {
+        widget_position,
+        widget_state,
+        def_access_model_logic_id,
+      };
+
+      if (id && attributeIds.has(id)) {
+        payLoad.id = id;
+      }
+
+      return payLoad;
+
+      // id: item.def_access_model_logic_id,
+      // widget_position: item.widget_position,
+      // widget_state: item.widget_state,
+    });
+
+    console.log(upsertAttributes, "356");
+    console.log(upsertLogics, "357");
 
     try {
       setIsActionLoading(true);
       if (isChangedAccessGlobalCondition) {
         api
           .put(
-            `/manage-access-models/${selectedItem[0].def_access_model_id}`,
+            `/def-access-models/${selectedItem[0].def_access_model_id}`,
             changedAccessGlobalCondition
           )
           .then((logicResult) => {
