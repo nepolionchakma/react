@@ -80,6 +80,7 @@ interface IAACContextTypes {
   ) => Promise<IManageAccessModelLogicExtendTypes[] | undefined>;
   manageAccessModelAttrMaxId: number | undefined;
   maxLogicId: number | undefined;
+  maxAccModelAttrId: number;
   manageAccessModelLogicsDeleteCalculate: (
     id: number
   ) => Promise<IManageAccessModelLogicExtendTypes[] | [] | undefined>;
@@ -141,6 +142,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   >([]);
   const [deleteAndSaveState, setDeleteAndSaveState] = useState<number>(0);
   const [dataSources, setDataSources] = useState<IDataSourceTypes[]>([]);
+  const [maxAccModelAttrId, setMaxAccModelAttrId] = useState<number>(0);
   const [accessModelLogicAttributes, setAccessModelLogicAttributes] = useState<
     IManageAccessModelLogicAttributesTypes[]
   >([]);
@@ -184,26 +186,36 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   useEffect(() => {
     const maxLogicId = async () => {
       const result = await api.get("/def-access-model-logics");
-
-      const maxAccessLogicId = Math.max(
-        ...result.data.map(
-          (data: IManageAccessModelLogicsTypes) =>
-            data.def_access_model_logic_id
-        )
-      );
-      setMaxLogicId(maxAccessLogicId);
-      console.log(maxAccessLogicId);
+      if (result && result.data > 0) {
+        const maxAccessLogicId = Math.max(
+          ...result.data.map(
+            (data: IManageAccessModelLogicsTypes) =>
+              data.def_access_model_logic_id
+          )
+        );
+        setMaxLogicId(maxAccessLogicId);
+      } else {
+        setMaxLogicId(0);
+      }
     };
     maxLogicId();
   }, []);
+
   useEffect(() => {
-    const fetchAccessModelAttributes = async () => {
+    const maxAttrId = async () => {
       const result = await api.get("/def-access-model-logic-attributes");
-      if (result) {
-        setAccessModelLogicAttributes(result.data);
+      if (result && result.data.length > 0) {
+        const maxAccessAttrId = Math.max(
+          ...result.data.map(
+            (data: IManageAccessModelLogicAttributesTypes) => data.id
+          )
+        );
+        setMaxAccModelAttrId(maxAccessAttrId);
+      } else {
+        setMaxAccModelAttrId(0);
       }
     };
-    fetchAccessModelAttributes();
+    maxAttrId();
   }, []);
 
   // Manage Global Conditions
@@ -594,6 +606,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     accessModelLogicAttributes,
     manageAccessModelAttrMaxId,
     maxLogicId,
+    maxAccModelAttrId,
     manageAccessModelLogicsDeleteCalculate,
     deleteManageModelLogicAndAttributeData,
     searchFilter,

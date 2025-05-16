@@ -39,6 +39,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     fetchDefAccessModelLogics,
     accessModelLogicAttributes,
     maxLogicId,
+    maxAccModelAttrId,
     isActionLoading,
     setIsActionLoading,
     setStateChange,
@@ -49,8 +50,8 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   const [activeId, setActiveId] = useState<number | null>(null);
   const iniLeftWidget = [
     {
-      id: maxLogicId ? maxLogicId + 1 : 1,
-      def_access_model_logic_id: maxLogicId ? maxLogicId + 1 : 1,
+      id: maxAccModelAttrId ? maxAccModelAttrId + 1 : 1,
+      def_access_model_logic_id: maxAccModelAttrId ? maxAccModelAttrId + 1 : 1,
       def_access_model_id: selectedItem[0].def_access_model_id ?? 0,
       filter: "",
       object: "",
@@ -69,9 +70,11 @@ const DND: FC<IManageAccessModelDNDProps> = ({
         const fetchData = await fetchDefAccessModelLogics(
           selectedItem[0]?.def_access_model_id ?? 0
         );
-
-        setRightWidgets(fetchData as Extend[]);
-        setOriginalData(fetchData as Extend[]);
+        const sortedData = fetchData?.sort(
+          (a, b) => a.widget_position - b.widget_position
+        );
+        setRightWidgets(sortedData as Extend[]);
+        setOriginalData(sortedData as Extend[]);
       } catch (error) {
         console.log(error);
       }
@@ -83,6 +86,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   const FormSchema = z.object({
     model_name: z.string(),
     description: z.string(),
+    state: z.string(),
     // datasource: z.string(),
   });
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -91,7 +95,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       model_name: selectedItem[0].model_name ?? "",
       description: selectedItem[0].description ?? "",
       // datasource: selectedItem[0].  ?? "",
-      // status: selectedItem[0].status ?? "",
+      state: selectedItem[0].state ?? "",
     },
   });
   //changed Access GlobalCondition Value
@@ -100,9 +104,9 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     selectedItem[0].model_name !== changedAccessGlobalCondition.model_name ||
     selectedItem[0].description !== changedAccessGlobalCondition.description ||
     // selectedItem[0].datasource !== changedAccessGlobalCondition.datasource ||
-    // selectedItem[0].status !== changedAccessGlobalCondition.status;
-    //Top Form END
-    ring.register(); // Default values shown
+    selectedItem[0].state !== changedAccessGlobalCondition.state;
+  //Top Form END
+  ring.register(); // Default values shown
 
   //DND START
   //Active Item
@@ -115,9 +119,8 @@ const DND: FC<IManageAccessModelDNDProps> = ({
 
   const attrmaxId =
     rightWidgets.length > 0
-      ? Math.max(...rightWidgets.map((item) => item.def_access_model_logic_id))
+      ? Math.max(...rightWidgets.map((item) => item.id))
       : 0;
-
   const getId = rightWidgets.length > 0 ? attrmaxId + 1 : 1;
   const newItem = {
     id: getId,
@@ -226,6 +229,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   // console.log(rightWidgets, "right widgets");
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    if (!over) return;
     // console.log(active, over, "handleDragEnd");
     if (over) {
       const activeItemId = active.id;
@@ -235,11 +239,12 @@ const DND: FC<IManageAccessModelDNDProps> = ({
         const oldIndex = rightWidgets.findIndex(
           (item) => item.def_access_model_logic_id === activeItemId
         );
-        const newIndex = rightWidgets.findIndex(
+        let newIndex = rightWidgets.findIndex(
           (item) => item.def_access_model_logic_id === overItemId
         );
+        if (newIndex === -1) newIndex = rightWidgets.length - 1;
 
-        if (oldIndex !== -1 && newIndex !== -1) {
+        if (oldIndex !== -1 && newIndex >= 0) {
           setRightWidgets(
             arrayMove(rightWidgets, oldIndex, newIndex).map((item, index) => ({
               ...item,
@@ -265,93 +270,26 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       )
   );
 
-  const existIds = new Set(
-    originalData
-      .map((data) => data.def_access_model_logic_id)
-      .filter((id) => id !== undefined && id !== null)
-  );
-
-  const attributeIds = new Set(
-    accessModelLogicAttributes.map((item) => item.id)
-  );
   const handleSave = async () => {
-    const upsertLogics = items.map((item) => {
-      const {
-        def_access_model_logic_id,
-        def_access_model_id,
-        filter,
-        object,
-        attribute,
-        condition,
-        value,
-      } = item;
+    const upsertLogics = items.map((item) => ({
+      def_access_model_logic_id: item.def_access_model_logic_id,
+      def_access_model_id: item.def_access_model_id,
+      filter: item.filter,
+      object: item.object,
+      attribute: item.attribute,
+      condition: item.condition,
+      value: item.value,
+    }));
 
-      const logic: {
-        def_access_model_id: number;
-        filter: string;
-        object: string;
-        attribute: string;
-        condition: string;
-        value: string;
-        def_access_model_logic_id?: number;
-      } = {
-        def_access_model_id,
-        filter,
-        object,
-        attribute,
-        condition,
-        value,
-      };
+    const upsertAttributes = items.map((item) => ({
+      attribute_id: item.id,
+      def_access_model_logic_id: item.def_access_model_logic_id,
+      widget_position: item.widget_position,
+      widget_state: item.widget_state,
+    }));
 
-      // Conditionally add def_access_model_logic_id only if it exists in the backend
-      if (
-        def_access_model_logic_id &&
-        existIds.has(def_access_model_logic_id)
-      ) {
-        logic.def_access_model_logic_id = def_access_model_logic_id;
-      }
-
-      return logic;
-    });
-
-    // const upsertLogics = items.map((item) => ({
-    //   def_access_model_logic_id: originalData.includes(item)?item.def_access_model_logic_id:0,
-    //   def_access_model_id: item.def_access_model_id,
-    //   filter: item.filter,
-    //   object: item.object,
-    //   attribute: item.attribute,
-    //   condition: item.condition,
-    //   value: item.value,
-    // }));
-
-    const upsertAttributes = items.map((item) => {
-      const { id, widget_position, widget_state, def_access_model_logic_id } =
-        item;
-
-      const payLoad: {
-        id?: number;
-        widget_position: number;
-        widget_state: number;
-        def_access_model_logic_id: number;
-      } = {
-        widget_position,
-        widget_state,
-        def_access_model_logic_id,
-      };
-
-      if (id && attributeIds.has(id)) {
-        payLoad.id = id;
-      }
-
-      return payLoad;
-
-      // id: item.def_access_model_logic_id,
-      // widget_position: item.widget_position,
-      // widget_state: item.widget_state,
-    });
-
-    console.log(upsertAttributes, "356");
-    console.log(upsertLogics, "357");
+    console.log(upsertAttributes, "attr 356");
+    console.log(upsertLogics, "logic 357");
 
     try {
       setIsActionLoading(true);
@@ -386,23 +324,26 @@ const DND: FC<IManageAccessModelDNDProps> = ({
           });
       }
       if (items.length > 0) {
-        Promise.all([
-          api.post(`/def-access-model-logics/upsert`, {
+        api
+          .post(`/def-access-model-logics/upsert`, {
             upsertLogics,
-          }),
-          api.post(`/def-access-model-logic-attributes/upsert`, {
-            upsertAttributes,
-          }),
-        ])
-          .then(([logicResult, attributeResult]) => {
-            if (logicResult.status === 200 && attributeResult.status === 200) {
+          })
+          .then((logicResult) => {
+            if (logicResult.status === 200) {
+              return api.post(`/def-access-model-logic-attributes/upsert`, {
+                upsertAttributes,
+              });
+            } else {
+              throw new Error("Upsert logics failed.");
+            }
+          })
+          .then((attributeResult) => {
+            if (attributeResult.status === 200) {
               toast({
                 title: "Info !!!",
                 description: "Save data successfully.",
               });
             }
-            // console.log("Logic Result:", logicResult);
-            // console.log("Attribute Result:", attributeResult);
           })
           .catch((error) => {
             console.error("Error occurred:", error);
