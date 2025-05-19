@@ -52,7 +52,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import Pagination from "@/components/Pagination/Pagination";
 import {
   IManageGlobalConditionLogicExtendTypes,
   IManageGlobalConditionTypes,
@@ -60,6 +59,7 @@ import {
 
 import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
 import { useEffect, useState } from "react";
+import Pagination5 from "@/components/Pagination/Pagination5";
 
 const ManageGlobalConditionsTable = () => {
   const {
@@ -67,7 +67,9 @@ const ManageGlobalConditionsTable = () => {
     stateChange,
     setIsEditModalOpen,
     setIsOpenManageGlobalConditionModal,
-    fetchManageGlobalConditions,
+    // fetchManageGlobalConditions,
+    totalPage,
+    getGlobalConditions,
     manageGlobalConditions: data,
     selectedManageGlobalConditionItem,
     setSelectedManageGlobalConditionItem,
@@ -77,15 +79,18 @@ const ManageGlobalConditionsTable = () => {
     deleteManageGlobalCondition,
     deleteLogicAndAttributeData,
   } = useAACContext();
-  // const [save, setSave] = useState<number>(0);
+  const [page, setPage] = useState<number>(1);
+  const limit = 5;
   // Fetch Data
   useEffect(() => {
-    fetchManageGlobalConditions();
+    getGlobalConditions(page, limit);
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
     setSelectedManageGlobalConditionItem([]);
-  }, [stateChange]);
+  }, [stateChange, page]);
   // loader
   tailspin.register();
+
+  console.log(data, "gdata");
   // Shadcn Form
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -449,9 +454,19 @@ const ManageGlobalConditionsTable = () => {
             )}
           </TableBody>
         </Table>
-        <Pagination table={table} />
+        {/* Pagination and Status */}
+        <div className="flex justify-between p-1">
+          <div className="flex-1 text-sm text-gray-600">
+            {table.getFilteredSelectedRowModel().rows.length} of{" "}
+            {table.getFilteredRowModel().rows.length} row(s) selected.
+          </div>
+          <Pagination5
+            currentPage={page}
+            setCurrentPage={setPage}
+            totalPageNumbers={totalPage as number}
+          />
+        </div>
       </div>
-      {/* Start Pagination */}
     </div>
   );
 };

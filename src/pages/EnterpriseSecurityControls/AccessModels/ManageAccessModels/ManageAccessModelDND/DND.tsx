@@ -37,8 +37,8 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     isLoading,
     selectedAccessModelItem: selectedItem,
     fetchDefAccessModelLogics,
-    accessModelLogicAttributes,
-    maxLogicId,
+    // accessModelLogicAttributes,
+    // maxLogicId,
     maxAccModelAttrId,
     isActionLoading,
     setIsActionLoading,
@@ -164,6 +164,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     }
     return id; // important for find Container where DND item
   };
+
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
     // console.log(active, over, "handleDragOver");
@@ -226,6 +227,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       });
     }
   };
+
   // console.log(rightWidgets, "right widgets");
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -239,12 +241,11 @@ const DND: FC<IManageAccessModelDNDProps> = ({
         const oldIndex = rightWidgets.findIndex(
           (item) => item.def_access_model_logic_id === activeItemId
         );
-        let newIndex = rightWidgets.findIndex(
+        const newIndex = rightWidgets.findIndex(
           (item) => item.def_access_model_logic_id === overItemId
         );
-        if (newIndex === -1) newIndex = rightWidgets.length - 1;
 
-        if (oldIndex !== -1 && newIndex >= 0) {
+        if (oldIndex !== -1 && newIndex !== -1) {
           setRightWidgets(
             arrayMove(rightWidgets, oldIndex, newIndex).map((item, index) => ({
               ...item,

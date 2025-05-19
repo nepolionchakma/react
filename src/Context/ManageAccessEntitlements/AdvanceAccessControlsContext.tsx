@@ -35,6 +35,7 @@ interface IAACContextTypes {
   isOpenManageGlobalConditionModal: boolean;
   setIsOpenManageGlobalConditionModal: Dispatch<SetStateAction<boolean>>;
   fetchManageGlobalConditions: () => Promise<void>;
+  getGlobalConditions: (page: number, limit: number) => Promise<void>;
   manageGlobalConditions: IManageGlobalConditionTypes[];
   selectedManageGlobalConditionItem: IManageGlobalConditionTypes[];
   setSelectedManageGlobalConditionItem: Dispatch<
@@ -218,12 +219,12 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     maxAttrId();
   }, []);
 
-  // Manage Global Conditions
+  // def Global Conditions
   const fetchManageGlobalConditions = async () => {
     try {
       setIsLoading(true);
       const response = await api.get<IManageGlobalConditionTypes[]>(
-        `/manage-global-conditions`
+        `/def-global-conditions`
       );
       if (response) {
         return setManageGlobalConditions(response.data ?? []);
@@ -234,6 +235,22 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       setIsLoading(false);
     }
   };
+
+  const getGlobalConditions = async (page: number, limit: number) => {
+    try {
+      setIsLoading(true);
+      const resultLazyLoading = await api.get(
+        `/def-global-conditions/${page}/${limit}`
+      );
+      setManageGlobalConditions(resultLazyLoading.data.results);
+      setTotalPage(resultLazyLoading.data.totalPages);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const createManageGlobalCondition = async (
     postData: IManageGlobalConditionTypes
   ) => {
@@ -581,6 +598,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     isOpenManageGlobalConditionModal,
     setIsOpenManageGlobalConditionModal,
     fetchManageGlobalConditions,
+    getGlobalConditions,
     manageGlobalConditions,
     selectedManageGlobalConditionItem,
     setSelectedManageGlobalConditionItem,
