@@ -105,8 +105,9 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     try {
       setIsLoading(true);
       const res = await api.get<IARMAsynchronousTasksTypes[]>(
-        `/arm-tasks/show-tasks`
+        `/arm-tasks/def_async_tasks`
       );
+      console.log(res);
       return res.data ?? [];
     } catch (error) {
       console.log(error);
