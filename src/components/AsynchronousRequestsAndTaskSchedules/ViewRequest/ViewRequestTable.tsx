@@ -39,10 +39,8 @@ export function ViewRequestTable() {
     useARMContext();
   const [data, setData] = React.useState<IARMViewRequestsTypes[] | []>([]);
   const [page, setPage] = React.useState(1);
-  const limit = 10;
+  const limit = 20;
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
-  console.log(query);
-
   const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
   const [viewParameters, setViewParameters] = React.useState("");
   const [viewResult, setViewResult] = React.useState("");
@@ -111,6 +109,11 @@ export function ViewRequestTable() {
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: limit,
+      },
+    },
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
@@ -186,152 +189,155 @@ export function ViewRequestTable() {
 
       {/* Table Section */}
       <div>
-        <Table>
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    className="border border-slate-400 bg-slate-200 p-1 h-9"
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                    {header.id === "select" && (
-                      <Checkbox
-                        checked={
-                          table.getIsAllPageRowsSelected() ||
-                          (table.getIsSomePageRowsSelected() && "indeterminate")
-                        }
-                        onCheckedChange={(value) =>
-                          table.toggleAllPageRowsSelected(!!value)
-                        }
-                        className="mr-1"
-                        aria-label="Select all"
-                      />
-                    )}
-                  </TableHead>
-                ))}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={table.getVisibleFlatColumns().length}
-                  className="h-[17rem] text-center mx-auto"
-                >
-                  <l-tailspin
-                    size="40"
-                    stroke="5"
-                    speed="0.9"
-                    color="black"
-                  ></l-tailspin>
-                </TableCell>
-              </TableRow>
-            ) : table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => {
-                const isExpanded = expandedRow === row.id;
-                // console.log(row.original, "row");
-                return (
-                  <React.Fragment key={row.id}>
-                    <TableRow data-state={row.getIsSelected() && "selected"}>
-                      {row.getVisibleCells().map((cell, index) => (
-                        <TableCell key={cell.id} className="border p-1 h-8">
-                          {index === 0 ? (
-                            <div className="flex items-center gap-2">
-                              <Checkbox
-                                checked={row.getIsSelected()}
-                                onCheckedChange={(value) =>
-                                  row.toggleSelected(!!value)
-                                }
-                              />
-                            </div>
-                          ) : (
-                            flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )
+        <div className="max-h-[68vh] overflow-auto">
+          <Table>
+            <TableHeader>
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id}>
+                  {headerGroup.headers.map((header) => (
+                    <TableHead
+                      key={header.id}
+                      className="border border-slate-400 bg-slate-200 p-1 h-9"
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
                           )}
-                        </TableCell>
-                      ))}
-                    </TableRow>
-
-                    {isExpanded && (
-                      <TableRow className="bg-slate-100">
-                        <TableCell
-                          colSpan={row.getVisibleCells().length}
-                          className="p-1"
-                        >
-                          <div className="flex gap-10 justify-between p-3 text-sm text-gray-700 w-[20rem] mx-auto">
-                            {/* Schedule Type */}
-                            <div>
-                              <strong>Schedule Type:</strong>
-                              <div className="flex ">
-                                {row.original.schedule_type ? (
-                                  <span className="capitalize">
-                                    {JSON.parse(
-                                      row.original.schedule_type
-                                    ).toLowerCase()}
-                                  </span>
-                                ) : (
-                                  "Null"
-                                )}
+                      {header.id === "select" && (
+                        <Checkbox
+                          checked={
+                            table.getIsAllPageRowsSelected() ||
+                            (table.getIsSomePageRowsSelected() &&
+                              "indeterminate")
+                          }
+                          onCheckedChange={(value) =>
+                            table.toggleAllPageRowsSelected(!!value)
+                          }
+                          className="mr-1"
+                          aria-label="Select all"
+                        />
+                      )}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={table.getVisibleFlatColumns().length}
+                    className="h-[17rem] text-center mx-auto"
+                  >
+                    <l-tailspin
+                      size="40"
+                      stroke="5"
+                      speed="0.9"
+                      color="black"
+                    ></l-tailspin>
+                  </TableCell>
+                </TableRow>
+              ) : table.getRowModel().rows.length ? (
+                table.getRowModel().rows.map((row) => {
+                  const isExpanded = expandedRow === row.id;
+                  // console.log(row.original, "row");
+                  return (
+                    <React.Fragment key={row.id}>
+                      <TableRow data-state={row.getIsSelected() && "selected"}>
+                        {row.getVisibleCells().map((cell, index) => (
+                          <TableCell key={cell.id} className="border p-1 h-8">
+                            {index === 0 ? (
+                              <div className="flex items-center gap-2">
+                                <Checkbox
+                                  checked={row.getIsSelected()}
+                                  onCheckedChange={(value) =>
+                                    row.toggleSelected(!!value)
+                                  }
+                                />
                               </div>
-                            </div>
-                            {/* Schedule */}
-                            <div>
-                              <strong>Schedule:</strong>
-                              <div className="flex gap-1">
-                                {row.original.schedule &&
-                                  Object.entries(row.original.schedule).map(
-                                    ([key, value]) => (
-                                      <span
-                                        className="capitalize flex flex-col"
-                                        key={key}
-                                      >
-                                        {typeof value !== "object" ? (
-                                          <span className="capitalize">
-                                            {typeof value === "string"
-                                              ? value.toLowerCase()
-                                              : value}
-                                          </span>
-                                        ) : (
-                                          value?.map((item: string) => (
-                                            <span key={item}>
-                                              {item.toLowerCase()}
-                                            </span>
-                                          ))
-                                        )}
-                                      </span>
-                                    )
-                                  )}
-                              </div>
-                            </div>
-                          </div>
-                        </TableCell>
+                            ) : (
+                              flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                              )
+                            )}
+                          </TableCell>
+                        ))}
                       </TableRow>
-                    )}
-                  </React.Fragment>
-                );
-              })
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={getColumns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+
+                      {isExpanded && (
+                        <TableRow className="bg-slate-100">
+                          <TableCell
+                            colSpan={row.getVisibleCells().length}
+                            className="p-1"
+                          >
+                            <div className="flex gap-10 justify-between p-3 text-sm text-gray-700 w-[20rem] mx-auto">
+                              {/* Schedule Type */}
+                              <div>
+                                <strong>Schedule Type:</strong>
+                                <div className="flex ">
+                                  {row.original.schedule_type ? (
+                                    <span className="capitalize">
+                                      {JSON.parse(
+                                        row.original.schedule_type
+                                      ).toLowerCase()}
+                                    </span>
+                                  ) : (
+                                    "Null"
+                                  )}
+                                </div>
+                              </div>
+                              {/* Schedule */}
+                              <div>
+                                <strong>Schedule:</strong>
+                                <div className="flex gap-1">
+                                  {row.original.schedule &&
+                                    Object.entries(row.original.schedule).map(
+                                      ([key, value]) => (
+                                        <span
+                                          className="capitalize flex flex-col"
+                                          key={key}
+                                        >
+                                          {typeof value !== "object" ? (
+                                            <span className="capitalize">
+                                              {typeof value === "string"
+                                                ? value.toLowerCase()
+                                                : value}
+                                            </span>
+                                          ) : (
+                                            value?.map((item: string) => (
+                                              <span key={item}>
+                                                {item.toLowerCase()}
+                                              </span>
+                                            ))
+                                          )}
+                                        </span>
+                                      )
+                                    )}
+                                </div>
+                              </div>
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </React.Fragment>
+                  );
+                })
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={getColumns.length}
+                    className="h-24 text-center"
+                  >
+                    No results.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
 
         {/* Pagination and Status */}
         <div className="flex justify-between p-1">
