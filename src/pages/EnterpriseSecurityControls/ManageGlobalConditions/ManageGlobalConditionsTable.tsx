@@ -86,11 +86,10 @@ const ManageGlobalConditionsTable = () => {
     getGlobalConditions(page, limit);
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
     setSelectedManageGlobalConditionItem([]);
-  }, [stateChange, page]);
+  }, [page, stateChange]);
   // loader
   tailspin.register();
 
-  console.log(data, "gdata");
   // Shadcn Form
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -206,15 +205,16 @@ const ManageGlobalConditionsTable = () => {
   // handle delete Calculate
   const handleDeleteCalculate = async () => {
     const res = await manageGlobalConditionDeleteCalculate(
-      selectedManageGlobalConditionItem[0].manage_global_condition_id
+      selectedManageGlobalConditionItem[0].def_global_condition_id
     );
     setWillBeDelete(res as IManageGlobalConditionLogicExtendTypes[]);
   };
+
   const handleDelete = async () => {
     await Promise.all(
       await willBeDelete.map(async (item) => {
         const res = await deleteLogicAndAttributeData(
-          item.manage_global_condition_logic_id,
+          item.def_global_condition_logic_id,
           item.id
         );
         console.log(res, item);
@@ -227,7 +227,7 @@ const ManageGlobalConditionsTable = () => {
     //   );
     // }
     await deleteManageGlobalCondition(
-      selectedManageGlobalConditionItem[0].manage_global_condition_id
+      selectedManageGlobalConditionItem[0].def_global_condition_id
     );
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
     setSelectedManageGlobalConditionItem([]);
@@ -237,7 +237,7 @@ const ManageGlobalConditionsTable = () => {
   const handleEditClick = async () => {
     setIsEditModalOpen(true);
     const fetchData = await fetchManageGlobalConditionLogics(
-      selectedManageGlobalConditionItem[0].manage_global_condition_id
+      selectedManageGlobalConditionItem[0].def_global_condition_id
     );
     setManageGlobalConditionTopicData(fetchData ?? []);
   };

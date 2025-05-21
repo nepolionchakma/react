@@ -72,15 +72,15 @@ export interface IManageLocalConditonsType {
   comments: string;
 }
 export interface IManageGlobalConditionTypes {
-  manage_global_condition_id: number;
+  def_global_condition_id: number;
   name: string;
   datasource: string;
   description: string;
   status: string;
 }
 export interface IManageGlobalConditionLogicTypes {
-  manage_global_condition_logic_id: number;
-  manage_global_condition_id: number;
+  def_global_condition_logic_id: number;
+  def_global_condition_id: number;
   object: string;
   attribute: string;
   condition: string;
@@ -88,14 +88,14 @@ export interface IManageGlobalConditionLogicTypes {
 }
 export interface IManageGlobalConditionLogicAttributesTypes {
   id: number;
-  manage_global_condition_logic_id: number;
+  def_global_condition_logic_id: number;
   widget_position: number;
   widget_state: number;
 }
 export interface IManageGlobalConditionLogicExtendTypes
   extends IManageGlobalConditionLogicTypes {
   id: number;
-  manage_global_condition_logic_id: number;
+  def_global_condition_logic_id: number;
   widget_position: number;
   widget_state: number;
 }

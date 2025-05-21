@@ -271,6 +271,9 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       )
   );
 
+  console.log(isChangedAccessGlobalCondition, "hey");
+  console.log(items.length, "hey");
+
   const handleSave = async () => {
     const upsertLogics = items.map((item) => ({
       def_access_model_logic_id: item.def_access_model_logic_id,
@@ -283,7 +286,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     }));
 
     const upsertAttributes = items.map((item) => ({
-      attribute_id: item.id,
+      id: item.id,
       def_access_model_logic_id: item.def_access_model_logic_id,
       widget_position: item.widget_position,
       widget_state: item.widget_state,
@@ -324,27 +327,31 @@ const DND: FC<IManageAccessModelDNDProps> = ({
             setIsActionLoading(false);
           });
       }
+      // setItems([]);
       if (items.length > 0) {
-        api
-          .post(`/def-access-model-logics/upsert`, {
-            upsertLogics,
-          })
-          .then((logicResult) => {
-            if (logicResult.status === 200) {
-              return api.post(`/def-access-model-logic-attributes/upsert`, {
-                upsertAttributes,
-              });
-            } else {
-              throw new Error("Upsert logics failed.");
-            }
-          })
-          .then((attributeResult) => {
-            if (attributeResult.status === 200) {
+        Promise.all([
+          api.post(`/def-access-model-logics/upsert`, upsertLogics),
+          api.post(
+            `/def-access-model-logic-attributes/upsert`,
+            upsertAttributes
+          ),
+        ])
+          .then(([logicResult, attributeResult]) => {
+            if (logicResult.status === 200 && attributeResult.status === 200) {
               toast({
                 title: "Info !!!",
                 description: "Save data successfully.",
               });
+              form.reset({
+                model_name: selectedItem[0].model_name ?? "",
+                description: selectedItem[0].description ?? "",
+                state: selectedItem[0].state ?? "",
+              });
+
+              setOriginalData([...rightWidgets]);
             }
+            // console.log("Logic Result:", logicResult);
+            // console.log("Attribute Result:", attributeResult);
           })
           .catch((error) => {
             console.error("Error occurred:", error);
@@ -361,7 +368,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   return (
     <div>
       <div className="flex justify-between sticky top-0 p-2 bg-slate-300 z-50 overflow-hidden">
-        <h2 className="font-bold">Edit Access Global Conditions</h2>
+        <h2 className="font-bold">Edit Access Model</h2>
         <div className="flex gap-2 rounded-lg ">
           {isActionLoading ? (
             <div className="flex items-center bg-slate-400 rounded p-1 duration-300 z-50 cursor-not-allowed">
@@ -381,7 +388,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
                   : undefined
               }
               size={30}
-              className={`rounded p-1 duration-300 z-50 ${
+              className={` bg-slate-400 rounded p-1 duration-300 z-50 ${
                 items.length > 0 || isChangedAccessGlobalCondition
                   ? "bg-slate-300 hover:text-white hover:bg-slate-500 hover:scale-110 cursor-pointer"
                   : "opacity-40 cursor-not-allowed"

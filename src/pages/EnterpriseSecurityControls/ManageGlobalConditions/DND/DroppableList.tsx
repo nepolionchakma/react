@@ -40,7 +40,7 @@ const DroppableList: FC<DroppableListProps> = ({
   return (
     <SortableContext
       id={id}
-      items={items.map((item) => item.manage_global_condition_logic_id)}
+      items={items.map((item) => item.def_global_condition_logic_id)}
       strategy={verticalListSortingStrategy}
     >
       <div
@@ -53,9 +53,9 @@ const DroppableList: FC<DroppableListProps> = ({
           </p>
         )}
         {items.map((item, index) => (
-          <div key={item.manage_global_condition_logic_id}>
+          <div key={item.def_global_condition_logic_id}>
             <DroppableItem
-              id={item.manage_global_condition_logic_id.toString()}
+              id={item.def_global_condition_logic_id.toString()}
               item={item}
               items={items}
               originalData={originalData}
@@ -64,7 +64,7 @@ const DroppableList: FC<DroppableListProps> = ({
             />
             {/* Arrow Down Icon */}
             {items.map((item) => (
-              <div key={item.manage_global_condition_logic_id}>
+              <div key={item.def_global_condition_logic_id}>
                 <div className="w-3 mt-4 mx-auto"></div>
               </div>
             ))}
@@ -98,9 +98,9 @@ export const DroppableItem: FC<DroppableItemProps> = ({
     setNodeRef,
     transform,
     transition,
-  } = useSortable({ id: item.manage_global_condition_logic_id });
+  } = useSortable({ id: item.def_global_condition_logic_id });
 
-  const { deleteLogicAndAttributeData } = useAACContext();
+  const { deleteGlobalLogicAndAttributeData } = useAACContext();
 
   // const { deleteUser } = useSqliteAuthContext();
 
@@ -118,18 +118,18 @@ export const DroppableItem: FC<DroppableItemProps> = ({
       (item) =>
         !originalData?.some(
           (ori) =>
-            ori.manage_global_condition_logic_id ===
-            item.manage_global_condition_logic_id
+            ori.def_global_condition_logic_id ===
+            item.def_global_condition_logic_id
         )
     );
     if (res.length === 0) {
       // check if logicId and attrId exist in the database
-      await deleteLogicAndAttributeData(logicId, attrId);
+      await deleteGlobalLogicAndAttributeData(logicId, attrId);
     }
 
-    // delete Data from the array but not database
+    // delete Data from the array but not
     const remainingUser = items.filter(
-      (item) => item.manage_global_condition_logic_id !== id
+      (item) => item.def_global_condition_logic_id !== id
     );
     setItems(remainingUser);
     toast({
@@ -209,7 +209,7 @@ export const DroppableItem: FC<DroppableItemProps> = ({
                     onClick={() =>
                       handleDelete(
                         item.id,
-                        item.manage_global_condition_logic_id,
+                        item.def_global_condition_logic_id,
                         item.id
                       )
                     }

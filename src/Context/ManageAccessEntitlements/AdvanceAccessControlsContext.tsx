@@ -62,6 +62,10 @@ interface IAACContextTypes {
     logicId: number,
     attrId: number
   ) => Promise<number | undefined>;
+  deleteGlobalLogicAndAttributeData: (
+    logicId: number,
+    attrId: number
+  ) => Promise<200 | undefined>;
 
   fetchDefAccessModels: () => Promise<
     IManageAccessModelsTypes[] | [] | undefined
@@ -157,7 +161,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     const maxId = async () => {
       if (token?.user_id === 0) return;
       const [resGlobalCondition, resManageAccessModel] = await Promise.all([
-        api.get(`/manage-global-condition-logic-attributes`),
+        api.get(`/def-global-condition-logic-attributes`),
         api.get(`/def-access-model-logic-attributes`),
       ]);
       const maxIdGlobalCondition = Math.max(
@@ -171,6 +175,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         )
       );
       if (resGlobalCondition.data.length > 0) {
+        console.log(maxIdGlobalCondition, "maxId");
         setGlobalConditionAttrMaxId(maxIdGlobalCondition);
       } else {
         setGlobalConditionAttrMaxId(0);
@@ -182,7 +187,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       }
     };
     maxId();
-  }, [isActionLoading, stateChange]);
+  }, [api, token?.user_id]);
 
   useEffect(() => {
     const maxLogicId = async () => {
@@ -256,16 +261,10 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   ) => {
     try {
       setIsLoading(true);
-      const {
-        manage_global_condition_id,
-        name,
-        description,
-        datasource,
-        status,
-      } = postData;
+      const { name, datasource, description, status } = postData;
       const res = await api.post<IManageGlobalConditionTypes>(
-        `/manage-global-conditions`,
-        { manage_global_condition_id, name, description, datasource, status }
+        `/def-global-conditions`,
+        { name, datasource, description, status }
       );
       if (res.status === 201) {
         setStateChange((prev) => prev + 1);
@@ -290,24 +289,24 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       setIsLoading(true);
       const [logicsRes, attributesRes] = await Promise.all([
         api.get<IManageGlobalConditionLogicTypes[]>(
-          `/manage-global-condition-logics`
+          `/def-global-condition-logics`
         ),
         api.get<IManageGlobalConditionLogicAttributesTypes[]>(
-          `/manage-global-condition-logic-attributes`
+          `/def-global-condition-logic-attributes`
         ),
       ]);
       const attributesMap = new Map(
         attributesRes.data.map((attr) => [
-          attr.manage_global_condition_logic_id,
+          attr.def_global_condition_logic_id,
           attr,
         ])
       );
       const mergedData = logicsRes.data.map((item) => ({
         ...item,
-        ...(attributesMap.get(item.manage_global_condition_logic_id) || {}),
+        ...(attributesMap.get(item.def_global_condition_logic_id) || {}),
       }));
       const filteredData = mergedData.filter(
-        (item) => item.manage_global_condition_id === filterId
+        (item) => item.def_global_condition_id === filterId
       );
       // return (filteredData as IManageGlobalConditionLogicExtendTypes[]) ?? [];
       if (filteredData) {
@@ -329,7 +328,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   };
   const deleteManageGlobalCondition = async (id: number) => {
     api
-      .delete(`/manage-global-conditions/${id}`)
+      .delete(`/def-global-conditions/${id}`)
       .then((res) => {
         if (res.status === 200) {
           toast({
@@ -352,6 +351,22 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       const [isExistLogicId, isExistAttrId] = await Promise.all([
         api.delete(`/def-access-model-logics/${logicId}`),
         api.delete(`/def-access-model-logic-attributes/${attrId}`),
+      ]);
+      if (isExistLogicId.status === 200 && isExistAttrId.status === 200) {
+        return isExistLogicId.status;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const deleteGlobalLogicAndAttributeData = async (
+    logicId: number,
+    attrId: number
+  ) => {
+    try {
+      const [isExistLogicId, isExistAttrId] = await Promise.all([
+        api.delete(`/def-global-condition-logics/${logicId}`),
+        api.delete(`/def-global-condition-logic-attributes/${attrId}`),
       ]);
       if (isExistLogicId.status === 200 && isExistAttrId.status === 200) {
         return isExistLogicId.status;
@@ -612,6 +627,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     manageGlobalConditionDeleteCalculate,
     deleteManageGlobalCondition,
     deleteLogicAndAttributeData,
+    deleteGlobalLogicAndAttributeData,
     manageAccessModels,
     fetchDefAccessModels,
     selectedAccessModelItem,

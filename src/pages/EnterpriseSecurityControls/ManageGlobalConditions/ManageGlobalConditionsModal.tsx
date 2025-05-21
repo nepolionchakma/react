@@ -31,7 +31,7 @@ const ManageGlobalConditionsModal: FC<IManageGlobalConditionProps> = () => {
   const { createManageGlobalCondition, manageGlobalConditions, isLoading } =
     useAACContext();
   const maxId = Math.max(
-    ...manageGlobalConditions.map((item) => item.manage_global_condition_id)
+    ...manageGlobalConditions.map((item) => item.def_global_condition_id)
   );
   const FormSchema = z.object({
     name: z.string(),
@@ -54,7 +54,7 @@ const ManageGlobalConditionsModal: FC<IManageGlobalConditionProps> = () => {
   function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
       const postData = {
-        manage_global_condition_id: maxId,
+        def_global_condition_id: maxId,
         name: data.name,
         description: data.description,
         datasource: data.datasource,
