@@ -65,6 +65,11 @@ interface ARMContext {
     page: number,
     limit: number
   ) => Promise<IARMViewRequestsTypes[] | undefined>;
+  getSearchViewRequests: (
+    page: number,
+    limit: number,
+    query: string
+  ) => Promise<IARMViewRequestsTypes[] | undefined>;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -276,11 +281,31 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     try {
       setIsLoading(true);
       const resultLazyLoading = await api.get(
-        `/asynchronous-requests-and-task-schedules/view-requests/${page}/${limit}`
+        `/asynchronous-requests-and-task-schedules/view_requests/${page}/${limit}`
       );
 
-      setTotalPage(resultLazyLoading.data.total_pages);
-      return resultLazyLoading.data.requests;
+      setTotalPage(resultLazyLoading.data.pages);
+      return resultLazyLoading.data.items;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const getSearchViewRequests = async (
+    page: number,
+    limit: number,
+    userScheduleName: string
+  ) => {
+    try {
+      setIsLoading(true);
+      const resultLazyLoading = await api.get(
+        `/asynchronous-requests-and-task-schedules/view_requests/search/${page}/${limit}?user_schedule_name=${userScheduleName}`
+      );
+
+      setTotalPage(resultLazyLoading.data.pages);
+      return resultLazyLoading.data.items;
     } catch (error) {
       console.log(error);
     } finally {
@@ -311,6 +336,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     getAsynchronousRequestsAndTaskSchedules,
     cancelScheduledTask,
     getViewRequests,
+    getSearchViewRequests,
   };
   return <ARMContext.Provider value={values}>{children}</ARMContext.Provider>;
 }

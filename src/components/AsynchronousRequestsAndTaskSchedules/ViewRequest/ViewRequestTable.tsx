@@ -35,10 +35,13 @@ import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import PopUp from "./PopUp/PopUp";
 
 export function ViewRequestTable() {
-  const { totalPage, getViewRequests, isLoading } = useARMContext();
+  const { totalPage, getViewRequests, getSearchViewRequests, isLoading } =
+    useARMContext();
   const [data, setData] = React.useState<IARMViewRequestsTypes[] | []>([]);
   const [page, setPage] = React.useState(1);
-  const limit = 8;
+  const limit = 10;
+  const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
+  console.log(query);
 
   const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
   const [viewParameters, setViewParameters] = React.useState("");
@@ -52,20 +55,43 @@ export function ViewRequestTable() {
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
+  const handleQuery = (e: string) => {
+    if (e === "") {
+      console.log(e === "");
+      setQuery({ isEmpty: true, value: e });
+    } else {
+      setQuery({ isEmpty: false, value: e });
+    }
+  };
+
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await getViewRequests(page, limit);
-        if (res) {
-          setData(res);
-          setExpandedRow(null);
+        if (!query.isEmpty) {
+          const res = await getSearchViewRequests(page, limit, query.value);
+          if (res) {
+            setData(res);
+            setExpandedRow(null);
+          }
+        } else {
+          const res = await getViewRequests(page, limit);
+          if (res) {
+            setData(res);
+            setExpandedRow(null);
+          }
         }
       } catch (error) {
         console.log(error);
       }
     };
-    fetchData();
-  }, [page]);
+
+    // Debounce only when query changes
+    const delayDebounce = setTimeout(() => {
+      fetchData();
+    }, 1000);
+
+    return () => clearTimeout(delayDebounce); // Cleanup timeout
+  }, [query, page]); // Run on query and page change
 
   const table = useReactTable({
     data,
@@ -129,16 +155,8 @@ export function ViewRequestTable() {
       <div className="flex gap-3 items-center py-2">
         <Input
           placeholder="Filter User Schedule Name"
-          value={
-            (table
-              .getColumn("user_schedule_name")
-              ?.getFilterValue() as string) ?? ""
-          }
-          onChange={(e) =>
-            table
-              .getColumn("user_schedule_name")
-              ?.setFilterValue(e.target.value)
-          }
+          value={query.value}
+          onChange={(e) => handleQuery(e.target.value)}
           className="max-w-sm px-4 py-2"
         />
 
@@ -167,7 +185,7 @@ export function ViewRequestTable() {
       </div>
 
       {/* Table Section */}
-      <div className="rounded-md border">
+      <div>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
