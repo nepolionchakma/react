@@ -46,13 +46,15 @@ export function TaskTable() {
   const {
     totalPage,
     getAsyncTasksLazyLoading,
+    getSearchAsyncTasksLazyLoading,
     isLoading,
     setIsLoading,
     changeState,
   } = useARMContext();
   const { page, setPage, isOpenModal, setIsOpenModal } = useGlobalContext();
   const [data, setData] = React.useState<IARMAsynchronousTasksTypes[] | []>([]);
-  const limit = 8;
+  const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
+  const limit = 20;
 
   React.useEffect(() => {
     setPage(1);
@@ -61,14 +63,42 @@ export function TaskTable() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await getAsyncTasksLazyLoading(page, limit);
-        if (res) setData(res);
+        if (!query.isEmpty) {
+          const res = await getSearchAsyncTasksLazyLoading(
+            page,
+            limit,
+            query.value
+          );
+          if (res) {
+            setData(res);
+          }
+        } else {
+          const res = await getAsyncTasksLazyLoading(page, limit);
+          if (res) {
+            setData(res);
+          }
+        }
       } catch (error) {
         console.log(error);
       }
     };
-    fetchData();
-  }, [changeState, page]);
+
+    // Debounce only when query changes
+    const delayDebounce = setTimeout(() => {
+      fetchData();
+    }, 1000);
+
+    return () => clearTimeout(delayDebounce); // Cleanup timeout
+  }, [query, page, changeState]); // Run on query and page change
+
+  const handleQuery = (e: string) => {
+    if (e === "") {
+      console.log(e === "");
+      setQuery({ isEmpty: true, value: e });
+    } else {
+      setQuery({ isEmpty: false, value: e });
+    }
+  };
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -77,10 +107,6 @@ export function TaskTable() {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0, //initial page index
-    pageSize: 10, //default page size
-  });
 
   const [selected, setSelected] = React.useState<IARMAsynchronousTasksTypes[]>(
     []
@@ -103,9 +129,16 @@ export function TaskTable() {
 
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onPaginationChange: setPagination,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
+    initialState: {
+      pagination: {
+        pageSize: limit,
+      },
+      columnVisibility: {
+        id: false,
+      },
+    },
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
@@ -113,12 +146,6 @@ export function TaskTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination,
-    },
-    initialState: {
-      columnVisibility: {
-        id: false,
-      },
     },
   });
 
@@ -140,9 +167,11 @@ export function TaskTable() {
       }
     });
   }, [table]);
+
   const handleOpenModal = (modelName: string) => {
     setIsOpenModal(modelName);
   };
+
   const handleCloseModal = () => {
     setIsOpenModal(""); // close modal
     setSelected([]);
@@ -217,15 +246,8 @@ export function TaskTable() {
         </div>
         <Input
           placeholder="Filter User Task Name"
-          value={
-            (table.getColumn("user_task_name")?.getFilterValue() as string) ??
-            ""
-          }
-          onChange={(event) =>
-            table
-              .getColumn("user_task_name")
-              ?.setFilterValue(event.target.value)
-          }
+          value={query.value}
+          onChange={(e) => handleQuery(e.target.value)}
           className="max-w-sm px-4 py-2"
         />
         {/* Columns */}
@@ -258,9 +280,7 @@ export function TaskTable() {
       </div>
       {/* Table */}
       <div className="rounded-md border">
-        <div
-        // className="h-[23rem]"
-        >
+        <div className="max-h-[68vh] overflow-auto">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (

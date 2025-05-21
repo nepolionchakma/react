@@ -23,6 +23,11 @@ interface ARMContext {
     page: number,
     limit: number
   ) => Promise<IARMAsynchronousTasksTypes[] | undefined>;
+  getSearchAsyncTasksLazyLoading: (
+    page: number,
+    limit: number,
+    userTaskName: string
+  ) => Promise<IARMAsynchronousTasksTypes[] | undefined>;
   getManageExecutionMethods: () => Promise<
     IExecutionMethodsTypes[] | undefined
   >;
@@ -109,26 +114,45 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       setIsLoading(false);
     }
   };
+
   const getAsyncTasksLazyLoading = async (page: number, limit: number) => {
     try {
       setIsLoading(true);
-      const [countTasks, tasks] = await Promise.all([
-        api.get<IARMAsynchronousTasksTypes[]>(`/arm-tasks/show-tasks`),
-        api.get<IARMAsynchronousTasksTypes[]>(
-          `/arm-tasks/show-tasks/${page}/${limit}`
-        ),
-      ]);
+      const resultLazyLoading = await api.get(
+        `/arm-tasks/def_async_tasks/${page}/${limit}`
+      );
 
-      const totalCount = countTasks.data.length;
-      const totalPages = Math.ceil(totalCount / limit);
-      setTotalPage(totalPages);
-      return tasks.data ?? [];
+      setTotalPage(resultLazyLoading.data.pages);
+      console.log(resultLazyLoading.data.items);
+      return resultLazyLoading.data.items;
     } catch (error) {
       console.log(error);
     } finally {
       setIsLoading(false);
     }
   };
+
+  const getSearchAsyncTasksLazyLoading = async (
+    page: number,
+    limit: number,
+    userTaskName: string
+  ) => {
+    try {
+      setIsLoading(true);
+      const resultLazyLoading = await api.get(
+        `/arm-tasks/def_async_tasks/search/${page}/${limit}?user_task_name=${userTaskName}`
+      );
+
+      setTotalPage(resultLazyLoading.data.pages);
+      console.log(resultLazyLoading.data.items);
+      return resultLazyLoading.data.items;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const deleteAsyncTasks = async (
     selectedItems: IARMAsynchronousTasksTypes[]
   ) => {
@@ -285,6 +309,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       );
 
       setTotalPage(resultLazyLoading.data.pages);
+      console.log(resultLazyLoading.data.items);
       return resultLazyLoading.data.items;
     } catch (error) {
       console.log(error);
@@ -305,6 +330,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       );
 
       setTotalPage(resultLazyLoading.data.pages);
+
       return resultLazyLoading.data.items;
     } catch (error) {
       console.log(error);
@@ -337,6 +363,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     cancelScheduledTask,
     getViewRequests,
     getSearchViewRequests,
+    getSearchAsyncTasksLazyLoading,
   };
   return <ARMContext.Provider value={values}>{children}</ARMContext.Provider>;
 }
