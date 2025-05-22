@@ -72,7 +72,7 @@ export function ViewEditScheduledTasksTable() {
   const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
   const [viewParameters, setViewParameters] = React.useState("");
   const [clickedRowId, setClickedRowId] = React.useState("");
-  const limit = 8;
+  const limit = 20;
   const [page, setPage] = React.useState<number>(1);
   const { isOpenModal, setIsOpenModal } = useGlobalContext();
 
@@ -159,6 +159,11 @@ export function ViewEditScheduledTasksTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
+    },
+    initialState: {
+      pagination: {
+        pageSize: limit,
+      },
     },
   });
   // default hidden columns
@@ -345,9 +350,7 @@ export function ViewEditScheduledTasksTable() {
       </div>
       {/* Table */}
       <div className="rounded-md border">
-        <div
-        // className="h-[23rem]"
-        >
+        <div className="max-h-[68vh] overflow-auto">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -356,7 +359,7 @@ export function ViewEditScheduledTasksTable() {
                     return (
                       <TableHead
                         key={header.id}
-                        className="border border-slate-400 bg-slate-200 p-1 h-9"
+                        className={`border border-slate-400 bg-slate-200 p-1 h-9`}
                       >
                         {header.isPlaceholder
                           ? null
@@ -387,7 +390,6 @@ export function ViewEditScheduledTasksTable() {
                                 );
                               }, 0);
                             }}
-                            className="mr-1"
                             aria-label="Select all"
                           />
                         )}
@@ -402,7 +404,7 @@ export function ViewEditScheduledTasksTable() {
                 <TableRow>
                   <TableCell
                     colSpan={getColumns.length}
-                    className="h-[17rem] text-center"
+                    className="h-[25rem] text-center"
                   >
                     <l-tailspin
                       size="40"
@@ -422,7 +424,7 @@ export function ViewEditScheduledTasksTable() {
                         // aria-disabled={row.original.user_schedule_name === "ad-hoc"}
                       >
                         {row.getVisibleCells().map((cell, index) => (
-                          <TableCell key={cell.id} className="border p-1 h-8">
+                          <TableCell key={cell.id} className={`border p-1 h-8`}>
                             {index === 0 ? (
                               <Checkbox
                                 disabled={
@@ -434,6 +436,7 @@ export function ViewEditScheduledTasksTable() {
                                   row.toggleSelected(!!value);
                                 }}
                                 onClick={() => handleRowSelection(row.original)}
+                                className="mr-1"
                               />
                             ) : (
                               flexRender(
@@ -507,7 +510,7 @@ export function ViewEditScheduledTasksTable() {
                 <TableRow>
                   <TableCell
                     colSpan={getColumns.length}
-                    className="h-24 text-center"
+                    className="h-[25rem] text-center"
                   >
                     No results.
                   </TableCell>
