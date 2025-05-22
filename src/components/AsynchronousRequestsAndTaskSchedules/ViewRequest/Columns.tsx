@@ -50,9 +50,10 @@ export const columns = (
     header: () => {
       return <div>Status</div>;
     },
-    cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("status")}</div>
-    ),
+    cell: ({ row }) => {
+      const data: string = row.getValue("status");
+      return <div className="min-w-max capitalize">{data.toLowerCase()}</div>;
+    },
   },
   {
     accessorKey: "user_task_name",
@@ -60,7 +61,7 @@ export const columns = (
       return <div className="min-w-max">User Task Name</div>;
     },
     cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("user_task_name")}</div>
+      <div className="w-[20rem]">{row.getValue("user_task_name")}</div>
     ),
   },
   {
@@ -68,14 +69,18 @@ export const columns = (
     header: () => {
       return <div className="min-w-max">Task Name</div>;
     },
-    cell: ({ row }) => <div>{row.getValue("task_name")}</div>,
+    cell: ({ row }) => (
+      <div className="w-[10rem]">{row.getValue("task_name")}</div>
+    ),
   },
   {
     accessorKey: "executor",
     header: () => {
       return <div className="min-w-max">Executor</div>;
     },
-    cell: ({ row }) => <div className="">{row.getValue("executor")}</div>,
+    cell: ({ row }) => (
+      <div className="min-w-max">{row.getValue("executor")}</div>
+    ),
   },
   {
     accessorKey: "user_schedule_name",
@@ -86,7 +91,7 @@ export const columns = (
       const isExpanded = expandedRow === row.id;
       const user_schedule_name: string = row.getValue("user_schedule_name");
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-[25rem]">
           <button
             disabled={
               !user_schedule_name || user_schedule_name === "" ? true : false
@@ -100,7 +105,7 @@ export const columns = (
               <CircleChevronRight className="w-5 h-5 text-gray-600" />
             )}
           </button>
-          <span>{user_schedule_name}</span>
+          <span className="capitalize">{user_schedule_name.toLowerCase()}</span>
         </div>
       );
     },
@@ -114,19 +119,19 @@ export const columns = (
       <div className="w-[20rem]">{row.getValue("redbeat_schedule_name")}</div>
     ),
   },
-  {
-    accessorKey: "schedule",
-    header: () => {
-      return <div className="min-w-max">Schedule</div>;
-    },
-    cell: ({ row }) => {
-      return (
-        <div className="min-w-max">
-          {JSON.stringify(row.getValue("schedule"))}
-        </div>
-      );
-    },
-  },
+  // {
+  //   accessorKey: "schedule",
+  //   header: () => {
+  //     return <div className="min-w-max">Schedule</div>;
+  //   },
+  //   cell: ({ row }) => {
+  //     return (
+  //       <div className="min-w-max">
+  //         {JSON.stringify(row.getValue("schedule"))}
+  //       </div>
+  //     );
+  //   },
+  // },
   {
     accessorKey: "schedule_type",
     header: () => {
@@ -167,7 +172,7 @@ export const columns = (
   {
     accessorKey: "parameters",
     header: () => {
-      return <div className="min-w-max">Parameters</div>;
+      return <div className="min-w-max text-center">Parameters</div>;
     },
     cell: ({ row }) => {
       const length = Object.keys(row.getValue("parameters") ?? {}).length === 0;
@@ -194,12 +199,12 @@ export const columns = (
   {
     accessorKey: "result",
     header: () => {
-      return <div className="min-w-max">Result</div>;
+      return <div className="min-w-max text-center">Result</div>;
     },
     cell: ({ row }) => {
       const length = Object.keys(row.getValue("result") ?? {}).length === 0;
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center justify-center gap-2">
           <button
             disabled={length}
             className="disabled:cursor-not-allowed disabled:opacity-50"

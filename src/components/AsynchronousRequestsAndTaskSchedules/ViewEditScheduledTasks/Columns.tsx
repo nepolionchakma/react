@@ -33,7 +33,7 @@ export const columns = (
       return <div className="min-w-max">User Task Name</div>;
     },
     cell: ({ row }) => {
-      return <div className="min-w-max">{row.getValue("user_task_name")}</div>;
+      return <div className="w-[20rem]">{row.getValue("user_task_name")}</div>;
     },
   },
   {
@@ -41,7 +41,9 @@ export const columns = (
     header: () => {
       return <div className="min-w-max">Task Name</div>;
     },
-    cell: ({ row }) => <div>{row.getValue("task_name")}</div>,
+    cell: ({ row }) => (
+      <div className="min-w-max">{row.getValue("task_name")}</div>
+    ),
   },
   {
     accessorKey: "user_schedule_name",
@@ -50,8 +52,9 @@ export const columns = (
     },
     cell: ({ row }) => {
       const isExpanded = expandedRow === row.id;
+      const user_schedule_name: string = row.getValue("user_schedule_name");
       return (
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 w-[25rem]">
           <button onClick={() => setExpandedRow(isExpanded ? null : row.id)}>
             {isExpanded ? (
               <CircleChevronDown className="w-5 h-5 text-gray-600" />
@@ -59,7 +62,7 @@ export const columns = (
               <CircleChevronRight className="w-5 h-5 text-gray-600" />
             )}
           </button>
-          <span>{row.getValue("user_schedule_name")}</span>
+          <span className="capitalize">{user_schedule_name.toLowerCase()}</span>
         </div>
       );
     },
@@ -71,7 +74,11 @@ export const columns = (
     },
     cell: ({ row }) => {
       const data: string = row.getValue("redbeat_schedule_name");
-      return <div className="break-all">{data === null ? "null" : data}</div>;
+      return (
+        <div className="break-all w-[20rem]">
+          {data === null ? "null" : data}
+        </div>
+      );
     },
   },
   {
@@ -81,18 +88,18 @@ export const columns = (
     },
     cell: ({ row }) => {
       const data: string = JSON.stringify(row.getValue("kwargs"));
-      return <div>{data}</div>;
+      return <div className="min-w-max">{data}</div>;
     },
   },
   {
     accessorKey: "parameters",
     header: () => {
-      return <div className="min-w-max">Parameters</div>;
+      return <div className="min-w-max text-center">Parameters</div>;
     },
     cell: ({ row }) => {
       const length = Object.keys(row.getValue("parameters")).length === 0;
       return (
-        <div className="flex items-center justify-center gap-2">
+        <div className="flex items-center justify-center gap-2 ">
           <button
             disabled={length}
             className="disabled:cursor-not-allowed disabled:opacity-50"
@@ -118,7 +125,11 @@ export const columns = (
     },
     cell: ({ row }) => {
       const data: string = row.getValue("schedule_type");
-      return <div>{data === "" ? "null" : data}</div>;
+      return (
+        <div className="capitalize">
+          {data === "" ? "null" : data.toLowerCase()}
+        </div>
+      );
     },
   },
   {
@@ -128,7 +139,7 @@ export const columns = (
     },
     cell: ({ row }) => {
       const data = row.getValue("schedule");
-      return <div>{JSON.stringify(data)}</div>;
+      return <div className="min-w-max">{JSON.stringify(data)}</div>;
     },
   },
   {
@@ -138,7 +149,7 @@ export const columns = (
     },
     cell: ({ row }) => {
       const args: Array<string> = row.getValue("args");
-      return <div className="break-all">{JSON.stringify(args[0])}</div>;
+      return <div className="break-all w-[30rem]">{JSON.stringify(args)}</div>;
     },
   },
   {
@@ -191,11 +202,20 @@ export const columns = (
   {
     accessorKey: "cancelled_yn",
     header: () => {
-      return <div className="min-w-max">Cancelled</div>;
+      return <div className="min-w-max text-center">Cancelled</div>;
     },
     cell: ({ row }) => {
       const data: string = row.getValue("cancelled_yn");
-      return <div className=" min-w-max">{data} </div>;
+      return (
+        <div className="flex items-center justify-center">
+          <input
+            type="checkbox"
+            checked={data === "Y"}
+            className="cursor-not-allowed"
+            readOnly
+          />
+        </div>
+      );
     },
   },
 ];
