@@ -271,9 +271,6 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       )
   );
 
-  console.log(isChangedAccessGlobalCondition, "hey");
-  console.log(items.length, "hey");
-
   const handleSave = async () => {
     const upsertLogics = items.map((item) => ({
       def_access_model_logic_id: item.def_access_model_logic_id,

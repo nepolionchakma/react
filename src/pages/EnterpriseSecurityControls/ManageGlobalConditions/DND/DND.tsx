@@ -223,7 +223,8 @@ const DND: FC = () => {
       });
     }
   };
-  // console.log(rightWidgets, "right widgets");
+  console.log(rightWidgets, "right widgets");
+
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
     // console.log(active, over, "handleDragEnd");
