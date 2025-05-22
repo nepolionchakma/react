@@ -45,7 +45,7 @@ const DragOverlayComponent: FC<DroppableItemProps> = ({
     setNodeRef,
     transform,
     transition,
-  } = useSortable({ id: item.manage_global_condition_logic_id });
+  } = useSortable({ id: item.def_global_condition_logic_id });
 
   const { deleteLogicAndAttributeData } = useAACContext();
 
@@ -80,7 +80,7 @@ const DragOverlayComponent: FC<DroppableItemProps> = ({
     } finally {
       // delete Data from the array but not database
       const remainingUser = items.filter(
-        (item) => item.manage_global_condition_logic_id !== id
+        (item) => item.def_global_condition_logic_id !== id
       );
       setItems(remainingUser);
       toast({
@@ -151,7 +151,7 @@ const DragOverlayComponent: FC<DroppableItemProps> = ({
                     onClick={() =>
                       handleDelete(
                         item.id,
-                        item.manage_global_condition_logic_id,
+                        item.def_global_condition_logic_id,
                         item.id
                       )
                     }

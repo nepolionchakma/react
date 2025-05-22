@@ -40,8 +40,8 @@ const DND: FC = () => {
   const iniLeftWidget = [
     {
       id: attrMaxId ? attrMaxId + 1 : 1,
-      manage_global_condition_logic_id: attrMaxId ? attrMaxId + 1 : 1,
-      manage_global_condition_id: selectedItem[0].manage_global_condition_id,
+      def_global_condition_logic_id: attrMaxId ? attrMaxId + 1 : 1,
+      def_global_condition_id: selectedItem[0].def_global_condition_id,
       object: "",
       attribute: "",
       condition: "",
@@ -58,11 +58,15 @@ const DND: FC = () => {
     const fetchDataFunc = async () => {
       try {
         const fetchData = await fetchManageGlobalConditionLogics(
-          selectedItem[0].manage_global_condition_id
+          selectedItem[0].def_global_condition_id
         );
 
-        setRightWidgets(fetchData as Extend[]);
-        setOriginalData(fetchData as Extend[]);
+        const sortedData = fetchData?.sort(
+          (a, b) => a.widget_position - b.widget_position
+        );
+
+        setRightWidgets(sortedData as Extend[]);
+        setOriginalData(sortedData as Extend[]);
       } catch (error) {
         console.log(error);
       }
@@ -101,10 +105,10 @@ const DND: FC = () => {
   //DND START
   //Active Item
   const leftWidget = leftWidgets.find(
-    (item) => item.manage_global_condition_logic_id === activeId
+    (item) => item.def_global_condition_logic_id === activeId
   );
   const rightWidget = rightWidgets.find(
-    (item) => item.manage_global_condition_logic_id === activeId
+    (item) => item.def_global_condition_logic_id === activeId
   );
 
   const attrmaxId =
@@ -116,8 +120,8 @@ const DND: FC = () => {
 
   const newItem = {
     id: getId,
-    manage_global_condition_logic_id: getId,
-    manage_global_condition_id: selectedItem[0].manage_global_condition_id,
+    def_global_condition_logic_id: getId,
+    def_global_condition_id: selectedItem[0].def_global_condition_id,
     object: "",
     attribute: "",
     condition: "",
@@ -147,13 +151,11 @@ const DND: FC = () => {
     setActiveId(event.active.id);
   };
   const findContainer = (id: string | number | undefined) => {
-    if (
-      leftWidgets.some((item) => item.manage_global_condition_logic_id === id)
-    ) {
+    if (leftWidgets.some((item) => item.def_global_condition_logic_id === id)) {
       return "left";
     }
     if (
-      rightWidgets.some((item) => item.manage_global_condition_logic_id === id)
+      rightWidgets.some((item) => item.def_global_condition_logic_id === id)
     ) {
       return "right";
     }
@@ -187,7 +189,7 @@ const DND: FC = () => {
     }
 
     const activeIndexInLeft = leftWidgets.findIndex(
-      (item) => item.manage_global_condition_logic_id === activeItemId
+      (item) => item.def_global_condition_logic_id === activeItemId
     );
     // const activeIndexInRight = rightWidgets.findIndex(
     //   (item) => item.manage_global_condition_logic_id === activeItemId
@@ -197,7 +199,7 @@ const DND: FC = () => {
     if (overItemId) {
       // Determine new index for the item being moved
       const overIndexInRight = rightWidgets.findIndex(
-        (item) => item.manage_global_condition_logic_id === overItemId
+        (item) => item.def_global_condition_logic_id === overItemId
       );
       newIndex =
         overIndexInRight === -1 ? rightWidgets.length : overIndexInRight;
@@ -221,7 +223,8 @@ const DND: FC = () => {
       });
     }
   };
-  // console.log(rightWidgets, "right widgets");
+  console.log(rightWidgets, "right widgets");
+
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
     // console.log(active, over, "handleDragEnd");
@@ -231,10 +234,10 @@ const DND: FC = () => {
 
       if (active.data.current?.sortable?.containerId === "right") {
         const oldIndex = rightWidgets.findIndex(
-          (item) => item.manage_global_condition_logic_id === activeItemId
+          (item) => item.def_global_condition_logic_id === activeItemId
         );
         const newIndex = rightWidgets.findIndex(
-          (item) => item.manage_global_condition_logic_id === overItemId
+          (item) => item.def_global_condition_logic_id === overItemId
         );
 
         if (oldIndex !== -1 && newIndex !== -1) {
@@ -261,10 +264,11 @@ const DND: FC = () => {
           ori.widget_state === item.widget_state
       )
   );
+  console.log(rightWidgets, "aafdd");
   const handleSave = async () => {
     const upsertLogics = items.map((item) => ({
-      manage_global_condition_logic_id: item.manage_global_condition_logic_id,
-      manage_global_condition_id: item.manage_global_condition_id,
+      def_global_condition_logic_id: item.def_global_condition_logic_id,
+      def_global_condition_id: item.def_global_condition_id,
       object: item.object,
       attribute: item.attribute,
       condition: item.condition,
@@ -272,18 +276,18 @@ const DND: FC = () => {
     }));
     const upsertAttributes = items.map((item) => ({
       id: item.id,
-      manage_global_condition_logic_id: item.manage_global_condition_logic_id,
+      def_global_condition_logic_id: item.def_global_condition_logic_id,
       widget_position: item.widget_position,
       widget_state: item.widget_state,
     }));
-    // console.log(upsertAttributes, upsertLogics);
+    console.log(upsertAttributes, upsertLogics);
 
     try {
       setIsActionLoading(true);
       if (isChangedAccessGlobalCondition) {
         api
           .put(
-            `/manage-global-conditions/${selectedItem[0].manage_global_condition_id}`,
+            `/def-global-conditions/${selectedItem[0].def_global_condition_id}`,
             changedAccessGlobalCondition
           )
           .then((logicResult) => {
@@ -293,7 +297,7 @@ const DND: FC = () => {
                 description: "Access Global Condition data Save successfully.",
               });
             }
-            // console.log("Logic Result:", logicResult);
+            console.log("Logic Result:", logicResult);
           })
           .catch((error) => {
             console.error("Error occurred:", error);
@@ -303,42 +307,49 @@ const DND: FC = () => {
           });
       }
       if (items.length > 0) {
-        Promise.all([
-          api.post(`/manage-global-condition-logics/upsert`, {
-            upsertLogics,
-          }),
-          api.post(`/manage-global-condition-logic-attributes/upsert`, {
-            upsertAttributes,
-          }),
-        ])
-          .then(([logicResult, attributeResult]) => {
-            if (logicResult.status === 200 && attributeResult.status === 200) {
-              toast({
-                title: "Info !!!",
-                description: "Save data successfully.",
-              });
-            }
-            // console.log("Logic Result:", logicResult);
-            // console.log("Attribute Result:", attributeResult);
-          })
-          .catch((error) => {
-            console.error("Error occurred:", error);
-          })
-          .finally(() => {
-            setIsActionLoading(false);
+        const upsertResult = await api.post(
+          `/def-global-condition-logics/upsert`,
+          upsertLogics
+        );
+
+        if (upsertResult.status !== 200) {
+          throw new Error("Upsert logics failed.");
+        }
+
+        const attributeResult = await api.post(
+          `/def-global-condition-logic-attributes/upsert`,
+
+          upsertAttributes
+        );
+
+        if (attributeResult.status === 200) {
+          toast({
+            title: "Info !!!",
+            description: "Save data successfully.",
           });
+          form.reset({
+            name: selectedItem[0].name ?? "",
+            description: selectedItem[0].description ?? "",
+            datasource: selectedItem[0].datasource ?? "",
+            status: selectedItem[0].status ?? "",
+          });
+
+          setOriginalData([...rightWidgets]);
+        }
       }
     } catch (error) {
       console.error("Error saving data:", error);
+    } finally {
+      setIsActionLoading(false);
     }
   };
   return (
     <div>
-      <div className="flex justify-between sticky top-0 p-2 bg-slate-300  ">
+      <div className="flex justify-between sticky top-0 p-2 bg-slate-300 z-50 overflow-hidden">
         <h2 className="font-bold">Edit Access Global Conditions</h2>
         <div className="flex gap-2 rounded-lg ">
           {isActionLoading ? (
-            <div className="flex items-center bg-green-400 rounded p-1 duration-300 z-50 cursor-not-allowed">
+            <div className="flex items-center bg-slate-400 rounded p-1 duration-300 z-50 cursor-not-allowed">
               <l-ring
                 size="20"
                 stroke="3"
@@ -418,7 +429,7 @@ const DND: FC = () => {
             {activeItem ? (
               <DragOverlayComponent
                 item={activeItem}
-                id={String(activeItem.manage_global_condition_logic_id)}
+                id={String(activeItem.def_global_condition_logic_id)}
                 items={
                   leftWidgets.includes(activeItem) ? leftWidgets : rightWidgets
                 }

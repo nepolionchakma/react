@@ -72,15 +72,15 @@ export interface IManageLocalConditonsType {
   comments: string;
 }
 export interface IManageGlobalConditionTypes {
-  manage_global_condition_id: number;
+  def_global_condition_id: number;
   name: string;
   datasource: string;
   description: string;
   status: string;
 }
 export interface IManageGlobalConditionLogicTypes {
-  manage_global_condition_logic_id: number;
-  manage_global_condition_id: number;
+  def_global_condition_logic_id: number;
+  def_global_condition_id: number;
   object: string;
   attribute: string;
   condition: string;
@@ -88,34 +88,31 @@ export interface IManageGlobalConditionLogicTypes {
 }
 export interface IManageGlobalConditionLogicAttributesTypes {
   id: number;
-  manage_global_condition_logic_id: number;
+  def_global_condition_logic_id: number;
   widget_position: number;
   widget_state: number;
 }
 export interface IManageGlobalConditionLogicExtendTypes
   extends IManageGlobalConditionLogicTypes {
   id: number;
-  manage_global_condition_logic_id: number;
+  def_global_condition_logic_id: number;
   widget_position: number;
   widget_state: number;
 }
 export interface IManageAccessModelsTypes {
-  manage_access_model_id: number;
+  def_access_model_id?: number;
   model_name: string;
   description: string;
   type: string;
   run_status: string;
   state: string;
-  last_run_date: string;
   created_by: string;
   last_updated_by: string;
-  last_updated_date: string;
-  revision: number;
-  revision_date: string;
+  last_run_date?: string;
 }
 export interface IManageAccessModelLogicsTypes {
-  manage_access_model_logic_id: number;
-  manage_access_model_id: number;
+  def_access_model_logic_id: number;
+  def_access_model_id: number;
   filter: string;
   object: string;
   attribute: string;
@@ -125,7 +122,7 @@ export interface IManageAccessModelLogicsTypes {
 
 export interface IManageAccessModelLogicAttributesTypes {
   id: number;
-  manage_access_model_logic_id: number;
+  def_access_model_logic_id: number;
   widget_position: number;
   widget_state: number;
 }
@@ -133,7 +130,7 @@ export interface IManageAccessModelLogicAttributesTypes {
 export interface IManageAccessModelLogicExtendTypes
   extends IManageAccessModelLogicsTypes {
   id: number;
-  manage_access_model_logic_id: number;
+  def_access_model_logic_id: number;
   widget_position: number;
   widget_state: number;
 }

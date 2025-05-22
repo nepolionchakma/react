@@ -45,7 +45,7 @@ const DragOverlayComponent: FC<DroppableItemProps> = ({
     setNodeRef,
     transform,
     transition,
-  } = useSortable({ id: item.manage_access_model_logic_id });
+  } = useSortable({ id: item.def_access_model_logic_id });
 
   const { deleteLogicAndAttributeData } = useAACContext();
 
@@ -80,7 +80,7 @@ const DragOverlayComponent: FC<DroppableItemProps> = ({
     } finally {
       // delete Data from the array but not database
       const remainingUser = items.filter(
-        (item) => item.manage_access_model_logic_id !== id
+        (item) => item.def_access_model_logic_id !== id
       );
       setItems(remainingUser);
       toast({
@@ -141,7 +141,8 @@ const DragOverlayComponent: FC<DroppableItemProps> = ({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Really Want To Delete ?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete from database and remove your data from our servers.
+                    This action cannot be undone. This will permanently delete
+                    from database and remove your data from our servers.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -150,7 +151,7 @@ const DragOverlayComponent: FC<DroppableItemProps> = ({
                     onClick={() =>
                       handleDelete(
                         item.id,
-                        item.manage_access_model_logic_id,
+                        item.def_access_model_logic_id,
                         item.id
                       )
                     }

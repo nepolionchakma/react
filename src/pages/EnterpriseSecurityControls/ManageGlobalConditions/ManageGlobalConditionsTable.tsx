@@ -52,7 +52,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import Pagination from "@/components/Pagination/Pagination";
 import {
   IManageGlobalConditionLogicExtendTypes,
   IManageGlobalConditionTypes,
@@ -60,6 +59,7 @@ import {
 
 import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
 import { useEffect, useState } from "react";
+import Pagination5 from "@/components/Pagination/Pagination5";
 
 const ManageGlobalConditionsTable = () => {
   const {
@@ -67,7 +67,9 @@ const ManageGlobalConditionsTable = () => {
     stateChange,
     setIsEditModalOpen,
     setIsOpenManageGlobalConditionModal,
-    fetchManageGlobalConditions,
+    // fetchManageGlobalConditions,
+    totalPage,
+    getGlobalConditions,
     manageGlobalConditions: data,
     selectedManageGlobalConditionItem,
     setSelectedManageGlobalConditionItem,
@@ -77,15 +79,17 @@ const ManageGlobalConditionsTable = () => {
     deleteManageGlobalCondition,
     deleteLogicAndAttributeData,
   } = useAACContext();
-  // const [save, setSave] = useState<number>(0);
+  const [page, setPage] = useState<number>(1);
+  const limit = 5;
   // Fetch Data
   useEffect(() => {
-    fetchManageGlobalConditions();
+    getGlobalConditions(page, limit);
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
     setSelectedManageGlobalConditionItem([]);
-  }, [stateChange]);
+  }, [page, stateChange]);
   // loader
   tailspin.register();
+
   // Shadcn Form
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -201,15 +205,16 @@ const ManageGlobalConditionsTable = () => {
   // handle delete Calculate
   const handleDeleteCalculate = async () => {
     const res = await manageGlobalConditionDeleteCalculate(
-      selectedManageGlobalConditionItem[0].manage_global_condition_id
+      selectedManageGlobalConditionItem[0].def_global_condition_id
     );
     setWillBeDelete(res as IManageGlobalConditionLogicExtendTypes[]);
   };
+
   const handleDelete = async () => {
     await Promise.all(
       await willBeDelete.map(async (item) => {
         const res = await deleteLogicAndAttributeData(
-          item.manage_global_condition_logic_id,
+          item.def_global_condition_logic_id,
           item.id
         );
         console.log(res, item);
@@ -222,7 +227,7 @@ const ManageGlobalConditionsTable = () => {
     //   );
     // }
     await deleteManageGlobalCondition(
-      selectedManageGlobalConditionItem[0].manage_global_condition_id
+      selectedManageGlobalConditionItem[0].def_global_condition_id
     );
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
     setSelectedManageGlobalConditionItem([]);
@@ -232,7 +237,7 @@ const ManageGlobalConditionsTable = () => {
   const handleEditClick = async () => {
     setIsEditModalOpen(true);
     const fetchData = await fetchManageGlobalConditionLogics(
-      selectedManageGlobalConditionItem[0].manage_global_condition_id
+      selectedManageGlobalConditionItem[0].def_global_condition_id
     );
     setManageGlobalConditionTopicData(fetchData ?? []);
   };
@@ -449,9 +454,19 @@ const ManageGlobalConditionsTable = () => {
             )}
           </TableBody>
         </Table>
-        <Pagination table={table} />
+        {/* Pagination and Status */}
+        <div className="flex justify-between p-1">
+          <div className="flex-1 text-sm text-gray-600">
+            {table.getFilteredSelectedRowModel().rows.length} of{" "}
+            {table.getFilteredRowModel().rows.length} row(s) selected.
+          </div>
+          <Pagination5
+            currentPage={page}
+            setCurrentPage={setPage}
+            totalPageNumbers={totalPage as number}
+          />
+        </div>
       </div>
-      {/* Start Pagination */}
     </div>
   );
 };

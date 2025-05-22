@@ -32,24 +32,27 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   setOpenEditModal,
   isOpenEditModal,
 }) => {
-  const api=useAxiosPrivate()
+  const api = useAxiosPrivate();
   const {
     isLoading,
     selectedAccessModelItem: selectedItem,
-    fetchManageAccessModelLogics,
-    manageAccessModelAttrMaxId,
+    fetchDefAccessModelLogics,
+    // accessModelLogicAttributes,
+    // maxLogicId,
+    maxAccModelAttrId,
     isActionLoading,
     setIsActionLoading,
     setStateChange,
   } = useAACContext();
 
+  const [rightWidgets, setRightWidgets] = useState<Extend[]>([]);
+  const [originalData, setOriginalData] = useState<Extend[]>([]);
+  const [activeId, setActiveId] = useState<number | null>(null);
   const iniLeftWidget = [
     {
-      id: manageAccessModelAttrMaxId ? manageAccessModelAttrMaxId + 1 : 1,
-      manage_access_model_logic_id: manageAccessModelAttrMaxId
-        ? manageAccessModelAttrMaxId + 1
-        : 1,
-      manage_access_model_id: selectedItem[0].manage_access_model_id,
+      id: maxAccModelAttrId ? maxAccModelAttrId + 1 : 1,
+      def_access_model_logic_id: maxAccModelAttrId ? maxAccModelAttrId + 1 : 1,
+      def_access_model_id: selectedItem[0].def_access_model_id ?? 0,
       filter: "",
       object: "",
       attribute: "",
@@ -59,19 +62,19 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       widget_state: 0,
     },
   ];
-  const [rightWidgets, setRightWidgets] = useState<Extend[]>([]);
   const [leftWidgets, setLeftWidgets] = useState<Extend[]>(iniLeftWidget);
-  const [originalData, setOriginalData] = useState<Extend[]>([]);
-  const [activeId, setActiveId] = useState<number | null>(null);
+
   useEffect(() => {
     const fetchDataFunc = async () => {
       try {
-        const fetchData = await fetchManageAccessModelLogics(
-          selectedItem[0].manage_access_model_id
+        const fetchData = await fetchDefAccessModelLogics(
+          selectedItem[0]?.def_access_model_id ?? 0
         );
-
-        setRightWidgets(fetchData as Extend[]);
-        setOriginalData(fetchData as Extend[]);
+        const sortedData = fetchData?.sort(
+          (a, b) => a.widget_position - b.widget_position
+        );
+        setRightWidgets(sortedData as Extend[]);
+        setOriginalData(sortedData as Extend[]);
       } catch (error) {
         console.log(error);
       }
@@ -83,6 +86,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   const FormSchema = z.object({
     model_name: z.string(),
     description: z.string(),
+    state: z.string(),
     // datasource: z.string(),
   });
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -91,7 +95,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       model_name: selectedItem[0].model_name ?? "",
       description: selectedItem[0].description ?? "",
       // datasource: selectedItem[0].  ?? "",
-      // status: selectedItem[0].status ?? "",
+      state: selectedItem[0].state ?? "",
     },
   });
   //changed Access GlobalCondition Value
@@ -100,30 +104,28 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     selectedItem[0].model_name !== changedAccessGlobalCondition.model_name ||
     selectedItem[0].description !== changedAccessGlobalCondition.description ||
     // selectedItem[0].datasource !== changedAccessGlobalCondition.datasource ||
-    // selectedItem[0].status !== changedAccessGlobalCondition.status;
-    //Top Form END
-    ring.register(); // Default values shown
+    selectedItem[0].state !== changedAccessGlobalCondition.state;
+  //Top Form END
+  ring.register(); // Default values shown
 
   //DND START
   //Active Item
   const leftWidget = leftWidgets.find(
-    (item) => item.manage_access_model_logic_id === activeId
+    (item) => item.def_access_model_logic_id === activeId
   );
   const rightWidget = rightWidgets.find(
-    (item) => item.manage_access_model_logic_id === activeId
+    (item) => item.def_access_model_logic_id === activeId
   );
 
   const attrmaxId =
     rightWidgets.length > 0
       ? Math.max(...rightWidgets.map((item) => item.id))
       : 0;
-
   const getId = rightWidgets.length > 0 ? attrmaxId + 1 : 1;
-
   const newItem = {
     id: getId,
-    manage_access_model_logic_id: getId,
-    manage_access_model_id: selectedItem[0].manage_access_model_id,
+    def_access_model_logic_id: getId,
+    def_access_model_id: selectedItem[0].def_access_model_id ?? 0,
     filter: "",
     object: "",
     attribute: "",
@@ -154,14 +156,15 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     setActiveId(event.active.id as number);
   };
   const findContainer = (id: string | number | undefined) => {
-    if (leftWidgets.some((item) => item.manage_access_model_logic_id === id)) {
+    if (leftWidgets.some((item) => item.def_access_model_logic_id === id)) {
       return "left";
     }
-    if (rightWidgets.some((item) => item.manage_access_model_logic_id === id)) {
+    if (rightWidgets.some((item) => item.def_access_model_logic_id === id)) {
       return "right";
     }
     return id; // important for find Container where DND item
   };
+
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
     // console.log(active, over, "handleDragOver");
@@ -190,7 +193,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     }
 
     const activeIndexInLeft = leftWidgets.findIndex(
-      (item) => item.manage_access_model_logic_id === activeItemId
+      (item) => item.def_access_model_logic_id === activeItemId
     );
     // const activeIndexInRight = rightWidgets.findIndex(
     //   (item) => item.manage_access_model_logic_id === activeItemId
@@ -200,7 +203,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     if (overItemId) {
       // Determine new index for the item being moved
       const overIndexInRight = rightWidgets.findIndex(
-        (item) => item.manage_access_model_logic_id === overItemId
+        (item) => item.def_access_model_logic_id === overItemId
       );
       newIndex =
         overIndexInRight === -1 ? rightWidgets.length : overIndexInRight;
@@ -224,9 +227,11 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       });
     }
   };
+
   // console.log(rightWidgets, "right widgets");
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    if (!over) return;
     // console.log(active, over, "handleDragEnd");
     if (over) {
       const activeItemId = active.id;
@@ -234,10 +239,10 @@ const DND: FC<IManageAccessModelDNDProps> = ({
 
       if (active.data.current?.sortable?.containerId === "right") {
         const oldIndex = rightWidgets.findIndex(
-          (item) => item.manage_access_model_logic_id === activeItemId
+          (item) => item.def_access_model_logic_id === activeItemId
         );
         const newIndex = rightWidgets.findIndex(
-          (item) => item.manage_access_model_logic_id === overItemId
+          (item) => item.def_access_model_logic_id === overItemId
         );
 
         if (oldIndex !== -1 && newIndex !== -1) {
@@ -265,30 +270,34 @@ const DND: FC<IManageAccessModelDNDProps> = ({
           ori.widget_state === item.widget_state
       )
   );
+
   const handleSave = async () => {
     const upsertLogics = items.map((item) => ({
-      manage_access_model_logic_id: item.manage_access_model_logic_id,
-      manage_access_model_id: item.manage_access_model_id,
+      def_access_model_logic_id: item.def_access_model_logic_id,
+      def_access_model_id: item.def_access_model_id,
       filter: item.filter,
       object: item.object,
       attribute: item.attribute,
       condition: item.condition,
       value: item.value,
     }));
+
     const upsertAttributes = items.map((item) => ({
       id: item.id,
-      manage_access_model_logic_id: item.manage_access_model_logic_id,
+      def_access_model_logic_id: item.def_access_model_logic_id,
       widget_position: item.widget_position,
       widget_state: item.widget_state,
     }));
-    // console.log(upsertAttributes, upsertLogics);
+
+    console.log(upsertAttributes, "attr 356");
+    console.log(upsertLogics, "logic 357");
 
     try {
       setIsActionLoading(true);
       if (isChangedAccessGlobalCondition) {
         api
           .put(
-            `/manage-access-models/${selectedItem[0].manage_access_model_id}`,
+            `/def-access-models/${selectedItem[0].def_access_model_id}`,
             changedAccessGlobalCondition
           )
           .then((logicResult) => {
@@ -315,14 +324,14 @@ const DND: FC<IManageAccessModelDNDProps> = ({
             setIsActionLoading(false);
           });
       }
+      // setItems([]);
       if (items.length > 0) {
         Promise.all([
-          api.post(`/manage-access-model-logics/upsert`, {
-            upsertLogics,
-          }),
-          api.post(`/manage-access-model-logic-attributes/upsert`, {
-            upsertAttributes,
-          }),
+          api.post(`/def-access-model-logics/upsert`, upsertLogics),
+          api.post(
+            `/def-access-model-logic-attributes/upsert`,
+            upsertAttributes
+          ),
         ])
           .then(([logicResult, attributeResult]) => {
             if (logicResult.status === 200 && attributeResult.status === 200) {
@@ -330,6 +339,13 @@ const DND: FC<IManageAccessModelDNDProps> = ({
                 title: "Info !!!",
                 description: "Save data successfully.",
               });
+              form.reset({
+                model_name: selectedItem[0].model_name ?? "",
+                description: selectedItem[0].description ?? "",
+                state: selectedItem[0].state ?? "",
+              });
+
+              setOriginalData([...rightWidgets]);
             }
             // console.log("Logic Result:", logicResult);
             // console.log("Attribute Result:", attributeResult);
@@ -349,7 +365,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   return (
     <div>
       <div className="flex justify-between sticky top-0 p-2 bg-slate-300 z-50 overflow-hidden">
-        <h2 className="font-bold">Edit Access Global Conditions</h2>
+        <h2 className="font-bold">Edit Access Model</h2>
         <div className="flex gap-2 rounded-lg ">
           {isActionLoading ? (
             <div className="flex items-center bg-slate-400 rounded p-1 duration-300 z-50 cursor-not-allowed">
@@ -369,7 +385,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
                   : undefined
               }
               size={30}
-              className={`rounded p-1 duration-300 z-50 ${
+              className={` bg-slate-400 rounded p-1 duration-300 z-50 ${
                 items.length > 0 || isChangedAccessGlobalCondition
                   ? "bg-slate-300 hover:text-white hover:bg-slate-500 hover:scale-110 cursor-pointer"
                   : "opacity-40 cursor-not-allowed"
@@ -432,7 +448,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
             {activeItem ? (
               <DragOverlayComponent
                 item={activeItem}
-                id={String(activeItem.manage_access_model_logic_id)}
+                id={String(activeItem.def_access_model_logic_id)}
                 items={
                   leftWidgets.includes(activeItem) ? leftWidgets : rightWidgets
                 }

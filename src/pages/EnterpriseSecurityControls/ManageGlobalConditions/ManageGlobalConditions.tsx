@@ -21,7 +21,7 @@ const ManageGlobalConditions = () => {
         {isEditModalOpen && (
           <CustomModal1>
             {/* Card start */}
-            <div className="h-full overflow-y-auto">
+            <div className="h-full">
               <DND />
             </div>
           </CustomModal1>

@@ -35,6 +35,7 @@ interface IAACContextTypes {
   isOpenManageGlobalConditionModal: boolean;
   setIsOpenManageGlobalConditionModal: Dispatch<SetStateAction<boolean>>;
   fetchManageGlobalConditions: () => Promise<void>;
+  getGlobalConditions: (page: number, limit: number) => Promise<void>;
   manageGlobalConditions: IManageGlobalConditionTypes[];
   selectedManageGlobalConditionItem: IManageGlobalConditionTypes[];
   setSelectedManageGlobalConditionItem: Dispatch<
@@ -61,23 +62,30 @@ interface IAACContextTypes {
     logicId: number,
     attrId: number
   ) => Promise<number | undefined>;
+  deleteGlobalLogicAndAttributeData: (
+    logicId: number,
+    attrId: number
+  ) => Promise<200 | undefined>;
 
-  fetchManageAccessModels: () => Promise<
+  fetchDefAccessModels: () => Promise<
     IManageAccessModelsTypes[] | [] | undefined
   >;
+  fetchAccessModelAttributes: () => Promise<void>;
+  accessModelLogicAttributes: IManageAccessModelLogicAttributesTypes[];
   manageAccessModels: IManageAccessModelsTypes[] | [];
   selectedAccessModelItem: IManageAccessModelsTypes[];
   setSelectedAccessModelItem: Dispatch<
     SetStateAction<IManageAccessModelsTypes[]>
   >;
-  createManageAccessModel: (
-    postData: IManageAccessModelsTypes
-  ) => Promise<void>;
-  deleteManageAccessModel: (items: IManageAccessModelsTypes[]) => Promise<void>;
-  fetchManageAccessModelLogics: (
+  createDefAccessModel: (postData: IManageAccessModelsTypes) => Promise<void>;
+  deleteDefAccessModel: (items: IManageAccessModelsTypes[]) => Promise<void>;
+  fetchAccessModelLogics: () => Promise<void>;
+  fetchDefAccessModelLogics: (
     filterId: number
   ) => Promise<IManageAccessModelLogicExtendTypes[] | undefined>;
   manageAccessModelAttrMaxId: number | undefined;
+  maxLogicId: number | undefined;
+  maxAccModelAttrId: number;
   manageAccessModelLogicsDeleteCalculate: (
     id: number
   ) => Promise<IManageAccessModelLogicExtendTypes[] | [] | undefined>;
@@ -90,6 +98,13 @@ interface IAACContextTypes {
   setDeleteAndSaveState: Dispatch<SetStateAction<number>>;
   fetchDataSource: () => Promise<void>;
   dataSources: IDataSourceTypes[];
+  page: number;
+  setPage: Dispatch<React.SetStateAction<number>>;
+  totalPage: number;
+  setTotalPage: Dispatch<React.SetStateAction<number>>;
+  currentPage: number;
+  limit: number;
+  setLimit: Dispatch<React.SetStateAction<number>>;
 }
 export const AACContext = createContext<IAACContextTypes | null>(null);
 
@@ -132,13 +147,22 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   >([]);
   const [deleteAndSaveState, setDeleteAndSaveState] = useState<number>(0);
   const [dataSources, setDataSources] = useState<IDataSourceTypes[]>([]);
+  const [maxAccModelAttrId, setMaxAccModelAttrId] = useState<number>(0);
+  const [accessModelLogicAttributes, setAccessModelLogicAttributes] = useState<
+    IManageAccessModelLogicAttributesTypes[]
+  >([]);
+  const [maxLogicId, setMaxLogicId] = useState<number>();
+  const [page, setPage] = useState<number>(1);
+  const [limit, setLimit] = useState<number>(5);
+  const [totalPage, setTotalPage] = useState<number>(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
 
   useEffect(() => {
     const maxId = async () => {
       if (token?.user_id === 0) return;
       const [resGlobalCondition, resManageAccessModel] = await Promise.all([
-        api.get(`/manage-global-condition-logic-attributes`),
-        api.get(`/manage-access-model-logic-attributes`),
+        api.get(`/def-global-condition-logic-attributes`),
+        api.get(`/def-access-model-logic-attributes`),
       ]);
       const maxIdGlobalCondition = Math.max(
         ...resGlobalCondition.data.map(
@@ -151,6 +175,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         )
       );
       if (resGlobalCondition.data.length > 0) {
+        console.log(maxIdGlobalCondition, "maxId");
         setGlobalConditionAttrMaxId(maxIdGlobalCondition);
       } else {
         setGlobalConditionAttrMaxId(0);
@@ -162,14 +187,49 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       }
     };
     maxId();
-  }, [isActionLoading, stateChange]);
+  }, [api, token?.user_id]);
 
-  // Manage Global Conditions
+  useEffect(() => {
+    const maxLogicId = async () => {
+      const result = await api.get("/def-access-model-logics");
+      if (result && result.data > 0) {
+        const maxAccessLogicId = Math.max(
+          ...result.data.map(
+            (data: IManageAccessModelLogicsTypes) =>
+              data.def_access_model_logic_id
+          )
+        );
+        setMaxLogicId(maxAccessLogicId);
+      } else {
+        setMaxLogicId(0);
+      }
+    };
+    maxLogicId();
+  }, []);
+
+  useEffect(() => {
+    const maxAttrId = async () => {
+      const result = await api.get("/def-access-model-logic-attributes");
+      if (result && result.data.length > 0) {
+        const maxAccessAttrId = Math.max(
+          ...result.data.map(
+            (data: IManageAccessModelLogicAttributesTypes) => data.id
+          )
+        );
+        setMaxAccModelAttrId(maxAccessAttrId);
+      } else {
+        setMaxAccModelAttrId(0);
+      }
+    };
+    maxAttrId();
+  }, []);
+
+  // def Global Conditions
   const fetchManageGlobalConditions = async () => {
     try {
       setIsLoading(true);
       const response = await api.get<IManageGlobalConditionTypes[]>(
-        `/manage-global-conditions`
+        `/def-global-conditions`
       );
       if (response) {
         return setManageGlobalConditions(response.data ?? []);
@@ -180,21 +240,31 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       setIsLoading(false);
     }
   };
+
+  const getGlobalConditions = async (page: number, limit: number) => {
+    try {
+      setIsLoading(true);
+      const resultLazyLoading = await api.get(
+        `/def-global-conditions/${page}/${limit}`
+      );
+      setManageGlobalConditions(resultLazyLoading.data.results);
+      setTotalPage(resultLazyLoading.data.totalPages);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const createManageGlobalCondition = async (
     postData: IManageGlobalConditionTypes
   ) => {
     try {
       setIsLoading(true);
-      const {
-        manage_global_condition_id,
-        name,
-        description,
-        datasource,
-        status,
-      } = postData;
+      const { name, datasource, description, status } = postData;
       const res = await api.post<IManageGlobalConditionTypes>(
-        `/manage-global-conditions`,
-        { manage_global_condition_id, name, description, datasource, status }
+        `/def-global-conditions`,
+        { name, datasource, description, status }
       );
       if (res.status === 201) {
         setStateChange((prev) => prev + 1);
@@ -219,24 +289,24 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       setIsLoading(true);
       const [logicsRes, attributesRes] = await Promise.all([
         api.get<IManageGlobalConditionLogicTypes[]>(
-          `/manage-global-condition-logics`
+          `/def-global-condition-logics`
         ),
         api.get<IManageGlobalConditionLogicAttributesTypes[]>(
-          `/manage-global-condition-logic-attributes`
+          `/def-global-condition-logic-attributes`
         ),
       ]);
       const attributesMap = new Map(
         attributesRes.data.map((attr) => [
-          attr.manage_global_condition_logic_id,
+          attr.def_global_condition_logic_id,
           attr,
         ])
       );
       const mergedData = logicsRes.data.map((item) => ({
         ...item,
-        ...(attributesMap.get(item.manage_global_condition_logic_id) || {}),
+        ...(attributesMap.get(item.def_global_condition_logic_id) || {}),
       }));
       const filteredData = mergedData.filter(
-        (item) => item.manage_global_condition_id === filterId
+        (item) => item.def_global_condition_id === filterId
       );
       // return (filteredData as IManageGlobalConditionLogicExtendTypes[]) ?? [];
       if (filteredData) {
@@ -258,7 +328,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   };
   const deleteManageGlobalCondition = async (id: number) => {
     api
-      .delete(`/manage-global-conditions/${id}`)
+      .delete(`/def-global-conditions/${id}`)
       .then((res) => {
         if (res.status === 200) {
           toast({
@@ -279,8 +349,24 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   ) => {
     try {
       const [isExistLogicId, isExistAttrId] = await Promise.all([
-        api.delete(`/manage-access-model-logics/${logicId}`),
-        api.delete(`/manage-access-model-logic-attributes/${attrId}`),
+        api.delete(`/def-access-model-logics/${logicId}`),
+        api.delete(`/def-access-model-logic-attributes/${attrId}`),
+      ]);
+      if (isExistLogicId.status === 200 && isExistAttrId.status === 200) {
+        return isExistLogicId.status;
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  const deleteGlobalLogicAndAttributeData = async (
+    logicId: number,
+    attrId: number
+  ) => {
+    try {
+      const [isExistLogicId, isExistAttrId] = await Promise.all([
+        api.delete(`/def-global-condition-logics/${logicId}`),
+        api.delete(`/def-global-condition-logic-attributes/${attrId}`),
       ]);
       if (isExistLogicId.status === 200 && isExistAttrId.status === 200) {
         return isExistLogicId.status;
@@ -290,15 +376,34 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     }
   };
 
-  // Manage Access Models
-  const fetchManageAccessModels = async () => {
+  // fetch Access Models
+  const fetchDefAccessModels = async () => {
     try {
       setIsLoading(true);
       const response = await api.get<IManageAccessModelsTypes[]>(
-        `/manage-access-models`
+        `/def-access-models`
       );
       if (response) {
-        setManageAccessModels(response.data ?? []);
+        const totalCount = response.data.length;
+        const totalPages = Math.ceil(totalCount / limit);
+
+        const startIndex = (page - 1) * limit;
+        const paginatedData = response.data.slice(
+          startIndex,
+          startIndex + limit
+        );
+        setTotalPage(totalPages);
+        setCurrentPage(page);
+        const formattedData = paginatedData.map((data) => {
+          const [day, month, year] = (data?.last_run_date ?? "01-01-1970")
+            .split(" ")[0]
+            .split("-");
+
+          const formatteDate = `${year}-${month}-${day}`;
+          return { ...data, last_run_date: formatteDate };
+        });
+        setManageAccessModels(formattedData);
+
         return response.data ?? [];
       }
     } catch (error) {
@@ -307,9 +412,9 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       setIsLoading(false);
     }
   };
-  const createManageAccessModel = async (
-    postData: IManageAccessModelsTypes
-  ) => {
+
+  // Create Acces Model
+  const createDefAccessModel = async (postData: IManageAccessModelsTypes) => {
     try {
       setIsLoading(true);
       const {
@@ -318,25 +423,17 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         type,
         state,
         run_status,
-        last_run_date,
         created_by,
         last_updated_by,
-        last_updated_date,
-        revision,
-        revision_date,
       } = postData;
-      const res = await api.post(`/manage-access-models`, {
+      const res = await api.post(`/def-access-models`, {
         model_name,
         description,
         type,
         state,
         run_status,
-        last_run_date,
         created_by,
         last_updated_by,
-        last_updated_date,
-        revision,
-        revision_date,
       });
       if (res.status === 201) {
         setStateChange((prev) => prev + 1);
@@ -354,11 +451,13 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       setIsLoading(false);
     }
   };
-  const deleteManageAccessModel = async (items: IManageAccessModelsTypes[]) => {
+
+  // delete Access Model
+  const deleteDefAccessModel = async (items: IManageAccessModelsTypes[]) => {
     for (const item of items) {
-      const { manage_access_model_id: id } = item;
+      const { def_access_model_id: id } = item;
       api
-        .delete(`/manage-access-models/${id}`)
+        .delete(`/def-access-models/${id}`)
         .then((res) => {
           if (res.status === 200) {
             toast({
@@ -375,28 +474,43 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     }
   };
 
+  // fetch access model logics
+  const fetchAccessModelLogics = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.get<IManageAccessModelLogicsTypes[]>(
+        `/def-access-model-logics`
+      );
+      const maxId = Math.max(
+        ...response.data.map((data) => data.def_access_model_logic_id)
+      );
+      setMaxLogicId(maxId);
+      console.log(maxId, "context");
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   // Manage Access Model Logics
-  const fetchManageAccessModelLogics = async (filterId: number) => {
+  const fetchDefAccessModelLogics = async (filterId: number) => {
     try {
       setIsLoading(true);
       const [logicsRes, attributesRes] = await Promise.all([
-        api.get<IManageAccessModelLogicsTypes[]>(`/manage-access-model-logics`),
+        api.get<IManageAccessModelLogicsTypes[]>(`/def-access-model-logics`),
         api.get<IManageAccessModelLogicAttributesTypes[]>(
-          `/manage-access-model-logic-attributes`
+          `/def-access-model-logic-attributes`
         ),
       ]);
       const attributesMap = new Map(
-        attributesRes.data.map((attr) => [
-          attr.manage_access_model_logic_id,
-          attr,
-        ])
+        attributesRes.data.map((attr) => [attr.def_access_model_logic_id, attr])
       );
       const mergedData = logicsRes.data.map((item) => ({
         ...item,
-        ...(attributesMap.get(item.manage_access_model_logic_id) || {}),
+        ...(attributesMap.get(item.def_access_model_logic_id) || {}),
       }));
       const filteredData = mergedData.filter(
-        (item) => item.manage_access_model_id === filterId
+        (item) => item.def_access_model_id === filterId
       );
       // return (filteredData as IManageGlobalConditionLogicExtendTypes[]) ?? [];
       if (filteredData) {
@@ -410,7 +524,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   };
   const manageAccessModelLogicsDeleteCalculate = async (id: number) => {
     try {
-      const result = await fetchManageAccessModelLogics(id);
+      const result = await fetchDefAccessModelLogics(id);
       return result ?? [];
     } catch (error) {
       console.log(error);
@@ -433,9 +547,24 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     }
   };
 
+  // fetch access model attribute
+  const fetchAccessModelAttributes = async () => {
+    try {
+      setIsLoading(true);
+      const response = await api.get<IManageAccessModelLogicAttributesTypes[]>(
+        `/def-access-model-logic-attributes`
+      );
+      setAccessModelLogicAttributes(response.data);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Search Filter
   const searchFilter = async (data: IManageAccessModelSearchFilterTypes) => {
-    const allAccessModel = await fetchManageAccessModels();
+    const allAccessModel = await fetchDefAccessModels();
 
     const filterResult = allAccessModel?.filter((item) => {
       setIsLoading(true);
@@ -451,10 +580,10 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         item.state.toLowerCase().includes(data.state.toLowerCase());
       const matchesDate =
         data.last_run_date.length === 0 ||
-        item.last_run_date.includes(data.last_run_date);
-      // console.log(matchesModelName);
-      // console.log(matchesDate);
-      setIsLoading(false);
+        // item.last_run_date.includes(data.last_run_date);
+        // console.log(matchesModelName);
+        // console.log(matchesDate);
+        setIsLoading(false);
       // Return true only if all conditions are met
       return (
         matchesModelName && matchesCreatedBy && matchesState && matchesDate
@@ -484,6 +613,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     isOpenManageGlobalConditionModal,
     setIsOpenManageGlobalConditionModal,
     fetchManageGlobalConditions,
+    getGlobalConditions,
     manageGlobalConditions,
     selectedManageGlobalConditionItem,
     setSelectedManageGlobalConditionItem,
@@ -497,14 +627,20 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     manageGlobalConditionDeleteCalculate,
     deleteManageGlobalCondition,
     deleteLogicAndAttributeData,
+    deleteGlobalLogicAndAttributeData,
     manageAccessModels,
-    fetchManageAccessModels,
+    fetchDefAccessModels,
     selectedAccessModelItem,
     setSelectedAccessModelItem,
-    createManageAccessModel,
-    deleteManageAccessModel,
-    fetchManageAccessModelLogics,
+    createDefAccessModel,
+    deleteDefAccessModel,
+    fetchAccessModelLogics,
+    fetchDefAccessModelLogics,
+    fetchAccessModelAttributes,
+    accessModelLogicAttributes,
     manageAccessModelAttrMaxId,
+    maxLogicId,
+    maxAccModelAttrId,
     manageAccessModelLogicsDeleteCalculate,
     deleteManageModelLogicAndAttributeData,
     searchFilter,
@@ -512,6 +648,13 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     setDeleteAndSaveState,
     fetchDataSource,
     dataSources,
+    page,
+    setPage,
+    totalPage,
+    setTotalPage,
+    currentPage,
+    limit,
+    setLimit,
   };
   return (
     <AACContext.Provider value={value}>

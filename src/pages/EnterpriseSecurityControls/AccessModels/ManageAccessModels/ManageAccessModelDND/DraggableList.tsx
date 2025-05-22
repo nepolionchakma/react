@@ -15,14 +15,14 @@ const DraggableList: FC<IDraggableListProps> = ({ id, items }) => {
   return (
     <SortableContext
       id={id}
-      items={items.map((widget) => widget.manage_access_model_logic_id)}
+      items={items.map((widget) => widget.def_access_model_logic_id)}
       strategy={verticalListSortingStrategy}
     >
       <div className="p-4 border rounded-lg">
         {items.map((item) => (
           <DraggableItem
-            key={item.manage_access_model_logic_id}
-            id={item.manage_access_model_logic_id.toString()}
+            key={item.def_access_model_logic_id}
+            id={item.def_access_model_logic_id.toString()}
             item={item}
           />
         ))}
@@ -44,7 +44,7 @@ const DraggableItem: React.FC<DraggableItemProps> = ({ item }) => {
     setNodeRef,
     transform,
     transition,
-  } = useSortable({ id: item.manage_access_model_logic_id });
+  } = useSortable({ id: item.def_access_model_logic_id });
 
   const style: CSSProperties = {
     opacity: isDragging ? 0.4 : undefined,
@@ -62,7 +62,7 @@ const DraggableItem: React.FC<DraggableItemProps> = ({ item }) => {
       className="bg-gray-300 shadow-lg border border-sky-500 rounded-lg cursor-pointer shadow-slate-400 hover:shadow-sky-500 hover:shadow-lg hover:duration-500"
     >
       <div className="flex justify-between bg-sky-500 rounded-t-lg py-1 px-2 items-center text-white">
-        {item.manage_access_model_logic_id}
+        {item.def_access_model_logic_id}
       </div>
       <div className="p-3">
         <input
@@ -70,8 +70,8 @@ const DraggableItem: React.FC<DraggableItemProps> = ({ item }) => {
           autoComplete="on"
           type="text"
           className="rounded-lg w-full"
-          id={String(item.manage_access_model_logic_id)}
-          name={String(item.manage_access_model_logic_id)}
+          id={String(item.def_access_model_logic_id)}
+          name={String(item.def_access_model_logic_id)}
         />
       </div>
     </div>

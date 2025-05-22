@@ -40,7 +40,7 @@ const DroppableList: FC<DroppableListProps> = ({
   return (
     <SortableContext
       id={id}
-      items={items.map((item) => item.manage_access_model_logic_id)}
+      items={items.map((item) => item.def_access_model_logic_id)}
       strategy={verticalListSortingStrategy}
     >
       <div
@@ -53,9 +53,9 @@ const DroppableList: FC<DroppableListProps> = ({
           </p>
         )}
         {items.map((item, index) => (
-          <div key={item.manage_access_model_logic_id}>
+          <div key={item.def_access_model_logic_id}>
             <DroppableItem
-              id={item.manage_access_model_logic_id.toString()}
+              id={item.def_access_model_logic_id.toString()}
               item={item}
               items={items}
               originalData={originalData}
@@ -64,7 +64,7 @@ const DroppableList: FC<DroppableListProps> = ({
             />
             {/* Arrow Down Icon */}
             {items.map((item) => (
-              <div key={item.manage_access_model_logic_id}>
+              <div key={item.def_access_model_logic_id}>
                 <div className="w-3 mt-4 mx-auto"></div>
               </div>
             ))}
@@ -98,7 +98,7 @@ export const DroppableItem: FC<DroppableItemProps> = ({
     setNodeRef,
     transform,
     transition,
-  } = useSortable({ id: item.manage_access_model_logic_id });
+  } = useSortable({ id: item.def_access_model_logic_id });
 
   const { deleteLogicAndAttributeData, setDeleteAndSaveState } =
     useAACContext();
@@ -114,15 +114,14 @@ export const DroppableItem: FC<DroppableItemProps> = ({
 
   const handleDelete = async (id: number, logicId: number, attrId: number) => {
     // check if logicId and attrId exist in the database
-
     const res = items.filter(
       (item) =>
         !originalData?.some(
           (ori) =>
-            ori.manage_access_model_logic_id ===
-            item.manage_access_model_logic_id
+            ori.def_access_model_logic_id === item.def_access_model_logic_id
         )
     );
+    console.log(res);
     if (res.length === 0) {
       // check if logicId and attrId exist in the database
       await deleteLogicAndAttributeData(logicId, attrId);
@@ -130,8 +129,9 @@ export const DroppableItem: FC<DroppableItemProps> = ({
 
     // delete Data from the array but not database
     const remainingUser = items.filter(
-      (item) => item.manage_access_model_logic_id !== id
+      (item) => item.def_access_model_logic_id !== id
     );
+    console.log(items, "Drop");
     setItems(remainingUser);
     toast({
       title: "Info !!!",
@@ -195,7 +195,8 @@ export const DroppableItem: FC<DroppableItemProps> = ({
                 <AlertDialogHeader>
                   <AlertDialogTitle>Really Want To Delete ?</AlertDialogTitle>
                   <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete from database and remove your data from our servers.
+                    This action cannot be undone. This will permanently delete
+                    from database and remove your data from our servers.
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
@@ -204,7 +205,7 @@ export const DroppableItem: FC<DroppableItemProps> = ({
                     onClick={() =>
                       handleDelete(
                         item.id,
-                        item.manage_access_model_logic_id,
+                        item.def_access_model_logic_id,
                         item.id
                       )
                     }
