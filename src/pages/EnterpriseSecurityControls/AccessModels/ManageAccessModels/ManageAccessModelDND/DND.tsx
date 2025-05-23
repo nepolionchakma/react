@@ -39,19 +39,19 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     fetchDefAccessModelLogics,
     // accessModelLogicAttributes,
     // maxLogicId,
-    maxAccModelAttrId,
+    // maxAccModelAttrId,
+    manageAccessModelAttrMaxId,
     isActionLoading,
     setIsActionLoading,
     setStateChange,
   } = useAACContext();
 
-  const [rightWidgets, setRightWidgets] = useState<Extend[]>([]);
-  const [originalData, setOriginalData] = useState<Extend[]>([]);
-  const [activeId, setActiveId] = useState<number | null>(null);
   const iniLeftWidget = [
     {
-      id: maxAccModelAttrId ? maxAccModelAttrId + 1 : 1,
-      def_access_model_logic_id: maxAccModelAttrId ? maxAccModelAttrId + 1 : 1,
+      id: manageAccessModelAttrMaxId ? manageAccessModelAttrMaxId + 1 : 1,
+      def_access_model_logic_id: manageAccessModelAttrMaxId
+        ? manageAccessModelAttrMaxId + 1
+        : 1,
       def_access_model_id: selectedItem[0].def_access_model_id ?? 0,
       filter: "",
       object: "",
@@ -62,6 +62,10 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       widget_state: 0,
     },
   ];
+
+  const [rightWidgets, setRightWidgets] = useState<Extend[]>([]);
+  const [originalData, setOriginalData] = useState<Extend[]>([]);
+  const [activeId, setActiveId] = useState<number | null>(null);
   const [leftWidgets, setLeftWidgets] = useState<Extend[]>(iniLeftWidget);
 
   useEffect(() => {
@@ -94,7 +98,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     defaultValues: {
       model_name: selectedItem[0].model_name ?? "",
       description: selectedItem[0].description ?? "",
-      // datasource: selectedItem[0].  ?? "",
+      // datasource: selectedItem[0].datasource ?? "",
       state: selectedItem[0].state ?? "",
     },
   });
@@ -105,6 +109,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     selectedItem[0].description !== changedAccessGlobalCondition.description ||
     // selectedItem[0].datasource !== changedAccessGlobalCondition.datasource ||
     selectedItem[0].state !== changedAccessGlobalCondition.state;
+
   //Top Form END
   ring.register(); // Default values shown
 
@@ -167,12 +172,14 @@ const DND: FC<IManageAccessModelDNDProps> = ({
 
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
-    // console.log(active, over, "handleDragOver");
+    console.log(active.id, over?.id, "handleDragOver");
     if (!over) return;
 
     // Find containers for active and over items
     const activeContainer = findContainer(active.id);
     const overContainer = findContainer(over.id);
+
+    console.log(activeContainer, overContainer);
 
     if (
       !activeContainer ||
@@ -228,11 +235,9 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     }
   };
 
-  // console.log(rightWidgets, "right widgets");
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over) return;
-    // console.log(active, over, "handleDragEnd");
+    console.log(active.id, over?.id, "handleDragEnd");
     if (over) {
       const activeItemId = active.id;
       const overItemId = over.id;

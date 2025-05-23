@@ -53,22 +53,23 @@ const DroppableList: FC<DroppableListProps> = ({
           </p>
         )}
         {items.map((item, index) => (
-          <div key={item.def_access_model_logic_id}>
-            <DroppableItem
-              id={item.def_access_model_logic_id.toString()}
-              item={item}
-              items={items}
-              originalData={originalData}
-              index={index}
-              setItems={setItems}
-            />
-            {/* Arrow Down Icon */}
-            {items.map((item) => (
-              <div key={item.def_access_model_logic_id}>
-                <div className="w-3 mt-4 mx-auto"></div>
-              </div>
-            ))}
-          </div>
+          // <div key={item.def_access_model_logic_id}>
+          <DroppableItem
+            key={item.def_access_model_logic_id}
+            id={item.def_access_model_logic_id.toString()}
+            item={item}
+            items={items}
+            originalData={originalData}
+            index={index}
+            setItems={setItems}
+          />
+          // {/* Arrow Down Icon */}
+          // {items.map((item) => (
+          //   <div key={item.def_access_model_logic_id}>
+          //     <div className="w-3 mt-4 mx-auto"></div>
+          //   </div>
+          // ))}
+          // </div>
         ))}
       </div>
     </SortableContext>

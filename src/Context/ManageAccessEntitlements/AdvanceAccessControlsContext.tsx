@@ -596,7 +596,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
 
   // Data Source
   const fetchDataSource = async () => {
-    await api.get<IDataSourceTypes[]>(`/data-sources`).then((res) => {
+    await api.get<IDataSourceTypes[]>(`/def-data-sources`).then((res) => {
       if (res.status === 200) {
         setDataSources(res.data);
       }

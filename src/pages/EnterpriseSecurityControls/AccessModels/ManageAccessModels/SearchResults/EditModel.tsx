@@ -13,7 +13,7 @@ const EditModel: FC<IManageAccessEditModelProps> = ({
   // console.log(selectedItem);
   return (
     <CustomModal1>
-      <div className="h-full ">
+      <div className="h-full">
         <DND
           setOpenEditModal={setOpenEditModal}
           isOpenEditModal={isOpenEditModal}
