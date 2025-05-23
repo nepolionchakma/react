@@ -179,7 +179,9 @@ export function TaskNameTable() {
                     return (
                       <TableHead
                         key={header.id}
-                        className="border border-slate-400 bg-slate-200 p-1 h-9"
+                        className={`border border-slate-400 bg-slate-200 p-1 h-9 ${
+                          header.id === "select" && "w-3"
+                        }`}
                       >
                         {header.isPlaceholder
                           ? null
@@ -188,7 +190,9 @@ export function TaskNameTable() {
                               header.getContext()
                             )}
                         {/* Example: Checkbox for selecting all rows */}
-                        {header.id === "select" && <Checkbox disabled />}
+                        {header.id === "select" && (
+                          <Checkbox disabled className="mr-1" />
+                        )}
                       </TableHead>
                     );
                   })}
@@ -217,7 +221,7 @@ export function TaskNameTable() {
                     data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell, index) => (
-                      <TableCell key={cell.id} className="border p-1 h-8">
+                      <TableCell key={cell.id} className="border p-1 h-8 ">
                         {index === 0 ? (
                           <Checkbox
                             className=""

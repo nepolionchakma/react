@@ -285,7 +285,9 @@ export function TaskParametersTable() {
                     return (
                       <TableHead
                         key={header.id}
-                        className="border border-slate-400 bg-slate-200 p-1 h-9"
+                        className={`border border-slate-400 bg-slate-200 p-1 h-9 ${
+                          header.id === "select" && "w-3"
+                        }`}
                       >
                         {header.isPlaceholder
                           ? null
@@ -312,7 +314,7 @@ export function TaskParametersTable() {
                               handleRowsSelection(data);
                               // setSelected(selectedRows);
                             }}
-                            className="mr-1"
+                            className="mr-1 mt-1"
                             aria-label="Select all"
                           />
                         )}
