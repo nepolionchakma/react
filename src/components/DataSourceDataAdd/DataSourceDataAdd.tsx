@@ -37,7 +37,7 @@ const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
     if (props === "update") {
       const fetchDataFromAPI = async () => {
         if (selected[0]) {
-          const result = await fetchDataSource(selected[0].data_source_id);
+          const result = await fetchDataSource(selected[0].def_data_source_id);
           form.reset(result); // Sync form with fetched data
         } else return;
       };
@@ -104,7 +104,7 @@ const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
     const submitAction =
       props === "add"
         ? createDataSource(postData)
-        : updateDataSource(selected[0].data_source_id, postData);
+        : updateDataSource(selected[0].def_data_source_id, postData);
 
     submitAction
       .then(() => {

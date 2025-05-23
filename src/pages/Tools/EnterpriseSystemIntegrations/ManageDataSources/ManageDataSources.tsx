@@ -285,7 +285,7 @@ const ManageDataSources = () => {
       setRowSelection({});
       // Iterate through the selected IDs and delete them one by one
       for (const data of selected) {
-        await deleteDataSource(data.data_source_id);
+        await deleteDataSource(data.def_data_source_id);
       }
       // Update the `save` state to trigger data re-fetching
       setSave((prevSave) => prevSave + 1);
@@ -297,7 +297,9 @@ const ManageDataSources = () => {
   };
 
   const maxID =
-    data.length > 0 ? Math.max(...data.map((item) => item.data_source_id)) : 0;
+    data.length > 0
+      ? Math.max(...data.map((item) => item.def_data_source_id))
+      : 0;
 
   return (
     <div className="w-full">
@@ -389,7 +391,7 @@ const ManageDataSources = () => {
                     :{" "}
                     {selected.map((row, i) => (
                       <span
-                        key={row.data_source_id}
+                        key={row.def_data_source_id}
                         className="flex flex-col text-black"
                       >
                         {i + 1}. {row.datasource_name}

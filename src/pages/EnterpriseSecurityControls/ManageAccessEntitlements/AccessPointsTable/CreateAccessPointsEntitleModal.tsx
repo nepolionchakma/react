@@ -166,8 +166,8 @@ const AccessPointsEntitleModal = () => {
                       <>
                         {dataSources.map((datasource) => (
                           <SelectItem
-                            key={datasource.data_source_id}
-                            value={String(datasource.data_source_id)}
+                            key={datasource.def_data_source_id}
+                            value={String(datasource.def_data_source_id)}
                           >
                             {datasource.datasource_name}
                           </SelectItem>
