@@ -52,7 +52,7 @@ export const columns = (
     },
     cell: ({ row }) => {
       const data: string = row.getValue("status");
-      return <div className="min-w-max capitalize">{data.toLowerCase()}</div>;
+      return <div className="min-w-max capitalize">{data?.toLowerCase()}</div>;
     },
   },
   {
@@ -105,7 +105,9 @@ export const columns = (
               <CircleChevronRight className="w-5 h-5 text-gray-600" />
             )}
           </button>
-          <span className="capitalize">{user_schedule_name.toLowerCase()}</span>
+          <span className="capitalize">
+            {user_schedule_name?.toLowerCase()}
+          </span>
         </div>
       );
     },
@@ -132,18 +134,20 @@ export const columns = (
   //     );
   //   },
   // },
-  {
-    accessorKey: "schedule_type",
-    header: () => {
-      return <div className="min-w-max">Schedule Type</div>;
-    },
-    cell: ({ row }) => {
-      const schedule_type = row.getValue("schedule_type");
-      const result =
-        schedule_type === null ? "null" : JSON.parse(schedule_type as string);
-      return <div className="min-w-max capitalize">{result.toLowerCase()}</div>;
-    },
-  },
+  // {
+  //   accessorKey: "schedule_type",
+  //   header: () => {
+  //     return <div className="min-w-max">Schedule Type</div>;
+  //   },
+  //   cell: ({ row }) => {
+  //     const schedule_type = row.getValue("schedule_type");
+  //     const result =
+  //       schedule_type === null ? "null" : JSON.parse(schedule_type as string);
+  //     return (
+  //       <div className="min-w-max capitalize">{result?.toLowerCase()}</div>
+  //     );
+  //   },
+  // },
   {
     accessorKey: "args",
     header: () => {

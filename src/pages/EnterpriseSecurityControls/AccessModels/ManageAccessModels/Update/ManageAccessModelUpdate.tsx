@@ -22,6 +22,8 @@ interface IManageGlobalConditionProps {
 const ManageAccessModelUpdate: FC<IManageGlobalConditionProps> = ({ form }) => {
   const { dataSources } = useAACContext();
 
+  console.log(dataSources);
+
   return (
     <Form {...form}>
       <form>
