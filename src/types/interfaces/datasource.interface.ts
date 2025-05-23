@@ -1,5 +1,5 @@
 export interface IDataSourceTypes {
-  data_source_id: number;
+  def_data_source_id: number;
   datasource_name: string;
   description: string;
   application_type: string;

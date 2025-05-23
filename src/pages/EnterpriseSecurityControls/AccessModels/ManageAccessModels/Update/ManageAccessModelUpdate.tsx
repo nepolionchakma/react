@@ -100,7 +100,7 @@ const ManageAccessModelUpdate: FC<IManageGlobalConditionProps> = ({ form }) => {
                   <SelectContent>
                     {dataSources.map((data) => (
                       <SelectItem
-                        key={data.data_source_id}
+                        key={data.def_data_source_id}
                         value={data.datasource_name}
                       >
                         {data.datasource_name}
