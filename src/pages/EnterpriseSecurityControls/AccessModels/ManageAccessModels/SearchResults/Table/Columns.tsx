@@ -57,12 +57,12 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="p-0 flex min-w-max items-center cursor-pointer"
         >
-          Run Status
+          Status
         </div>
       );
     },
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("run_status")}</div>
+      <div className="p-1 capitalize">{row.getValue("run_status")}</div>
     ),
   },
   {
