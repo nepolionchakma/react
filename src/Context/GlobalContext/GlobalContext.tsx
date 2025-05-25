@@ -325,7 +325,7 @@ export function GlobalContextProvider({
   const fetchDataSources = async (page: number, limit: number) => {
     try {
       const response = await api.get<IManageAccessEntitlementsPerPageTypes>(
-        `/data-sources/${page}/${limit}`
+        `/def-data-sources/${page}/${limit}`
       );
       const sortingData = response.data;
       return sortingData ?? [];
@@ -335,7 +335,9 @@ export function GlobalContextProvider({
   };
   const fetchDataSource = async (id: number): Promise<IDataSourceTypes> => {
     try {
-      const response = await api.get<IDataSourceTypes>(`/data-sources/${id}`);
+      const response = await api.get<IDataSourceTypes>(
+        `/def-data-sources/${id}`
+      );
       if (response.status === 200) {
         // Check if status code indicates success
         return response.data;
@@ -362,7 +364,7 @@ export function GlobalContextProvider({
       last_updated_by,
     } = postData;
     try {
-      const res = await api.post<IDataSourceTypes>(`/data-sources`, {
+      const res = await api.post<IDataSourceTypes>(`/def-data-sources`, {
         datasource_name,
         description,
         application_type,
@@ -394,20 +396,23 @@ export function GlobalContextProvider({
     postData: IDataSourcePostTypes
   ) => {
     try {
-      const res = await api.put<IDataSourcePostTypes>(`/data-sources/${id}`, {
-        data_source_id: id,
-        datasource_name: postData.datasource_name,
-        description: postData.description,
-        application_type: postData.application_type,
-        application_type_version: postData.application_type_version,
-        last_access_synchronization_status:
-          postData.last_access_synchronization_status,
-        last_transaction_synchronization_status:
-          postData.last_transaction_synchronization_status,
-        default_datasource: postData.default_datasource,
-        created_by: postData.created_by,
-        last_updated_by: postData.last_updated_by,
-      });
+      const res = await api.put<IDataSourcePostTypes>(
+        `/def-data-sources/${id}`,
+        {
+          data_source_id: id,
+          datasource_name: postData.datasource_name,
+          description: postData.description,
+          application_type: postData.application_type,
+          application_type_version: postData.application_type_version,
+          last_access_synchronization_status:
+            postData.last_access_synchronization_status,
+          last_transaction_synchronization_status:
+            postData.last_transaction_synchronization_status,
+          default_datasource: postData.default_datasource,
+          created_by: postData.created_by,
+          last_updated_by: postData.last_updated_by,
+        }
+      );
       // for sync data call fetch data source
       if (res.status === 200) {
         toast({
@@ -430,7 +435,7 @@ export function GlobalContextProvider({
   };
   const deleteDataSource = async (id: number) => {
     try {
-      const res = await api.delete<IDataSourceTypes>(`/data-sources/${id}`);
+      const res = await api.delete<IDataSourceTypes>(`/def-data-sources/${id}`);
 
       if (res.status === 200) {
         toast({
