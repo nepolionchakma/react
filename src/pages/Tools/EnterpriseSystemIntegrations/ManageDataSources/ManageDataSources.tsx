@@ -193,11 +193,11 @@ const ManageDataSources = () => {
         );
       },
       cell: ({ row }) => {
-        const sliceDate = String(
-          row.getValue("last_access_synchronization_date")
-        ).toString();
-        console.log(sliceDate, "date");
-        return <div className="capitalize">{sliceDate}</div>;
+        const date = new Date(row.getValue("last_access_synchronization_date"));
+        const localDateString = date.toDateString();
+        const localTimeString = date.toLocaleTimeString();
+        const totalDateTime = localDateString + " " + localTimeString;
+        return <div className="capitalize">{totalDateTime}</div>;
       },
     },
     {
