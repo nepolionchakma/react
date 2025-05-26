@@ -358,7 +358,9 @@ export function GlobalContextProvider({
       application_type,
       application_type_version,
       last_access_synchronization_status,
+      last_access_synchronization_date,
       last_transaction_synchronization_status,
+      last_transaction_synchronization_date,
       default_datasource,
       created_by,
       last_updated_by,
@@ -370,7 +372,9 @@ export function GlobalContextProvider({
         application_type,
         application_type_version,
         last_access_synchronization_status,
+        last_access_synchronization_date,
         last_transaction_synchronization_status,
+        last_transaction_synchronization_date,
         default_datasource,
         created_by,
         last_updated_by,
@@ -406,8 +410,12 @@ export function GlobalContextProvider({
           application_type_version: postData.application_type_version,
           last_access_synchronization_status:
             postData.last_access_synchronization_status,
+          last_access_synchronization_date:
+            postData.last_access_synchronization_date,
           last_transaction_synchronization_status:
             postData.last_transaction_synchronization_status,
+          last_transaction_synchronization_date:
+            postData.last_transaction_synchronization_date,
           default_datasource: postData.default_datasource,
           created_by: postData.created_by,
           last_updated_by: postData.last_updated_by,
@@ -439,8 +447,8 @@ export function GlobalContextProvider({
 
       if (res.status === 200) {
         toast({
-          title: "Successfully Deleted",
-          description: `DataSource Name : ${res.data.datasource_name}`,
+          title: "Info",
+          description: "Deleted Succesfully",
         });
       }
       console.log(res);
@@ -448,8 +456,8 @@ export function GlobalContextProvider({
       if (error instanceof AxiosError && error.response) {
         if (error?.status === 500) {
           toast({
-            title: "Successfully Deleted",
-            description: `DataSource Name : ${error.message}`,
+            title: "Info",
+            description: `Error : ${error.message}`,
           });
         }
       }

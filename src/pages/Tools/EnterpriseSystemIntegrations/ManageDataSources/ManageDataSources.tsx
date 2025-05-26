@@ -195,9 +195,8 @@ const ManageDataSources = () => {
       cell: ({ row }) => {
         const sliceDate = String(
           row.getValue("last_access_synchronization_date")
-        )
-          .toString()
-          .slice(0, 10);
+        ).toString();
+        console.log(sliceDate, "date");
         return <div className="capitalize">{sliceDate}</div>;
       },
     },
@@ -224,9 +223,8 @@ const ManageDataSources = () => {
       cell: ({ row }) => {
         const sliceDate = String(
           row.getValue("last_transaction_synchronization_date")
-        )
-          .toString()
-          .slice(0, 10);
+        ).toString();
+
         return <div className="capitalize">{sliceDate}</div>;
       },
     },
@@ -275,6 +273,23 @@ const ManageDataSources = () => {
       rowSelection,
     },
   });
+
+  // Hide default columns
+  const hiddenColumns = [
+    "last_access_synchronization_status",
+    "last_transaction_synchronization_status",
+    "last_transaction_synchronization_date",
+    "default_datasource",
+  ];
+
+  React.useEffect(() => {
+    table.getAllColumns().forEach((column) => {
+      if (hiddenColumns.includes(column.id)) {
+        column.toggleVisibility(false);
+      }
+    });
+  }, [table]);
+
   // Select for edit, delete
   React.useEffect(() => {
     setSelected(table.getSelectedRowModel().rows.map((row) => row.original));
@@ -306,10 +321,6 @@ const ManageDataSources = () => {
       {/* top icon and columns*/}
       <div className="flex gap-3 items-center py-2">
         <div className="flex gap-3">
-          <div className="flex gap-3 px-4 py-2 border rounded">
-            <h3>actions</h3>
-            <h3>view</h3>
-          </div>
           <div className="flex gap-3 px-4 py-2 border rounded">
             <AlertDialog>
               <AlertDialogTrigger>
