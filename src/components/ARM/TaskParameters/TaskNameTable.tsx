@@ -62,7 +62,7 @@ export function TaskNameTable() {
   const { page, setPage } = useGlobalContext();
   const [data, setData] = React.useState<IARMAsynchronousTasksTypes[] | []>([]);
   const limit = 3;
-  const [selectedRowId, setSelectedRowId] = React.useState<string>("");
+  const [selectedRowId, setSelectedRowId] = React.useState<number>();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -225,16 +225,17 @@ export function TaskNameTable() {
                         {index === 0 ? (
                           <Checkbox
                             className=""
-                            checked={row.id === selectedRowId}
-                            onCheckedChange={(value) =>
-                              row.toggleSelected(!!value)
-                            }
+                            checked={row.original.def_task_id === selectedRowId}
+                            onCheckedChange={(value) => {
+                              console.log(value, row);
+                              row.toggleSelected(!!value);
+                            }}
                             onClick={() => {
                               setSelectedRowId((prev) => {
-                                if (prev === row.id) {
-                                  return "";
+                                if (prev === row.original.def_task_id) {
+                                  return undefined;
                                 } else {
-                                  return row.id;
+                                  return row.original.def_task_id;
                                 }
                               });
                               handleRowSelection(row.original);
