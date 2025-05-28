@@ -185,7 +185,7 @@ export function TaskTable() {
   return (
     <div className="px-3">
       {isOpenModal === "register_task" ? (
-        <CustomModal4>
+        <CustomModal4 className="w-[770px]">
           <AsynchronousRegisterEditTaskModal
             task_name="Register Task"
             selected={selected}
@@ -196,7 +196,7 @@ export function TaskTable() {
         </CustomModal4>
       ) : (
         isOpenModal === "edit_task" && (
-          <CustomModal4>
+          <CustomModal4 className="w-[770px]">
             <AsynchronousRegisterEditTaskModal
               task_name="Edit Task"
               selected={selected}
