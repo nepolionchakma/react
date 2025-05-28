@@ -1,9 +1,9 @@
-import TaskRequest from "@/components/AsynchronousRequestsAndTaskSchedules/TaskRequest/TaskRequest";
+import ScheduleATaskComponent from "@/components/AsynchronousRequestsAndTaskSchedules/TaskRequest/ScheduleATask";
 
 const ScheduleATask = () => {
   return (
     <div>
-      <TaskRequest
+      <ScheduleATaskComponent
         action="Schedule A Task"
         user_schedule_name="run_script"
         handleCloseModal={() => {}}

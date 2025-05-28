@@ -52,7 +52,7 @@ import Pagination5 from "@/components/Pagination/Pagination5";
 import { IAsynchronousRequestsAndTaskSchedulesTypes } from "@/types/interfaces/ARM.interface";
 import { toast } from "@/components/ui/use-toast";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
-import TaskRequest from "../TaskRequest/TaskRequest";
+import ScheduleATaskComponent from "../TaskRequest/ScheduleATask";
 import CustomModal2 from "@/components/CustomModal/CustomModal2";
 import PopUp from "./PopUp/PopUp";
 
@@ -208,7 +208,7 @@ export function ViewEditScheduledTasksTable() {
     <div className="px-3">
       {isOpenModal === "edit_task_schedule" && (
         <CustomModal2>
-          <TaskRequest
+          <ScheduleATaskComponent
             action="Edit Scheduled Task"
             selected={selected[0]}
             user_schedule_name="run_script"
