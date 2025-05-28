@@ -34,7 +34,7 @@ import ManageSchedulers from "@/pages/AsynchronousRequestManager/Administration/
 import ManageWorkers from "@/pages/AsynchronousRequestManager/Administration/ManageWorkers";
 import RegisterEditAsynchronousTasks from "@/pages/AsynchronousRequestManager/Development/RegisterEditAsynchronousTasks/RegisterEditAsynchronousTasks";
 import TaskParameters from "@/pages/AsynchronousRequestManager/Development/TaskParameters/TaskParameters";
-import RunAnAdHocRequest from "@/pages/AsynchronousRequestsAndTaskSchedules/RunAnAdHocRequest";
+import RunAHocRequest from "@/pages/AsynchronousRequestsAndTaskSchedules/RunARequest";
 import ViewRequests from "@/pages/AsynchronousRequestsAndTaskSchedules/ViewRequests";
 import EnterpriseSecurityControls from "@/pages/EnterpriseSecurityControls/EnterpriseSecurityControls";
 import AccessModels from "@/pages/EnterpriseSecurityControls/AccessModels/AccessModels";
@@ -366,8 +366,8 @@ const routes = createBrowserRouter([
             element: <ViewEditScheduledTasksTable />,
           },
           {
-            path: "run-an-ad-hoc-request",
-            element: <RunAnAdHocRequest />,
+            path: "run-a-request",
+            element: <RunAHocRequest />,
           },
           {
             path: "view-requests",
