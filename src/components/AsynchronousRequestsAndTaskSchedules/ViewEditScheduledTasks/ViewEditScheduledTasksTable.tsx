@@ -286,7 +286,7 @@ export function ViewEditScheduledTasksTable() {
                             key={item.def_task_sche_id}
                             className="block text-black"
                           >
-                            {index + 1}. User schedule name :{" "}
+                            {index + 1}. Schedule name :{" "}
                             {item.user_schedule_name}
                           </span>
                         ))}
