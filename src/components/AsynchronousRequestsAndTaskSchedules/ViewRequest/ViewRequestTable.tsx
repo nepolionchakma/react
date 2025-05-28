@@ -86,6 +86,8 @@ export function ViewRequestTable() {
     // Debounce only when query changes
     const delayDebounce = setTimeout(() => {
       fetchData();
+      table.toggleAllPageRowsSelected(false);
+      setRowSelection({});
     }, 1000);
 
     return () => clearTimeout(delayDebounce); // Cleanup timeout
