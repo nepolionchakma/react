@@ -161,6 +161,7 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
       reset();
     }
   };
+  // console.log(selected,"selected")
   return (
     <div>
       <div className="p-2 bg-slate-300 rounded-t mx-auto text-center font-bold flex justify-between">
