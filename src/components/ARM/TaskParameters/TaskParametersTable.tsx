@@ -146,15 +146,23 @@ export function TaskParametersTable() {
       }
     });
   }, [table]);
+
   const handleOpenModal = (modelName: string) => {
     setIsOpenModal(modelName);
   };
+
   const handleCloseModal = () => {
     setIsOpenModal(""); // close modal
     setSelectedRows([]);
     //table toggle false
     table.toggleAllRowsSelected(false);
   };
+
+  React.useEffect(() => {
+    //table toggle false
+    table.toggleAllRowsSelected(false);
+    setSelectedRows([]);
+  }, [page]);
 
   return (
     <div className="px-3">

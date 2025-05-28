@@ -39,8 +39,8 @@ import columns from "./Columns";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { IExecutionMethodsTypes } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
-import CustomModal2 from "@/components/CustomModal/CustomModal2";
 import ExecutionMethodEdit from "../ExecutionMethodEdit/ExecutionMethodEdit";
+import CustomModal4 from "@/components/CustomModal/CustomModal4";
 
 export function ManageExecutionMethodsTable() {
   const {
@@ -119,6 +119,15 @@ export function ManageExecutionMethodsTable() {
       },
     },
   });
+  const handleOpenModal = (modelName: string) => {
+    setIsOpenModal(modelName);
+  };
+  const handleCloseModal = () => {
+    setIsOpenModal(""); // close modal
+    setSelected([]);
+    //table toggle false
+    table.toggleAllRowsSelected(false);
+  };
 
   // default unselect
   const hiddenColumns = [
@@ -136,20 +145,16 @@ export function ManageExecutionMethodsTable() {
       }
     });
   }, [table]);
-  const handleOpenModal = (modelName: string) => {
-    setIsOpenModal(modelName);
-  };
-  const handleCloseModal = () => {
-    setIsOpenModal(""); // close modal
-    setSelected([]);
+  React.useEffect(() => {
     //table toggle false
     table.toggleAllRowsSelected(false);
-  };
+    setSelected([]);
+  }, [page]);
 
   return (
     <div className="px-3">
       {isOpenModal === "create_execution_methods" ? (
-        <CustomModal2>
+        <CustomModal4 className="w-[770px]">
           <ExecutionMethodEdit
             action="Create Execution Method"
             selected={selected}
@@ -157,10 +162,10 @@ export function ManageExecutionMethodsTable() {
             setIsLoading={setIsLoading}
             handleCloseModal={handleCloseModal}
           />
-        </CustomModal2>
+        </CustomModal4>
       ) : (
         isOpenModal === "edit_execution_methods" && (
-          <CustomModal2>
+          <CustomModal4 className="w-[770px]">
             <ExecutionMethodEdit
               action="Edit Execution Method"
               selected={selected}
@@ -168,7 +173,7 @@ export function ManageExecutionMethodsTable() {
               setIsLoading={setIsLoading}
               handleCloseModal={handleCloseModal}
             />
-          </CustomModal2>
+          </CustomModal4>
         )
       )}
       {/* top icon and columns*/}

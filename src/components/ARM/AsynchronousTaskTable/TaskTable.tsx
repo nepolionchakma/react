@@ -40,7 +40,7 @@ import Pagination5 from "@/components/Pagination/Pagination5";
 import { IARMAsynchronousTasksTypes } from "@/types/interfaces/ARM.interface";
 import AsynchronousRegisterEditTaskModal from "../AsynchronousRegisterEditTaskModal/AsynchronousRegisterEditTaskModal";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
-import CustomModal2 from "@/components/CustomModal/CustomModal2";
+import CustomModal4 from "@/components/CustomModal/CustomModal4";
 
 export function TaskTable() {
   const {
@@ -86,6 +86,9 @@ export function TaskTable() {
     // Debounce only when query changes
     const delayDebounce = setTimeout(() => {
       fetchData();
+      //table toggle false
+      table.toggleAllRowsSelected(false);
+      setSelected([]);
     }, 1000);
 
     return () => clearTimeout(delayDebounce); // Cleanup timeout
@@ -182,7 +185,7 @@ export function TaskTable() {
   return (
     <div className="px-3">
       {isOpenModal === "register_task" ? (
-        <CustomModal2>
+        <CustomModal4>
           <AsynchronousRegisterEditTaskModal
             task_name="Register Task"
             selected={selected}
@@ -190,10 +193,10 @@ export function TaskTable() {
             setIsLoading={setIsLoading}
             handleCloseModal={handleCloseModal}
           />
-        </CustomModal2>
+        </CustomModal4>
       ) : (
         isOpenModal === "edit_task" && (
-          <CustomModal2>
+          <CustomModal4>
             <AsynchronousRegisterEditTaskModal
               task_name="Edit Task"
               selected={selected}
@@ -201,7 +204,7 @@ export function TaskTable() {
               setIsLoading={setIsLoading}
               handleCloseModal={handleCloseModal}
             />
-          </CustomModal2>
+          </CustomModal4>
         )
       )}
       {/* top icon and columns*/}

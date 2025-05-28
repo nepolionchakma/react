@@ -99,6 +99,7 @@ export function TaskNameTable() {
       try {
         const res = await getAsyncTasksLazyLoading(page, limit);
         table.getRowModel().rows.map((row) => row.toggleSelected(false));
+        setSelectedRowId("");
         if (res) setData(res);
       } catch (error) {
         console.log(error);
