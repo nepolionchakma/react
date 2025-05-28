@@ -20,7 +20,7 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { FC, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import {
@@ -32,14 +32,8 @@ import {
 } from "@/components/ui/select";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import { IARMAsynchronousTasksTypes } from "@/types/interfaces/ARM.interface";
-import { X } from "lucide-react";
 
-interface ITaskRequestTypes {
-  action: string;
-  handleCloseModal: () => void;
-}
-
-const AdHocRequest: FC<ITaskRequestTypes> = ({ action, handleCloseModal }) => {
+const RunARequest = () => {
   const api = useAxiosPrivate();
   const { getAsyncTasks, getTaskParametersByTaskName, setChangeState } =
     useARMContext();
@@ -51,7 +45,6 @@ const AdHocRequest: FC<ITaskRequestTypes> = ({ action, handleCloseModal }) => {
     {}
   );
 
-  console.log(parameters);
   useEffect(() => {
     const fetchAsyncTasks = async () => {
       try {
@@ -91,31 +84,22 @@ const AdHocRequest: FC<ITaskRequestTypes> = ({ action, handleCloseModal }) => {
   });
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
-    const adHocPostData = {
+    const PostData = {
       task_name: data.task_name,
       parameters: data.parameters,
       schedule_type: "IMMEDIATE",
     };
     try {
       setIsLoading(true);
+      const response = await api.post(
+        `/asynchronous-requests-and-task-schedules/create-task-schedule`,
+        PostData
+      );
 
-      if (action === "Ad Hoc") {
-        const response = await api.post(
-          `/asynchronous-requests-and-task-schedules/create-task-schedule`,
-          adHocPostData
-        );
-        if (response) {
-          toast({
-            title: "Success",
-            description: "Ad-Hoc task created successfully.",
-          });
-        } else {
-          toast({
-            title: "Error",
-            description: "Failed to create task schedule.",
-            variant: "destructive",
-          });
-        }
+      if (response) {
+        toast({
+          description: `${response.data.message}`,
+        });
       }
     } catch (error) {
       toast({
@@ -153,54 +137,42 @@ const AdHocRequest: FC<ITaskRequestTypes> = ({ action, handleCloseModal }) => {
   };
 
   return (
-    <div
-      className={`${
-        action === "Edit Task Schedule" ? "" : "w-[50%] mx-auto my-10"
-      } `}
-    >
-      {action === "Edit Task Schedule" && (
-        <div className="p-2 bg-slate-300 rounded-t mx-auto text-center font-bold flex justify-between">
-          <h2>Edit Task Schedule</h2>
-          <X onClick={() => handleCloseModal()} className="cursor-pointer" />
-        </div>
-      )}
+    <div className="w-[900px] mx-auto my-10 border rounded">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 p-4">
           <div className="grid grid-cols-2 gap-4 pb-2">
-            {action !== "Edit Task Schedule" && (
-              <FormField
-                control={form.control}
-                name="task_name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>User Task Name</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={(value) => {
-                          field.onChange(value);
-                          handleGetParameters(value);
-                        }}
-                        defaultValue={field.value}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a Task" />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-60">
-                          {asyncTaskNames?.map((item) => (
-                            <SelectItem
-                              key={item.def_task_id}
-                              value={item.task_name}
-                            >
-                              {item.user_task_name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            )}
+            <FormField
+              control={form.control}
+              name="task_name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>User Task Name</FormLabel>
+                  <FormControl>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                        handleGetParameters(value);
+                      }}
+                      defaultValue={field.value}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a Task" />
+                      </SelectTrigger>
+                      <SelectContent className="max-h-60">
+                        {asyncTaskNames?.map((item) => (
+                          <SelectItem
+                            key={item.def_task_id}
+                            value={item.task_name}
+                          >
+                            {item.user_task_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
           </div>
           <Table>
             <TableHeader>
@@ -208,7 +180,7 @@ const AdHocRequest: FC<ITaskRequestTypes> = ({ action, handleCloseModal }) => {
                 <TableHead className="border border-winter-400">
                   Parameter Name
                 </TableHead>
-                <TableHead className="border border-winter-400">
+                <TableHead className="border border-winter-400 w-60">
                   Parameter Value
                 </TableHead>
               </TableRow>
@@ -285,4 +257,4 @@ const AdHocRequest: FC<ITaskRequestTypes> = ({ action, handleCloseModal }) => {
   );
 };
 
-export default AdHocRequest;
+export default RunARequest;

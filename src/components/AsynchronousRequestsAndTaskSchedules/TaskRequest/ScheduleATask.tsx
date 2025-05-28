@@ -50,7 +50,7 @@ interface ITaskRequestProps {
   selected?: IAsynchronousRequestsAndTaskSchedulesTypes;
 }
 
-const TaskRequest: FC<ITaskRequestProps> = ({
+const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
   action,
   handleCloseModal,
   user_schedule_name,
@@ -426,4 +426,4 @@ const TaskRequest: FC<ITaskRequestProps> = ({
   );
 };
 
-export default TaskRequest;
+export default ScheduleATaskComponent;

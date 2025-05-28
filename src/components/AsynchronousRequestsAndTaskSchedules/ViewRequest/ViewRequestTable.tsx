@@ -134,7 +134,7 @@ export function ViewRequestTable() {
     "executor",
     "schedule",
     "schedule_type",
-    "timestamp",
+    // "timestamp",
   ];
 
   React.useEffect(() => {

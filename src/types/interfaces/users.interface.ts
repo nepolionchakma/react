@@ -8,6 +8,7 @@ export interface Token {
   access_token: string;
   tenant_id: number;
   user_id: number;
+  sub?: string;
   user_type: string;
   user_name: string;
   iat: number;

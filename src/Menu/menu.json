@@ -306,7 +306,7 @@
       "/asynchronous-requests-and-task-schedules",
       "/asynchronous-requests-and-task-schedules/schedule-a-task",
       "/asynchronous-requests-and-task-schedules/view-edit-scheduled-tasks",
-      "/asynchronous-requests-and-task-schedules/run-an-ad-hoc-request",
+      "/asynchronous-requests-and-task-schedules/run-a-request",
       "/asynchronous-requests-and-task-schedules/view-requests"
     ],
     "subMenus": [
@@ -320,7 +320,7 @@
       },
       {
         "name": "Run a Request",
-        "path": "/asynchronous-requests-and-task-schedules/run-an-ad-hoc-request"
+        "path": "/asynchronous-requests-and-task-schedules/run-a-request"
       },
       {
         "name": "View Requests",
