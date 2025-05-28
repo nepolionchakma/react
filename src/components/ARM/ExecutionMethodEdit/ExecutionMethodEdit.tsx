@@ -243,7 +243,7 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
               />
             </div>
 
-            <div className="fixed bottom-4 right-7 p-4">
+            <div className="flex flex-row-reverse pt-2">
               <Button type="submit">
                 {isLoading ? (
                   <l-tailspin size="15" stroke="3" speed="0.9" color="white" />
