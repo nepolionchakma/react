@@ -57,6 +57,10 @@ interface ARMContext {
   getTaskParametersByTaskName: (
     task_name: string
   ) => Promise<IARMAsynchronousTasksParametersTypes[] | undefined>;
+  deleteTaskParameters: (
+    task_name: string,
+    def_param_id: number
+  ) => Promise<void>;
   changeState: number;
   setChangeState: React.Dispatch<React.SetStateAction<number>>;
   getAsynchronousRequestsAndTaskSchedules: (
@@ -289,24 +293,26 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     }
   };
 
-  // const deleteTaskParameters = async (
-  //   task_name: string,
-  //   internal_execution_method: string
-  // ) => {
-  //   try {
-  //     const res = await api.delete(
-  //       `/arm-tasks/delete-task-param/${task_name}/${internal_execution_method}`
-  //     );
-  //     if (res.status === 200) {
-  //       toast({
-  //         description: `${res.data.message}`,
-  //       });
-  //       setChangeState(Math.random() + 23 * 3000);
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+  const deleteTaskParameters = async (
+    task_name: string,
+    def_param_id: number
+  ) => {
+    console.log(task_name, def_param_id, "req.params");
+    // /Delete_TaskParams/<string:task_name>/<int:def_param_id>
+    try {
+      const res = await api.delete(
+        `/arm-tasks/delete-task-params/${task_name}/${def_param_id}`
+      );
+      if (res.status === 200) {
+        toast({
+          description: `${res.data.message}`,
+        });
+        setChangeState(Math.random() + 23 * 3000);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   const getAsynchronousRequestsAndTaskSchedules = async (
     page: number,
@@ -419,6 +425,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     setSelectedTaskParameters,
     getTaskParametersLazyLoading,
     getTaskParametersByTaskName,
+    deleteTaskParameters,
     changeState,
     setChangeState,
     getAsynchronousRequestsAndTaskSchedules,
