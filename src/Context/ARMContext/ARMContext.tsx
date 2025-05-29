@@ -29,6 +29,7 @@ interface ARMContext {
     limit: number,
     userTaskName: string
   ) => Promise<IARMAsynchronousTasksTypes[] | undefined>;
+  cancelAsyncTasks: (task_name: string) => Promise<void>;
   getManageExecutionMethods: () => Promise<
     IExecutionMethodsTypes[] | undefined
   >;
@@ -40,16 +41,13 @@ interface ARMContext {
 
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  deleteAsyncTasks: (
-    selectedItems: IARMAsynchronousTasksTypes[]
-  ) => Promise<void>;
   selectedTask: IARMAsynchronousTasksTypes | undefined;
   setSelectedTask: React.Dispatch<
     React.SetStateAction<IARMAsynchronousTasksTypes | undefined>
   >;
-  selectedTaskParameters: IARMTaskParametersTypes[] | undefined;
+  selectedTaskParameters: IARMTaskParametersTypes[];
   setSelectedTaskParameters: React.Dispatch<
-    React.SetStateAction<IARMTaskParametersTypes[] | undefined>
+    React.SetStateAction<IARMTaskParametersTypes[]>
   >;
   getTaskParametersLazyLoading: (
     task_name: string,
@@ -96,8 +94,8 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     IARMAsynchronousTasksTypes | undefined
   >(undefined);
   const [selectedTaskParameters, setSelectedTaskParameters] = useState<
-    IARMTaskParametersTypes[] | undefined
-  >(undefined);
+    IARMTaskParametersTypes[]
+  >([]);
   // const [page, setPage] = useState<number>(1);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [totalPage2, setTotalPage2] = useState<number>(1);
@@ -126,7 +124,6 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       );
 
       setTotalPage(resultLazyLoading.data.pages);
-      console.log(resultLazyLoading.data.items);
       return resultLazyLoading.data.items;
     } catch (error) {
       console.log(error);
@@ -156,16 +153,16 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     }
   };
 
-  const deleteAsyncTasks = async (
-    selectedItems: IARMAsynchronousTasksTypes[]
-  ) => {
+  const cancelAsyncTasks = async (task_name: string) => {
     try {
       setIsLoading(true);
-      await Promise.all(
-        selectedItems.map(async (item) => {
-          await api.put(`/arm-tasks/cancel-task/${item.task_name}`);
-        })
-      );
+      const res = await api.put(`/arm-tasks/cancel-task/${task_name}`);
+      if (res.status === 200) {
+        toast({
+          description: `${res.data.message}`,
+        });
+        setChangeState(Math.random() + 23 * 3000);
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -292,6 +289,25 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     }
   };
 
+  // const deleteTaskParameters = async (
+  //   task_name: string,
+  //   internal_execution_method: string
+  // ) => {
+  //   try {
+  //     const res = await api.delete(
+  //       `/arm-tasks/delete-task-param/${task_name}/${internal_execution_method}`
+  //     );
+  //     if (res.status === 200) {
+  //       toast({
+  //         description: `${res.data.message}`,
+  //       });
+  //       setChangeState(Math.random() + 23 * 3000);
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
   const getAsynchronousRequestsAndTaskSchedules = async (
     page: number,
     limit: number
@@ -397,7 +413,6 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     getAsyncTasksLazyLoading,
     isLoading,
     setIsLoading,
-    deleteAsyncTasks,
     selectedTask,
     setSelectedTask,
     selectedTaskParameters,
@@ -411,6 +426,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     getViewRequests,
     getSearchViewRequests,
     getSearchAsyncTasksLazyLoading,
+    cancelAsyncTasks,
   };
   return <ARMContext.Provider value={values}>{children}</ARMContext.Provider>;
 }
