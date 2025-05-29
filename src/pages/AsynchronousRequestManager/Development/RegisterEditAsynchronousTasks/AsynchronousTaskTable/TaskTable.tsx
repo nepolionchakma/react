@@ -58,6 +58,7 @@ export function TaskTable() {
     totalPage,
     getAsyncTasksLazyLoading,
     getSearchAsyncTasksLazyLoading,
+    cancelAsyncTasks,
     isLoading,
     setIsLoading,
     changeState,
@@ -65,7 +66,7 @@ export function TaskTable() {
   const { page, setPage, isOpenModal, setIsOpenModal } = useGlobalContext();
   const [data, setData] = React.useState<IARMAsynchronousTasksTypes[] | []>([]);
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
-  const limit = 3;
+  const limit = 20;
 
   React.useEffect(() => {
     setPage(1);
@@ -195,9 +196,9 @@ export function TaskTable() {
   const handleCancel = async (selected: IARMAsynchronousTasksTypes[]) => {
     console.log(selected, "selected");
     try {
-      // selected.forEach(async (method) => {
-      //   // await deleteExecutionMethod(method.internal_execution_method);
-      // });
+      selected.forEach(async (task) => {
+        await cancelAsyncTasks(task.task_name);
+      });
     } catch (error) {
       console.log(error);
     }

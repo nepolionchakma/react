@@ -263,14 +263,18 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                   checked={checkboxSelected?.srs === "Y"}
                   onClick={() => handleCheckboxChange("srs")}
                 />
-                <FormLabel>Standard Request Submission (SRS)</FormLabel>
+                <FormLabel onClick={() => handleCheckboxChange("srs")}>
+                  Standard Request Submission (SRS)
+                </FormLabel>
               </div>
               <div className="flex items-center gap-1">
                 <Checkbox
                   checked={checkboxSelected?.sf === "Y"}
                   onClick={() => handleCheckboxChange("sf")}
                 />
-                <FormLabel>Step Function (SF)</FormLabel>
+                <FormLabel onClick={() => handleCheckboxChange("sf")}>
+                  Step Function (SF)
+                </FormLabel>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-10">

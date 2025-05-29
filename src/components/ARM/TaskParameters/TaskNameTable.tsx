@@ -11,7 +11,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -24,7 +29,9 @@ import {
 import { IARMAsynchronousTasksTypes } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import Pagination5 from "@/components/Pagination/Pagination5";
-import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
 
 export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
   {
@@ -57,10 +64,16 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
 ];
 
 export function TaskNameTable() {
-  const { getAsyncTasksLazyLoading, isLoading, setSelectedTask, totalPage } =
-    useARMContext();
-  const { page, setPage } = useGlobalContext();
+  const {
+    getAsyncTasksLazyLoading,
+    isLoading,
+    setSelectedTask,
+    setSelectedTaskParameters,
+    totalPage,
+  } = useARMContext();
+  // const { page, setPage } = useGlobalContext();
   const [data, setData] = React.useState<IARMAsynchronousTasksTypes[] | []>([]);
+  const [page, setPage] = React.useState<number>(1);
   const limit = 3;
   const [selectedRowId, setSelectedRowId] = React.useState<string>("");
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -91,10 +104,6 @@ export function TaskNameTable() {
   });
 
   React.useEffect(() => {
-    setPage(1);
-  }, []);
-
-  React.useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await getAsyncTasksLazyLoading(page, limit);
@@ -105,6 +114,7 @@ export function TaskNameTable() {
         console.log(error);
       } finally {
         setSelectedTask(undefined);
+        setSelectedTaskParameters([]);
         // uncheck checkbox
         table.getRowModel().rows.map((row) => row.toggleSelected(false));
       }
@@ -126,7 +136,7 @@ export function TaskNameTable() {
     <div className="px-3">
       {/* top icon and columns*/}
       <div className="flex gap-3 items-center py-2">
-        {/* <Input
+        <Input
           placeholder="Filter User Task Name"
           value={
             (table.getColumn("user_task_name")?.getFilterValue() as string) ??
@@ -138,9 +148,9 @@ export function TaskNameTable() {
               ?.setFilterValue(event.target.value)
           }
           className="max-w-sm px-4 py-2"
-        /> */}
+        />
         {/* Columns */}
-        {/* <DropdownMenu>
+        <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
               Columns <ChevronDown className="ml-2 h-4 w-4" />
@@ -165,7 +175,7 @@ export function TaskNameTable() {
                 );
               })}
           </DropdownMenuContent>
-        </DropdownMenu> */}
+        </DropdownMenu>
       </div>
       {/* Table */}
       <div className="rounded-md border">
