@@ -10,7 +10,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, FileEdit, PlusIcon } from "lucide-react";
+import { ChevronDown, CircleOff, FileEdit, PlusIcon } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -34,6 +34,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import columns from "./Columns";
 import Pagination5 from "@/components/Pagination/Pagination5";
@@ -54,7 +65,7 @@ export function TaskTable() {
   const { page, setPage, isOpenModal, setIsOpenModal } = useGlobalContext();
   const [data, setData] = React.useState<IARMAsynchronousTasksTypes[] | []>([]);
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
-  const limit = 20;
+  const limit = 3;
 
   React.useEffect(() => {
     setPage(1);
@@ -158,7 +169,7 @@ export function TaskTable() {
     "last_updated_by",
     "creation_date",
     "last_update_date",
-    "cancelled_yn",
+    // "cancelled_yn",
     "internal_execution_method",
     "task_name",
   ];
@@ -180,6 +191,16 @@ export function TaskTable() {
     setSelected([]);
     //table toggle false
     table.toggleAllRowsSelected(false);
+  };
+  const handleCancel = async (selected: IARMAsynchronousTasksTypes[]) => {
+    console.log(selected, "selected");
+    try {
+      // selected.forEach(async (method) => {
+      //   // await deleteExecutionMethod(method.internal_execution_method);
+      // });
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (
@@ -244,6 +265,45 @@ export function TaskTable() {
                   </Tooltip>
                 </TooltipProvider>
               </button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <CircleOff
+                            className={`${
+                              selected.length === 0
+                                ? "text-slate-200 cursor-not-allowed"
+                                : "cursor-pointer"
+                            }`}
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Delete Execution Method</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      your account and remove your data from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => handleCancel(selected)}>
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         </div>
