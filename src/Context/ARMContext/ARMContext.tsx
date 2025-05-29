@@ -6,6 +6,7 @@ import {
   IARMViewRequestsTypes,
   IAsynchronousRequestsAndTaskSchedulesTypes,
   IExecutionMethodsTypes,
+  IGetResponseExecutionMethodsTypes,
 } from "@/types/interfaces/ARM.interface";
 import React, { ReactNode, createContext, useContext, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
@@ -35,6 +36,7 @@ interface ARMContext {
     page: number,
     limit: number
   ) => Promise<IExecutionMethodsTypes[] | undefined>;
+  deleteExecutionMethod: (internal_execution_method: string) => Promise<void>;
 
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -191,17 +193,19 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   ) => {
     try {
       setIsLoading(true);
-      const [countExecutionMethods, ExecutionMethods] = await Promise.all([
-        api.get<IExecutionMethodsTypes[]>(`/arm-tasks/show-execution-methods`),
-        api.get<IExecutionMethodsTypes[]>(
-          `/arm-tasks/show-execution-methods/${page}/${limit}`
-        ),
-      ]);
-
-      const totalCount = countExecutionMethods.data.length;
-      const totalPages = Math.ceil(totalCount / limit);
-      setTotalPage(totalPages);
-      return ExecutionMethods.data ?? [];
+      // const [countExecutionMethods, ExecutionMethods] = await Promise.all([
+      //   api.get<IExecutionMethodsTypes[]>(`/arm-tasks/show-execution-methods`),
+      //   api.get<IExecutionMethodsTypes[]>(
+      //     `/arm-tasks/show-execution-methods/${page}/${limit}`
+      //   ),
+      // ]);
+      const res = await api.get<IGetResponseExecutionMethodsTypes>(
+        `/arm-tasks/show-execution-methods/${page}/${limit}`
+      );
+      // const totalCount = countExecutionMethods.data.length;
+      // const totalPages = Math.ceil(totalCount / limit);
+      setTotalPage(res.data.pages);
+      return res.data.items ?? [];
     } catch (error) {
       console.log(error);
     } finally {
@@ -209,7 +213,48 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     }
   };
 
+  const deleteExecutionMethod = async (internal_execution_method: string) => {
+    try {
+      setIsLoading(true);
+      const res = await api.delete(
+        `/arm-tasks/delete-execution-method/${internal_execution_method}`
+      );
+      if (res.status === 200) {
+        toast({
+          description: `${res.data.message}`,
+        });
+        setChangeState(Math.random() + 23 * 3000);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // const getSearchManageExecutionMethodsLazyLoading = async (
+  //   page: number,
+  //   limit: number,
+  //   userExecutionMethodName: string
+  // ) => {
+  //   try {
+  //     setIsLoading(true);
+  //     const res = await api.get<IGetResponseExecutionMethodsTypes>(
+  //       `/arm-tasks/show-execution-methods/search/${page}/${limit}?user_execution_method_name=${userExecutionMethodName}`
+  //     );
+  //     // const totalCount = countExecutionMethods.data.length;
+  //     // const totalPages = Math.ceil(totalCount / limit);
+  //     setTotalPage(res.data.pages);
+  //     return res.data.items ?? [];
+  //   } catch (error) {
+  //     console.log(error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }
+
   // Task Parameters
+
   const getTaskParametersLazyLoading = async (
     task_name: string,
     page: number,
@@ -347,6 +392,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     setTotalPage2,
     getManageExecutionMethods,
     getManageExecutionMethodsLazyLoading,
+    deleteExecutionMethod,
     getAsyncTasks,
     getAsyncTasksLazyLoading,
     isLoading,
