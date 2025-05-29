@@ -94,15 +94,13 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
 
         if (res) {
           toast({
-            title: "Info !!!",
-            description: `Added successfully.`,
+            description: `${res.data.message}`,
           });
           handleCloseModal();
         }
       } catch (error) {
         if (error instanceof AxiosError) {
           toast({
-            title: "Info !!!",
             variant: "destructive",
             description: `Error : ${error.message}`,
           });
@@ -122,15 +120,13 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
         );
         if (res) {
           toast({
-            title: "Info !!!",
-            description: `Added successfully.`,
+            description: `${res.data.message}`,
           });
           handleCloseModal();
         }
       } catch (error) {
         if (error instanceof AxiosError) {
           toast({
-            title: "Info !!!",
             variant: "destructive",
             description: `Error : ${error.message}`,
           });
@@ -152,7 +148,6 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
       console.log(error);
       if (error instanceof AxiosError) {
         toast({
-          title: "Info !!!",
           variant: "destructive",
           description: `Error : ${error.message}`,
         });
