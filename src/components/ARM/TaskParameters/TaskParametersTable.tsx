@@ -60,6 +60,7 @@ export function TaskParametersTable() {
     selectedTaskParameters,
     setSelectedTaskParameters,
     getTaskParametersLazyLoading,
+    deleteTaskParameters,
     changeState,
   } = useARMContext();
   const [data, setData] = React.useState<IARMTaskParametersTypes[] | []>([]);
@@ -169,11 +170,19 @@ export function TaskParametersTable() {
     table.toggleAllRowsSelected(false);
   };
 
-  // const handleDeleteParameters = async () => {
-  //   try {
-  //     await deleteTaskParameters(selectedTaskParameters);
-  //   } catch (error) {}
-  // };
+  const handleDeleteParameters = async (
+    task_name: string,
+    def_param_id: number
+  ) => {
+    try {
+      await deleteTaskParameters(task_name, def_param_id);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setSelectedTaskParameters([]);
+      table.toggleAllRowsSelected(false);
+    }
+  };
 
   React.useEffect(() => {
     //table toggle false
@@ -289,11 +298,9 @@ export function TaskParametersTable() {
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
                     <AlertDialogAction
                       onClick={() =>
-                        // handleCancel(selected)
-                        alert(
-                          `Deleted ${JSON.stringify(
-                            selectedTaskParameters
-                          )} rows`
+                        handleDeleteParameters(
+                          selectedTaskParameters[0].task_name,
+                          selectedTaskParameters[0].def_param_id
                         )
                       }
                     >
