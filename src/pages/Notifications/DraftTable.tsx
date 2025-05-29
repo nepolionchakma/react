@@ -200,12 +200,12 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>
-                                      Are you absolutely sure?
+                                      Are you sure?
                                     </AlertDialogTitle>
                                   </AlertDialogHeader>
                                   <AlertDialogDescription>
-                                    This message will be displayed in the
-                                    Recycle Bin.
+                                    This message will be moved to the Recycle
+                                    Bin.
                                   </AlertDialogDescription>
                                   <AlertDialogFooter>
                                     <AlertDialogCancel className="bg-Red-200 text-white flex justify-center items-center">
