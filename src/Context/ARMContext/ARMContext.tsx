@@ -148,7 +148,6 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       );
 
       setTotalPage(resultLazyLoading.data.pages);
-      console.log(resultLazyLoading.data.items);
       return resultLazyLoading.data.items;
     } catch (error) {
       console.log(error);

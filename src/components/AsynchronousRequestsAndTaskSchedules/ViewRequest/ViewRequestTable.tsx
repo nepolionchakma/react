@@ -55,10 +55,11 @@ export function ViewRequestTable() {
 
   const handleQuery = (e: string) => {
     if (e === "") {
-      console.log(e === "");
       setQuery({ isEmpty: true, value: e });
+      setPage(1);
     } else {
       setQuery({ isEmpty: false, value: e });
+      setPage(1);
     }
   };
 

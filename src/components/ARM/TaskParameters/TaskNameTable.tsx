@@ -65,13 +65,14 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
 
 export function TaskNameTable() {
   const {
-    getAsyncTasksLazyLoading,
+    totalPage,
     isLoading,
     setSelectedTask,
+    getAsyncTasksLazyLoading,
     setSelectedTaskParameters,
-    totalPage,
+    getSearchAsyncTasksLazyLoading,
   } = useARMContext();
-  // const { page, setPage } = useGlobalContext();
+
   const [data, setData] = React.useState<IARMAsynchronousTasksTypes[] | []>([]);
   const [page, setPage] = React.useState<number>(1);
   const limit = 3;
@@ -103,24 +104,53 @@ export function TaskNameTable() {
     },
   });
 
+  const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
+  const handleQuery = (e: string) => {
+    if (e === "") {
+      setQuery({ isEmpty: true, value: e });
+      setPage(1);
+    } else {
+      setQuery({ isEmpty: false, value: e });
+      setPage(1);
+    }
+  };
+
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await getAsyncTasksLazyLoading(page, limit);
-        table.getRowModel().rows.map((row) => row.toggleSelected(false));
-        setSelectedRowId("");
-        if (res) setData(res);
+        if (!query.isEmpty) {
+          const res = await getSearchAsyncTasksLazyLoading(
+            page,
+            limit,
+            query.value
+          );
+          if (res) {
+            setSelectedRowId("");
+            setData(res);
+          }
+        } else {
+          const res = await getAsyncTasksLazyLoading(page, limit);
+          if (res) {
+            setSelectedRowId("");
+            setData(res);
+          }
+        }
       } catch (error) {
         console.log(error);
-      } finally {
-        setSelectedTask(undefined);
-        setSelectedTaskParameters([]);
-        // uncheck checkbox
-        table.getRowModel().rows.map((row) => row.toggleSelected(false));
       }
     };
-    fetchData();
-  }, [page]);
+
+    // Debounce only when query changes
+    const delayDebounce = setTimeout(() => {
+      fetchData();
+      setSelectedTask(undefined);
+      setSelectedTaskParameters([]);
+      // uncheck checkbox
+      table.getRowModel().rows.map((row) => row.toggleSelected(false));
+    }, 1000);
+
+    return () => clearTimeout(delayDebounce); // Cleanup timeout
+  }, [query, page]);
 
   const handleRowSelection = (task: IARMAsynchronousTasksTypes) => {
     setSelectedTask((prev) => {
@@ -138,15 +168,8 @@ export function TaskNameTable() {
       <div className="flex gap-3 items-center py-2">
         <Input
           placeholder="Filter User Task Name"
-          value={
-            (table.getColumn("user_task_name")?.getFilterValue() as string) ??
-            ""
-          }
-          onChange={(event) =>
-            table
-              .getColumn("user_task_name")
-              ?.setFilterValue(event.target.value)
-          }
+          value={query.value}
+          onChange={(e) => handleQuery(e.target.value)}
           className="max-w-sm px-4 py-2"
         />
         {/* Columns */}
