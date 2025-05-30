@@ -16,7 +16,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, CircleOff, FileEdit } from "lucide-react";
+import { ChevronDown, Circle, CircleOff, FileEdit } from "lucide-react";
 
 import {
   AlertDialog,
@@ -63,6 +63,7 @@ export function ViewEditScheduledTasksTable() {
     isLoading,
     setIsLoading,
     cancelScheduledTask,
+    rescheduleTask,
     changeState,
     setChangeState,
   } = useARMContext();
@@ -104,28 +105,40 @@ export function ViewEditScheduledTasksTable() {
   const [rowSelection, setRowSelection] = React.useState({});
 
   const [selected, setSelected] = React.useState<
-    IAsynchronousRequestsAndTaskSchedulesTypes[]
-  >([]);
+    IAsynchronousRequestsAndTaskSchedulesTypes | undefined
+  >(undefined);
+  // const [selected, setSelected] = React.useState<
+  //   IAsynchronousRequestsAndTaskSchedulesTypes[]
+  // >([]);
 
   const handleRowSelection = (
     rowSelection: IAsynchronousRequestsAndTaskSchedulesTypes
   ) => {
     setSelected((prevSelected) => {
-      if (prevSelected.includes(rowSelection)) {
-        return prevSelected.filter((item) => item !== rowSelection);
+      if (prevSelected?.def_task_sche_id === rowSelection.def_task_sche_id) {
+        return undefined;
       } else {
-        return [...prevSelected, rowSelection];
+        return rowSelection;
       }
     });
+    // setSelected((prevSelected) => {
+    //   if (prevSelected.includes(rowSelection)) {
+    //     return prevSelected.filter((item) => item !== rowSelection);
+    //   } else {
+    //     return [...prevSelected, rowSelection];
+    //   }
+    // });
   };
-  const handleCancelSchedule = async () => {
+  const handleCancelOrRechedule = async () => {
     setIsLoading(true);
     try {
-      await cancelScheduledTask(selected);
+      selected && selected.cancelled_yn === "Y"
+        ? await rescheduleTask(selected)
+        : await cancelScheduledTask(selected!);
 
       //table toggle empty
       table.getRowModel().rows.map((row) => row.toggleSelected(false));
-      setSelected([]);
+      setSelected(undefined);
     } catch (error) {
       toast({
         description: `Error : ${error}`,
@@ -135,6 +148,7 @@ export function ViewEditScheduledTasksTable() {
       setIsLoading(false);
     }
   };
+
   const table = useReactTable({
     data,
     columns: getColumns(
@@ -191,7 +205,7 @@ export function ViewEditScheduledTasksTable() {
 
   React.useEffect(() => {
     table.toggleAllPageRowsSelected(false);
-    setSelected([]);
+    setSelected(undefined);
   }, [page]);
 
   const handleOpenModal = (modelName: string) => {
@@ -199,18 +213,18 @@ export function ViewEditScheduledTasksTable() {
   };
   const handleCloseModal = () => {
     setIsOpenModal(""); // close modal
-    setSelected([]);
+    setSelected(undefined);
     //table toggle false
     table.toggleAllRowsSelected(false);
   };
-
+  console.log(selected, "selected");
   return (
     <div className="px-3">
       {isOpenModal === "edit_task_schedule" && (
         <CustomModal2>
           <ScheduleATaskComponent
             action="Edit Scheduled Task"
-            selected={selected[0]}
+            selected={selected}
             user_schedule_name="run_script"
             handleCloseModal={handleCloseModal}
           />
@@ -228,15 +242,20 @@ export function ViewEditScheduledTasksTable() {
         <div className="flex gap-3">
           <div className="flex gap-3 items-center px-4 py-2 border rounded">
             <div className="flex gap-3">
-              <button disabled={selected.length > 1 || selected.length === 0}>
-                {" "}
+              <button
+                disabled={
+                  !selected
+                  // selected.length > 1 || selected.length === 0
+                }
+              >
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <FileEdit
                         className={`${
-                          selected.length > 1 || selected.length === 0
-                            ? "text-slate-200 cursor-not-allowed"
+                          !selected
+                            ? // selected.length > 1 || selected.length === 0
+                              "text-slate-200 cursor-not-allowed"
                             : "cursor-pointer"
                         }`}
                         onClick={() => handleOpenModal("edit_task_schedule")}
@@ -251,20 +270,47 @@ export function ViewEditScheduledTasksTable() {
               {/* delete  */}
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <button disabled={selected.length === 0}>
+                  <button
+                  // disabled={!selected}
+                  >
+                    {/* <button disabled={selected.length === 0}> */}
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
-                          <CircleOff
+                          {selected?.cancelled_yn === "Y" ? (
+                            <Circle
+                              className={`${
+                                selected && selected.cancelled_yn === "Y"
+                                  ? // selected.length === 0
+                                    "cursor-pointer"
+                                  : "cursor-not-allowed text-slate-200"
+                              }`}
+                            />
+                          ) : (
+                            <CircleOff
+                              className={`${
+                                selected && selected.cancelled_yn === "N"
+                                  ? // selected.length === 0
+                                    "cursor-pointer"
+                                  : "cursor-not-allowed text-slate-200"
+                              }`}
+                            />
+                          )}
+                          {/* <CircleOff
                             className={`${
                               selected.length === 0
                                 ? "cursor-not-allowed text-slate-200"
                                 : "cursor-pointer"
                             }`}
-                          />
+                          /> */}
                         </TooltipTrigger>
                         <TooltipContent>
-                          <p>Cancel Schedule Task</p>
+                          {selected?.cancelled_yn === "Y" ? (
+                            <p>Reschedule Task</p>
+                          ) : (
+                            <p>Cancel Scheduled Task</p>
+                          )}
+                          {/* <p>Cancel Schedule Task</p> */}
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -272,12 +318,19 @@ export function ViewEditScheduledTasksTable() {
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Cancel scheduled task?</AlertDialogTitle>
+                    <AlertDialogTitle>
+                      {selected && selected.cancelled_yn.toLowerCase() === "y"
+                        ? "Reschedule Task?"
+                        : "Cancel Scheduled Task?"}
+                    </AlertDialogTitle>
                     <AlertDialogDescription>
-                      <>Selected User Task Schedule:</>
+                      <>Selected Schedule:</>
                       <br />
                       <br />
-                      {selected
+                      <span className="block text-black">
+                        Schedule name : {selected?.user_schedule_name}
+                      </span>
+                      {/* {selected
                         .filter(
                           (item) => item.cancelled_yn.toLowerCase() !== "y"
                         )
@@ -289,15 +342,19 @@ export function ViewEditScheduledTasksTable() {
                             {index + 1}. Schedule name :{" "}
                             {item.user_schedule_name}
                           </span>
-                        ))}
+                        ))} */}
                       <br />
-                      This action cannot be undone. This will permanently cancel
-                      your scheduled task.
+                      {/* {selected && selected?.cancelled_yn === "N" && (
+                        <>
+                          This action cannot be undone. This will permanently
+                          cancel your scheduled task.
+                        </>
+                      )} */}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleCancelSchedule}>
+                    <AlertDialogAction onClick={handleCancelOrRechedule}>
                       Continue
                     </AlertDialogAction>
                   </AlertDialogFooter>
@@ -370,26 +427,27 @@ export function ViewEditScheduledTasksTable() {
                         {/* Example: Checkbox for selecting all rows */}
                         {header.id === "select" && (
                           <Checkbox
-                            checked={
-                              table.getIsAllPageRowsSelected() ||
-                              (table.getIsSomePageRowsSelected() &&
-                                "indeterminate")
-                            }
-                            onCheckedChange={(value) => {
-                              // Toggle all page rows selected
-                              table.toggleAllPageRowsSelected(!!value);
-                              setTimeout(() => {
-                                const selectedRows = table
-                                  .getSelectedRowModel()
-                                  .rows.map((row) => row.original);
-                                setSelected(
-                                  selectedRows.filter(
-                                    (item) =>
-                                      item.cancelled_yn.toLowerCase() !== "y"
-                                  )
-                                );
-                              }, 0);
-                            }}
+                            disabled
+                            // checked={
+                            //   table.getIsAllPageRowsSelected() ||
+                            //   (table.getIsSomePageRowsSelected() &&
+                            //     "indeterminate")
+                            // }
+                            // onCheckedChange={(value) => {
+                            //   // Toggle all page rows selected
+                            //   table.toggleAllPageRowsSelected(!!value);
+                            //   setTimeout(() => {
+                            //     const selectedRows = table
+                            //       .getSelectedRowModel()
+                            //       .rows.map((row) => row.original);
+                            //     setSelected(
+                            //       selectedRows.filter(
+                            //         (item) =>
+                            //           item.cancelled_yn.toLowerCase() !== "y"
+                            //       )
+                            //     );
+                            //   }, 0);
+                            // }}
                             aria-label="Select all"
                           />
                         )}
@@ -427,14 +485,18 @@ export function ViewEditScheduledTasksTable() {
                           <TableCell key={cell.id} className={`border p-1 h-8`}>
                             {index === 0 ? (
                               <Checkbox
-                                disabled={
-                                  row.original.cancelled_yn.toLowerCase() ===
-                                  "y"
+                                // disabled={
+                                //   row.original.cancelled_yn.toLowerCase() ===
+                                //   "y"
+                                // }
+                                checked={
+                                  row.original.def_task_sche_id ===
+                                  selected?.def_task_sche_id
                                 }
-                                checked={row.getIsSelected()}
-                                onCheckedChange={(value) => {
-                                  row.toggleSelected(!!value);
-                                }}
+                                // onCheckedChange={(value) => {
+                                //   ro;
+                                //   // row.toggleSelected(!!value);
+                                // }}
                                 onClick={() => handleRowSelection(row.original)}
                                 className="mr-1"
                               />
