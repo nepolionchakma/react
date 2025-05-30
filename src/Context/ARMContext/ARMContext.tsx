@@ -68,7 +68,11 @@ interface ARMContext {
     limit: number
   ) => Promise<IAsynchronousRequestsAndTaskSchedulesTypes[] | undefined>;
   cancelScheduledTask: (
-    selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
+    selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes
+    // selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
+  ) => Promise<void>;
+  rescheduleTask: (
+    selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes
   ) => Promise<void>;
   getViewRequests: (
     page: number,
@@ -337,31 +341,68 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     }
   };
   const cancelScheduledTask = async (
-    selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
+    selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes
+    // selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
   ) => {
     try {
       setIsLoading(true);
-      const responses = await Promise.all(
-        selectedItems.map(async (item) => {
-          try {
-            const response = await api.put(
-              `/asynchronous-requests-and-task-schedules/cancel-task-schedule/${item.task_name}`,
-              {
-                redbeat_schedule_name: item.redbeat_schedule_name,
-              }
-            );
-            return response;
-          } catch (error) {
-            console.error("Error canceling task schedule:", error);
-            return null;
-          }
-        })
+      const res = await api.put(
+        `/asynchronous-requests-and-task-schedules/cancel-task-schedule/${selectedItem.task_name}`,
+        {
+          redbeat_schedule_name: selectedItem.redbeat_schedule_name,
+        }
       );
-      responses.map((i) => {
-        return toast({
-          description: `${i?.data?.message}`,
+      if (res.status === 200) {
+        toast({
+          description: `${res.data.message}`,
         });
-      });
+        setChangeState(Math.random() + 23 * 3000);
+      }
+      // const responses = await Promise.all(
+      //   selectedItems.map(async (item) => {
+      //     try {
+      //       const response = await api.put(
+      //         `/asynchronous-requests-and-task-schedules/cancel-task-schedule/${item.task_name}`,
+      //         {
+      //           redbeat_schedule_name: item.redbeat_schedule_name,
+      //         }
+      //       );
+      //       return response;
+      //     } catch (error) {
+      //       console.error("Error canceling task schedule:", error);
+      //       return null;
+      //     }
+      //   })
+      // );
+      // responses.map((i) => {
+      //   return toast({
+      //     description: `${i?.data?.message}`,
+      //   });
+      // });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const rescheduleTask = async (
+    selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes
+    // selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
+  ) => {
+    try {
+      setIsLoading(true);
+      const res = await api.put(
+        `/asynchronous-requests-and-task-schedules/reschedule-task/${selectedItem.task_name}`,
+        {
+          redbeat_schedule_name: selectedItem.redbeat_schedule_name,
+        }
+      );
+      if (res.status === 200) {
+        toast({
+          description: `${res.data.message}`,
+        });
+        setChangeState(Math.random() + 23 * 3000);
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -429,6 +470,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     setChangeState,
     getAsynchronousRequestsAndTaskSchedules,
     cancelScheduledTask,
+    rescheduleTask,
     getViewRequests,
     getSearchViewRequests,
     getSearchAsyncTasksLazyLoading,
