@@ -387,7 +387,6 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   };
   const rescheduleTask = async (
     selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes
-    // selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
   ) => {
     try {
       setIsLoading(true);

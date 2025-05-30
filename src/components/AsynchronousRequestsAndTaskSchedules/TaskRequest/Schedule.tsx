@@ -226,7 +226,7 @@ const Schedule: FC<IScheduleProps> = ({
                             setFrequency(e.target.valueAsNumber);
                             form.setValue("schedule", {
                               FREQUENCY: e.target.valueAsNumber,
-                              FREQUENCY_TYPE: frequency_type ?? "MINUTES",
+                              FREQUENCY_TYPE: frequency_type ?? "MINUTE(S)",
                             });
                           }}
                         />
@@ -252,7 +252,11 @@ const Schedule: FC<IScheduleProps> = ({
                               FREQUENCY_TYPE: value,
                             });
                           }}
-                          value={field.value}
+                          value={
+                            field.value === "MINUTES"
+                              ? "MINUTE(S)"
+                              : field.value
+                          }
                           required
                         >
                           <SelectTrigger>
