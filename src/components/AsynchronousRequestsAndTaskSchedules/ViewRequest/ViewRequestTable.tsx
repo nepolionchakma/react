@@ -89,7 +89,7 @@ export function ViewRequestTable() {
       fetchData();
       table.toggleAllPageRowsSelected(false);
       setRowSelection({});
-    });
+    }, 1000);
 
     return () => clearTimeout(delayDebounce); // Cleanup timeout
   }, [query, page]); // Run on query and page change
