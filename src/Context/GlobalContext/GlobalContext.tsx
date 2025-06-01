@@ -47,6 +47,11 @@ interface GlobalContex {
     page: number,
     limit: number
   ) => Promise<IManageAccessEntitlementsPerPageTypes | undefined>;
+  getSearchDataSources: (
+    page: number,
+    limit: number,
+    dataSourceName: string
+  ) => Promise<IDataSourceTypes[]>;
   fetchDataSource: (id: number) => Promise<IDataSourceTypes>;
   isLoading: boolean;
   isCombinedUserLoading: boolean;
@@ -333,6 +338,25 @@ export function GlobalContextProvider({
       console.log(error);
     }
   };
+
+  const getSearchDataSources = async (
+    page: number,
+    limit: number,
+    dataSourceName: string
+  ) => {
+    try {
+      const resultLazyLoading = await api.get(
+        `/def-data-sources/search/${page}/${limit}?datasource_name=${dataSourceName}`
+      );
+
+      setTotalPage(resultLazyLoading.data.pages);
+
+      return resultLazyLoading.data.items;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const fetchDataSource = async (id: number): Promise<IDataSourceTypes> => {
     try {
       const response = await api.get<IDataSourceTypes>(
@@ -485,6 +509,7 @@ export function GlobalContextProvider({
         setToken,
         users,
         fetchDataSources,
+        getSearchDataSources,
         fetchDataSource,
         isLoading,
         isCombinedUserLoading,
