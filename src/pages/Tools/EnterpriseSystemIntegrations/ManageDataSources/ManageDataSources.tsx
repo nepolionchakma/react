@@ -129,7 +129,7 @@ const ManageDataSources = () => {
     }, 1000);
 
     return () => clearTimeout(delayDebounce); // Cleanup timeout
-  }, [query, page, save]);
+  }, [query, page, save, limit]);
 
   // select row
   const handleRowSelection = (rowData: IDataSourceTypes) => {

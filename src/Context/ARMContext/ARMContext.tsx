@@ -247,29 +247,52 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     }
   };
 
+  // lazy loading task schedule
   const getAsynchronousRequestsAndTaskSchedules = async (
     page: number,
     limit: number
   ) => {
     try {
-      const [allTasksSchedules, taskSchedules] = await Promise.all([
-        api.get<IAsynchronousRequestsAndTaskSchedulesTypes[]>(
-          `/asynchronous-requests-and-task-schedules/task-schedules`
-        ),
-        api.get<IAsynchronousRequestsAndTaskSchedulesTypes[]>(
-          `/asynchronous-requests-and-task-schedules/task-schedules/${page}/${limit}`
-        ),
-      ]);
+      const result = await api.get<{
+        pages: number;
+        items: IAsynchronousRequestsAndTaskSchedulesTypes[];
+      }>(
+        `/asynchronous-requests-and-task-schedules/task-schedules/${page}/${limit}`
+      );
 
-      const totalCount = allTasksSchedules.data.length;
-      const totalPages = Math.ceil(totalCount / limit);
+      const totalPages = result.data.pages;
       setTotalPage(totalPages);
-      return taskSchedules.data ?? [];
+      return result.data.items ?? [];
     } catch (error) {
       console.log("Task Parameters Item Not found");
       return [];
     }
   };
+
+  // const getAsynchronousRequestsAndTaskSchedules = async (
+  //   page: number,
+  //   limit: number
+  // ) => {
+  //   try {
+  //     const [allTasksSchedules, taskSchedules] = await Promise.all([
+  //       api.get<IAsynchronousRequestsAndTaskSchedulesTypes[]>(
+  //         `/asynchronous-requests-and-task-schedules/task-schedules`
+  //       ),
+  //       api.get<IAsynchronousRequestsAndTaskSchedulesTypes[]>(
+  //         `/asynchronous-requests-and-task-schedules/task-schedules/${page}/${limit}`
+  //       ),
+  //     ]);
+
+  //     const totalCount = allTasksSchedules.data.length;
+  //     const totalPages = Math.ceil(totalCount / limit);
+  //     setTotalPage(totalPages);
+  //     return taskSchedules.data ?? [];
+  //   } catch (error) {
+  //     console.log("Task Parameters Item Not found");
+  //     return [];
+  //   }
+  // };
+
   const cancelScheduledTask = async (
     selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
   ) => {

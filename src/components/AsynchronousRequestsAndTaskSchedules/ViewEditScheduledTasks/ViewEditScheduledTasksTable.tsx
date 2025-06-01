@@ -72,9 +72,20 @@ export function ViewEditScheduledTasksTable() {
   const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
   const [viewParameters, setViewParameters] = React.useState("");
   const [clickedRowId, setClickedRowId] = React.useState("");
-  const limit = 20;
+  const [limit, setLimit] = React.useState<number>(8);
   const [page, setPage] = React.useState<number>(1);
   const { isOpenModal, setIsOpenModal } = useGlobalContext();
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+
+  const [selected, setSelected] = React.useState<
+    IAsynchronousRequestsAndTaskSchedulesTypes[]
+  >([]);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -93,19 +104,7 @@ export function ViewEditScheduledTasksTable() {
       }
     };
     fetchData();
-  }, [changeState, page]);
-
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
-
-  const [selected, setSelected] = React.useState<
-    IAsynchronousRequestsAndTaskSchedulesTypes[]
-  >([]);
+  }, [changeState, page, limit]);
 
   const handleRowSelection = (
     rowSelection: IAsynchronousRequestsAndTaskSchedulesTypes
@@ -188,6 +187,10 @@ export function ViewEditScheduledTasksTable() {
       }
     });
   }, [table]);
+
+  React.useEffect(() => {
+    table.setPageSize(limit);
+  }, [limit, table]);
 
   React.useEffect(() => {
     table.toggleAllPageRowsSelected(false);
@@ -320,6 +323,18 @@ export function ViewEditScheduledTasksTable() {
           }
           className="max-w-sm px-4 py-2"
         />
+        <div className="flex gap-2 items-center ml-auto">
+          <h3>Rows :</h3>
+          <input
+            type="number"
+            placeholder="Rows"
+            value={limit}
+            min={1}
+            max={20}
+            onChange={(e) => setLimit(Number(e.target.value))}
+            className="w-14 border rounded p-2"
+          />
+        </div>
         {/* Columns */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
