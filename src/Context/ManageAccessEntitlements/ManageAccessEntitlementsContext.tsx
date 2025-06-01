@@ -34,6 +34,11 @@ interface IContextTypes {
   fetchAccessPointsEntitlement: (
     fetchData: IManageAccessEntitlementsTypes
   ) => Promise<void>;
+  getSearchAccessPointElementsLazyLoading: (
+    page: number,
+    limit: number,
+    element_name: string
+  ) => Promise<IFetchAccessPointsElementTypes[] | undefined>;
   fetchAccessPointsEntitlementForDelete: (
     fetchData: IManageAccessEntitlementsTypes
   ) => Promise<IFetchAccessPointsElementTypes[]>;
@@ -165,7 +170,7 @@ export const ManageAccessEntitlementsProvider = ({
     setIsLoading(true);
     try {
       const response = await api.get<IFetchAccessPointsElementTypes[]>(
-        `/access-points-element`
+        `/def-access-point-elements`
       );
       setAccessPoints(response.data);
       return response.data;
@@ -175,6 +180,28 @@ export const ManageAccessEntitlementsProvider = ({
       setIsLoading(false);
     }
   };
+
+  // Search Access Points Elements
+  const getSearchAccessPointElementsLazyLoading = async (
+    page: number,
+    limit: number,
+    element_name: string
+  ) => {
+    try {
+      setIsLoading(true);
+      const resultLazyLoading = await api.get(
+        `/def-access-point-elements/search/${page}/${limit}?element_name=${element_name}`
+      );
+      setTotalPage(resultLazyLoading.data.pages);
+      console.log(resultLazyLoading.data.items);
+      return resultLazyLoading.data.items;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const fetchAccessPointsEntitlement = useCallback(
     async (fetchData: IManageAccessEntitlementsTypes) => {
       setIsLoading(true);
@@ -520,6 +547,7 @@ export const ManageAccessEntitlementsProvider = ({
     setSelectedAccessEntitlements,
     fetchAccessPointsEntitlement,
     fetchAccessPointsEntitlementForDelete,
+    getSearchAccessPointElementsLazyLoading,
     filteredData,
     setFilteredData,
     isLoading,
