@@ -57,7 +57,7 @@ const ManageDataSources = () => {
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
   const [save, setSave] = React.useState<number>(0);
   const [page, setPage] = React.useState<number>(1);
-  const [limit, setLimit] = React.useState(8);
+  const [limit, setLimit] = React.useState<number>(8);
   const [totalPage, setTotalPage] = React.useState<number | undefined>();
   // const [currentPage, setCurrentPage] = React.useState<number | undefined>();
   // Fetch Data
@@ -337,6 +337,7 @@ const ManageDataSources = () => {
   React.useEffect(() => {
     setSelected(table.getSelectedRowModel().rows.map((row) => row.original));
   }, [table.getSelectedRowModel().rows]);
+
   const handleDelete = async () => {
     setIsLoading(true);
     try {

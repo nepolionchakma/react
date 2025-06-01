@@ -63,6 +63,11 @@ interface ARMContext {
     page: number,
     limit: number
   ) => Promise<IAsynchronousRequestsAndTaskSchedulesTypes[] | undefined>;
+  getSearchAsynchronousRequestsAndTaskSchedules: (
+    page: number,
+    limit: number,
+    task_name: string
+  ) => Promise<IAsynchronousRequestsAndTaskSchedulesTypes[]>;
   cancelScheduledTask: (
     selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
   ) => Promise<void>;
@@ -269,6 +274,23 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     }
   };
 
+  // lazy loading search by task name
+  const getSearchAsynchronousRequestsAndTaskSchedules = async (
+    page: number,
+    limit: number,
+    task_name: string
+  ) => {
+    try {
+      const resultLazyLoading = await api.get(
+        `/asynchronous-requests-and-task-schedules/task-schedules/search/${page}/${limit}?task_name=${task_name}`
+      );
+      setTotalPage(resultLazyLoading.data.pages);
+      return resultLazyLoading.data.items;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   // const getAsynchronousRequestsAndTaskSchedules = async (
   //   page: number,
   //   limit: number
@@ -384,6 +406,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     changeState,
     setChangeState,
     getAsynchronousRequestsAndTaskSchedules,
+    getSearchAsynchronousRequestsAndTaskSchedules,
     cancelScheduledTask,
     getViewRequests,
     getSearchViewRequests,
