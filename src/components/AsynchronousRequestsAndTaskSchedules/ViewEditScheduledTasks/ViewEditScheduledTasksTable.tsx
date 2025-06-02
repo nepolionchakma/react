@@ -97,6 +97,14 @@ export function ViewEditScheduledTasksTable() {
       setQuery({ isEmpty: false, value: e });
     }
   };
+
+  // When query changes, reset page to 1
+  React.useEffect(() => {
+    if (!query.isEmpty) {
+      setPage(1);
+    }
+  }, [query]);
+
   React.useEffect(() => {
     const fetchData = async () => {
       try {
