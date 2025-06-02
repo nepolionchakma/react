@@ -367,16 +367,15 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   const getSearchViewRequests = async (
     page: number,
     limit: number,
-    userScheduleName: string
+    task_name: string
   ) => {
     try {
       setIsLoading(true);
       const resultLazyLoading = await api.get(
-        `/asynchronous-requests-and-task-schedules/view_requests/search/${page}/${limit}?user_schedule_name=${userScheduleName}`
+        `/asynchronous-requests-and-task-schedules/view_requests/search/${page}/${limit}?task_name=${task_name}`
       );
 
       setTotalPage(resultLazyLoading.data.pages);
-
       return resultLazyLoading.data.items;
     } catch (error) {
       console.log(error);

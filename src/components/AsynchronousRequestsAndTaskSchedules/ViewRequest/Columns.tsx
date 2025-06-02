@@ -235,7 +235,15 @@ export const columns = (
     },
     cell: ({ row }) => {
       const data: string = row.getValue("timestamp");
-      return <div className="min-w-max">{data} </div>;
+
+      const date = new Date(data);
+
+      const convertDate = (isoDateString: Date) => {
+        const date = new Date(isoDateString);
+        const formattedDate = date.toLocaleString();
+        return formattedDate;
+      };
+      return <div className="min-w-max">{convertDate(date)} </div>;
     },
   },
 ];

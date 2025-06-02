@@ -129,7 +129,7 @@ const ManageDataSources = () => {
         setIsLoading(false);
       }
     };
-
+    setIsLoading(true);
     // Debounce only when query changes
     const delayDebounce = setTimeout(() => {
       fetchData();
@@ -244,10 +244,13 @@ const ManageDataSources = () => {
       },
       cell: ({ row }) => {
         const date = new Date(row.getValue("last_access_synchronization_date"));
-        const localDateString = date.toDateString();
-        const localTimeString = date.toLocaleTimeString();
-        const totalDateTime = localDateString + " " + localTimeString;
-        return <div className="capitalize">{totalDateTime}</div>;
+        const convertDate = (isoDateString: Date) => {
+          const date = new Date(isoDateString);
+          const formattedDate = date.toLocaleString();
+          return formattedDate;
+        };
+
+        return <div className="capitalize">{convertDate(date)}</div>;
       },
     },
     {
