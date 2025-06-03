@@ -134,6 +134,8 @@ export function ViewEditScheduledTasksTable() {
       }
     };
 
+    setIsLoading(true);
+
     // Debounce only when query changes
     const delayDebounce = setTimeout(() => {
       fetchData();
