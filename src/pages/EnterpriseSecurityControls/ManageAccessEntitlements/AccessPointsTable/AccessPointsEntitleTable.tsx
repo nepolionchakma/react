@@ -129,9 +129,9 @@ const AccessPointsEntitleTable = () => {
               setPage(1);
             }}
             disabled={
-              !selectedManageAccessEntitlements?.entitlement_id ||
-              selectedAccessEntitlements[0]?.entitlement_id !==
-                selectedManageAccessEntitlements?.entitlement_id ||
+              !selectedManageAccessEntitlements?.def_entitlement_id ||
+              selectedAccessEntitlements[0]?.def_entitlement_id !==
+                selectedManageAccessEntitlements?.def_entitlement_id ||
               selectedAccessEntitlements.length === 0
             }
           >
@@ -146,9 +146,9 @@ const AccessPointsEntitleTable = () => {
               setAccessPointStatus("create");
             }}
             disabled={
-              !selectedManageAccessEntitlements?.entitlement_id ||
-              selectedAccessEntitlements[0]?.entitlement_id !==
-                selectedManageAccessEntitlements?.entitlement_id ||
+              !selectedManageAccessEntitlements?.def_entitlement_id ||
+              selectedAccessEntitlements[0]?.def_entitlement_id !==
+                selectedManageAccessEntitlements?.def_entitlement_id ||
               selectedAccessEntitlements.length === 0
             }
           >
@@ -158,8 +158,8 @@ const AccessPointsEntitleTable = () => {
 
         {/* Entitlement Name */}
         <div>
-          {selectedManageAccessEntitlements?.entitlement_id ===
-            selectedAccessEntitlements[0]?.entitlement_id && (
+          {selectedManageAccessEntitlements?.def_entitlement_id ===
+            selectedAccessEntitlements[0]?.def_entitlement_id && (
             <h3 className="font-bold capitalize">
               {selectedManageAccessEntitlements?.entitlement_name}
             </h3>

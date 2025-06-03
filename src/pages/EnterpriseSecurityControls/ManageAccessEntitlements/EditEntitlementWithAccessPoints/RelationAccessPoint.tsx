@@ -108,8 +108,8 @@ const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
     try {
       const selectedIds = selectedItem?.map((item) => item.access_point_id);
       await createAccessEntitlementElements(
-        selectedManageAccessEntitlements?.entitlement_id
-          ? selectedManageAccessEntitlements.entitlement_id
+        selectedManageAccessEntitlements?.def_entitlement_id
+          ? selectedManageAccessEntitlements.def_entitlement_id
           : 0,
         selectedIds
       );
@@ -121,7 +121,7 @@ const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
   const handleRemoveAccessEntitlementElements = () => {
     for (const item of selectedAccessEntitlementElements) {
       deleteAccessEntitlementElement(
-        selectedManageAccessEntitlements?.entitlement_id as number,
+        selectedManageAccessEntitlements?.def_entitlement_id as number,
         item
       );
     }

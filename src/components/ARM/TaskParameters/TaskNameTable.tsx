@@ -125,13 +125,13 @@ export function TaskNameTable() {
             query.value
           );
           if (res) {
-            setSelectedRowId("");
+            setSelectedRowId(0);
             setData(res);
           }
         } else {
           const res = await getAsyncTasksLazyLoading(page, limit);
           if (res) {
-            setSelectedRowId("");
+            setSelectedRowId(0);
             setData(res);
           }
         }
