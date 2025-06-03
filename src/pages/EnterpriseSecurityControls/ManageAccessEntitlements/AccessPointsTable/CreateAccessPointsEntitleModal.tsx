@@ -97,8 +97,8 @@ const AccessPointsEntitleModal = () => {
       try {
         await createAccessPointsEntitlement(postData);
         await createAccessEntitlementElements(
-          selectedManageAccessEntitlements?.entitlement_id
-            ? selectedManageAccessEntitlements.entitlement_id
+          selectedManageAccessEntitlements?.def_entitlement_id
+            ? selectedManageAccessEntitlements.def_entitlement_id
             : 0,
           [accessPointsMaxId]
         );
