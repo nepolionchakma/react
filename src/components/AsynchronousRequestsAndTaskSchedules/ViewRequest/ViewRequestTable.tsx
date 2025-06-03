@@ -12,7 +12,7 @@ import {
 } from "@tanstack/react-table";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+// import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -56,7 +56,7 @@ export function ViewRequestTable() {
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  // const [rowSelection, setRowSelection] = React.useState({});
 
   const handleQuery = (e: string) => {
     if (e === "") {
@@ -101,7 +101,7 @@ export function ViewRequestTable() {
     const delayDebounce = setTimeout(() => {
       fetchData();
       table.toggleAllPageRowsSelected(false);
-      setRowSelection({});
+      // setRowSelection({});
     }, 1000);
 
     return () => clearTimeout(delayDebounce); // Cleanup timeout
@@ -131,12 +131,12 @@ export function ViewRequestTable() {
       },
     },
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
+    // onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
-      rowSelection,
+      // rowSelection,
     },
   });
 
@@ -238,7 +238,7 @@ export function ViewRequestTable() {
                             header.column.columnDef.header,
                             header.getContext()
                           )}
-                      {header.id === "select" && (
+                      {/* {header.id === "select" && (
                         <Checkbox
                           checked={
                             table.getIsAllPageRowsSelected() ||
@@ -251,7 +251,7 @@ export function ViewRequestTable() {
                           className="mr-1"
                           aria-label="Select all"
                         />
-                      )}
+                      )} */}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -279,22 +279,11 @@ export function ViewRequestTable() {
                   return (
                     <React.Fragment key={row.id}>
                       <TableRow data-state={row.getIsSelected() && "selected"}>
-                        {row.getVisibleCells().map((cell, index) => (
+                        {row.getVisibleCells().map((cell) => (
                           <TableCell key={cell.id} className="border p-1 h-8">
-                            {index === 0 ? (
-                              <div className="flex items-center gap-2">
-                                <Checkbox
-                                  checked={row.getIsSelected()}
-                                  onCheckedChange={(value) =>
-                                    row.toggleSelected(!!value)
-                                  }
-                                />
-                              </div>
-                            ) : (
-                              flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
-                              )
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
                             )}
                           </TableCell>
                         ))}
@@ -373,11 +362,11 @@ export function ViewRequestTable() {
         </div>
 
         {/* Pagination and Status */}
-        <div className="flex justify-between p-1">
-          <div className="flex-1 text-sm text-gray-600">
+        <div className="flex justify-end p-1">
+          {/* <div className="flex-1 text-sm text-gray-600">
             {table.getFilteredSelectedRowModel().rows.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
-          </div>
+          </div> */}
           <Pagination5
             currentPage={page}
             setCurrentPage={setPage}
