@@ -94,15 +94,13 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
 
         if (res) {
           toast({
-            title: "Info !!!",
-            description: `Added successfully.`,
+            description: `${res.data.message}`,
           });
           handleCloseModal();
         }
       } catch (error) {
         if (error instanceof AxiosError) {
           toast({
-            title: "Info !!!",
             variant: "destructive",
             description: `Error : ${error.message}`,
           });
@@ -122,15 +120,13 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
         );
         if (res) {
           toast({
-            title: "Info !!!",
-            description: `Added successfully.`,
+            description: `${res.data.message}`,
           });
           handleCloseModal();
         }
       } catch (error) {
         if (error instanceof AxiosError) {
           toast({
-            title: "Info !!!",
             variant: "destructive",
             description: `Error : ${error.message}`,
           });
@@ -152,7 +148,6 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
       console.log(error);
       if (error instanceof AxiosError) {
         toast({
-          title: "Info !!!",
           variant: "destructive",
           description: `Error : ${error.message}`,
         });
@@ -161,6 +156,7 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
       reset();
     }
   };
+  // console.log(selected,"selected")
   return (
     <div>
       <div className="p-2 bg-slate-300 rounded-t mx-auto text-center font-bold flex justify-between">
@@ -243,7 +239,7 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
               />
             </div>
 
-            <div className="fixed bottom-4 right-7 p-4">
+            <div className="flex flex-row-reverse pt-2">
               <Button type="submit">
                 {isLoading ? (
                   <l-tailspin size="15" stroke="3" speed="0.9" color="white" />

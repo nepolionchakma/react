@@ -10,7 +10,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, FileEdit, PlusIcon } from "lucide-react";
+import { ChevronDown, CircleOff, FileEdit, PlusIcon } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -34,19 +34,31 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import columns from "./Columns";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { IARMAsynchronousTasksTypes } from "@/types/interfaces/ARM.interface";
 import AsynchronousRegisterEditTaskModal from "../AsynchronousRegisterEditTaskModal/AsynchronousRegisterEditTaskModal";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
-import CustomModal2 from "@/components/CustomModal/CustomModal2";
+import CustomModal4 from "@/components/CustomModal/CustomModal4";
 
 export function TaskTable() {
   const {
     totalPage,
     getAsyncTasksLazyLoading,
     getSearchAsyncTasksLazyLoading,
+    cancelAsyncTasks,
     isLoading,
     setIsLoading,
     changeState,
@@ -86,6 +98,9 @@ export function TaskTable() {
     // Debounce only when query changes
     const delayDebounce = setTimeout(() => {
       fetchData();
+      //table toggle false
+      table.toggleAllRowsSelected(false);
+      setSelected([]);
     }, 1000);
 
     return () => clearTimeout(delayDebounce); // Cleanup timeout
@@ -155,7 +170,7 @@ export function TaskTable() {
     "last_updated_by",
     "creation_date",
     "last_update_date",
-    "cancelled_yn",
+    // "cancelled_yn",
     "internal_execution_method",
     "task_name",
   ];
@@ -178,11 +193,21 @@ export function TaskTable() {
     //table toggle false
     table.toggleAllRowsSelected(false);
   };
+  const handleCancel = async (selected: IARMAsynchronousTasksTypes[]) => {
+    console.log(selected, "selected");
+    try {
+      selected.forEach(async (task) => {
+        await cancelAsyncTasks(task.task_name);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
     <div className="px-3">
       {isOpenModal === "register_task" ? (
-        <CustomModal2>
+        <CustomModal4 className="w-[770px]">
           <AsynchronousRegisterEditTaskModal
             task_name="Register Task"
             selected={selected}
@@ -190,10 +215,10 @@ export function TaskTable() {
             setIsLoading={setIsLoading}
             handleCloseModal={handleCloseModal}
           />
-        </CustomModal2>
+        </CustomModal4>
       ) : (
         isOpenModal === "edit_task" && (
-          <CustomModal2>
+          <CustomModal4 className="w-[770px]">
             <AsynchronousRegisterEditTaskModal
               task_name="Edit Task"
               selected={selected}
@@ -201,7 +226,7 @@ export function TaskTable() {
               setIsLoading={setIsLoading}
               handleCloseModal={handleCloseModal}
             />
-          </CustomModal2>
+          </CustomModal4>
         )
       )}
       {/* top icon and columns*/}
@@ -241,6 +266,45 @@ export function TaskTable() {
                   </Tooltip>
                 </TooltipProvider>
               </button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <CircleOff
+                            className={`${
+                              selected.length === 0
+                                ? "text-slate-200 cursor-not-allowed"
+                                : "cursor-pointer"
+                            }`}
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Delete Execution Method</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      your account and remove your data from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => handleCancel(selected)}>
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         </div>

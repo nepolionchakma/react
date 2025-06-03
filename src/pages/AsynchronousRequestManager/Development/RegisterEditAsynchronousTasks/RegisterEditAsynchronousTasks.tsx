@@ -1,4 +1,4 @@
-import { TaskTable } from "@/components/ARM/AsynchronousTaskTable/TaskTable";
+import { TaskTable } from "@/pages/AsynchronousRequestManager/Development/RegisterEditAsynchronousTasks/AsynchronousTaskTable/TaskTable";
 
 const RegisterEditAsynchronousTasks = () => {
   return (

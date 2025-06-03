@@ -164,7 +164,7 @@ const Schedule: FC<IScheduleProps> = ({
         </div>
       )}
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="p-4">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="p-2">
           <div className="grid grid-cols-2 gap-4">
             {/* Run Job Type Selection */}
             <FormField
@@ -226,7 +226,7 @@ const Schedule: FC<IScheduleProps> = ({
                             setFrequency(e.target.valueAsNumber);
                             form.setValue("schedule", {
                               FREQUENCY: e.target.valueAsNumber,
-                              FREQUENCY_TYPE: frequency_type ?? "MINUTES",
+                              FREQUENCY_TYPE: frequency_type ?? "MINUTE(S)",
                             });
                           }}
                         />
@@ -252,7 +252,11 @@ const Schedule: FC<IScheduleProps> = ({
                               FREQUENCY_TYPE: value,
                             });
                           }}
-                          value={field.value}
+                          value={
+                            field.value === "MINUTES"
+                              ? "MINUTE(S)"
+                              : field.value
+                          }
                           required
                         >
                           <SelectTrigger>
@@ -284,9 +288,10 @@ const Schedule: FC<IScheduleProps> = ({
                           schedule &&
                           "VALUES" in schedule &&
                           Array.isArray(schedule.VALUES) &&
-                          schedule.VALUES.includes(day.value) &&
-                          "bg-slate-400"
-                        } flex items-center justify-center h-8 border border-slate-500 rounded cursor-pointer hover:bg-slate-200 p-2`}
+                          schedule.VALUES.includes(day.value)
+                            ? "bg-[#64748B] text-white"
+                            : " bg-[#F5F5F5]"
+                        } flex items-center justify-center h-8 rounded cursor-pointer hover:bg-slate-200 hover:text-black p-2`}
                         onClick={() => handleDateSelect(day.value)}
                       >
                         {day.name}
@@ -306,9 +311,10 @@ const Schedule: FC<IScheduleProps> = ({
                         schedule &&
                         "VALUES" in schedule &&
                         Array.isArray(schedule.VALUES) &&
-                        schedule.VALUES.includes(date.value) &&
-                        "bg-slate-400"
-                      } text-center border border-slate-500 rounded cursor-pointer hover:bg-slate-200 p-2 ${
+                        schedule.VALUES.includes(date.value)
+                          ? "bg-[#64748B] text-white"
+                          : " bg-[#F5F5F5]"
+                      } text-center rounded cursor-pointer hover:bg-slate-200 hover:text-black p-2 ${
                         date.value === "L" && "col-span-4"
                       }`}
                       onClick={() => {
@@ -324,7 +330,7 @@ const Schedule: FC<IScheduleProps> = ({
           </div>
 
           {/* Action Buttons */}
-          <div className="fixed bottom-4 right-4 flex gap-2">
+          <div className="fixed bottom-2 right-4 flex flex-row-reverse gap-2">
             <Button
               variant="secondary"
               type="submit"

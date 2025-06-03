@@ -1,10 +1,10 @@
-import { ManageExecutionMethodsTable } from "@/components/ARM/ManageExecutionMethods/ManageExecutionMethodsTable"
+import { ManageExecutionMethodsTable } from "@/pages/AsynchronousRequestManager/Development/ManageExecutionMethods/ManageExecutionMethods/ManageExecutionMethodsTable";
 
 const ManageExecutionMethods = () => {
   return (
     <div>
-        <ManageExecutionMethodsTable />
+      <ManageExecutionMethodsTable />
     </div>
-  )
-}
-export default ManageExecutionMethods
+  );
+};
+export default ManageExecutionMethods;

@@ -11,7 +11,12 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -24,7 +29,9 @@ import {
 import { IARMAsynchronousTasksTypes } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import Pagination5 from "@/components/Pagination/Pagination5";
-import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { ChevronDown } from "lucide-react";
 
 export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
   {
@@ -57,10 +64,17 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
 ];
 
 export function TaskNameTable() {
-  const { getAsyncTasksLazyLoading, isLoading, setSelectedTask, totalPage } =
-    useARMContext();
-  const { page, setPage } = useGlobalContext();
+  const {
+    totalPage,
+    isLoading,
+    setSelectedTask,
+    getAsyncTasksLazyLoading,
+    setSelectedTaskParameters,
+    getSearchAsyncTasksLazyLoading,
+  } = useARMContext();
+
   const [data, setData] = React.useState<IARMAsynchronousTasksTypes[] | []>([]);
+  const [page, setPage] = React.useState<number>(1);
   const limit = 3;
   const [selectedRowId, setSelectedRowId] = React.useState<number>();
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -90,26 +104,53 @@ export function TaskNameTable() {
     },
   });
 
-  React.useEffect(() => {
-    setPage(1);
-  }, []);
+  const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
+  const handleQuery = (e: string) => {
+    if (e === "") {
+      setQuery({ isEmpty: true, value: e });
+      setPage(1);
+    } else {
+      setQuery({ isEmpty: false, value: e });
+      setPage(1);
+    }
+  };
 
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await getAsyncTasksLazyLoading(page, limit);
-        table.getRowModel().rows.map((row) => row.toggleSelected(false));
-        if (res) setData(res);
+        if (!query.isEmpty) {
+          const res = await getSearchAsyncTasksLazyLoading(
+            page,
+            limit,
+            query.value
+          );
+          if (res) {
+            setSelectedRowId("");
+            setData(res);
+          }
+        } else {
+          const res = await getAsyncTasksLazyLoading(page, limit);
+          if (res) {
+            setSelectedRowId("");
+            setData(res);
+          }
+        }
       } catch (error) {
         console.log(error);
-      } finally {
-        setSelectedTask(undefined);
-        // uncheck checkbox
-        table.getRowModel().rows.map((row) => row.toggleSelected(false));
       }
     };
-    fetchData();
-  }, [page]);
+
+    // Debounce only when query changes
+    const delayDebounce = setTimeout(() => {
+      fetchData();
+      setSelectedTask(undefined);
+      setSelectedTaskParameters([]);
+      // uncheck checkbox
+      table.getRowModel().rows.map((row) => row.toggleSelected(false));
+    }, 1000);
+
+    return () => clearTimeout(delayDebounce); // Cleanup timeout
+  }, [query, page]);
 
   const handleRowSelection = (task: IARMAsynchronousTasksTypes) => {
     setSelectedTask((prev) => {
@@ -125,21 +166,14 @@ export function TaskNameTable() {
     <div className="px-3">
       {/* top icon and columns*/}
       <div className="flex gap-3 items-center py-2">
-        {/* <Input
+        <Input
           placeholder="Filter User Task Name"
-          value={
-            (table.getColumn("user_task_name")?.getFilterValue() as string) ??
-            ""
-          }
-          onChange={(event) =>
-            table
-              .getColumn("user_task_name")
-              ?.setFilterValue(event.target.value)
-          }
+          value={query.value}
+          onChange={(e) => handleQuery(e.target.value)}
           className="max-w-sm px-4 py-2"
-        /> */}
+        />
         {/* Columns */}
-        {/* <DropdownMenu>
+        <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
               Columns <ChevronDown className="ml-2 h-4 w-4" />
@@ -164,7 +198,7 @@ export function TaskNameTable() {
                 );
               })}
           </DropdownMenuContent>
-        </DropdownMenu> */}
+        </DropdownMenu>
       </div>
       {/* Table */}
       <div className="rounded-md border">

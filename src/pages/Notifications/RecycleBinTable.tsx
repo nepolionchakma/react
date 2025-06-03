@@ -343,8 +343,8 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
                                     </AlertDialogTitle>
                                   </AlertDialogHeader>
                                   <AlertDialogDescription>
-                                    This action cannot be undone. This will
-                                    permanently delete from both sides.
+                                    This action cannot be undone. This message
+                                    will be deleted permanently.
                                   </AlertDialogDescription>
                                   <AlertDialogFooter>
                                     <AlertDialogCancel className="bg-Red-200 text-white flex justify-center items-center">
@@ -362,7 +362,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
                             </span>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>Permanently delete</p>
+                            <p>Delete Permanently</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>

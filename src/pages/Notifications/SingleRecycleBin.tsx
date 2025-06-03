@@ -272,7 +272,7 @@ const SingleRecycleBin = () => {
                             </span>
                           </TooltipTrigger>
                           <TooltipContent>
-                            <p>Permanently delete</p>
+                            <p>Delete Permanently</p>
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>

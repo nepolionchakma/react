@@ -77,7 +77,7 @@ export function UserProfileTable({
   const [selectedProfile, setSelectedProfile] = React.useState<IProfilesType[]>(
     []
   );
-  console.log(profileData, "userProfiletable, 80");
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []

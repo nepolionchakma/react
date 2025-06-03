@@ -189,16 +189,16 @@ export const columns = (
       return <div className=" min-w-max">{data?.slice(0, 16)} </div>;
     },
   },
-  {
-    accessorKey: "ready_for_redbeat",
-    header: () => {
-      return <div className="min-w-max">Ready for Redbeat</div>;
-    },
-    cell: ({ row }) => {
-      const data: string = row.getValue("ready_for_redbeat");
-      return <div className=" min-w-max">{data} </div>;
-    },
-  },
+  // {
+  //   accessorKey: "ready_for_redbeat",
+  //   header: () => {
+  //     return <div className="min-w-max">Ready for Redbeat</div>;
+  //   },
+  //   cell: ({ row }) => {
+  //     const data: string = row.getValue("ready_for_redbeat");
+  //     return <div className=" min-w-max">{data} </div>;
+  //   },
+  // },
   {
     accessorKey: "cancelled_yn",
     header: () => {

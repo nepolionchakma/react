@@ -49,6 +49,7 @@ const SetupAndAdministration = () => {
         }
       } catch (error) {
         console.log(error);
+        setData([]);
       } finally {
         setIsLoading(false);
       }

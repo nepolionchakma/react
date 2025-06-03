@@ -1,3 +1,9 @@
+export interface IGetResponseExecutionMethodsTypes {
+  items: IExecutionMethodsTypes[];
+  page: number;
+  pages: number;
+  total: number;
+}
 export interface IExecutionMethodsTypes {
   description: string;
   execution_method: string;

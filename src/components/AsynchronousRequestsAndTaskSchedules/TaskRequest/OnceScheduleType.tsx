@@ -173,6 +173,7 @@ const OnceScheduleType: FC<IOnceScheduleType> = ({
             selected={selectedDate}
             onSelect={handleDateSelect}
             initialFocus
+            className="rounded-md border "
           />
 
           {/* Time Picker - Hour, Minute */}

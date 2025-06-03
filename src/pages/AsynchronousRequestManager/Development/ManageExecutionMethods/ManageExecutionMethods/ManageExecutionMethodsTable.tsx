@@ -10,7 +10,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, FileEdit, PlusIcon } from "lucide-react";
+import { ChevronDown, FileEdit, PlusIcon, Trash } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -34,35 +34,49 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import columns from "./Columns";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { IExecutionMethodsTypes } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
-import CustomModal2 from "@/components/CustomModal/CustomModal2";
 import ExecutionMethodEdit from "../ExecutionMethodEdit/ExecutionMethodEdit";
+import CustomModal4 from "@/components/CustomModal/CustomModal4";
 
 export function ManageExecutionMethodsTable() {
   const {
     totalPage,
     getManageExecutionMethodsLazyLoading,
+    deleteExecutionMethod,
     isLoading,
     setIsLoading,
     changeState,
   } = useARMContext();
-  const { page, setPage, isOpenModal, setIsOpenModal } = useGlobalContext();
+  const { isOpenModal, setIsOpenModal } = useGlobalContext();
+  const [page, setPage] = React.useState(1);
   const [data, setData] = React.useState<IExecutionMethodsTypes[] | []>([]);
   const limit = 8;
-
-  React.useEffect(() => {
-    setPage(1);
-  }, []);
 
   React.useEffect(() => {
     const fetchData = async () => {
       try {
         const res = await getManageExecutionMethodsLazyLoading(page, limit);
-        if (res) setData(res);
+        if (res) {
+          setData(res);
+        } else {
+          setPage(page - 1);
+        }
+        table.toggleAllRowsSelected(false);
       } catch (error) {
         console.log(error);
       }
@@ -77,10 +91,6 @@ export function ManageExecutionMethodsTable() {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0, //initial page index
-    pageSize: 10, //default page size
-  });
 
   const [selected, setSelected] = React.useState<IExecutionMethodsTypes[]>([]);
   const handleRowSelection = (rowSelection: IExecutionMethodsTypes) => {
@@ -101,7 +111,6 @@ export function ManageExecutionMethodsTable() {
 
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onPaginationChange: setPagination,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -111,31 +120,16 @@ export function ManageExecutionMethodsTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination,
     },
     initialState: {
       columnVisibility: {
         id: false,
       },
+      pagination: {
+        pageSize: limit,
+      },
     },
   });
-
-  // default unselect
-  const hiddenColumns = [
-    "created_by",
-    "last_updated_by",
-    "creation_date",
-    "last_update_date",
-    "cancelled_yn",
-  ];
-
-  React.useEffect(() => {
-    table.getAllColumns().forEach((column) => {
-      if (hiddenColumns.includes(column.id)) {
-        column.toggleVisibility(false);
-      }
-    });
-  }, [table]);
   const handleOpenModal = (modelName: string) => {
     setIsOpenModal(modelName);
   };
@@ -146,10 +140,41 @@ export function ManageExecutionMethodsTable() {
     table.toggleAllRowsSelected(false);
   };
 
+  // default unselect
+  const hiddenColumns = [
+    "created_by",
+    "last_updated_by",
+    "creation_date",
+    "last_update_date",
+    "cancelled_yn",
+  ];
+  const handleDelete = async (selected: IExecutionMethodsTypes[]) => {
+    console.log(selected, "selected");
+    try {
+      selected.forEach(async (method) => {
+        await deleteExecutionMethod(method.internal_execution_method);
+      });
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  React.useEffect(() => {
+    table.getAllColumns().forEach((column) => {
+      if (hiddenColumns.includes(column.id)) {
+        column.toggleVisibility(false);
+      }
+    });
+  }, [table]);
+  React.useEffect(() => {
+    //table toggle false
+    table.toggleAllRowsSelected(false);
+    setSelected([]);
+  }, [page]);
+
   return (
     <div className="px-3">
       {isOpenModal === "create_execution_methods" ? (
-        <CustomModal2>
+        <CustomModal4 className="w-[770px]">
           <ExecutionMethodEdit
             action="Create Execution Method"
             selected={selected}
@@ -157,10 +182,10 @@ export function ManageExecutionMethodsTable() {
             setIsLoading={setIsLoading}
             handleCloseModal={handleCloseModal}
           />
-        </CustomModal2>
+        </CustomModal4>
       ) : (
         isOpenModal === "edit_execution_methods" && (
-          <CustomModal2>
+          <CustomModal4 className="w-[770px]">
             <ExecutionMethodEdit
               action="Edit Execution Method"
               selected={selected}
@@ -168,7 +193,7 @@ export function ManageExecutionMethodsTable() {
               setIsLoading={setIsLoading}
               handleCloseModal={handleCloseModal}
             />
-          </CustomModal2>
+          </CustomModal4>
         )
       )}
       {/* top icon and columns*/}
@@ -187,7 +212,7 @@ export function ManageExecutionMethodsTable() {
                     />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Register Task</p>
+                    <p>Create Execution Method</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -207,11 +232,50 @@ export function ManageExecutionMethodsTable() {
                       />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Edit Task</p>
+                      <p>Edit Execution Method</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </button>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Trash
+                            className={`${
+                              selected.length === 0
+                                ? "text-slate-200 cursor-not-allowed"
+                                : "cursor-pointer"
+                            }`}
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Delete Execution Method</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      your account and remove your data from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={() => handleDelete(selected)}>
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         </div>

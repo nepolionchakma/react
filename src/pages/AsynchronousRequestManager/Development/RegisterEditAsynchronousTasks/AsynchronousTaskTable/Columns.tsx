@@ -69,14 +69,42 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
     header: () => {
       return <div className="">SRS</div>;
     },
-    cell: ({ row }) => <div className="">{row.getValue("srs")}</div>,
+    cell: ({ row }) => {
+      const data: string = row.getValue("srs");
+      return (
+        <div className="flex justify-center">
+          <input
+            type="checkbox"
+            name=""
+            id=""
+            checked={data === "Y"}
+            className="cursor-not-allowed"
+            readOnly
+          />
+        </div>
+      );
+    },
   },
   {
     accessorKey: "sf",
     header: () => {
       return <div className="">SF</div>;
     },
-    cell: ({ row }) => <div className="">{row.getValue("sf")}</div>,
+    cell: ({ row }) => {
+      const data: string = row.getValue("sf");
+      return (
+        <div className="flex justify-center">
+          <input
+            type="checkbox"
+            name=""
+            id=""
+            checked={data === "Y"}
+            className="cursor-not-allowed"
+            readOnly
+          />
+        </div>
+      );
+    },
   },
   {
     accessorKey: "created_by",
@@ -119,7 +147,19 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
     accessorKey: "cancelled_yn",
     header: "Cancelled",
     cell: ({ row }) => {
-      return <div className="">{row.getValue("cancelled_yn")}</div>;
+      const data: string = row.getValue("cancelled_yn");
+      return (
+        <div className="flex justify-center">
+          <input
+            type="checkbox"
+            name=""
+            id=""
+            checked={data === "Y"}
+            className="cursor-not-allowed"
+            readOnly
+          />
+        </div>
+      );
     },
   },
 ];

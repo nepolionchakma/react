@@ -16,8 +16,18 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, FileEdit, PlusIcon } from "lucide-react";
-
+import { ChevronDown, FileEdit, PlusIcon, Trash } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -41,12 +51,16 @@ import Pagination5 from "@/components/Pagination/Pagination5";
 import { IARMTaskParametersTypes } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import TaskParametersModal from "../TaskParametersModal/TaskParametersModal";
+import { Input } from "@/components/ui/input";
 
 export function TaskParametersTable() {
   const {
     totalPage2,
     selectedTask,
+    selectedTaskParameters,
+    setSelectedTaskParameters,
     getTaskParametersLazyLoading,
+    deleteTaskParameters,
     changeState,
   } = useARMContext();
   const [data, setData] = React.useState<IARMTaskParametersTypes[] | []>([]);
@@ -62,12 +76,8 @@ export function TaskParametersTable() {
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  const [selectedRows, setSelectedRows] = React.useState<
-    IARMTaskParametersTypes[]
-  >([]);
-
   const handleRowSelection = (rowSelection: IARMTaskParametersTypes) => {
-    setSelectedRows((prevSelected) => {
+    setSelectedTaskParameters((prevSelected) => {
       if (prevSelected.includes(rowSelection)) {
         return prevSelected.filter((item) => item !== rowSelection);
       } else {
@@ -75,8 +85,9 @@ export function TaskParametersTable() {
       }
     });
   };
+
   const handleRowsSelection = (data: IARMTaskParametersTypes[]) => {
-    setSelectedRows((prev) => {
+    setSelectedTaskParameters((prev) => {
       const allSelected = data.every((row) =>
         prev.some(
           (selectedRow) => selectedRow.def_param_id === row.def_param_id
@@ -89,6 +100,7 @@ export function TaskParametersTable() {
       }
     });
   };
+
   React.useEffect(() => {
     const fetchData = async () => {
       if (!selectedTask?.user_task_name) return setData([]);
@@ -146,15 +158,37 @@ export function TaskParametersTable() {
       }
     });
   }, [table]);
+
   const handleOpenModal = (modelName: string) => {
     setIsOpenModal(modelName);
   };
+
   const handleCloseModal = () => {
     setIsOpenModal(""); // close modal
-    setSelectedRows([]);
+    setSelectedTaskParameters([]);
     //table toggle false
     table.toggleAllRowsSelected(false);
   };
+
+  const handleDeleteParameters = async (
+    task_name: string,
+    def_param_id: number
+  ) => {
+    try {
+      await deleteTaskParameters(task_name, def_param_id);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setSelectedTaskParameters([]);
+      table.toggleAllRowsSelected(false);
+    }
+  };
+
+  React.useEffect(() => {
+    //table toggle false
+    table.toggleAllRowsSelected(false);
+    setSelectedTaskParameters([]);
+  }, [page, selectedTask?.def_task_id]);
 
   return (
     <div className="px-3">
@@ -162,7 +196,7 @@ export function TaskParametersTable() {
         <CustomModal3>
           <TaskParametersModal
             task_name="Add Parameter"
-            selected={selectedRows[0]}
+            selected={selectedTaskParameters[0]}
             handleCloseModal={handleCloseModal}
           />
         </CustomModal3>
@@ -172,7 +206,7 @@ export function TaskParametersTable() {
           <CustomModal3>
             <TaskParametersModal
               task_name="Update Parameter"
-              selected={selectedRows[0]}
+              selected={selectedTaskParameters[0]}
               handleCloseModal={handleCloseModal}
             />
           </CustomModal3>
@@ -204,14 +238,18 @@ export function TaskParametersTable() {
               </button>
 
               <button
-                disabled={selectedRows.length > 1 || selectedRows.length === 0}
+                disabled={
+                  selectedTaskParameters.length > 1 ||
+                  selectedTaskParameters.length === 0
+                }
               >
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <FileEdit
                         className={`${
-                          selectedRows.length > 1 || selectedRows.length === 0
+                          selectedTaskParameters.length > 1 ||
+                          selectedTaskParameters.length === 0
                             ? "text-slate-200 cursor-not-allowed"
                             : "cursor-pointer"
                         }`}
@@ -224,10 +262,57 @@ export function TaskParametersTable() {
                   </Tooltip>
                 </TooltipProvider>
               </button>
+
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <button>
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Trash
+                            className={`${
+                              selectedTaskParameters.length === 0
+                                ? "text-slate-200 cursor-not-allowed"
+                                : "cursor-pointer"
+                            }`}
+                          />
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Delete Parameter</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>
+                      Are you absolutely sure?
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      This action cannot be undone. This will permanently delete
+                      your account and remove your data from our servers.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={() =>
+                        handleDeleteParameters(
+                          selectedTaskParameters[0].task_name,
+                          selectedTaskParameters[0].def_param_id
+                        )
+                      }
+                    >
+                      Continue
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
           </div>
         </div>
-        {/* <Input
+        <Input
           placeholder="Filter Parameter Name"
           value={
             (table.getColumn("parameter_name")?.getFilterValue() as string) ??
@@ -239,7 +324,7 @@ export function TaskParametersTable() {
               ?.setFilterValue(event.target.value)
           }
           className="max-w-sm px-4 py-2"
-        /> */}
+        />
         <h3 className="font-bold mx-auto">
           {selectedTask?.def_task_id &&
             `Selected : ${selectedTask?.user_task_name}`}

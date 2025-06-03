@@ -6,6 +6,7 @@ import {
   IARMViewRequestsTypes,
   IAsynchronousRequestsAndTaskSchedulesTypes,
   IExecutionMethodsTypes,
+  IGetResponseExecutionMethodsTypes,
 } from "@/types/interfaces/ARM.interface";
 import React, { ReactNode, createContext, useContext, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
@@ -28,6 +29,7 @@ interface ARMContext {
     limit: number,
     userTaskName: string
   ) => Promise<IARMAsynchronousTasksTypes[] | undefined>;
+  cancelAsyncTasks: (task_name: string) => Promise<void>;
   getManageExecutionMethods: () => Promise<
     IExecutionMethodsTypes[] | undefined
   >;
@@ -35,19 +37,17 @@ interface ARMContext {
     page: number,
     limit: number
   ) => Promise<IExecutionMethodsTypes[] | undefined>;
+  deleteExecutionMethod: (internal_execution_method: string) => Promise<void>;
 
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  deleteAsyncTasks: (
-    selectedItems: IARMAsynchronousTasksTypes[]
-  ) => Promise<void>;
   selectedTask: IARMAsynchronousTasksTypes | undefined;
   setSelectedTask: React.Dispatch<
     React.SetStateAction<IARMAsynchronousTasksTypes | undefined>
   >;
-  selectedTaskParameters: IARMTaskParametersTypes[] | undefined;
+  selectedTaskParameters: IARMTaskParametersTypes[];
   setSelectedTaskParameters: React.Dispatch<
-    React.SetStateAction<IARMTaskParametersTypes[] | undefined>
+    React.SetStateAction<IARMTaskParametersTypes[]>
   >;
   getTaskParametersLazyLoading: (
     task_name: string,
@@ -57,6 +57,10 @@ interface ARMContext {
   getTaskParametersByTaskName: (
     task_name: string
   ) => Promise<IARMAsynchronousTasksParametersTypes[] | undefined>;
+  deleteTaskParameters: (
+    task_name: string,
+    def_param_id: number
+  ) => Promise<void>;
   changeState: number;
   setChangeState: React.Dispatch<React.SetStateAction<number>>;
   getAsynchronousRequestsAndTaskSchedules: (
@@ -69,7 +73,11 @@ interface ARMContext {
     task_name: string
   ) => Promise<IAsynchronousRequestsAndTaskSchedulesTypes[]>;
   cancelScheduledTask: (
-    selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
+    selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes
+    // selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
+  ) => Promise<void>;
+  rescheduleTask: (
+    selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes
   ) => Promise<void>;
   getViewRequests: (
     page: number,
@@ -99,8 +107,8 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     IARMAsynchronousTasksTypes | undefined
   >(undefined);
   const [selectedTaskParameters, setSelectedTaskParameters] = useState<
-    IARMTaskParametersTypes[] | undefined
-  >(undefined);
+    IARMTaskParametersTypes[]
+  >([]);
   // const [page, setPage] = useState<number>(1);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [totalPage2, setTotalPage2] = useState<number>(1);
@@ -129,7 +137,6 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       );
 
       setTotalPage(resultLazyLoading.data.pages);
-      console.log(resultLazyLoading.data.items);
       return resultLazyLoading.data.items;
     } catch (error) {
       console.log(error);
@@ -150,7 +157,6 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       );
 
       setTotalPage(resultLazyLoading.data.pages);
-      console.log(resultLazyLoading.data.items);
       return resultLazyLoading.data.items;
     } catch (error) {
       console.log(error);
@@ -159,16 +165,16 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     }
   };
 
-  const deleteAsyncTasks = async (
-    selectedItems: IARMAsynchronousTasksTypes[]
-  ) => {
+  const cancelAsyncTasks = async (task_name: string) => {
     try {
       setIsLoading(true);
-      await Promise.all(
-        selectedItems.map(async (item) => {
-          await api.put(`/arm-tasks/cancel-task/${item.task_name}`);
-        })
-      );
+      const res = await api.put(`/arm-tasks/cancel-task/${task_name}`);
+      if (res.status === 200) {
+        toast({
+          description: `${res.data.message}`,
+        });
+        setChangeState(Math.random() + 23 * 3000);
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -196,17 +202,19 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   ) => {
     try {
       setIsLoading(true);
-      const [countExecutionMethods, ExecutionMethods] = await Promise.all([
-        api.get<IExecutionMethodsTypes[]>(`/arm-tasks/show-execution-methods`),
-        api.get<IExecutionMethodsTypes[]>(
-          `/arm-tasks/show-execution-methods/${page}/${limit}`
-        ),
-      ]);
-
-      const totalCount = countExecutionMethods.data.length;
-      const totalPages = Math.ceil(totalCount / limit);
-      setTotalPage(totalPages);
-      return ExecutionMethods.data ?? [];
+      // const [countExecutionMethods, ExecutionMethods] = await Promise.all([
+      //   api.get<IExecutionMethodsTypes[]>(`/arm-tasks/show-execution-methods`),
+      //   api.get<IExecutionMethodsTypes[]>(
+      //     `/arm-tasks/show-execution-methods/${page}/${limit}`
+      //   ),
+      // ]);
+      const res = await api.get<IGetResponseExecutionMethodsTypes>(
+        `/arm-tasks/show-execution-methods/${page}/${limit}`
+      );
+      // const totalCount = countExecutionMethods.data.length;
+      // const totalPages = Math.ceil(totalCount / limit);
+      setTotalPage(res.data.pages);
+      return res.data.items ?? [];
     } catch (error) {
       console.log(error);
     } finally {
@@ -214,7 +222,48 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     }
   };
 
+  const deleteExecutionMethod = async (internal_execution_method: string) => {
+    try {
+      setIsLoading(true);
+      const res = await api.delete(
+        `/arm-tasks/delete-execution-method/${internal_execution_method}`
+      );
+      if (res.status === 200) {
+        toast({
+          description: `${res.data.message}`,
+        });
+        setChangeState(Math.random() + 23 * 3000);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // const getSearchManageExecutionMethodsLazyLoading = async (
+  //   page: number,
+  //   limit: number,
+  //   userExecutionMethodName: string
+  // ) => {
+  //   try {
+  //     setIsLoading(true);
+  //     const res = await api.get<IGetResponseExecutionMethodsTypes>(
+  //       `/arm-tasks/show-execution-methods/search/${page}/${limit}?user_execution_method_name=${userExecutionMethodName}`
+  //     );
+  //     // const totalCount = countExecutionMethods.data.length;
+  //     // const totalPages = Math.ceil(totalCount / limit);
+  //     setTotalPage(res.data.pages);
+  //     return res.data.items ?? [];
+  //   } catch (error) {
+  //     console.log(error);
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }
+
   // Task Parameters
+
   const getTaskParametersLazyLoading = async (
     task_name: string,
     page: number,
@@ -253,6 +302,27 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   };
 
   // lazy loading task schedule
+  const deleteTaskParameters = async (
+    task_name: string,
+    def_param_id: number
+  ) => {
+    console.log(task_name, def_param_id, "req.params");
+    // /Delete_TaskParams/<string:task_name>/<int:def_param_id>
+    try {
+      const res = await api.delete(
+        `/arm-tasks/delete-task-params/${task_name}/${def_param_id}`
+      );
+      if (res.status === 200) {
+        toast({
+          description: `${res.data.message}`,
+        });
+        setChangeState(Math.random() + 23 * 3000);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const getAsynchronousRequestsAndTaskSchedules = async (
     page: number,
     limit: number
@@ -316,31 +386,67 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   // };
 
   const cancelScheduledTask = async (
-    selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
+    selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes
+    // selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
   ) => {
     try {
       setIsLoading(true);
-      const responses = await Promise.all(
-        selectedItems.map(async (item) => {
-          try {
-            const response = await api.put(
-              `/asynchronous-requests-and-task-schedules/cancel-task-schedule/${item.task_name}`,
-              {
-                redbeat_schedule_name: item.redbeat_schedule_name,
-              }
-            );
-            return response;
-          } catch (error) {
-            console.error("Error canceling task schedule:", error);
-            return null;
-          }
-        })
+      const res = await api.put(
+        `/asynchronous-requests-and-task-schedules/cancel-task-schedule/${selectedItem.task_name}`,
+        {
+          redbeat_schedule_name: selectedItem.redbeat_schedule_name,
+        }
       );
-      responses.map((i) => {
-        return toast({
-          description: `${i?.data?.message}`,
+      if (res.status === 200) {
+        toast({
+          description: `${res.data.message}`,
         });
-      });
+        setChangeState(Math.random() + 23 * 3000);
+      }
+      // const responses = await Promise.all(
+      //   selectedItems.map(async (item) => {
+      //     try {
+      //       const response = await api.put(
+      //         `/asynchronous-requests-and-task-schedules/cancel-task-schedule/${item.task_name}`,
+      //         {
+      //           redbeat_schedule_name: item.redbeat_schedule_name,
+      //         }
+      //       );
+      //       return response;
+      //     } catch (error) {
+      //       console.error("Error canceling task schedule:", error);
+      //       return null;
+      //     }
+      //   })
+      // );
+      // responses.map((i) => {
+      //   return toast({
+      //     description: `${i?.data?.message}`,
+      //   });
+      // });
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const rescheduleTask = async (
+    selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes
+  ) => {
+    try {
+      setIsLoading(true);
+      const res = await api.put(
+        `/asynchronous-requests-and-task-schedules/reschedule-task/${selectedItem.task_name}`,
+        {
+          redbeat_schedule_name: selectedItem.redbeat_schedule_name,
+        }
+      );
+      if (res.status === 200) {
+        toast({
+          description: `${res.data.message}`,
+        });
+        setChangeState(Math.random() + 23 * 3000);
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -391,25 +497,28 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     setTotalPage2,
     getManageExecutionMethods,
     getManageExecutionMethodsLazyLoading,
+    deleteExecutionMethod,
     getAsyncTasks,
     getAsyncTasksLazyLoading,
     isLoading,
     setIsLoading,
-    deleteAsyncTasks,
     selectedTask,
     setSelectedTask,
     selectedTaskParameters,
     setSelectedTaskParameters,
     getTaskParametersLazyLoading,
     getTaskParametersByTaskName,
+    deleteTaskParameters,
     changeState,
     setChangeState,
     getAsynchronousRequestsAndTaskSchedules,
     getSearchAsynchronousRequestsAndTaskSchedules,
     cancelScheduledTask,
+    rescheduleTask,
     getViewRequests,
     getSearchViewRequests,
     getSearchAsyncTasksLazyLoading,
+    cancelAsyncTasks,
   };
   return <ARMContext.Provider value={values}>{children}</ARMContext.Provider>;
 }
