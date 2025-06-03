@@ -35,11 +35,16 @@ import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import PopUp from "./PopUp/PopUp";
 
 export function ViewRequestTable() {
-  const { totalPage, getViewRequests, getSearchViewRequests, isLoading } =
-    useARMContext();
+  const {
+    totalPage,
+    getViewRequests,
+    getSearchViewRequests,
+    isLoading,
+    setIsLoading,
+  } = useARMContext();
   const [data, setData] = React.useState<IARMViewRequestsTypes[] | []>([]);
   const [page, setPage] = React.useState(1);
-  const limit = 20;
+  const [limit, setLimit] = React.useState(8);
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
   const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
   const [viewParameters, setViewParameters] = React.useState("");
@@ -63,6 +68,13 @@ export function ViewRequestTable() {
     }
   };
 
+  // When query changes, reset page to 1
+  React.useEffect(() => {
+    if (!query.isEmpty) {
+      setPage(1);
+    }
+  }, [query]);
+
   React.useEffect(() => {
     const fetchData = async () => {
       try {
@@ -84,6 +96,7 @@ export function ViewRequestTable() {
       }
     };
 
+    setIsLoading(true);
     // Debounce only when query changes
     const delayDebounce = setTimeout(() => {
       fetchData();
@@ -92,7 +105,7 @@ export function ViewRequestTable() {
     }, 1000);
 
     return () => clearTimeout(delayDebounce); // Cleanup timeout
-  }, [query, page]); // Run on query and page change
+  }, [query, page, limit]); // Run on query and page change
 
   const table = useReactTable({
     data,
@@ -141,6 +154,10 @@ export function ViewRequestTable() {
   ];
 
   React.useEffect(() => {
+    table.setPageSize(limit);
+  }, [limit, table]);
+
+  React.useEffect(() => {
     table.getAllColumns().forEach((column) => {
       if (hiddenColumns.includes(column.id)) {
         column.toggleVisibility(false);
@@ -161,11 +178,23 @@ export function ViewRequestTable() {
       {/* Filter + Column Controls */}
       <div className="flex gap-3 items-center py-2">
         <Input
-          placeholder="Filter User Schedule Name"
+          placeholder="Filter by task Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
           className="max-w-sm px-4 py-2"
         />
+        <div className="flex gap-2 items-center ml-auto">
+          <h3>Rows :</h3>
+          <input
+            type="number"
+            placeholder="Rows"
+            value={limit}
+            min={1}
+            max={20}
+            onChange={(e) => setLimit(Number(e.target.value))}
+            className="w-14 border rounded p-2"
+          />
+        </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

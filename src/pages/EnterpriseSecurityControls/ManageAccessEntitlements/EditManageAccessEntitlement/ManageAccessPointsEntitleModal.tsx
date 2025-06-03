@@ -69,9 +69,9 @@ const ManageAccessPointsEntitleModal: FC<IManageAccessEntitlementsProps> = ({
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    const id = selectedItem?.entitlement_id || 0;
+    const id = selectedItem?.def_entitlement_id || 0;
     const putData = {
-      entitlement_id: id,
+      def_entitlement_id: id,
       entitlement_name: data.entitlement_name,
       description: data.description,
       comments: data.comments,
@@ -85,7 +85,7 @@ const ManageAccessPointsEntitleModal: FC<IManageAccessEntitlementsProps> = ({
       created_by: selectedItem?.created_by || "",
     };
     const postData = {
-      entitlement_id: 0,
+      def_entitlement_id: 0,
       entitlement_name: data.entitlement_name,
       description: data.description,
       comments: data.comments,

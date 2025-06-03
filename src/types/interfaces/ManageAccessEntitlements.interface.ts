@@ -1,7 +1,7 @@
 import { IDataSourcePostTypes } from "./datasource.interface";
 
 export interface IManageAccessEntitlementsTypes {
-  entitlement_id: number;
+  def_entitlement_id: number;
   entitlement_name: string;
   description: string;
   comments: string;

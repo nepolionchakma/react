@@ -34,6 +34,11 @@ interface IContextTypes {
   fetchAccessPointsEntitlement: (
     fetchData: IManageAccessEntitlementsTypes
   ) => Promise<void>;
+  getSearchAccessPointElementsLazyLoading: (
+    page: number,
+    limit: number,
+    element_name: string
+  ) => Promise<IFetchAccessPointsElementTypes[] | undefined>;
   fetchAccessPointsEntitlementForDelete: (
     fetchData: IManageAccessEntitlementsTypes
   ) => Promise<IFetchAccessPointsElementTypes[]>;
@@ -165,7 +170,7 @@ export const ManageAccessEntitlementsProvider = ({
     setIsLoading(true);
     try {
       const response = await api.get<IFetchAccessPointsElementTypes[]>(
-        `/access-points-element`
+        `/def-access-point-elements`
       );
       setAccessPoints(response.data);
       return response.data;
@@ -175,14 +180,36 @@ export const ManageAccessEntitlementsProvider = ({
       setIsLoading(false);
     }
   };
+
+  // Search Access Points Elements
+  const getSearchAccessPointElementsLazyLoading = async (
+    page: number,
+    limit: number,
+    element_name: string
+  ) => {
+    try {
+      setIsLoading(true);
+      const resultLazyLoading = await api.get(
+        `/def-access-point-elements/search/${page}/${limit}?element_name=${element_name}`
+      );
+      setTotalPage(resultLazyLoading.data.pages);
+      console.log(resultLazyLoading.data.items);
+      return resultLazyLoading.data.items;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const fetchAccessPointsEntitlement = useCallback(
     async (fetchData: IManageAccessEntitlementsTypes) => {
       setIsLoading(true);
       try {
-        if (fetchData.entitlement_id) {
+        if (fetchData.def_entitlement_id) {
           const response = await api.get<
             IFetchAccessEntitlementElementsTypes[]
-          >(`/access-entitlement-elements/${fetchData.entitlement_id}`);
+          >(`/access-entitlement-elements/${fetchData.def_entitlement_id}`);
           const accessPointsId = response.data.map(
             (data) => data.access_point_id
           );
@@ -217,7 +244,7 @@ export const ManageAccessEntitlementsProvider = ({
         if (fetchData) {
           const response = await api.get<
             IFetchAccessEntitlementElementsTypes[]
-          >(`/access-entitlement-elements/${fetchData.entitlement_id}`);
+          >(`/access-entitlement-elements/${fetchData.def_entitlement_id}`);
           const accessPointsId = response.data.map(
             (data) => data.access_point_id
           );
@@ -335,7 +362,7 @@ export const ManageAccessEntitlementsProvider = ({
         if (response.status === 201) {
           toast({
             description: `${
-              selectedManageAccessEntitlements?.entitlement_id
+              selectedManageAccessEntitlements?.def_entitlement_id
                 ? `Data added successfully to ${selectedManageAccessEntitlements?.entitlement_name}`
                 : "Data added successfully"
             } `,
@@ -390,7 +417,7 @@ export const ManageAccessEntitlementsProvider = ({
     setIsLoading(true);
     try {
       const response = await api.get<IManageAccessEntitlementsPerPageTypes>(
-        `/manage-access-entitlements/${page}/${limit}`
+        `/def-access-entitlements/${page}/${limit}`
       );
       const sortingData = response.data;
       return sortingData ?? {};
@@ -408,12 +435,12 @@ export const ManageAccessEntitlementsProvider = ({
       description,
       comments,
       status,
-      last_updated_by,
       created_by,
+      last_updated_by,
     } = postData;
     setIsLoading(true);
     try {
-      const res = await api.post(`/manage-access-entitlements`, {
+      const res = await api.post(`/def-access-entitlements`, {
         entitlement_name,
         description,
         comments,
@@ -446,17 +473,17 @@ export const ManageAccessEntitlementsProvider = ({
   ) => {
     setIsLoading(true);
     const {
-      entitlement_id,
+      def_entitlement_id,
       entitlement_name,
       description,
       comments,
       status,
-      last_updated_by,
       created_by,
+      last_updated_by,
     } = putData;
     try {
-      const res = await api.put(`/manage-access-entitlements/${id}`, {
-        entitlement_id,
+      const res = await api.put(`/def-access-entitlements/${id}`, {
+        def_entitlement_id,
         entitlement_name,
         description,
         comments,
@@ -502,7 +529,7 @@ export const ManageAccessEntitlementsProvider = ({
           );
         }
       }
-      const res = await api.delete(`/manage-access-entitlements/${id}`);
+      const res = await api.delete(`/def-access-entitlements/${id}`);
       if (res.status === 200) {
         toast({
           description: `Deleted successfully.`,
@@ -520,6 +547,7 @@ export const ManageAccessEntitlementsProvider = ({
     setSelectedAccessEntitlements,
     fetchAccessPointsEntitlement,
     fetchAccessPointsEntitlementForDelete,
+    getSearchAccessPointElementsLazyLoading,
     filteredData,
     setFilteredData,
     isLoading,

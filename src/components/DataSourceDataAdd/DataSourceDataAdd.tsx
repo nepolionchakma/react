@@ -73,12 +73,11 @@ const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
       .string()
       .min(2, { message: "Default Datasource must be at least 2 characters." }),
   });
-
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      datasource_name: "",
-      description: "",
+      datasource_name: props === "update" ? selected[0]?.datasource_name : "",
+      description: props === "update" ? selected[0]?.description : "",
       application_type: "EBS",
       application_type_version: "R12",
       last_access_synchronization_status: "COMPLETED",
@@ -89,6 +88,7 @@ const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
+    const date = new Date().toISOString();
     setRowSelection({});
     const postData: IDataSourcePostTypes = {
       datasource_name: data.datasource_name,
@@ -96,7 +96,9 @@ const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
       application_type: "EBS",
       application_type_version: "R12",
       last_access_synchronization_status: "COMPLETED",
+      last_access_synchronization_date: date,
       last_transaction_synchronization_status: "COMPLETED",
+      last_transaction_synchronization_date: date,
       default_datasource: data.default_datasource,
       created_by: token.user_name,
       last_updated_by: token.user_name,

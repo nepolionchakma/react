@@ -67,6 +67,11 @@ interface ARMContext {
     page: number,
     limit: number
   ) => Promise<IAsynchronousRequestsAndTaskSchedulesTypes[] | undefined>;
+  getSearchAsynchronousRequestsAndTaskSchedules: (
+    page: number,
+    limit: number,
+    task_name: string
+  ) => Promise<IAsynchronousRequestsAndTaskSchedulesTypes[]>;
   cancelScheduledTask: (
     selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes
     // selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
@@ -296,6 +301,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     }
   };
 
+  // lazy loading task schedule
   const deleteTaskParameters = async (
     task_name: string,
     def_param_id: number
@@ -322,24 +328,63 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     limit: number
   ) => {
     try {
-      const [allTasksSchedules, taskSchedules] = await Promise.all([
-        api.get<IAsynchronousRequestsAndTaskSchedulesTypes[]>(
-          `/asynchronous-requests-and-task-schedules/task-schedules`
-        ),
-        api.get<IAsynchronousRequestsAndTaskSchedulesTypes[]>(
-          `/asynchronous-requests-and-task-schedules/task-schedules/${page}/${limit}`
-        ),
-      ]);
+      const result = await api.get<{
+        pages: number;
+        items: IAsynchronousRequestsAndTaskSchedulesTypes[];
+      }>(
+        `/asynchronous-requests-and-task-schedules/task-schedules/${page}/${limit}`
+      );
 
-      const totalCount = allTasksSchedules.data.length;
-      const totalPages = Math.ceil(totalCount / limit);
+      const totalPages = result.data.pages;
       setTotalPage(totalPages);
-      return taskSchedules.data ?? [];
+      return result.data.items ?? [];
     } catch (error) {
       console.log("Task Parameters Item Not found");
       return [];
     }
   };
+
+  // lazy loading search by task name
+  const getSearchAsynchronousRequestsAndTaskSchedules = async (
+    page: number,
+    limit: number,
+    task_name: string
+  ) => {
+    try {
+      const resultLazyLoading = await api.get(
+        `/asynchronous-requests-and-task-schedules/task-schedules/search/${page}/${limit}?task_name=${task_name}`
+      );
+      setTotalPage(resultLazyLoading.data.pages);
+      return resultLazyLoading.data.items;
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // const getAsynchronousRequestsAndTaskSchedules = async (
+  //   page: number,
+  //   limit: number
+  // ) => {
+  //   try {
+  //     const [allTasksSchedules, taskSchedules] = await Promise.all([
+  //       api.get<IAsynchronousRequestsAndTaskSchedulesTypes[]>(
+  //         `/asynchronous-requests-and-task-schedules/task-schedules`
+  //       ),
+  //       api.get<IAsynchronousRequestsAndTaskSchedulesTypes[]>(
+  //         `/asynchronous-requests-and-task-schedules/task-schedules/${page}/${limit}`
+  //       ),
+  //     ]);
+
+  //     const totalCount = allTasksSchedules.data.length;
+  //     const totalPages = Math.ceil(totalCount / limit);
+  //     setTotalPage(totalPages);
+  //     return taskSchedules.data ?? [];
+  //   } catch (error) {
+  //     console.log("Task Parameters Item Not found");
+  //     return [];
+  //   }
+  // };
+
   const cancelScheduledTask = async (
     selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes
     // selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
@@ -428,16 +473,15 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   const getSearchViewRequests = async (
     page: number,
     limit: number,
-    userScheduleName: string
+    task_name: string
   ) => {
     try {
       setIsLoading(true);
       const resultLazyLoading = await api.get(
-        `/asynchronous-requests-and-task-schedules/view_requests/search/${page}/${limit}?user_schedule_name=${userScheduleName}`
+        `/asynchronous-requests-and-task-schedules/view_requests/search/${page}/${limit}?task_name=${task_name}`
       );
 
       setTotalPage(resultLazyLoading.data.pages);
-
       return resultLazyLoading.data.items;
     } catch (error) {
       console.log(error);
@@ -468,6 +512,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     changeState,
     setChangeState,
     getAsynchronousRequestsAndTaskSchedules,
+    getSearchAsynchronousRequestsAndTaskSchedules,
     cancelScheduledTask,
     rescheduleTask,
     getViewRequests,

@@ -182,7 +182,7 @@ const ManageAccessEntitlementsTable = () => {
 
   const handleDelete = async () => {
     for (const element of selectedAccessEntitlements) {
-      await deleteManageAccessEntitlement(element.entitlement_id);
+      await deleteManageAccessEntitlement(element.def_entitlement_id);
     }
     for (const element of deleteAccessPointsElements) {
       for (const item of element.result!) {
