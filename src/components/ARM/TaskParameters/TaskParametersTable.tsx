@@ -56,6 +56,7 @@ import { Input } from "@/components/ui/input";
 export function TaskParametersTable() {
   const {
     totalPage2,
+    setTotalPage2,
     selectedTask,
     selectedTaskParameters,
     setSelectedTaskParameters,
@@ -102,7 +103,11 @@ export function TaskParametersTable() {
   };
 
   React.useEffect(() => {
-    if (!selectedTask || !selectedTask.task_name) return setData([]);
+    if (!selectedTask || !selectedTask.task_name) {
+      setTotalPage2(1);
+      setPage(1);
+      return setData([]);
+    }
     const fetchData = async () => {
       try {
         setIsLoading(true);
@@ -115,6 +120,8 @@ export function TaskParametersTable() {
         if (res) setData(res);
       } catch (error) {
         setData([]);
+        setTotalPage2(1);
+        setPage(1);
         console.log(error, "err");
       } finally {
         setIsLoading(false);
@@ -124,7 +131,7 @@ export function TaskParametersTable() {
       }
     };
     fetchData();
-  }, [selectedTask, changeState, page, limit]);
+  }, [selectedTask?.def_task_id, changeState, page, limit]);
 
   const table = useReactTable({
     data,
