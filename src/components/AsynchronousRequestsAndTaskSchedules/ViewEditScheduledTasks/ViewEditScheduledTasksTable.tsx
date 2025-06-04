@@ -112,6 +112,11 @@ export function ViewEditScheduledTasksTable() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
+        if (limit === 0) {
+          setData([]);
+          setIsLoading(false);
+          return;
+        }
         setIsLoading(true);
         if (!query.isEmpty) {
           const results = await getSearchAsynchronousRequestsAndTaskSchedules(

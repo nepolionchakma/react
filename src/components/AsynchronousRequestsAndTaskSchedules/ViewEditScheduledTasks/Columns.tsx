@@ -166,7 +166,8 @@ export const columns = (
     },
     cell: ({ row }) => {
       const data: string = row.getValue("creation_date");
-      return <div className="min-w-max">{data?.slice(0, 16)} </div>;
+      const date = new Date(data).toLocaleDateString();
+      return <div className="min-w-max">{date} </div>;
     },
   },
   {
@@ -176,6 +177,7 @@ export const columns = (
     },
     cell: ({ row }) => {
       const data: string = row.getValue("last_updated_by");
+
       return <div>{data === null ? "null" : data}</div>;
     },
   },
@@ -186,7 +188,8 @@ export const columns = (
     },
     cell: ({ row }) => {
       const data: string = row.getValue("last_update_date");
-      return <div className=" min-w-max">{data?.slice(0, 16)} </div>;
+      const date = new Date(data).toLocaleDateString();
+      return <div className=" min-w-max">{date} </div>;
     },
   },
   // {
