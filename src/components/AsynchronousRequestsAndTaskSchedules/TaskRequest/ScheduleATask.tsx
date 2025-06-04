@@ -317,14 +317,16 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
                           <SelectValue placeholder="Select a Task" />
                         </SelectTrigger>
                         <SelectContent className="max-h-60">
-                          {asyncTaskNames?.map((item) => (
-                            <SelectItem
-                              key={item.def_task_id}
-                              value={item.task_name}
-                            >
-                              {item.user_task_name}
-                            </SelectItem>
-                          ))}
+                          {asyncTaskNames
+                            ?.filter((item) => item.cancelled_yn !== "Y")
+                            ?.map((item) => (
+                              <SelectItem
+                                key={item.def_task_id}
+                                value={item.task_name}
+                              >
+                                {item.user_task_name}
+                              </SelectItem>
+                            ))}
                         </SelectContent>
                       </Select>
                     </FormControl>
