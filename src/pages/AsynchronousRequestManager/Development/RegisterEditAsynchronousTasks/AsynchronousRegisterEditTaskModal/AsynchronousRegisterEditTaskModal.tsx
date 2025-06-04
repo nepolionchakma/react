@@ -34,7 +34,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 interface ICreateTaskProps {
   task_name: string;
-  selected: IARMAsynchronousTasksTypes[];
+  selected: IARMAsynchronousTasksTypes;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   handleCloseModal: () => void;
@@ -60,7 +60,8 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
     useState<IExecutionMethodsTypes>(executionMethods[0]);
 
   const [checkboxSelected, setCheckboxSelected] = useState<IChackboxTypes>(
-    selected[0] && { srs: selected[0].srs, sf: selected[0].sf }
+    selected && { srs: selected.srs, sf: selected.sf }
+    // selected[0] && { srs: selected[0].srs, sf: selected[0].sf }
   );
 
   useEffect(() => {
@@ -139,12 +140,12 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
             script_path: "",
           }
         : {
-            user_task_name: selected[0]?.user_task_name,
-            execution_method: selected[0]?.execution_method,
-            script_name: selected[0]?.script_name,
-            description: selected[0]?.description,
-            srs: selected[0]?.srs,
-            sf: selected[0]?.sf,
+            user_task_name: selected?.user_task_name,
+            execution_method: selected?.execution_method,
+            script_name: selected?.script_name,
+            description: selected?.description,
+            srs: selected?.srs,
+            sf: selected?.sf,
           },
   });
   const { reset } = form;
@@ -202,7 +203,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
       setIsLoading(true);
       try {
         const res = await api.put(
-          `/arm-tasks/edit-task/${selected[0]?.task_name}`,
+          `/arm-tasks/edit-task/${selected?.task_name}`,
           putData
         );
 

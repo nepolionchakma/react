@@ -68,8 +68,17 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
       return <div className="min-w-max">Creation Date</div>;
     },
     cell: ({ row }) => {
-      const data: string = row.getValue("creation_date");
-      return <div className="min-w-max">{data?.slice(0, 16)} </div>;
+      // const convertDate = (isoDateString: Date) => {
+      //   const date = new Date(isoDateString);
+      //   const formattedDate = date.toLocaleString();
+      //   return formattedDate;
+      // };
+
+      const data: Date = row.getValue("creation_date");
+      const date = new Date(data);
+      const formattedDate = date.toLocaleString("en-US");
+      console.log(formattedDate, "date");
+      return <div className="min-w-max">{formattedDate} </div>;
     },
   },
   {
@@ -78,8 +87,10 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
       return <div className="min-w-max">Last Updated Date</div>;
     },
     cell: ({ row }) => {
-      const data: string = row.getValue("last_update_date");
-      return <div className=" min-w-max">{data?.slice(0, 16)} </div>;
+      const data: Date = row.getValue("last_update_date");
+      const date = new Date(data);
+      const formattedDate = date.toLocaleString("en-US");
+      return <div className=" min-w-max">{formattedDate} </div>;
     },
   },
 ];

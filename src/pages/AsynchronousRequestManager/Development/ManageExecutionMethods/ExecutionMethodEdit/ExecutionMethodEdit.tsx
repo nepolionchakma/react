@@ -24,20 +24,16 @@ import { useARMContext } from "@/Context/ARMContext/ARMContext";
 interface ICreateTaskProps {
   action: string;
   selected: IExecutionMethodsTypes[];
-  isLoading: boolean;
-  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   handleCloseModal: () => void;
 }
 const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
   action,
   selected,
-  isLoading,
-  setIsLoading,
   handleCloseModal,
 }) => {
   const api = useAxiosPrivate();
   const { isOpenModal } = useGlobalContext();
-  const { setChangeState } = useARMContext();
+  const { setChangeState, isLoading, setIsLoading } = useARMContext();
 
   const FormSchema = z.object(
     isOpenModal === "create_execution_methods"
