@@ -38,6 +38,12 @@ export interface IARMTaskParametersTypes {
   parameter_name: string;
   task_name: string;
 }
+export interface IGetResponseARMTaskParametersTypes {
+  items: IARMTaskParametersTypes[];
+  page: number;
+  pages: number;
+  total: number;
+}
 // export interface IAsynchronousRequestsAndTaskSchedulesTypes {
 //   args: string[];
 //   def_task_sche_id: number;

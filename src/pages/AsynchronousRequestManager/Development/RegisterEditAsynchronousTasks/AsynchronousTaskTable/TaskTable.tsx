@@ -63,15 +63,20 @@ export function TaskTable() {
     setIsLoading,
     changeState,
   } = useARMContext();
-  const { page, setPage, isOpenModal, setIsOpenModal } = useGlobalContext();
-  const [data, setData] = React.useState<IARMAsynchronousTasksTypes[] | []>([]);
+  const { isOpenModal, setIsOpenModal } = useGlobalContext();
+  const [page, setPage] = React.useState(1);
+  const [limit, setLimit] = React.useState(8);
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
-  const limit = 20;
-
-  React.useEffect(() => {
+  const [data, setData] = React.useState<IARMAsynchronousTasksTypes[] | []>([]);
+  const handleQuery = (e: string) => {
+    if (e === "") {
+      setQuery({ isEmpty: true, value: e });
+      setPage(1);
+    } else {
+      setQuery({ isEmpty: false, value: e });
+    }
     setPage(1);
-  }, []);
-
+  };
   React.useEffect(() => {
     const fetchData = async () => {
       try {
@@ -92,28 +97,21 @@ export function TaskTable() {
         }
       } catch (error) {
         console.log(error);
+      } finally {
+        //table toggle false
+        table.toggleAllRowsSelected(false);
+        setSelected(undefined);
       }
     };
 
+    setIsLoading(true);
     // Debounce only when query changes
     const delayDebounce = setTimeout(() => {
       fetchData();
-      //table toggle false
-      table.toggleAllRowsSelected(false);
-      setSelected([]);
     }, 1000);
 
     return () => clearTimeout(delayDebounce); // Cleanup timeout
-  }, [query, page, changeState]); // Run on query and page change
-
-  const handleQuery = (e: string) => {
-    if (e === "") {
-      console.log(e === "");
-      setQuery({ isEmpty: true, value: e });
-    } else {
-      setQuery({ isEmpty: false, value: e });
-    }
-  };
+  }, [query, page, changeState, limit]); // Run on query and page change
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -123,16 +121,21 @@ export function TaskTable() {
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  const [selected, setSelected] = React.useState<IARMAsynchronousTasksTypes[]>(
-    []
-  );
+  const [selected, setSelected] = React.useState<
+    IARMAsynchronousTasksTypes | undefined
+  >(undefined);
   const handleRowSelection = (rowSelection: IARMAsynchronousTasksTypes) => {
     setSelected((prevSelected) => {
-      if (prevSelected.includes(rowSelection)) {
-        return prevSelected.filter((item) => item !== rowSelection);
+      if (prevSelected?.def_task_id === rowSelection.def_task_id) {
+        return undefined;
       } else {
-        return [...prevSelected, rowSelection];
+        return rowSelection;
       }
+      // if (prevSelected.includes(rowSelection)) {
+      //   return prevSelected.filter((item) => item !== rowSelection);
+      // } else {
+      //   return [...prevSelected, rowSelection];
+      // }
     });
   };
 
@@ -189,16 +192,17 @@ export function TaskTable() {
 
   const handleCloseModal = () => {
     setIsOpenModal(""); // close modal
-    setSelected([]);
+    setSelected(undefined);
     //table toggle false
     table.toggleAllRowsSelected(false);
   };
-  const handleCancel = async (selected: IARMAsynchronousTasksTypes[]) => {
+  const handleCancel = async (selected: IARMAsynchronousTasksTypes) => {
     console.log(selected, "selected");
     try {
-      selected.forEach(async (task) => {
-        await cancelAsyncTasks(task.task_name);
-      });
+      await cancelAsyncTasks(selected.task_name);
+      // selected.forEach(async (task) => {
+      //   await cancelAsyncTasks(task.task_name);
+      // });
     } catch (error) {
       console.log(error);
     }
@@ -210,7 +214,7 @@ export function TaskTable() {
         <CustomModal4 className="w-[770px]">
           <AsynchronousRegisterEditTaskModal
             task_name="Register Task"
-            selected={selected}
+            selected={selected!}
             isLoading={isLoading}
             setIsLoading={setIsLoading}
             handleCloseModal={handleCloseModal}
@@ -221,7 +225,7 @@ export function TaskTable() {
           <CustomModal4 className="w-[770px]">
             <AsynchronousRegisterEditTaskModal
               task_name="Edit Task"
-              selected={selected}
+              selected={selected!}
               isLoading={isLoading}
               setIsLoading={setIsLoading}
               handleCloseModal={handleCloseModal}
@@ -230,90 +234,100 @@ export function TaskTable() {
         )
       )}
       {/* top icon and columns*/}
-      <div className="flex gap-3 items-center py-2">
-        <div className="flex gap-3">
-          <div className="flex gap-3 items-center px-4 py-2 border rounded">
-            <div className="flex gap-3">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <PlusIcon
-                      className="cursor-pointer"
-                      onClick={() => handleOpenModal("register_task")}
-                    />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Register Task</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <button disabled={selected.length > 1 || selected.length === 0}>
+      <div className="flex gap-3 items-center justify-between py-2">
+        <div className="flex gap-3 items-center px-4 py-2 border rounded">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <PlusIcon
+                  className="cursor-pointer"
+                  onClick={() => handleOpenModal("register_task")}
+                />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Register Task</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <button disabled={!selected}>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <FileEdit
+                    className={`${
+                      !selected
+                        ? "text-slate-200 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                    onClick={() => handleOpenModal("edit_task")}
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Edit Task</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <button disabled={!selected}>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <FileEdit
+                      <CircleOff
                         className={`${
-                          selected.length > 1 || selected.length === 0
+                          !selected
                             ? "text-slate-200 cursor-not-allowed"
                             : "cursor-pointer"
                         }`}
-                        onClick={() => handleOpenModal("edit_task")}
                       />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Edit Task</p>
+                      <p>Cancel Task</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
               </button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <button>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <CircleOff
-                            className={`${
-                              selected.length === 0
-                                ? "text-slate-200 cursor-not-allowed"
-                                : "cursor-pointer"
-                            }`}
-                          />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Delete Execution Method</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Are you absolutely sure?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      your account and remove your data from our servers.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handleCancel(selected)}>
-                      Continue
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          </div>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Cancel Task?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  <>Selected Task:</>
+                  <br />
+                  <br />
+                  <span className="block text-black">
+                    Task name : {selected?.task_name}
+                  </span>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={() => handleCancel(selected!)}>
+                  Continue
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </div>
         <Input
           placeholder="Filter User Task Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
-          className="max-w-sm px-4 py-2"
+          className="w-[20rem] px-4 py-2"
         />
+        <div className="flex gap-2 items-center ml-auto">
+          <h3>Rows :</h3>
+          <input
+            type="number"
+            placeholder="Rows"
+            value={limit}
+            min={1}
+            // max={20}
+            onChange={(e) => setLimit(Number(e.target.value))}
+            className="w-14 border rounded p-2"
+          />
+        </div>
         {/* Columns */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -364,22 +378,23 @@ export function TaskTable() {
                         {/* Example: Checkbox for selecting all rows */}
                         {header.id === "select" && (
                           <Checkbox
-                            checked={
-                              table.getIsAllPageRowsSelected() ||
-                              (table.getIsSomePageRowsSelected() &&
-                                "indeterminate")
-                            }
-                            onCheckedChange={(value) => {
-                              // Toggle all page rows selected
-                              table.toggleAllPageRowsSelected(!!value);
-                              setTimeout(() => {
-                                const selectedRows = table
-                                  .getSelectedRowModel()
-                                  .rows.map((row) => row.original);
-                                console.log(selectedRows);
-                                setSelected(selectedRows);
-                              }, 0);
-                            }}
+                            disabled
+                            // checked={
+                            //   table.getIsAllPageRowsSelected() ||
+                            //   (table.getIsSomePageRowsSelected() &&
+                            //     "indeterminate")
+                            // }
+                            // onCheckedChange={(value) => {
+                            //   // Toggle all page rows selected
+                            //   table.toggleAllPageRowsSelected(!!value);
+                            //   setTimeout(() => {
+                            //     const selectedRows = table
+                            //       .getSelectedRowModel()
+                            //       .rows.map((row) => row.original);
+                            //     console.log(selectedRows);
+                            //     setSelected(selectedRows);
+                            //   }, 0);
+                            // }}
                             className="mr-1"
                             aria-label="Select all"
                           />
@@ -416,10 +431,12 @@ export function TaskTable() {
                         {index === 0 ? (
                           <Checkbox
                             className=""
-                            checked={row.getIsSelected()}
-                            onCheckedChange={(value) =>
-                              row.toggleSelected(!!value)
+                            checked={
+                              selected?.def_task_id === row.original.def_task_id
                             }
+                            // onCheckedChange={(value) =>
+                            //   row.toggleSelected(!!value)
+                            // }
                             onClick={() => handleRowSelection(row.original)}
                           />
                         ) : (

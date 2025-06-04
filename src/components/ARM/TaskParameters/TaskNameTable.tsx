@@ -67,6 +67,7 @@ export function TaskNameTable() {
   const {
     totalPage,
     isLoading,
+    setIsLoading,
     setSelectedTask,
     getAsyncTasksLazyLoading,
     setSelectedTaskParameters,
@@ -75,8 +76,8 @@ export function TaskNameTable() {
 
   const [data, setData] = React.useState<IARMAsynchronousTasksTypes[] | []>([]);
   const [page, setPage] = React.useState<number>(1);
-  const limit = 3;
-  const [selectedRowId, setSelectedRowId] = React.useState<number>();
+  const [limit, setLimit] = React.useState<number>(3);
+  const [selectedRowId, setSelectedRowId] = React.useState<string>("");
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -125,32 +126,33 @@ export function TaskNameTable() {
             query.value
           );
           if (res) {
-            setSelectedRowId(0);
+            setSelectedRowId("");
             setData(res);
           }
         } else {
           const res = await getAsyncTasksLazyLoading(page, limit);
           if (res) {
-            setSelectedRowId(0);
+            setSelectedRowId("");
             setData(res);
           }
         }
       } catch (error) {
         console.log(error);
+      } finally {
+        setSelectedTask({} as IARMAsynchronousTasksTypes);
+        setSelectedTaskParameters([]);
+        // uncheck checkbox
+        table.getRowModel().rows.map((row) => row.toggleSelected(false));
       }
     };
-
+    setIsLoading(true);
     // Debounce only when query changes
     const delayDebounce = setTimeout(() => {
       fetchData();
-      setSelectedTask(undefined);
-      setSelectedTaskParameters([]);
-      // uncheck checkbox
-      table.getRowModel().rows.map((row) => row.toggleSelected(false));
     }, 1000);
 
-    return () => clearTimeout(delayDebounce); // Cleanup timeout
-  }, [query, page]);
+    return () => clearTimeout(delayDebounce);
+  }, [query, page, limit]);
 
   const handleRowSelection = (task: IARMAsynchronousTasksTypes) => {
     setSelectedTask((prev) => {
@@ -165,13 +167,25 @@ export function TaskNameTable() {
   return (
     <div className="px-3">
       {/* top icon and columns*/}
-      <div className="flex gap-3 items-center py-2">
+      <div className="flex gap-3 items-center justify-between py-2">
         <Input
           placeholder="Filter User Task Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
-          className="max-w-sm px-4 py-2"
+          className="w-[20rem] px-4 py-2"
         />
+        <div className="flex gap-2 items-center ml-auto">
+          <h3>Rows :</h3>
+          <input
+            type="number"
+            placeholder="Rows"
+            value={limit}
+            min={1}
+            // max={20}
+            onChange={(e) => setLimit(Number(e.target.value))}
+            className="w-14 border rounded p-2"
+          />
+        </div>
         {/* Columns */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -179,7 +193,7 @@ export function TaskNameTable() {
               Columns <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="max-h-72 overflow-y-auto">
             {table
               .getAllColumns()
               .filter((column) => column.getCanHide())
@@ -259,17 +273,16 @@ export function TaskNameTable() {
                         {index === 0 ? (
                           <Checkbox
                             className=""
-                            checked={row.original.def_task_id === selectedRowId}
-                            onCheckedChange={(value) => {
-                              console.log(value, row);
-                              row.toggleSelected(!!value);
-                            }}
+                            checked={row.id === selectedRowId}
+                            onCheckedChange={(value) =>
+                              row.toggleSelected(!!value)
+                            }
                             onClick={() => {
                               setSelectedRowId((prev) => {
-                                if (prev === row.original.def_task_id) {
-                                  return undefined;
+                                if (prev === row.id) {
+                                  return "";
                                 } else {
-                                  return row.original.def_task_id;
+                                  return row.id;
                                 }
                               });
                               handleRowSelection(row.original);
