@@ -70,9 +70,16 @@ interface IAACContextTypes {
   fetchDefAccessModels: () => Promise<
     IManageAccessModelsTypes[] | [] | undefined
   >;
+  lazyLoadingDefAccessModels: (page: number, limit: number) => Promise<void>;
+  getSearchAccessModels: (
+    page: number,
+    limit: number,
+    model_name: string
+  ) => Promise<void>;
   fetchAccessModelAttributes: () => Promise<void>;
   accessModelLogicAttributes: IManageAccessModelLogicAttributesTypes[];
   manageAccessModels: IManageAccessModelsTypes[] | [];
+  setManageAccessModels: Dispatch<SetStateAction<IManageAccessModelsTypes[]>>;
   selectedAccessModelItem: IManageAccessModelsTypes[];
   setSelectedAccessModelItem: Dispatch<
     SetStateAction<IManageAccessModelsTypes[]>
@@ -153,7 +160,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   >([]);
   const [maxLogicId, setMaxLogicId] = useState<number>();
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(5);
+  const [limit, setLimit] = useState<number>(8);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -413,6 +420,48 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     }
   };
 
+  // lazy loading Access models
+  const lazyLoadingDefAccessModels = async (page: number, limit: number) => {
+    try {
+      setIsLoading(true);
+      const response = await api.get<{
+        items: IManageAccessModelsTypes[];
+        pages: number;
+        page: number;
+      }>(`/def-access-models/${page}/${limit}`);
+      if (response) {
+        setTotalPage(response.data.pages);
+        setCurrentPage(response.data.page);
+        setManageAccessModels(response.data.items);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // search access model
+  const getSearchAccessModels = async (
+    page: number,
+    limit: number,
+    model_name: string
+  ) => {
+    try {
+      setIsLoading(true);
+      const response = await api.get(
+        `/def-access-models/search/${page}/${limit}?model_name=${model_name}`
+      );
+      setTotalPage(response.data.pages);
+      setManageAccessModels(response.data.items);
+      setCurrentPage(response.data.page);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Create Acces Model
   const createDefAccessModel = async (postData: IManageAccessModelsTypes) => {
     try {
@@ -629,7 +678,10 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     deleteLogicAndAttributeData,
     deleteGlobalLogicAndAttributeData,
     manageAccessModels,
+    setManageAccessModels,
     fetchDefAccessModels,
+    lazyLoadingDefAccessModels,
+    getSearchAccessModels,
     selectedAccessModelItem,
     setSelectedAccessModelItem,
     createDefAccessModel,
