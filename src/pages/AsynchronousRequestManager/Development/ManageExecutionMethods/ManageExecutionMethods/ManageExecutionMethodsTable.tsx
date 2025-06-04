@@ -279,9 +279,11 @@ export function ManageExecutionMethodsTable() {
                   <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                   <AlertDialogDescription>
                     This action cannot be undone. This will permanently delete
-                    your account and remove your data from our servers. Selected
-                    Execution Method Name
-                    {selected.length > 1 ? "'s are" : " is"} :{" "}
+                    form the server.
+                    <span className="font-semibold block text-black">
+                      Selected Execution Method Name
+                      {selected.length > 1 ? "'s are" : " is"} :{" "}
+                    </span>
                     {selected.map((row, i) => (
                       <span key={i} className="flex flex-col text-black">
                         {i + 1}. {row.execution_method}
