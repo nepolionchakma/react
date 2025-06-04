@@ -78,6 +78,11 @@ export function ViewRequestTable() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
+        if (limit === 0) {
+          setData([]);
+          setIsLoading(false);
+          return;
+        }
         if (!query.isEmpty) {
           const res = await getSearchViewRequests(page, limit, query.value);
           if (res) {
