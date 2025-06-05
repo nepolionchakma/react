@@ -60,6 +60,12 @@ import {
 import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
 import { useEffect, useState } from "react";
 import Pagination5 from "@/components/Pagination/Pagination5";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const ManageGlobalConditionsTable = () => {
   const {
@@ -246,42 +252,58 @@ const ManageGlobalConditionsTable = () => {
       <div className="flex gap-3 items-center py-2">
         <div className="flex gap-3">
           <div className="flex gap-3 items-center px-4 py-2 border rounded">
-            <div>
-              <Plus
-                className="cursor-pointer"
-                onClick={() => {
-                  setIsOpenManageGlobalConditionModal(true);
-                  // setEditManageAccessEntitlement(true);
-                  // setSelectedManageAccessEntitlements(Object());
-                  // setMangeAccessEntitlementAction("add");
-                }}
-              />
-            </div>
-            <div>
-              {selectedManageGlobalConditionItem.length === 1 ? (
-                <FileEdit
-                  className="cursor-pointer"
-                  onClick={handleEditClick}
-                />
-              ) : (
-                <FileEdit className="cursor-not-allowed text-slate-200" />
-              )}
-            </div>
-
-            <div className="flex items-center">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Plus
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setIsOpenManageGlobalConditionModal(true);
+                      // setEditManageAccessEntitlement(true);
+                      // setSelectedManageAccessEntitlements(Object());
+                      // setMangeAccessEntitlementAction("add");
+                    }}
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Create Global Condition</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  {selectedManageGlobalConditionItem.length === 1 ? (
+                    <FileEdit
+                      className="cursor-pointer"
+                      onClick={handleEditClick}
+                    />
+                  ) : (
+                    <FileEdit className="cursor-not-allowed text-slate-200" />
+                  )}
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Edit Global Condition</p>
+                </TooltipContent>
+              </Tooltip>
               <AlertDialog>
                 <AlertDialogTrigger
                   disabled={selectedManageGlobalConditionItem.length === 0}
                 >
-                  <Trash
-                    onClick={handleDeleteCalculate}
-                    className={`${
-                      selectedManageGlobalConditionItem.length === 0 ||
-                      selectedManageGlobalConditionItem.length > 1
-                        ? "text-slate-200 cursor-not-allowed"
-                        : "text-slate-800 cursor-pointer"
-                    }`}
-                  />
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Trash
+                        onClick={handleDeleteCalculate}
+                        className={`${
+                          selectedManageGlobalConditionItem.length === 0 ||
+                          selectedManageGlobalConditionItem.length > 1
+                            ? "text-slate-200 cursor-not-allowed"
+                            : "text-slate-800 cursor-pointer"
+                        }`}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Delete Global Condition</p>
+                    </TooltipContent>
+                  </Tooltip>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
@@ -322,7 +344,7 @@ const ManageGlobalConditionsTable = () => {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-            </div>
+            </TooltipProvider>
           </div>
         </div>
         <Input
