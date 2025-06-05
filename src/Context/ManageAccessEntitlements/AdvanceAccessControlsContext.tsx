@@ -35,7 +35,10 @@ interface IAACContextTypes {
   isOpenManageGlobalConditionModal: boolean;
   setIsOpenManageGlobalConditionModal: Dispatch<SetStateAction<boolean>>;
   fetchManageGlobalConditions: () => Promise<void>;
-  getGlobalConditions: (page: number, limit: number) => Promise<void>;
+  getlazyLoadingGlobalConditions: (
+    page: number,
+    limit: number
+  ) => Promise<void>;
   manageGlobalConditions: IManageGlobalConditionTypes[];
   selectedManageGlobalConditionItem: IManageGlobalConditionTypes[];
   setSelectedManageGlobalConditionItem: Dispatch<
@@ -248,14 +251,17 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     }
   };
 
-  const getGlobalConditions = async (page: number, limit: number) => {
+  const getlazyLoadingGlobalConditions = async (
+    page: number,
+    limit: number
+  ) => {
     try {
       setIsLoading(true);
       const resultLazyLoading = await api.get(
         `/def-global-conditions/${page}/${limit}`
       );
-      setManageGlobalConditions(resultLazyLoading.data.results);
-      setTotalPage(resultLazyLoading.data.totalPages);
+      setManageGlobalConditions(resultLazyLoading.data.items);
+      setTotalPage(resultLazyLoading.data.pages);
     } catch (error) {
       console.log(error);
     } finally {
@@ -662,7 +668,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     isOpenManageGlobalConditionModal,
     setIsOpenManageGlobalConditionModal,
     fetchManageGlobalConditions,
-    getGlobalConditions,
+    getlazyLoadingGlobalConditions,
     manageGlobalConditions,
     selectedManageGlobalConditionItem,
     setSelectedManageGlobalConditionItem,

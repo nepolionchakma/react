@@ -67,9 +67,8 @@ const ManageGlobalConditionsTable = () => {
     stateChange,
     setIsEditModalOpen,
     setIsOpenManageGlobalConditionModal,
-    // fetchManageGlobalConditions,
     totalPage,
-    getGlobalConditions,
+    getlazyLoadingGlobalConditions,
     manageGlobalConditions: data,
     selectedManageGlobalConditionItem,
     setSelectedManageGlobalConditionItem,
@@ -83,7 +82,7 @@ const ManageGlobalConditionsTable = () => {
   const limit = 5;
   // Fetch Data
   useEffect(() => {
-    getGlobalConditions(page, limit);
+    getlazyLoadingGlobalConditions(page, limit);
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
     setSelectedManageGlobalConditionItem([]);
   }, [page, stateChange]);
@@ -135,7 +134,7 @@ const ManageGlobalConditionsTable = () => {
               setIsChecked(!isChecked);
             }}
             aria-label="Select all"
-            className="pl-1 m-1"
+            // className="pl-1 m-1"
           />
         );
       },
@@ -408,10 +407,15 @@ const ManageGlobalConditionsTable = () => {
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell, index) => (
-                    <TableCell key={cell.id} className="border p-1 w-fit">
+                    <TableCell
+                      key={cell.id}
+                      className={`border p-1 h-8 ${
+                        index === 0 ? "w-3" : "w-fit"
+                      }`}
+                    >
                       {index === 0 ? (
                         <Checkbox
-                          className="m-1"
+                          className="mr-1"
                           checked={row.getIsSelected()}
                           onCheckedChange={(value) =>
                             row.toggleSelected(!!value)
