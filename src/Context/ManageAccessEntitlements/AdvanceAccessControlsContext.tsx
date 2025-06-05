@@ -40,6 +40,14 @@ interface IAACContextTypes {
     limit: number
   ) => Promise<void>;
   manageGlobalConditions: IManageGlobalConditionTypes[];
+  setManageGlobalConditions: Dispatch<
+    SetStateAction<IManageGlobalConditionTypes[]>
+  >;
+  getSearchGlobalConditions: (
+    page: number,
+    limit: number,
+    name: string
+  ) => Promise<void>;
   selectedManageGlobalConditionItem: IManageGlobalConditionTypes[];
   setSelectedManageGlobalConditionItem: Dispatch<
     SetStateAction<IManageGlobalConditionTypes[]>
@@ -262,6 +270,26 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       );
       setManageGlobalConditions(resultLazyLoading.data.items);
       setTotalPage(resultLazyLoading.data.pages);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // search global condition
+  const getSearchGlobalConditions = async (
+    page: number,
+    limit: number,
+    name: string
+  ) => {
+    try {
+      setIsLoading(true);
+      const response = await api.get(
+        `/def-global-conditions/search/${page}/${limit}?name=${name}`
+      );
+      setTotalPage(response.data.pages);
+      setManageGlobalConditions(response.data.items);
     } catch (error) {
       console.log(error);
     } finally {
@@ -669,7 +697,9 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     setIsOpenManageGlobalConditionModal,
     fetchManageGlobalConditions,
     getlazyLoadingGlobalConditions,
+    getSearchGlobalConditions,
     manageGlobalConditions,
+    setManageGlobalConditions,
     selectedManageGlobalConditionItem,
     setSelectedManageGlobalConditionItem,
     createManageGlobalCondition,

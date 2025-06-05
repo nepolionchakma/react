@@ -70,12 +70,15 @@ import {
 const ManageGlobalConditionsTable = () => {
   const {
     isLoading,
+    setIsLoading,
     stateChange,
     setIsEditModalOpen,
     setIsOpenManageGlobalConditionModal,
     totalPage,
     getlazyLoadingGlobalConditions,
+    getSearchGlobalConditions,
     manageGlobalConditions: data,
+    setManageGlobalConditions,
     selectedManageGlobalConditionItem,
     setSelectedManageGlobalConditionItem,
     fetchManageGlobalConditionLogics,
@@ -85,21 +88,14 @@ const ManageGlobalConditionsTable = () => {
     deleteLogicAndAttributeData,
   } = useAACContext();
   const [page, setPage] = useState<number>(1);
-  const limit = 5;
-  // Fetch Data
-  useEffect(() => {
-    getlazyLoadingGlobalConditions(page, limit);
-    table.getRowModel().rows.map((row) => row.toggleSelected(false));
-    setSelectedManageGlobalConditionItem([]);
-  }, [page, stateChange]);
-  // loader
-  tailspin.register();
-
+  const [limit, setLimit] = useState(8);
   // Shadcn Form
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
+  const [query, setQuery] = useState({ isEmpty: true, value: "" });
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [pagination, setPagination] = useState({
     pageIndex: 0, //initial page index
     pageSize: 7, //default page size
@@ -108,22 +104,56 @@ const ManageGlobalConditionsTable = () => {
     IManageGlobalConditionLogicExtendTypes[]
   >([]);
   const [isChecked, setIsChecked] = useState<boolean>(false);
-  // select row
-  const handleRowSelection = (rowData: IManageGlobalConditionTypes) => {
-    setSelectedManageGlobalConditionItem((prevSelected) => {
-      if (prevSelected.includes(rowData)) {
-        // If the id is already selected, remove it
-        return prevSelected.filter((selectedId) => selectedId !== rowData);
-      } else {
-        // If the id is not selected, add it
-        return [...prevSelected, rowData];
-      }
-    });
+
+  const handleQuery = (e: string) => {
+    if (e === "") {
+      setQuery({ isEmpty: true, value: e });
+      setPage(1);
+    } else {
+      setQuery({ isEmpty: false, value: e });
+      setPage(1);
+    }
   };
-  // const handleFetchAccessPoints = () => {
-  //   fetchAccessPointsEntitlement(selectedManageGlobalConditionItem[0]);
-  //   setSelectedManageAccessEntitlements(selectedManageGlobalConditionItem[0]);
-  // };
+
+  useEffect(() => {
+    const handleDebounce = setTimeout(() => {
+      setDebouncedQuery(query.value);
+    }, 1000);
+
+    return () => {
+      clearTimeout(handleDebounce);
+    };
+  }, [query]);
+
+  // When query changes, reset page to 1
+  useEffect(() => {
+    if (!query.isEmpty) {
+      setPage(1);
+    }
+  }, [query, setPage]);
+
+  useEffect(() => {
+    if (limit === 0) {
+      setManageGlobalConditions([]);
+      setIsLoading(false);
+      return;
+    }
+    if (debouncedQuery) {
+      getSearchGlobalConditions(page, limit, debouncedQuery);
+    } else {
+      getlazyLoadingGlobalConditions(page, limit);
+    }
+  }, [page, limit, debouncedQuery]);
+
+  // Fetch Data
+  useEffect(() => {
+    getlazyLoadingGlobalConditions(page, limit);
+    table.getRowModel().rows.map((row) => row.toggleSelected(false));
+    setSelectedManageGlobalConditionItem([]);
+  }, [page, stateChange]);
+
+  // loader
+  tailspin.register();
 
   const columns: ColumnDef<IManageGlobalConditionTypes>[] = [
     {
@@ -207,6 +237,24 @@ const ManageGlobalConditionsTable = () => {
       pagination,
     },
   });
+
+  // select row
+  const handleRowSelection = (rowData: IManageGlobalConditionTypes) => {
+    setSelectedManageGlobalConditionItem((prevSelected) => {
+      if (prevSelected.includes(rowData)) {
+        // If the id is already selected, remove it
+        return prevSelected.filter((selectedId) => selectedId !== rowData);
+      } else {
+        // If the id is not selected, add it
+        return [...prevSelected, rowData];
+      }
+    });
+  };
+  // const handleFetchAccessPoints = () => {
+  //   fetchAccessPointsEntitlement(selectedManageGlobalConditionItem[0]);
+  //   setSelectedManageAccessEntitlements(selectedManageGlobalConditionItem[0]);
+  // };
+
   // handle delete Calculate
   const handleDeleteCalculate = async () => {
     const res = await manageGlobalConditionDeleteCalculate(
@@ -349,12 +397,22 @@ const ManageGlobalConditionsTable = () => {
         </div>
         <Input
           placeholder="Filter by Name..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
-          }
+          value={query.value}
+          onChange={(e) => handleQuery(e.target.value)}
           className="max-w-sm px-4 py-2"
         />
+        <div className="flex gap-2 items-center ml-auto">
+          <h3>Rows :</h3>
+          <input
+            type="number"
+            placeholder="Rows"
+            value={limit}
+            min={1}
+            max={20}
+            onChange={(e) => setLimit(Number(e.target.value))}
+            className="w-14 border rounded p-2"
+          />
+        </div>
         {/* Columns */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
