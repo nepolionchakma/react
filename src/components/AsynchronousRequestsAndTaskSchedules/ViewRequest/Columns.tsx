@@ -1,5 +1,5 @@
 import { IARMViewRequestsTypes } from "@/types/interfaces/ARM.interface";
-import { Checkbox } from "@radix-ui/react-checkbox";
+// import { Checkbox } from "@radix-ui/react-checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   CircleChevronDown,
@@ -17,18 +17,18 @@ export const columns = (
   clickedRowId: string,
   setClickedRowId: (row: string) => void
 ): ColumnDef<IARMViewRequestsTypes>[] => [
-  {
-    id: "select",
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+  // {
+  //   id: "select",
+  //   cell: ({ row }) => (
+  //     <Checkbox
+  //       checked={row.getIsSelected()}
+  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+  //       aria-label="Select row"
+  //     />
+  //   ),
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
   {
     accessorKey: "request_id",
     header: () => {
@@ -235,7 +235,15 @@ export const columns = (
     },
     cell: ({ row }) => {
       const data: string = row.getValue("timestamp");
-      return <div className="min-w-max">{data} </div>;
+
+      const date = new Date(data);
+
+      const convertDate = (isoDateString: Date) => {
+        const date = new Date(isoDateString);
+        const formattedDate = date.toLocaleString();
+        return formattedDate;
+      };
+      return <div className="min-w-max">{convertDate(date)} </div>;
     },
   },
 ];

@@ -34,6 +34,11 @@ interface IContextTypes {
   fetchAccessPointsEntitlement: (
     fetchData: IManageAccessEntitlementsTypes
   ) => Promise<void>;
+  getSearchAccessPointElementsLazyLoading: (
+    page: number,
+    limit: number,
+    element_name: string
+  ) => Promise<IFetchAccessPointsElementTypes[] | undefined>;
   fetchAccessPointsEntitlementForDelete: (
     fetchData: IManageAccessEntitlementsTypes
   ) => Promise<IFetchAccessPointsElementTypes[]>;
@@ -187,6 +192,28 @@ export const ManageAccessEntitlementsProvider = ({
       setIsLoading(false);
     }
   };
+
+  // Search Access Points Elements
+  const getSearchAccessPointElementsLazyLoading = async (
+    page: number,
+    limit: number,
+    element_name: string
+  ) => {
+    try {
+      setIsLoading(true);
+      const resultLazyLoading = await api.get(
+        `/def-access-point-elements/search/${page}/${limit}?element_name=${element_name}`
+      );
+      setTotalPage(resultLazyLoading.data.pages);
+      console.log(resultLazyLoading.data.items);
+      return resultLazyLoading.data.items;
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const fetchAccessPointsEntitlement = useCallback(
     async (fetchData: IManageAccessEntitlementsTypes) => {
       setIsLoading(true);
@@ -196,7 +223,6 @@ export const ManageAccessEntitlementsProvider = ({
             IFetchAccessEntitlementElementsTypes[]
           >(`/access-entitlement-elements/${fetchData.def_entitlement_id}`);
 
-          console.log(response, "response");
           const accessPointsId = response.data.map(
             (data) => data.access_point_id
           );
@@ -442,8 +468,8 @@ export const ManageAccessEntitlementsProvider = ({
       description,
       comments,
       status,
-      last_updated_by,
       created_by,
+      last_updated_by,
     } = postData;
     setIsLoading(true);
     try {
@@ -489,8 +515,8 @@ export const ManageAccessEntitlementsProvider = ({
       description,
       comments,
       status,
-      last_updated_by,
       created_by,
+      last_updated_by,
     } = putData;
     try {
       const res = await api.put(`/def-access-entitlements/${id}`, {
@@ -562,6 +588,7 @@ export const ManageAccessEntitlementsProvider = ({
     setSelectedAccessEntitlements,
     fetchAccessPointsEntitlement,
     fetchAccessPointsEntitlementForDelete,
+    getSearchAccessPointElementsLazyLoading,
     filteredData,
     setFilteredData,
     isLoading,

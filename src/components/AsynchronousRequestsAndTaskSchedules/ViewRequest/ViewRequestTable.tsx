@@ -12,7 +12,7 @@ import {
 } from "@tanstack/react-table";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
+// import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -35,11 +35,16 @@ import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import PopUp from "./PopUp/PopUp";
 
 export function ViewRequestTable() {
-  const { totalPage, getViewRequests, getSearchViewRequests, isLoading } =
-    useARMContext();
+  const {
+    totalPage,
+    getViewRequests,
+    getSearchViewRequests,
+    isLoading,
+    setIsLoading,
+  } = useARMContext();
   const [data, setData] = React.useState<IARMViewRequestsTypes[] | []>([]);
   const [page, setPage] = React.useState(1);
-  const limit = 20;
+  const [limit, setLimit] = React.useState(8);
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
   const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
   const [viewParameters, setViewParameters] = React.useState("");
@@ -51,7 +56,7 @@ export function ViewRequestTable() {
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  // const [rowSelection, setRowSelection] = React.useState({});
 
   const handleQuery = (e: string) => {
     if (e === "") {
@@ -63,9 +68,21 @@ export function ViewRequestTable() {
     }
   };
 
+  // When query changes, reset page to 1
+  React.useEffect(() => {
+    if (!query.isEmpty) {
+      setPage(1);
+    }
+  }, [query]);
+
   React.useEffect(() => {
     const fetchData = async () => {
       try {
+        if (limit === 0) {
+          setData([]);
+          setIsLoading(false);
+          return;
+        }
         if (!query.isEmpty) {
           const res = await getSearchViewRequests(page, limit, query.value);
           if (res) {
@@ -81,18 +98,21 @@ export function ViewRequestTable() {
         }
       } catch (error) {
         console.log(error);
+      } finally {
+        //table toggle false
+        table.toggleAllRowsSelected(false);
+        // setRowSelection({});
       }
     };
 
+    setIsLoading(true);
     // Debounce only when query changes
     const delayDebounce = setTimeout(() => {
       fetchData();
-      table.toggleAllPageRowsSelected(false);
-      setRowSelection({});
     }, 1000);
 
     return () => clearTimeout(delayDebounce); // Cleanup timeout
-  }, [query, page]); // Run on query and page change
+  }, [query, page, limit]); // Run on query and page change
 
   const table = useReactTable({
     data,
@@ -118,12 +138,12 @@ export function ViewRequestTable() {
       },
     },
     onColumnVisibilityChange: setColumnVisibility,
-    onRowSelectionChange: setRowSelection,
+    // onRowSelectionChange: setRowSelection,
     state: {
       sorting,
       columnFilters,
       columnVisibility,
-      rowSelection,
+      // rowSelection,
     },
   });
 
@@ -139,6 +159,10 @@ export function ViewRequestTable() {
     "schedule_type",
     // "timestamp",
   ];
+
+  React.useEffect(() => {
+    table.setPageSize(limit);
+  }, [limit, table]);
 
   React.useEffect(() => {
     table.getAllColumns().forEach((column) => {
@@ -161,11 +185,23 @@ export function ViewRequestTable() {
       {/* Filter + Column Controls */}
       <div className="flex gap-3 items-center py-2">
         <Input
-          placeholder="Filter User Schedule Name"
+          placeholder="Filter by task Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
           className="max-w-sm px-4 py-2"
         />
+        <div className="flex gap-2 items-center ml-auto">
+          <h3>Rows :</h3>
+          <input
+            type="number"
+            placeholder="Rows"
+            value={limit}
+            min={1}
+            max={20}
+            onChange={(e) => setLimit(Number(e.target.value))}
+            className="w-14 border rounded p-2"
+          />
+        </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -209,7 +245,7 @@ export function ViewRequestTable() {
                             header.column.columnDef.header,
                             header.getContext()
                           )}
-                      {header.id === "select" && (
+                      {/* {header.id === "select" && (
                         <Checkbox
                           checked={
                             table.getIsAllPageRowsSelected() ||
@@ -222,7 +258,7 @@ export function ViewRequestTable() {
                           className="mr-1"
                           aria-label="Select all"
                         />
-                      )}
+                      )} */}
                     </TableHead>
                   ))}
                 </TableRow>
@@ -250,22 +286,11 @@ export function ViewRequestTable() {
                   return (
                     <React.Fragment key={row.id}>
                       <TableRow data-state={row.getIsSelected() && "selected"}>
-                        {row.getVisibleCells().map((cell, index) => (
+                        {row.getVisibleCells().map((cell) => (
                           <TableCell key={cell.id} className="border p-1 h-8">
-                            {index === 0 ? (
-                              <div className="flex items-center gap-2">
-                                <Checkbox
-                                  checked={row.getIsSelected()}
-                                  onCheckedChange={(value) =>
-                                    row.toggleSelected(!!value)
-                                  }
-                                />
-                              </div>
-                            ) : (
-                              flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
-                              )
+                            {flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
                             )}
                           </TableCell>
                         ))}
@@ -344,11 +369,11 @@ export function ViewRequestTable() {
         </div>
 
         {/* Pagination and Status */}
-        <div className="flex justify-between p-1">
-          <div className="flex-1 text-sm text-gray-600">
+        <div className="flex justify-end p-1">
+          {/* <div className="flex-1 text-sm text-gray-600">
             {table.getFilteredSelectedRowModel().rows.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
-          </div>
+          </div> */}
           <Pagination5
             currentPage={page}
             setCurrentPage={setPage}

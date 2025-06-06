@@ -60,6 +60,7 @@ export function ViewEditScheduledTasksTable() {
   const {
     totalPage,
     getAsynchronousRequestsAndTaskSchedules,
+    getSearchAsynchronousRequestsAndTaskSchedules,
     isLoading,
     setIsLoading,
     cancelScheduledTask,
@@ -73,29 +74,10 @@ export function ViewEditScheduledTasksTable() {
   const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
   const [viewParameters, setViewParameters] = React.useState("");
   const [clickedRowId, setClickedRowId] = React.useState("");
-  const limit = 20;
+  const [limit, setLimit] = React.useState<number>(8);
   const [page, setPage] = React.useState<number>(1);
+  const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
   const { isOpenModal, setIsOpenModal } = useGlobalContext();
-
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const res = await getAsynchronousRequestsAndTaskSchedules(page, limit);
-
-        if (res) {
-          setData(res);
-          setExpandedRow(null);
-        }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, [changeState, page]);
-
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -110,6 +92,85 @@ export function ViewEditScheduledTasksTable() {
   // const [selected, setSelected] = React.useState<
   //   IAsynchronousRequestsAndTaskSchedulesTypes[]
   // >([]);
+
+  const handleQuery = (e: string) => {
+    if (e === "") {
+      console.log(e === "");
+      setQuery({ isEmpty: true, value: e });
+    } else {
+      setQuery({ isEmpty: false, value: e });
+    }
+  };
+
+  // When query changes, reset page to 1
+  React.useEffect(() => {
+    if (!query.isEmpty) {
+      setPage(1);
+    }
+  }, [query]);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (limit === 0) {
+          setData([]);
+          setIsLoading(false);
+          return;
+        }
+        setIsLoading(true);
+        if (!query.isEmpty) {
+          const results = await getSearchAsynchronousRequestsAndTaskSchedules(
+            page,
+            limit,
+            query.value
+          );
+          if (results) {
+            setData(results);
+          }
+        } else {
+          const res = await getAsynchronousRequestsAndTaskSchedules(
+            page,
+            limit
+          );
+          if (res) {
+            setData(res);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    setIsLoading(true);
+
+    // Debounce only when query changes
+    const delayDebounce = setTimeout(() => {
+      fetchData();
+    }, 1000);
+
+    return () => clearTimeout(delayDebounce); // Cleanup timeout
+  }, [changeState, query, page, limit]);
+
+  // React.useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       setIsLoading(true);
+  //       const res = await getAsynchronousRequestsAndTaskSchedules(page, limit);
+
+  //       if (res) {
+  //         setData(res);
+  //         setExpandedRow(null);
+  //       }
+  //     } catch (error) {
+  //       console.log(error);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
+  //   fetchData();
+  // }, [changeState, page, limit]);
 
   const handleRowSelection = (
     rowSelection: IAsynchronousRequestsAndTaskSchedulesTypes
@@ -190,7 +251,6 @@ export function ViewEditScheduledTasksTable() {
     "last_updated_by",
     "last_update_date",
     "ready_for_redbeat",
-    "task_name",
     "schedule_type",
     "schedule",
   ];
@@ -202,6 +262,10 @@ export function ViewEditScheduledTasksTable() {
       }
     });
   }, [table]);
+
+  React.useEffect(() => {
+    table.setPageSize(limit);
+  }, [limit, table]);
 
   React.useEffect(() => {
     table.toggleAllPageRowsSelected(false);
@@ -364,19 +428,23 @@ export function ViewEditScheduledTasksTable() {
           </div>
         </div>
         <Input
-          placeholder="Filter User Schedule Name"
-          value={
-            (table
-              .getColumn("user_schedule_name")
-              ?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table
-              .getColumn("user_schedule_name")
-              ?.setFilterValue(event.target.value)
-          }
+          placeholder="Filter by task Name"
+          value={query.value}
+          onChange={(e) => handleQuery(e.target.value)}
           className="max-w-sm px-4 py-2"
         />
+        <div className="flex gap-2 items-center ml-auto">
+          <h3>Rows :</h3>
+          <input
+            type="number"
+            placeholder="Rows"
+            value={limit}
+            min={1}
+            max={20}
+            onChange={(e) => setLimit(Number(e.target.value))}
+            className="w-14 border rounded p-2"
+          />
+        </div>
         {/* Columns */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

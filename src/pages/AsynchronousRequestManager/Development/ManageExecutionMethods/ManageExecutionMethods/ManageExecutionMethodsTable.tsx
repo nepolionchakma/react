@@ -57,6 +57,7 @@ export function ManageExecutionMethodsTable() {
   const {
     totalPage,
     getManageExecutionMethodsLazyLoading,
+    getSearchManageExecutionMethodsLazyLoading,
     deleteExecutionMethod,
     isLoading,
     setIsLoading,
@@ -64,25 +65,56 @@ export function ManageExecutionMethodsTable() {
   } = useARMContext();
   const { isOpenModal, setIsOpenModal } = useGlobalContext();
   const [page, setPage] = React.useState(1);
+  const [limit, setLimit] = React.useState<number>(8);
+  const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
   const [data, setData] = React.useState<IExecutionMethodsTypes[] | []>([]);
-  const limit = 8;
+
+  const handleQuery = (e: string) => {
+    if (e === "") {
+      setQuery({ isEmpty: true, value: e });
+      setPage(1);
+    } else {
+      setQuery({ isEmpty: false, value: e });
+      setPage(1);
+    }
+  };
 
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await getManageExecutionMethodsLazyLoading(page, limit);
-        if (res) {
-          setData(res);
+        if (!query.isEmpty) {
+          const res = await getSearchManageExecutionMethodsLazyLoading(
+            page,
+            limit,
+            query.value
+          );
+          if (res) {
+            setData(res);
+          }
         } else {
-          setPage(page - 1);
+          const res = await getManageExecutionMethodsLazyLoading(page, limit);
+          if (res) {
+            setData(res);
+          }
+          // else {
+          //   setPage(page - 1);
+          // }
         }
-        table.toggleAllRowsSelected(false);
       } catch (error) {
         console.log(error);
+      } finally {
+        //table toggle false
+        table.toggleAllRowsSelected(false);
+        setSelected([]);
       }
     };
-    fetchData();
-  }, [changeState, page]);
+    setIsLoading(true);
+    const delayDebounce = setTimeout(() => {
+      fetchData();
+    }, 1000);
+
+    return () => clearTimeout(delayDebounce);
+  }, [changeState, page, limit, query]);
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -91,7 +123,6 @@ export function ManageExecutionMethodsTable() {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-
   const [selected, setSelected] = React.useState<IExecutionMethodsTypes[]>([]);
   const handleRowSelection = (rowSelection: IExecutionMethodsTypes) => {
     setSelected((prevSelected) => {
@@ -108,7 +139,6 @@ export function ManageExecutionMethodsTable() {
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -165,11 +195,6 @@ export function ManageExecutionMethodsTable() {
       }
     });
   }, [table]);
-  React.useEffect(() => {
-    //table toggle false
-    table.toggleAllRowsSelected(false);
-    setSelected([]);
-  }, [page]);
 
   return (
     <div className="px-3">
@@ -178,8 +203,6 @@ export function ManageExecutionMethodsTable() {
           <ExecutionMethodEdit
             action="Create Execution Method"
             selected={selected}
-            isLoading={isLoading}
-            setIsLoading={setIsLoading}
             handleCloseModal={handleCloseModal}
           />
         </CustomModal4>
@@ -189,109 +212,113 @@ export function ManageExecutionMethodsTable() {
             <ExecutionMethodEdit
               action="Edit Execution Method"
               selected={selected}
-              isLoading={isLoading}
-              setIsLoading={setIsLoading}
               handleCloseModal={handleCloseModal}
             />
           </CustomModal4>
         )
       )}
       {/* top icon and columns*/}
-      <div className="flex gap-3 items-center py-2">
-        <div className="flex gap-3">
-          <div className="flex gap-3 items-center px-4 py-2 border rounded">
-            <div className="flex gap-3">
+      <div className="flex gap-3 items-center justify-between py-2">
+        <div className="flex gap-3 items-center px-4 py-2 border rounded">
+          <div className="flex gap-3">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <PlusIcon
+                    className="cursor-pointer"
+                    onClick={() => handleOpenModal("create_execution_methods")}
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Create Execution Method</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <button disabled={selected.length > 1 || selected.length === 0}>
               <TooltipProvider>
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <PlusIcon
-                      className="cursor-pointer"
-                      onClick={() =>
-                        handleOpenModal("create_execution_methods")
-                      }
+                    <FileEdit
+                      className={`${
+                        selected.length > 1 || selected.length === 0
+                          ? "text-slate-200 cursor-not-allowed"
+                          : "cursor-pointer"
+                      }`}
+                      onClick={() => handleOpenModal("edit_execution_methods")}
                     />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Create Execution Method</p>
+                    <p>Edit Execution Method</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
-              <button disabled={selected.length > 1 || selected.length === 0}>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <FileEdit
-                        className={`${
-                          selected.length > 1 || selected.length === 0
-                            ? "text-slate-200 cursor-not-allowed"
-                            : "cursor-pointer"
-                        }`}
-                        onClick={() =>
-                          handleOpenModal("edit_execution_methods")
-                        }
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Edit Execution Method</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <button>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Trash
-                            className={`${
-                              selected.length === 0
-                                ? "text-slate-200 cursor-not-allowed"
-                                : "cursor-pointer"
-                            }`}
-                          />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Delete Execution Method</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Are you absolutely sure?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      your account and remove your data from our servers.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={() => handleDelete(selected)}>
-                      Continue
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
+            </button>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <button>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Trash
+                          className={`${
+                            selected.length === 0
+                              ? "text-slate-200 cursor-not-allowed"
+                              : "cursor-pointer"
+                          }`}
+                        />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Delete Execution Method</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This action cannot be undone. This will permanently delete
+                    form the server.
+                    <span className="font-semibold block text-black">
+                      Selected Execution Method Name
+                      {selected.length > 1 ? "'s are" : " is"} :{" "}
+                    </span>
+                    {selected.map((row, i) => (
+                      <span key={i} className="flex flex-col text-black">
+                        {i + 1}. {row.execution_method}
+                      </span>
+                    ))}
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={() => handleDelete(selected)}>
+                    Continue
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
           </div>
         </div>
         <Input
-          placeholder="Filter By Execution Method"
-          value={
-            (table.getColumn("execution_method")?.getFilterValue() as string) ??
-            ""
-          }
-          onChange={(event) =>
-            table
-              .getColumn("execution_method")
-              ?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm px-4 py-2"
+          placeholder="Filter by Internal Execution Method"
+          value={query.value}
+          onChange={(e) => handleQuery(e.target.value)}
+          className="w-[20rem] px-4 py-2"
         />
+        <div className="flex gap-2 items-center ml-auto">
+          <h3>Rows :</h3>
+          <input
+            type="number"
+            placeholder="Rows"
+            value={limit}
+            min={1}
+            // max={20}
+            onChange={(e) => setLimit(Number(e.target.value))}
+            className="w-14 border rounded p-2"
+          />
+        </div>
         {/* Columns */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

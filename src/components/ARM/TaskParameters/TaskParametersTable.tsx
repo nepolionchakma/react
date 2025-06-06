@@ -56,6 +56,7 @@ import { Input } from "@/components/ui/input";
 export function TaskParametersTable() {
   const {
     totalPage2,
+    setTotalPage2,
     selectedTask,
     selectedTaskParameters,
     setSelectedTaskParameters,
@@ -67,7 +68,7 @@ export function TaskParametersTable() {
   const [isLoading, setIsLoading] = React.useState(false);
   const { isOpenModal, setIsOpenModal } = useGlobalContext();
   const [page, setPage] = React.useState<number>(1);
-  const limit = 4;
+  const [limit, setLimit] = React.useState<number>(4);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -102,8 +103,12 @@ export function TaskParametersTable() {
   };
 
   React.useEffect(() => {
+    if (!selectedTask || !selectedTask.task_name) {
+      setTotalPage2(1);
+      setPage(1);
+      return setData([]);
+    }
     const fetchData = async () => {
-      if (!selectedTask?.user_task_name) return setData([]);
       try {
         setIsLoading(true);
         const res = await getTaskParametersLazyLoading(
@@ -114,14 +119,19 @@ export function TaskParametersTable() {
 
         if (res) setData(res);
       } catch (error) {
-        // setData([]);
+        setData([]);
+        setTotalPage2(1);
+        setPage(1);
         console.log(error, "err");
       } finally {
         setIsLoading(false);
+        //table toggle false
+        table.toggleAllRowsSelected(false);
+        setSelectedTaskParameters([]);
       }
     };
     fetchData();
-  }, [selectedTask?.def_task_id, changeState, page]);
+  }, [selectedTask?.def_task_id, changeState, page, limit]);
 
   const table = useReactTable({
     data,
@@ -184,11 +194,11 @@ export function TaskParametersTable() {
     }
   };
 
-  React.useEffect(() => {
-    //table toggle false
-    table.toggleAllRowsSelected(false);
-    setSelectedTaskParameters([]);
-  }, [page, selectedTask?.def_task_id]);
+  // React.useEffect(() => {
+  //   //table toggle false
+  //   table.toggleAllRowsSelected(false);
+  //   setSelectedTaskParameters([]);
+  // }, [page, selectedTask?.def_task_id]);
 
   return (
     <div className="px-3">
@@ -291,7 +301,7 @@ export function TaskParametersTable() {
                     </AlertDialogTitle>
                     <AlertDialogDescription>
                       This action cannot be undone. This will permanently delete
-                      your account and remove your data from our servers.
+                      from the server.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -323,12 +333,31 @@ export function TaskParametersTable() {
               .getColumn("parameter_name")
               ?.setFilterValue(event.target.value)
           }
-          className="max-w-sm px-4 py-2"
+          className="w-[20rem] px-4 py-2"
         />
-        <h3 className="font-bold mx-auto">
-          {selectedTask?.def_task_id &&
-            `Selected : ${selectedTask?.user_task_name}`}
-        </h3>
+
+        <div className="mx-auto">
+          {selectedTask?.def_task_id && (
+            <h3>
+              Selected:{" "}
+              <span className="font-semibold">
+                {selectedTask?.user_task_name}
+              </span>
+            </h3>
+          )}
+        </div>
+        <div className="flex gap-2 items-center ml-auto">
+          <h3>Rows :</h3>
+          <input
+            type="number"
+            placeholder="Rows"
+            value={limit}
+            min={1}
+            // max={20}
+            onChange={(e) => setLimit(Number(e.target.value))}
+            className="w-14 border rounded p-2"
+          />
+        </div>
         {/* Columns */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

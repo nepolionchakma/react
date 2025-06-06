@@ -50,32 +50,34 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import Pagination5 from "@/components/Pagination/Pagination5";
 
 const ManageDataSources = () => {
-  const { fetchDataSources, deleteDataSource } = useGlobalContext();
+  const { fetchDataSources, deleteDataSource, getSearchDataSources } =
+    useGlobalContext();
   const [data, setData] = React.useState<IDataSourceTypes[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
   const [save, setSave] = React.useState<number>(0);
   const [page, setPage] = React.useState<number>(1);
-  const [limit, setLimit] = React.useState(10);
+  const [limit, setLimit] = React.useState<number>(8);
   const [totalPage, setTotalPage] = React.useState<number | undefined>();
   // const [currentPage, setCurrentPage] = React.useState<number | undefined>();
   // Fetch Data
-  React.useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        const result = await fetchDataSources(page, limit);
-        setTotalPage(result?.totalPages);
-        // setCurrentPage(result?.currentPage);
-        setData(result?.results ?? []);
-      } catch (error) {
-        console.error("Error fetching data sources:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
+  // React.useEffect(() => {
+  //   const fetchData = async () => {
+  //     setIsLoading(true);
+  //     try {
+  //       const result = await fetchDataSources(page, limit);
+  //       setTotalPage(result?.totalPages);
+  //       // setCurrentPage(result?.currentPage);
+  //       setData(result?.results ?? []);
+  //     } catch (error) {
+  //       console.error("Error fetching data sources:", error);
+  //     } finally {
+  //       setIsLoading(false);
+  //     }
+  //   };
 
-    fetchData();
-  }, [save, page, limit]);
+  //   fetchData();
+  // }, [save, page, limit]);
   // loader
   tailspin.register();
   // Shadcn Form
@@ -88,6 +90,54 @@ const ManageDataSources = () => {
   const [rowSelection, setRowSelection] = React.useState({});
 
   const [selected, setSelected] = React.useState<IDataSourceTypes[]>([]);
+
+  const handleQuery = (e: string) => {
+    if (e === "") {
+      console.log(e === "");
+      setQuery({ isEmpty: true, value: e });
+    } else {
+      setQuery({ isEmpty: false, value: e });
+    }
+  };
+
+  // When query changes, reset page to 1
+  React.useEffect(() => {
+    if (!query.isEmpty) {
+      setPage(1);
+    }
+  }, [query]);
+
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        if (!query.isEmpty) {
+          const results = await getSearchDataSources(page, limit, query.value);
+          if (results) {
+            setData(results);
+          }
+        } else {
+          const res = await fetchDataSources(page, limit);
+          if (res) {
+            setTotalPage(res?.totalPages);
+            setData(res.results);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    setIsLoading(true);
+    // Debounce only when query changes
+    const delayDebounce = setTimeout(() => {
+      fetchData();
+    }, 1000);
+
+    return () => clearTimeout(delayDebounce); // Cleanup timeout
+  }, [query, page, save, limit]);
+
   // select row
   const handleRowSelection = (rowData: IDataSourceTypes) => {
     setSelected((prevSelected) => {
@@ -193,12 +243,14 @@ const ManageDataSources = () => {
         );
       },
       cell: ({ row }) => {
-        const sliceDate = String(
-          row.getValue("last_access_synchronization_date")
-        )
-          .toString()
-          .slice(0, 10);
-        return <div className="capitalize">{sliceDate}</div>;
+        const date = new Date(row.getValue("last_access_synchronization_date"));
+        const convertDate = (isoDateString: Date) => {
+          const date = new Date(isoDateString);
+          const formattedDate = date.toLocaleString();
+          return formattedDate;
+        };
+
+        return <div className="capitalize">{convertDate(date)}</div>;
       },
     },
     {
@@ -224,9 +276,8 @@ const ManageDataSources = () => {
       cell: ({ row }) => {
         const sliceDate = String(
           row.getValue("last_transaction_synchronization_date")
-        )
-          .toString()
-          .slice(0, 10);
+        ).toString();
+
         return <div className="capitalize">{sliceDate}</div>;
       },
     },
@@ -275,10 +326,28 @@ const ManageDataSources = () => {
       rowSelection,
     },
   });
+
+  // Hide default columns
+  const hiddenColumns = [
+    "last_access_synchronization_status",
+    "last_transaction_synchronization_status",
+    "last_transaction_synchronization_date",
+    "default_datasource",
+  ];
+
+  React.useEffect(() => {
+    table.getAllColumns().forEach((column) => {
+      if (hiddenColumns.includes(column.id)) {
+        column.toggleVisibility(false);
+      }
+    });
+  }, [table]);
+
   // Select for edit, delete
   React.useEffect(() => {
     setSelected(table.getSelectedRowModel().rows.map((row) => row.original));
   }, [table.getSelectedRowModel().rows]);
+
   const handleDelete = async () => {
     setIsLoading(true);
     try {
@@ -306,10 +375,6 @@ const ManageDataSources = () => {
       {/* top icon and columns*/}
       <div className="flex gap-3 items-center py-2">
         <div className="flex gap-3">
-          <div className="flex gap-3 px-4 py-2 border rounded">
-            <h3>actions</h3>
-            <h3>view</h3>
-          </div>
           <div className="flex gap-3 px-4 py-2 border rounded">
             <AlertDialog>
               <AlertDialogTrigger>
@@ -419,16 +484,9 @@ const ManageDataSources = () => {
           </div>
         </div>
         <Input
-          placeholder="Filter Datasource Name..."
-          value={
-            (table.getColumn("datasource_name")?.getFilterValue() as string) ??
-            ""
-          }
-          onChange={(event) =>
-            table
-              .getColumn("datasource_name")
-              ?.setFilterValue(event.target.value)
-          }
+          placeholder="Filter by Datasource Name"
+          value={query.value}
+          onChange={(e) => handleQuery(e.target.value)}
           className="max-w-sm px-4 py-2"
         />
         <div className="flex gap-2 items-center ml-auto">
