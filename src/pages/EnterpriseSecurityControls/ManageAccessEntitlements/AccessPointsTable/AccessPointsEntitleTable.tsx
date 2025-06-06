@@ -89,15 +89,22 @@ const AccessPointsEntitleTable = () => {
 
   // Effect: Fetch Data when relevant parameters change
   useEffect(() => {
-    if (selectedAccessEntitlements.length > 0) {
-      fetchAccessPointsEntitlement(selectedAccessEntitlements[0]);
+    if (selectedAccessEntitlements.def_entitlement_id !== 0) {
+      fetchAccessPointsEntitlement(selectedAccessEntitlements);
     }
-  }, [location, save2, page, limit, isLoadingAccessPoints]);
+  }, [
+    location,
+    save2,
+    page,
+    limit,
+    isLoadingAccessPoints,
+    selectedAccessEntitlements.def_entitlement_id,
+  ]);
 
   // Effect: Manage Pagination Array based on selected state
   useEffect(() => {
     table.toggleAllRowsSelected(false); // Reset row selection
-  }, [page, totalPage, selectedAccessEntitlements.length]);
+  }, [page, totalPage, selectedAccessEntitlements.def_entitlement_id]);
 
   // default hidden columns
   const hiddenColumns = [
@@ -129,10 +136,10 @@ const AccessPointsEntitleTable = () => {
               setPage(1);
             }}
             disabled={
-              !selectedManageAccessEntitlements?.entitlement_id ||
-              selectedAccessEntitlements[0]?.entitlement_id !==
-                selectedManageAccessEntitlements?.entitlement_id ||
-              selectedAccessEntitlements.length === 0
+              !selectedManageAccessEntitlements?.def_entitlement_id ||
+              selectedAccessEntitlements?.def_entitlement_id !==
+                selectedManageAccessEntitlements?.def_entitlement_id ||
+              selectedAccessEntitlements.def_entitlement_id !== 0
             }
           >
             <h3>Access Points</h3>
@@ -146,10 +153,10 @@ const AccessPointsEntitleTable = () => {
               setAccessPointStatus("create");
             }}
             disabled={
-              !selectedManageAccessEntitlements?.entitlement_id ||
-              selectedAccessEntitlements[0]?.entitlement_id !==
-                selectedManageAccessEntitlements?.entitlement_id ||
-              selectedAccessEntitlements.length === 0
+              !selectedManageAccessEntitlements?.def_entitlement_id ||
+              selectedAccessEntitlements?.def_entitlement_id !==
+                selectedManageAccessEntitlements?.def_entitlement_id ||
+              selectedAccessEntitlements.def_entitlement_id !== 0
             }
           >
             <Plus />
@@ -158,8 +165,8 @@ const AccessPointsEntitleTable = () => {
 
         {/* Entitlement Name */}
         <div>
-          {selectedManageAccessEntitlements?.entitlement_id ===
-            selectedAccessEntitlements[0]?.entitlement_id && (
+          {selectedManageAccessEntitlements?.def_entitlement_id ===
+            selectedAccessEntitlements?.def_entitlement_id && (
             <h3 className="font-bold capitalize">
               {selectedManageAccessEntitlements?.entitlement_name}
             </h3>
@@ -237,7 +244,8 @@ const AccessPointsEntitleTable = () => {
           {/* Table Body */}
           <TableBody>
             {isLoadingAccessPoints ||
-            (isLoading && selectedAccessEntitlements.length === 1) ? (
+            (isLoading &&
+              selectedAccessEntitlements.def_entitlement_id !== 0) ? (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}

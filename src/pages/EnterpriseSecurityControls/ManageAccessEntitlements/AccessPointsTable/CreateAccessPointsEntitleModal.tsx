@@ -38,7 +38,7 @@ const AccessPointsEntitleModal = () => {
 
   useEffect(() => {
     const res = async () => {
-      const res = await api.get<IDataSourceTypes[]>(`/data-sources`);
+      const res = await api.get<IDataSourceTypes[]>(`/def-data-sources`);
       setDataSources(res.data);
     };
     res();
@@ -47,7 +47,7 @@ const AccessPointsEntitleModal = () => {
   const FormSchema = z.object({
     element_name: z.string(),
     description: z.string(),
-    data_source_id: z.string(),
+    def_data_source_id: z.string(),
     platform: z.string(),
     element_type: z.string(),
     access_control: z.string(),
@@ -59,7 +59,7 @@ const AccessPointsEntitleModal = () => {
     defaultValues: {
       element_name: "",
       description: "",
-      data_source_id: "",
+      def_data_source_id: "",
       platform: "",
       element_type: "",
       access_control: "",
@@ -70,7 +70,7 @@ const AccessPointsEntitleModal = () => {
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
     const postData = {
-      data_source_id: Number(data.data_source_id),
+      def_data_source_id: Number(data.def_data_source_id),
       element_name: data.element_name,
       description: data.description,
       platform: data.platform,
@@ -84,12 +84,13 @@ const AccessPointsEntitleModal = () => {
 
     const postAccessPointsElement = async () => {
       //get max access point id
-      const res = await api.get(`/access-points-element`);
+      const res = await api.get(`/def-access-point-elements`);
       const accessPointsMaxId =
         res.data.length > 0
           ? Math.max(
               ...res.data.map(
-                (data: IFetchAccessPointsElementTypes) => data.access_point_id
+                (data: IFetchAccessPointsElementTypes) =>
+                  data.def_access_point_id
               )
             ) + 1
           : 1;
@@ -97,8 +98,8 @@ const AccessPointsEntitleModal = () => {
       try {
         await createAccessPointsEntitlement(postData);
         await createAccessEntitlementElements(
-          selectedManageAccessEntitlements?.entitlement_id
-            ? selectedManageAccessEntitlements.entitlement_id
+          selectedManageAccessEntitlements?.def_entitlement_id
+            ? selectedManageAccessEntitlements.def_entitlement_id
             : 0,
           [accessPointsMaxId]
         );
@@ -147,7 +148,7 @@ const AccessPointsEntitleModal = () => {
           />
           <FormField
             control={form.control}
-            name="data_source_id"
+            name="def_data_source_id"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Datasource</FormLabel>

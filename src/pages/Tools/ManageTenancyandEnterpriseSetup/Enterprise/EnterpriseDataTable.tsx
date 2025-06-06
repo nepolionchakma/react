@@ -67,6 +67,9 @@ export function EnterpriseDataTable({
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
+  console.log(selectedEnterpriseRows);
+  console.log(data);
+
   const table = useReactTable({
     data,
     columns,
@@ -98,9 +101,9 @@ export function EnterpriseDataTable({
 
   const handleCloseModal = () => {
     setAction(""); // close modal
-    setSelectedEnterpriseRows([]);
+    // setSelectedEnterpriseRows([]);
     //table toggle false
-    table.toggleAllRowsSelected(false);
+    // table.toggleAllRowsSelected(false);
   };
 
   React.useEffect(() => {
@@ -114,8 +117,8 @@ export function EnterpriseDataTable({
         const res = await api.get(
           `/def-tenant-enterprise-setup/${page}/${limit}`
         );
-        setData(res.data.results);
-        setTotalPage(res.data.totalPages);
+        setData(res.data.items);
+        setTotalPage(res.data.pages);
       } catch (error) {
         console.log(error);
       } finally {

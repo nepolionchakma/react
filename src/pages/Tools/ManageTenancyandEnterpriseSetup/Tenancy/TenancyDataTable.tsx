@@ -65,6 +65,8 @@ export function TenancyDataTable({
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
+  console.log("action: ", action, "tabname: ", tabName);
+
   const table = useReactTable({
     data,
     columns,
@@ -110,7 +112,8 @@ export function TenancyDataTable({
       try {
         setIsLoading(true);
         const res = await api.get(`/def-tenants/${page}/${limit}`);
-        setData(res.data.results);
+
+        setData(res.data.items);
         setTotalPage(res.data.totalPages);
       } catch (error) {
         console.log(error);
@@ -124,7 +127,7 @@ export function TenancyDataTable({
   return (
     <div className="w-full">
       <>
-        {tabName && tabName === "Tenancy" && action && (
+        {tabName && tabName === "tenancy" && action && (
           <TenancyCreateAndEditModal
             action={action}
             tabName={tabName}
