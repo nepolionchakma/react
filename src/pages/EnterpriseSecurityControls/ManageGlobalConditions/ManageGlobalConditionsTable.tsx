@@ -27,14 +27,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import {
-  ArrowUpDown,
-  ChevronDown,
-  Dot,
-  FileEdit,
-  Plus,
-  Trash,
-} from "lucide-react";
+import { ArrowUpDown, ChevronDown, FileEdit, Plus, Trash } from "lucide-react";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -70,7 +63,6 @@ import {
 const ManageGlobalConditionsTable = () => {
   const {
     isLoading,
-    setIsLoading,
     stateChange,
     setIsEditModalOpen,
     setIsOpenManageGlobalConditionModal,
@@ -78,7 +70,6 @@ const ManageGlobalConditionsTable = () => {
     getlazyLoadingGlobalConditions,
     getSearchGlobalConditions,
     manageGlobalConditions: data,
-    setManageGlobalConditions,
     selectedManageGlobalConditionItem,
     setSelectedManageGlobalConditionItem,
     fetchManageGlobalConditionLogics,
@@ -103,7 +94,6 @@ const ManageGlobalConditionsTable = () => {
   const [willBeDelete, setWillBeDelete] = useState<
     IManageGlobalConditionLogicExtendTypes[]
   >([]);
-  const [isChecked, setIsChecked] = useState<boolean>(false);
 
   const handleQuery = (e: string) => {
     if (e === "") {
@@ -133,11 +123,6 @@ const ManageGlobalConditionsTable = () => {
   }, [query, setPage]);
 
   useEffect(() => {
-    if (limit === 0) {
-      setManageGlobalConditions([]);
-      setIsLoading(false);
-      return;
-    }
     if (debouncedQuery) {
       getSearchGlobalConditions(page, limit, debouncedQuery);
     } else {
@@ -158,17 +143,11 @@ const ManageGlobalConditionsTable = () => {
   const columns: ColumnDef<IManageGlobalConditionTypes>[] = [
     {
       id: "select",
-      header: ({ table }) => {
+      cell: ({ row }) => {
         return (
           <Checkbox
-            checked={
-              table.getIsAllPageRowsSelected() ||
-              (table.getIsSomePageRowsSelected() && "indeterminate")
-            }
-            onCheckedChange={(value) => {
-              table.toggleAllPageRowsSelected(!!value);
-              setIsChecked(!isChecked);
-            }}
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
             aria-label="Select all"
             // className="pl-1 m-1"
           />
@@ -257,10 +236,26 @@ const ManageGlobalConditionsTable = () => {
 
   // handle delete Calculate
   const handleDeleteCalculate = async () => {
-    const res = await manageGlobalConditionDeleteCalculate(
-      selectedManageGlobalConditionItem[0].def_global_condition_id
-    );
-    setWillBeDelete(res as IManageGlobalConditionLogicExtendTypes[]);
+    const results: IManageGlobalConditionLogicExtendTypes[] = [];
+    try {
+      const deletePromises = selectedManageGlobalConditionItem.map((item) => {
+        if (item.def_global_condition_id) {
+          manageGlobalConditionDeleteCalculate(item.def_global_condition_id);
+        }
+      });
+
+      const responses = await Promise.all(deletePromises);
+      responses.forEach((res) => {
+        if (Array.isArray(res)) {
+          results.push(...res);
+        } else if (res !== undefined && res !== null) {
+          results.push(res);
+        }
+      });
+      setWillBeDelete((prev) => [...prev, ...results]);
+    } catch (error) {
+      console.log("Error Deleting Global model items", error);
+    }
   };
 
   const handleDelete = async () => {
@@ -282,6 +277,7 @@ const ManageGlobalConditionsTable = () => {
     await deleteManageGlobalCondition(
       selectedManageGlobalConditionItem[0].def_global_condition_id
     );
+    setSelectedManageGlobalConditionItem([]);
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
     setSelectedManageGlobalConditionItem([]);
     setWillBeDelete([]);
@@ -340,9 +336,8 @@ const ManageGlobalConditionsTable = () => {
                     <TooltipTrigger asChild>
                       <Trash
                         onClick={handleDeleteCalculate}
-                        className={`${
-                          selectedManageGlobalConditionItem.length === 0 ||
-                          selectedManageGlobalConditionItem.length > 1
+                        className={`hover:scale-110 duration-300 ${
+                          selectedManageGlobalConditionItem.length === 0
                             ? "text-slate-200 cursor-not-allowed"
                             : "text-slate-800 cursor-pointer"
                         }`}
@@ -359,27 +354,52 @@ const ManageGlobalConditionsTable = () => {
                       Are you absolutely sure?
                     </AlertDialogTitle>
                     <AlertDialogDescription>
-                      <span>
-                        <span className="text-black">
-                          NAME : {selectedManageGlobalConditionItem[0]?.name}
-                        </span>
-                        <br />
-                        {willBeDelete.map((item) => (
-                          <span
-                            key={item.id}
-                            className=" flex items-center text-black"
-                          >
-                            <Dot size={30} /> {item.object} {item.attribute}
-                            {item.value}
-                            {item.condition}
+                      This action cannot be undone. This will permanently delete
+                      from the server.
+                      <span className="font-semibold block text-black">
+                        Selected Global Condition Name
+                        {selectedManageGlobalConditionItem.length > 1
+                          ? "'s are"
+                          : " is"}{" "}
+                        :{" "}
+                      </span>
+                      {selectedManageGlobalConditionItem.map((modelItem, i) => (
+                        <span key={modelItem.def_global_condition_id}>
+                          <span className="capitalize block text-black">
+                            {i + 1} : {modelItem.name}
                           </span>
-                        ))}
-                      </span>
-                      <span>
-                        Note: This action cannot be undone. This will
-                        permanently delete your account and remove your data
-                        from our servers.
-                      </span>
+                          <span>
+                            {isLoading ? (
+                              <span className="block">
+                                <l-tailspin
+                                  size="40"
+                                  stroke="5"
+                                  speed="0.9"
+                                  color="black"
+                                ></l-tailspin>
+                              </span>
+                            ) : (
+                              <span>
+                                {willBeDelete
+                                  .filter(
+                                    (item) =>
+                                      item.def_global_condition_id ===
+                                      modelItem.def_global_condition_id
+                                  )
+                                  .map((item, index) => (
+                                    <span
+                                      key={index}
+                                      className="capitalize flex items-center text-black"
+                                    >
+                                      {index + 1}. Object - {item.object},
+                                      Attribute - {item.attribute}
+                                    </span>
+                                  ))}
+                              </span>
+                            )}
+                          </span>
+                        </span>
+                      ))}
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -396,7 +416,7 @@ const ManageGlobalConditionsTable = () => {
           </div>
         </div>
         <Input
-          placeholder="Filter by Name..."
+          placeholder="Search by Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
           className="max-w-sm px-4 py-2"
@@ -407,9 +427,18 @@ const ManageGlobalConditionsTable = () => {
             type="number"
             placeholder="Rows"
             value={limit}
-            min={1}
+            min={8}
             max={20}
-            onChange={(e) => setLimit(Number(e.target.value))}
+            onChange={(e) => {
+              const val = Number(e.target.value);
+              if (val === 0 || val < 8) {
+                setLimit(8);
+              } else if (val > 20) {
+                setLimit(20);
+              } else {
+                setLimit(Number(e.target.value));
+              }
+            }}
             className="w-14 border rounded p-2"
           />
         </div>
@@ -459,6 +488,33 @@ const ManageGlobalConditionsTable = () => {
                             header.column.columnDef.header,
                             header.getContext()
                           )}
+                      {/* Example: Checkbox for selecting all rows */}
+                      {header.id === "select" && (
+                        <Checkbox
+                          checked={
+                            table.getIsAllPageRowsSelected() ||
+                            (table.getIsSomePageRowsSelected() &&
+                              "indeterminate")
+                          }
+                          onCheckedChange={(value) => {
+                            // Toggle all page rows selected
+                            table.toggleAllPageRowsSelected(!!value);
+
+                            // Use a timeout to log the selected data
+                            setTimeout(() => {
+                              const selectedRows = table
+                                .getSelectedRowModel()
+                                .rows.map((row) => row.original);
+                              // console.log(selectedRows);
+                              setSelectedManageGlobalConditionItem(
+                                selectedRows
+                              );
+                            }, 0);
+                          }}
+                          className=""
+                          aria-label="Select all"
+                        />
+                      )}
                     </TableHead>
                   );
                 })}

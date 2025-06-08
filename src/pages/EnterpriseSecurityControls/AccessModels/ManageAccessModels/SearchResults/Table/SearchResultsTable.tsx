@@ -59,14 +59,12 @@ import {
 const SearchResultsTable = () => {
   const {
     isLoading,
-    setIsLoading,
     selectedAccessModelItem,
     setSelectedAccessModelItem,
     stateChange,
     fetchDefAccessModels,
     lazyLoadingDefAccessModels,
     getSearchAccessModels,
-    setManageAccessModels,
     manageAccessModels: data,
     deleteDefAccessModel,
     manageAccessModelLogicsDeleteCalculate,
@@ -146,11 +144,6 @@ const SearchResultsTable = () => {
   }, [query, setPage]);
 
   React.useEffect(() => {
-    if (limit === 0) {
-      setManageAccessModels([]);
-      setIsLoading(false);
-      return;
-    }
     if (debouncedQuery) {
       getSearchAccessModels(page, limit, debouncedQuery);
     } else {
