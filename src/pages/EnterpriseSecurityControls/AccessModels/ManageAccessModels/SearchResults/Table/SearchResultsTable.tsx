@@ -359,7 +359,7 @@ const SearchResultsTable = () => {
           </TooltipProvider>
         </div>
         <Input
-          placeholder="Filter by model name..."
+          placeholder="Search by Model Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
           className="max-w-sm h-8"
@@ -370,9 +370,18 @@ const SearchResultsTable = () => {
             type="number"
             placeholder="Rows"
             value={limit}
-            min={1}
+            min={8}
             max={20}
-            onChange={(e) => setLimit(Number(e.target.value))}
+            onChange={(e) => {
+              const val = Number(e.target.value);
+              if (val === 0 || val < 8) {
+                setLimit(8);
+              } else if (val > 20) {
+                setLimit(20);
+              } else {
+                setLimit(Number(e.target.value));
+              }
+            }}
             className="w-14 border rounded p-2"
           />
         </div>
