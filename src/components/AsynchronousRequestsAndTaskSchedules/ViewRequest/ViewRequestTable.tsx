@@ -78,11 +78,6 @@ export function ViewRequestTable() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        if (limit === 0) {
-          setData([]);
-          setIsLoading(false);
-          return;
-        }
         if (!query.isEmpty) {
           const res = await getSearchViewRequests(page, limit, query.value);
           if (res) {
@@ -185,7 +180,7 @@ export function ViewRequestTable() {
       {/* Filter + Column Controls */}
       <div className="flex gap-3 items-center py-2">
         <Input
-          placeholder="Filter by task Name"
+          placeholder="Search by task Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
           className="max-w-sm px-4 py-2"
@@ -196,9 +191,18 @@ export function ViewRequestTable() {
             type="number"
             placeholder="Rows"
             value={limit}
-            min={1}
+            min={8}
             max={20}
-            onChange={(e) => setLimit(Number(e.target.value))}
+            onChange={(e) => {
+              const val = Number(e.target.value);
+              if (val === 0 || val < 8) {
+                setLimit(8);
+              } else if (val > 20) {
+                setLimit(20);
+              } else {
+                setLimit(val);
+              }
+            }}
             className="w-14 border rounded p-2"
           />
         </div>
