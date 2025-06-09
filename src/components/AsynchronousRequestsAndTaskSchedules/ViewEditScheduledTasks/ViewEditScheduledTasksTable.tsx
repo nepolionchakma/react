@@ -237,7 +237,7 @@ export function ViewEditScheduledTasksTable() {
     },
     initialState: {
       pagination: {
-        pageSize: limit,
+        pageSize: 20,
       },
     },
   });
@@ -281,7 +281,19 @@ export function ViewEditScheduledTasksTable() {
     //table toggle false
     table.toggleAllRowsSelected(false);
   };
-  console.log(selected, "selected");
+
+  const handleRow = (value: number) => {
+    if (value < 1 || value > 20) {
+      toast({
+        title: "The value must be between 1 to 20",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      setLimit(value);
+    }
+  };
+
   return (
     <div className="px-3">
       {isOpenModal === "edit_task_schedule" && (
@@ -441,7 +453,7 @@ export function ViewEditScheduledTasksTable() {
             value={limit}
             min={1}
             max={20}
-            onChange={(e) => setLimit(Number(e.target.value))}
+            onChange={(e) => handleRow(Number(e.target.value))}
             className="w-14 border rounded p-2"
           />
         </div>

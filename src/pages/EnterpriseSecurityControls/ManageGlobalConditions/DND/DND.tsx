@@ -223,7 +223,6 @@ const DND: FC = () => {
       });
     }
   };
-  console.log(rightWidgets, "right widgets");
 
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
@@ -349,7 +348,7 @@ const DND: FC = () => {
         <h2 className="font-bold">Edit Access Global Conditions</h2>
         <div className="flex gap-2 rounded-lg ">
           {isActionLoading ? (
-            <div className="flex items-center bg-slate-400 rounded p-1 duration-300 z-50 cursor-not-allowed">
+            <div className="flex items-center rounded p-1 duration-300 z-50 cursor-not-allowed">
               <l-ring
                 size="20"
                 stroke="3"
@@ -366,7 +365,7 @@ const DND: FC = () => {
                   : undefined
               }
               size={30}
-              className={` bg-slate-400 rounded p-1 duration-300 z-50 ${
+              className={`rounded p-1 duration-300 z-50 ${
                 items.length > 0 || isChangedAccessGlobalCondition
                   ? "bg-slate-300 hover:text-white hover:bg-slate-500 hover:scale-110 cursor-pointer"
                   : "opacity-40 cursor-not-allowed"

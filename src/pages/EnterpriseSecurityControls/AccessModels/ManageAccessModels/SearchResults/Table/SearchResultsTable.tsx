@@ -55,6 +55,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { toast } from "@/components/ui/use-toast";
 
 const SearchResultsTable = () => {
   const {
@@ -92,6 +93,7 @@ const SearchResultsTable = () => {
   const [rowSelection, setRowSelection] = React.useState({});
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
   const [debouncedQuery, setDebouncedQuery] = React.useState("");
+  const [isSelectAll, setIsSelectAll] = React.useState(false);
   // const [pagination, setPagination] = React.useState({
   //   pageIndex: 0, //initial page index
   //   pageSize: 5, //default page size
@@ -114,6 +116,11 @@ const SearchResultsTable = () => {
       columnVisibility,
       rowSelection,
     },
+    initialState: {
+      pagination: {
+        pageSize: 20,
+      },
+    },
   });
 
   React.useEffect(() => {
@@ -125,6 +132,24 @@ const SearchResultsTable = () => {
       clearTimeout(handleDebounce);
     };
   }, [query]);
+
+  React.useEffect(() => {
+    if (selectedAccessModelItem.length !== data.length) {
+      setIsSelectAll(false);
+    } else {
+      setIsSelectAll(true);
+    }
+  }, [selectedAccessModelItem.length, data.length]);
+
+  const handleSelectAll = () => {
+    if (isSelectAll) {
+      setIsSelectAll(false);
+      setSelectedAccessModelItem([]);
+    } else {
+      setIsSelectAll(true);
+      setSelectedAccessModelItem(data);
+    }
+  };
 
   const handleQuery = (e: string) => {
     if (e === "") {
@@ -227,6 +252,19 @@ const SearchResultsTable = () => {
       }
     });
   }, [table]);
+
+  const handleRow = (value: number) => {
+    if (value < 1 || value > 20) {
+      toast({
+        title: "The value must be between 1 to 20",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      setLimit(value);
+    }
+  };
+
   return (
     <div className="w-full">
       {isOpenAddModal && (
@@ -363,18 +401,9 @@ const SearchResultsTable = () => {
             type="number"
             placeholder="Rows"
             value={limit}
-            min={8}
+            min={1}
             max={20}
-            onChange={(e) => {
-              const val = Number(e.target.value);
-              if (val === 0 || val < 8) {
-                setLimit(8);
-              } else if (val > 20) {
-                setLimit(20);
-              } else {
-                setLimit(Number(e.target.value));
-              }
-            }}
+            onChange={(e) => handleRow(Number(e.target.value))}
             className="w-14 border rounded p-2"
           />
         </div>
@@ -425,25 +454,21 @@ const SearchResultsTable = () => {
                       {/* Example: Checkbox for selecting all rows */}
                       {header.id === "select" && (
                         <Checkbox
-                          checked={
-                            table.getIsAllPageRowsSelected() ||
-                            (table.getIsSomePageRowsSelected() &&
-                              "indeterminate")
-                          }
-                          onCheckedChange={(value) => {
-                            // Toggle all page rows selected
-                            table.toggleAllPageRowsSelected(!!value);
+                          checked={isSelectAll}
+                          // onCheckedChange={(value) => {
+                          //   // Toggle all page rows selected
+                          //   table.toggleAllPageRowsSelected(!!value);
 
-                            // Use a timeout to log the selected data
-                            setTimeout(() => {
-                              const selectedRows = table
-                                .getSelectedRowModel()
-                                .rows.map((row) => row.original);
-                              // console.log(selectedRows);
-                              setSelectedAccessModelItem(selectedRows);
-                            }, 0);
-                          }}
-                          className=""
+                          //   // Use a timeout to log the selected data
+                          //   setTimeout(() => {
+                          //     const selectedRows = table
+                          //       .getSelectedRowModel()
+                          //       .rows.map((row) => row.original);
+                          //     // console.log(selectedRows);
+                          //     setSelectedAccessModelItem(selectedRows);
+                          //   }, 0);
+                          // }}
+                          onClick={handleSelectAll}
                           aria-label="Select all"
                         />
                       )}
@@ -479,10 +504,9 @@ const SearchResultsTable = () => {
                       {index === 0 ? (
                         <Checkbox
                           className="m-1"
-                          checked={row.getIsSelected()}
-                          onCheckedChange={(value) =>
-                            row.toggleSelected(!!value)
-                          }
+                          checked={selectedAccessModelItem.includes(
+                            row.original
+                          )}
                           onClick={() => handleRowSelection(row.original)}
                         />
                       ) : (

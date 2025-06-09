@@ -59,6 +59,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { toast } from "@/components/ui/use-toast";
 
 const ManageGlobalConditionsTable = () => {
   const {
@@ -87,6 +88,7 @@ const ManageGlobalConditionsTable = () => {
   const [rowSelection, setRowSelection] = useState({});
   const [query, setQuery] = useState({ isEmpty: true, value: "" });
   const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [isSelectAll, setIsSelectAll] = useState(false);
   const [pagination, setPagination] = useState({
     pageIndex: 0, //initial page index
     pageSize: 7, //default page size
@@ -94,6 +96,24 @@ const ManageGlobalConditionsTable = () => {
   const [willBeDelete, setWillBeDelete] = useState<
     IManageGlobalConditionLogicExtendTypes[]
   >([]);
+
+  useEffect(() => {
+    if (selectedManageGlobalConditionItem.length !== data.length) {
+      setIsSelectAll(false);
+    } else {
+      setIsSelectAll(true);
+    }
+  }, [selectedManageGlobalConditionItem.length, data.length]);
+
+  const handleSelectAll = () => {
+    if (isSelectAll) {
+      setIsSelectAll(false);
+      setSelectedManageGlobalConditionItem([]);
+    } else {
+      setIsSelectAll(true);
+      setSelectedManageGlobalConditionItem(data);
+    }
+  };
 
   const handleQuery = (e: string) => {
     if (e === "") {
@@ -215,7 +235,24 @@ const ManageGlobalConditionsTable = () => {
       rowSelection,
       pagination,
     },
+    initialState: {
+      pagination: {
+        pageSize: 20,
+      },
+    },
   });
+
+  const handleRow = (value: number) => {
+    if (value < 1 || value > 20) {
+      toast({
+        title: "The value must be between 1 to 20",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      setLimit(value);
+    }
+  };
 
   // select row
   const handleRowSelection = (rowData: IManageGlobalConditionTypes) => {
@@ -229,10 +266,6 @@ const ManageGlobalConditionsTable = () => {
       }
     });
   };
-  // const handleFetchAccessPoints = () => {
-  //   fetchAccessPointsEntitlement(selectedManageGlobalConditionItem[0]);
-  //   setSelectedManageAccessEntitlements(selectedManageGlobalConditionItem[0]);
-  // };
 
   // handle delete Calculate
   const handleDeleteCalculate = async () => {
@@ -427,18 +460,9 @@ const ManageGlobalConditionsTable = () => {
             type="number"
             placeholder="Rows"
             value={limit}
-            min={8}
+            min={1}
             max={20}
-            onChange={(e) => {
-              const val = Number(e.target.value);
-              if (val === 0 || val < 8) {
-                setLimit(8);
-              } else if (val > 20) {
-                setLimit(20);
-              } else {
-                setLimit(Number(e.target.value));
-              }
-            }}
+            onChange={(e) => handleRow(Number(e.target.value))}
             className="w-14 border rounded p-2"
           />
         </div>
@@ -491,27 +515,23 @@ const ManageGlobalConditionsTable = () => {
                       {/* Example: Checkbox for selecting all rows */}
                       {header.id === "select" && (
                         <Checkbox
-                          checked={
-                            table.getIsAllPageRowsSelected() ||
-                            (table.getIsSomePageRowsSelected() &&
-                              "indeterminate")
-                          }
-                          onCheckedChange={(value) => {
-                            // Toggle all page rows selected
-                            table.toggleAllPageRowsSelected(!!value);
+                          checked={isSelectAll}
+                          // onCheckedChange={(value) => {
+                          //   // Toggle all page rows selected
+                          //   table.toggleAllPageRowsSelected(!!value);
 
-                            // Use a timeout to log the selected data
-                            setTimeout(() => {
-                              const selectedRows = table
-                                .getSelectedRowModel()
-                                .rows.map((row) => row.original);
-                              // console.log(selectedRows);
-                              setSelectedManageGlobalConditionItem(
-                                selectedRows
-                              );
-                            }, 0);
-                          }}
-                          className=""
+                          //   // Use a timeout to log the selected data
+                          //   setTimeout(() => {
+                          //     const selectedRows = table
+                          //       .getSelectedRowModel()
+                          //       .rows.map((row) => row.original);
+                          //     // console.log(selectedRows);
+                          //     setSelectedManageGlobalConditionItem(
+                          //       selectedRows
+                          //     );
+                          //   }, 0);
+                          // }}
+                          onClick={handleSelectAll}
                           aria-label="Select all"
                         />
                       )}
@@ -552,10 +572,9 @@ const ManageGlobalConditionsTable = () => {
                       {index === 0 ? (
                         <Checkbox
                           className="mr-1"
-                          checked={row.getIsSelected()}
-                          onCheckedChange={(value) =>
-                            row.toggleSelected(!!value)
-                          }
+                          checked={selectedManageGlobalConditionItem.includes(
+                            row.original
+                          )}
                           onClick={() => handleRowSelection(row.original)}
                         />
                       ) : (
