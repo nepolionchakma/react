@@ -102,7 +102,7 @@ const ManageAccessPointsEntitleModal: FC<IManageAccessEntitlementsProps> = ({
     };
     if (mangeAccessEntitlementAction === "edit") {
       updateManageAccessEntitlements(id, putData);
-      setSelected([]);
+      setSelected({} as IManageAccessEntitlementsTypes);
       table
         ?.getRowModel()
         .rows.forEach((row: Row<IManageAccessEntitlementsTypes>) =>
