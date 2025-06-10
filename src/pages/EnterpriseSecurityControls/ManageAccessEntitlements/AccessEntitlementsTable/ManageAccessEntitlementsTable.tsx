@@ -402,78 +402,6 @@ const ManageAccessEntitlementsTable = () => {
                           {isLoading && <span>loading</span>}
                         </span>
                       </Alert>
-                      {/* <AlertDialog>
-                        <AlertDialogTrigger
-                          disabled={
-                            selectedAccessEntitlements.def_entitlement_id === 0
-                          }
-                        >
-                          <Trash
-                            className={`hover:scale-110 duration-300 ${
-                              selectedAccessEntitlements.def_entitlement_id !==
-                              0
-                                ? " cursor-pointer"
-                                : "text-slate-200 cursor-not-allowed"
-                            }`}
-                            onClick={handleGenerateAccessPointsDelete}
-                          />
-                        </AlertDialogTrigger>
-                        <AlertDialogContent className="max-h-[80%] overflow-y-auto">
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>
-                              Are you absolutely sure?
-                            </AlertDialogTitle>
-                            <AlertDialogDescription className="overflow-y-auto text-black">
-                              <span className="flex flex-col gap-1">
-                                {deleteLoading ? (
-                                  <span className="h-10 w-10 mx-auto p-2">
-                                    <l-tailspin
-                                      size="30"
-                                      stroke="5"
-                                      speed="0.9"
-                                      color="black"
-                                    />
-                                  </span>
-                                ) : (
-                                  <span>
-                                    <span className="font-bold">
-                                      {
-                                        selectedAccessEntitlements.entitlement_name
-                                      }
-                                    </span>
-
-                                    {deleteAccessPointsElements && (
-                                      <span>
-                                        {deleteAccessPointsElements.map(
-                                          (item) => (
-                                            <span
-                                              key={item.def_access_point_id}
-                                              className="flex gap-1"
-                                            >
-                                              {item.element_name}
-                                            </span>
-                                          )
-                                        )}
-                                      </span>
-                                    )}
-                                  </span>
-                                )}
-                                {isLoading && <span>loading</span>}
-                              </span>
-                              This action cannot be undone. This will
-                              permanently delete your data from the server.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel onClick={handleCancel}>
-                              Cancel
-                            </AlertDialogCancel>
-                            <AlertDialogAction onClick={handleDelete}>
-                              Continue
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog> */}
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -529,7 +457,7 @@ const ManageAccessEntitlementsTable = () => {
       </div>
 
       {/* Table Section */}
-      <div className="rounded-md border max-h-[20vh] overflow-auto">
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

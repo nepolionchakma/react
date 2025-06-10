@@ -233,7 +233,7 @@ const AccessPointsEntitleTable = () => {
       </div>
 
       {/* Table Section */}
-      <div className="rounded-md border max-h-[40vh] overflow-auto">
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
