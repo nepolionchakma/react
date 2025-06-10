@@ -50,7 +50,7 @@ const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
           const filterData = await accessPoints?.filter(
             (item1) =>
               !res.some(
-                (item2) => item2.access_point_id === item1.access_point_id
+                (item2) => item2.access_point_id === item1.def_access_point_id
               )
           );
           setUnUsedAccessPoints(
@@ -78,13 +78,13 @@ const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
   const handleSelect = (selectItem: ICreateAccessPointsElementTypes) => {
     setSelectedItem((prevSelected) => {
       const isSelected = prevSelected.some(
-        (item) => item.access_point_id === selectItem.access_point_id
+        (item) => item.def_access_point_id === selectItem.def_access_point_id
       );
 
       if (isSelected) {
         // If the item is already selected, remove it
         return prevSelected.filter(
-          (item) => item.access_point_id !== selectItem.access_point_id
+          (item) => item.def_access_point_id !== selectItem.def_access_point_id
         );
       } else {
         // If the item is not selected, add it
@@ -106,7 +106,7 @@ const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
   };
   const handleAdd = async () => {
     try {
-      const selectedIds = selectedItem?.map((item) => item.access_point_id);
+      const selectedIds = selectedItem?.map((item) => item.def_access_point_id);
       await createAccessEntitlementElements(
         selectedManageAccessEntitlements?.def_entitlement_id
           ? selectedManageAccessEntitlements.def_entitlement_id
@@ -170,7 +170,7 @@ const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
               filterdAccessPoints?.map((item) => (
                 <div
                   onClick={() => handleSelect(item)}
-                  key={item.access_point_id}
+                  key={item.def_access_point_id}
                   className="flex justify-between px-2 items-center hover:bg-light-200 cursor-pointer border rounded"
                 >
                   <p className="text-sm">
@@ -179,7 +179,7 @@ const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
                   </p>
                   {selectedItem?.some(
                     (selected) =>
-                      selected.access_point_id === item.access_point_id
+                      selected.def_access_point_id === item.def_access_point_id
                   ) ? (
                     <Check size={14} color="#038C5A" />
                   ) : null}
@@ -239,7 +239,7 @@ const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
             </p>
             {selectedItem?.map((rec) => (
               <div
-                key={rec.access_point_id}
+                key={rec.def_access_point_id}
                 className="flex gap-1 bg-winter-100 h-8 px-3 items-center rounded-full"
               >
                 <p className="text-sm">{rec.element_name}</p>

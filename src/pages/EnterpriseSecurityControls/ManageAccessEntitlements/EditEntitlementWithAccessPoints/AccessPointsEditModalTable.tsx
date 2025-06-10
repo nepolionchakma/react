@@ -83,7 +83,7 @@ const AccessPointsEditModal = () => {
     table.toggleAllPageRowsSelected(false);
   };
   React.useEffect(() => {
-    fetchAccessPointsEntitlement(selected[0]);
+    fetchAccessPointsEntitlement(selected);
 
     //table toggle false
     table.toggleAllRowsSelected(false);
@@ -134,7 +134,7 @@ const AccessPointsEditModal = () => {
                                     .rows.map((row) => row.original);
                                   // console.log(selectedRows);
                                   const ids = selectedRows.map(
-                                    (row) => row?.access_point_id
+                                    (row) => row?.def_access_point_id
                                   );
                                   setSelectedAccessEntitlementElements(
                                     ids as number[]
@@ -153,7 +153,7 @@ const AccessPointsEditModal = () => {
               </TableHeader>
               <TableBody>
                 {isLoadingAccessPoints ||
-                (isLoading && selected.length === 1) ? (
+                (isLoading && selected.def_entitlement_id !== 0) ? (
                   <TableRow>
                     <TableCell
                       colSpan={columns.length}
@@ -179,7 +179,7 @@ const AccessPointsEditModal = () => {
                               }}
                               onClick={() =>
                                 handleSelectItem(
-                                  row.original.access_point_id as number
+                                  row.original.def_access_point_id as number
                                 )
                               }
                               aria-label="Select row"
