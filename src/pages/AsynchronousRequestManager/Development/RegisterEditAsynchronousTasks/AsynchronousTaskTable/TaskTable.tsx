@@ -143,7 +143,7 @@ export function TaskTable() {
     getFilteredRowModel: getFilteredRowModel(),
     initialState: {
       pagination: {
-        pageSize: limit,
+        pageSize: 20,
       },
       columnVisibility: {
         id: false,
@@ -277,7 +277,7 @@ export function TaskTable() {
               !selected || selected?.cancelled_yn.toLocaleLowerCase() === "y"
             }
             tooltipTitle="Cancel Task"
-            actionName="Cancel"
+            actionName="cancel"
             onContinue={() => handleCancel(selected!)}
           >
             <span className="block text-center">
