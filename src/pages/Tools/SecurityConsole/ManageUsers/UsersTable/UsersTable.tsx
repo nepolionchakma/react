@@ -174,6 +174,11 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    initialState: {
+      pagination: {
+        pageSize: 10,
+      },
+    },
     state: {
       sorting,
       columnFilters,
@@ -212,9 +217,9 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
   //   handleCloseModal();
   // }, [page]);
   const handleRow = (value: number) => {
-    if (value < 1 || value > 20) {
+    if (value < 1 || value > 10) {
       toast({
-        title: "The value must be between 1 to 20",
+        title: "The value must be between 1 to 10",
         variant: "destructive",
       });
       return;
@@ -280,7 +285,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
               token.user_type.toLocaleLowerCase() !== "system"
             } // disable condition
             tooltipTitle="Delete Account" // tooltip title
-            actionName="Delete" // Cancel/Reschedule
+            actionName="delete" // Cancel/Reschedule
             onContinue={handleDelete} // funtion
           >
             <span className="block text-black">

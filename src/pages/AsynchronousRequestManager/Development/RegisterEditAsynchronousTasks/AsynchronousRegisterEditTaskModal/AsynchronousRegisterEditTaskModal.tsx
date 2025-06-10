@@ -180,23 +180,21 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
 
         if (res) {
           toast({
-            title: "Info !!!",
             description: `${res.data.message}`,
           });
+          handleCloseModal();
+          reset();
+          setChangeState(Math.random() + 23 * 3000);
         }
-        handleCloseModal();
       } catch (error) {
         if (error instanceof AxiosError) {
           toast({
-            title: "Info !!!",
             variant: "destructive",
             description: `Error : ${error.message}`,
           });
         }
       } finally {
         setIsLoading(false);
-        reset();
-        setChangeState(Math.random() + 23 * 3000);
       }
     };
     const editTask = async () => {
@@ -211,8 +209,10 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
           toast({
             description: `${res.data.message}`,
           });
+          handleCloseModal();
+          reset();
+          setChangeState(Math.random() + 23 * 3000);
         }
-        handleCloseModal();
       } catch (error) {
         if (error instanceof AxiosError) {
           toast({
@@ -222,8 +222,6 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
         }
       } finally {
         setIsLoading(false);
-        reset();
-        setChangeState(Math.random() + 23 * 3000);
       }
     };
 

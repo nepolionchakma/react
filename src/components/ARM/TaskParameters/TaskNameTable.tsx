@@ -99,6 +99,11 @@ export function TaskNameTable() {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    initialState: {
+      pagination: {
+        pageSize: 10,
+      },
+    },
     state: {
       sorting,
       columnFilters,
@@ -167,9 +172,9 @@ export function TaskNameTable() {
   };
 
   const handleRow = (value: number) => {
-    if (value < 1 || value > 20) {
+    if (value < 1 || value > 10) {
       toast({
-        title: "The value must be between 1 to 20",
+        title: "The value must be between 1 to 10",
         variant: "destructive",
       });
       return;

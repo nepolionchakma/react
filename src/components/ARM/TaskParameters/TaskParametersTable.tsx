@@ -130,13 +130,17 @@ export function TaskParametersTable() {
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    initialState: {
+      pagination: {
+        pageSize: 20,
+      },
+    },
     state: {
       sorting,
       columnFilters,
@@ -283,7 +287,7 @@ export function TaskParametersTable() {
                   !selectedTask?.def_task_id
                 } // disable condition
                 tooltipTitle="Delete Parameter" // tooltip title
-                actionName="Delete" // Cancel/Reschedule
+                actionName="delete" // Cancel/Reschedule
                 onContinue={() =>
                   handleDeleteParameters(
                     selectedTaskParameters[0].task_name,
