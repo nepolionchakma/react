@@ -32,7 +32,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { ChevronDown, Dot, FileEdit, Plus, Trash } from "lucide-react";
+import { ChevronDown, FileEdit, Plus, Trash } from "lucide-react";
 import {
   ColumnFiltersState,
   SortingState,
@@ -53,12 +53,7 @@ import {
   IManageAccessEntitlementsTypes,
 } from "@/types/interfaces/ManageAccessEntitlements.interface";
 import { useManageAccessEntitlementsContext } from "@/Context/ManageAccessEntitlements/ManageAccessEntitlementsContext";
-
-// Types for Delete
-interface IDeleteAccessPointsElementTypes {
-  entitlement_name: string;
-  result: IFetchAccessPointsElementTypes[] | undefined;
-}
+import { toast } from "@/components/ui/use-toast";
 
 // Main Component
 const ManageAccessEntitlementsTable = () => {
@@ -84,6 +79,8 @@ const ManageAccessEntitlementsTable = () => {
   const [data, setData] = React.useState<IManageAccessEntitlementsTypes[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [page, setPage] = React.useState<number>(1);
+  const [accessEntitlementsLimit, setAceessEntitlementsLimit] =
+    React.useState(3);
   const [totalPage, setTotalPage] = React.useState<number | undefined>(1);
 
   // Shadcn Form State
@@ -97,7 +94,7 @@ const ManageAccessEntitlementsTable = () => {
 
   // Delete States
   const [deleteAccessPointsElements, setDeleteAccessPointsElements] =
-    React.useState<IDeleteAccessPointsElementTypes[]>([]);
+    React.useState<IFetchAccessPointsElementTypes[]>([]);
   const [deleteLoading, setDeleteLoading] = React.useState(false);
 
   React.useEffect(() => {
@@ -123,9 +120,12 @@ const ManageAccessEntitlementsTable = () => {
   React.useEffect(() => {
     const fetchData = async () => {
       setIsLoading(true);
-      const limit = 3;
+
       try {
-        const result = await fetchManageAccessEntitlements(page, limit);
+        const result = await fetchManageAccessEntitlements(
+          page,
+          accessEntitlementsLimit
+        );
         setTotalPage(result?.totalPages);
         // setCurrentPage(result?.currentPage ?? 1);
         setData(result?.results ?? []);
@@ -136,7 +136,7 @@ const ManageAccessEntitlementsTable = () => {
       }
     };
     fetchData();
-  }, [save, page]);
+  }, [save, page, accessEntitlementsLimit]);
 
   // Fetch Access Points
   React.useEffect(() => {
@@ -193,19 +193,26 @@ const ManageAccessEntitlementsTable = () => {
       columnVisibility,
       rowSelection,
     },
+    initialState: {
+      pagination: {
+        pageSize: 20,
+      },
+    },
   });
+
+  const handleCancel = () => {
+    setDeleteAccessPointsElements([]);
+  };
 
   // Delete items generate Handler
   const handleGenerateAccessPointsDelete = async () => {
     try {
       setDeleteLoading(true);
-      for (const element of selectedAccessEntitlements) {
-        const result = await fetchAccessPointsEntitlementForDelete(element);
-        setDeleteAccessPointsElements((prev) => [
-          ...prev,
-          { entitlement_name: element.entitlement_name, result },
-        ]);
-      }
+      const result = await fetchAccessPointsEntitlementForDelete(
+        selectedAccessEntitlements
+      );
+      console.log(result, "result");
+      setDeleteAccessPointsElements(result);
     } catch (error) {
       console.error(error);
     } finally {
@@ -214,14 +221,16 @@ const ManageAccessEntitlementsTable = () => {
   };
 
   const handleDelete = async () => {
-    for (const element of selectedAccessEntitlements) {
-      await deleteManageAccessEntitlement(element.def_entitlement_id);
-    }
-    for (const element of deleteAccessPointsElements) {
-      for (const item of element.result!) {
+    await deleteManageAccessEntitlement(
+      selectedAccessEntitlements.def_entitlement_id
+    );
+
+    if (deleteAccessPointsElements) {
+      for (const item of deleteAccessPointsElements!) {
         await deleteAccessPointsElement(item.def_access_point_id);
       }
     }
+
     table.getRowModel().rows.forEach((row) => row.toggleSelected(false));
     setSelectedAccessEntitlements({
       def_entitlement_id: 0,
@@ -238,6 +247,18 @@ const ManageAccessEntitlementsTable = () => {
       created_by: "",
     });
     setDeleteAccessPointsElements([]);
+  };
+
+  const handleRow = (value: number) => {
+    if (value < 1 || value > 10) {
+      toast({
+        title: "The value must be between 1 to 10",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      setAceessEntitlementsLimit(value);
+    }
   };
 
   // default hidden columns
@@ -264,7 +285,7 @@ const ManageAccessEntitlementsTable = () => {
   return (
     <div className="px-3">
       {/* Top Actions */}
-      <div className="flex gap-3 items-center py-2">
+      <div className="flex gap-3 justify-between items-center py-2">
         <div className="flex gap-3">
           <div className="flex gap-3 items-center px-4 py-2 border rounded">
             <TooltipProvider>
@@ -326,7 +347,7 @@ const ManageAccessEntitlementsTable = () => {
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Edit Manage Access Entitlements</p>
+                    <p>Edit Access Entitlements</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -339,7 +360,7 @@ const ManageAccessEntitlementsTable = () => {
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Edit Manage Access Entitlements</p>
+                    <p>Edit Access Entitlements</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -382,23 +403,28 @@ const ManageAccessEntitlementsTable = () => {
                                     />
                                   </span>
                                 ) : (
-                                  deleteAccessPointsElements.map((item, i) => (
-                                    <span key={item.entitlement_name}>
-                                      <span className="font-bold">
-                                        {i + 1}. {item.entitlement_name}
-                                      </span>
-                                      <span>
-                                        {item.result?.map((item) => (
-                                          <span
-                                            key={item.def_access_point_id}
-                                            className="flex gap-1"
-                                          >
-                                            <Dot /> {item.element_name}
-                                          </span>
-                                        ))}
-                                      </span>
+                                  <span>
+                                    <span className="font-bold">
+                                      {
+                                        selectedAccessEntitlements.entitlement_name
+                                      }
                                     </span>
-                                  ))
+
+                                    {deleteAccessPointsElements && (
+                                      <span>
+                                        {deleteAccessPointsElements.map(
+                                          (item) => (
+                                            <span
+                                              key={item.def_access_point_id}
+                                              className="flex gap-1"
+                                            >
+                                              {item.element_name}
+                                            </span>
+                                          )
+                                        )}
+                                      </span>
+                                    )}
+                                  </span>
                                 )}
                                 {isLoading && <span>loading</span>}
                               </span>
@@ -407,9 +433,7 @@ const ManageAccessEntitlementsTable = () => {
                             </AlertDialogDescription>
                           </AlertDialogHeader>
                           <AlertDialogFooter>
-                            <AlertDialogCancel
-                              onClick={() => setDeleteAccessPointsElements([])}
-                            >
+                            <AlertDialogCancel onClick={handleCancel}>
                               Cancel
                             </AlertDialogCancel>
                             <AlertDialogAction onClick={handleDelete}>
@@ -421,40 +445,59 @@ const ManageAccessEntitlementsTable = () => {
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Delete Manage Access Entitlements</p>
+                    <p>Delete Access Entitlements</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </div>
           </div>
         </div>
-        {/* Columns */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  className="capitalize"
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                >
-                  {column.id}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+
+        <div className="flex gap-2">
+          {/** Rows */}
+          <div className="flex gap-2 items-center ml-auto">
+            <h3>Rows :</h3>
+            <input
+              type="number"
+              placeholder="Rows"
+              value={accessEntitlementsLimit}
+              min={3}
+              max={10}
+              onChange={(e) => handleRow(Number(e.target.value))}
+              className="w-14 border rounded p-2"
+            />
+          </div>
+
+          {/* Columns */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {/* Table Section */}
-      <div className="rounded-md border">
+      <div className="rounded-md border max-h-[20vh] overflow-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -503,7 +546,7 @@ const ManageAccessEntitlementsTable = () => {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-[8.8rem] text-center"
+                  className="h-[20vh] text-center"
                 >
                   <Spinner color="black" size="40" />
                 </TableCell>

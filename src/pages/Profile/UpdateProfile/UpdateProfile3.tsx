@@ -16,10 +16,10 @@ const UpdateProfile3: React.FC = () => {
   const profileLogo = useMemo(() => {
     return isCombinedUserLoading
       ? DefaultLogo
-      : combinedUser?.profile_picture.original
-      ? `${url}/${combinedUser.profile_picture.original}`
+      : combinedUser?.profile_picture?.original
+      ? `${url}/${combinedUser?.profile_picture?.original}`
       : `${url}/uploads/profiles/default/loading.gif`;
-  }, [combinedUser?.profile_picture.original]);
+  }, [combinedUser?.profile_picture?.original]);
 
   return (
     <>

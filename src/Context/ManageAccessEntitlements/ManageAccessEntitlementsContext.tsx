@@ -132,6 +132,7 @@ export const ManageAccessEntitlementsProvider = ({
   const [limit, setLimit] = useState<number>(5);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
 
   const [selectedAccessEntitlements, setSelectedAccessEntitlements] =
     useState<IManageAccessEntitlementsTypes>({
@@ -268,13 +269,18 @@ export const ManageAccessEntitlementsProvider = ({
           const response = await api.get<
             IFetchAccessEntitlementElementsTypes[]
           >(`/access-entitlement-elements/${fetchData.def_entitlement_id}`);
+          console.log(response, "response");
           const accessPointsId = response.data.map(
             (data) => data.access_point_id
           );
+          console.log(accessPointsId, "accesspointsid");
           // fetch access points data by IDS array
           if (accessPointsId.length > 0) {
             const filterAccessPointsById = await api.get(
-              `/access-points-element/${accessPointsId}`
+              `/def-access-point-elements/access-points/id-delete?accessPoint=${accessPointsId}`
+            );
+            console.log(
+              `/def-access-point-elements/access-points/id-delete?accessPoint=${accessPointsId}`
             );
             return filterAccessPointsById.data;
           } else {
@@ -344,7 +350,9 @@ export const ManageAccessEntitlementsProvider = ({
   };
   const deleteAccessPointsElement = async (id: number) => {
     try {
-      const res = await api.delete(`/def-access-point-elements/${id}`);
+      const res = await api.delete(`/def-access-point-elements/${id}`, {
+        baseURL: flaskUrl, // Overrides the default baseURL
+      });
       if (res.status === 200) {
         toast({
           description: `Deleted successfully.`,
@@ -558,10 +566,12 @@ export const ManageAccessEntitlementsProvider = ({
       //fetch access entitlements
       const response = await api.get(`/access-entitlement-elements/${id}`);
 
+      console.log(response, "response 569");
+
       if (response.data.length > 0) {
         for (const element of response.data) {
           await deleteAccessEntitlementElement(
-            element.def_entitlement_id,
+            element.entitlement_id,
             element.access_point_id
           );
         }

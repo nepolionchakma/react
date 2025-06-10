@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 interface IEnterpriseDataProps {
   tabName: string;
@@ -56,9 +57,9 @@ export function EnterpriseDataTable({
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [page, setPage] = React.useState<number>(1);
   const [totalPage, setTotalPage] = React.useState<number>(1);
-  const limit = 8;
+  const [limit, setLimit] = React.useState<number>(8);
   const [stateChanged, setStateChanged] = React.useState<number>(0);
-
+  const [isSelectAll, setIsSelectAll] = React.useState(false);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -67,8 +68,13 @@ export function EnterpriseDataTable({
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  console.log(selectedEnterpriseRows);
-  console.log(data);
+  React.useEffect(() => {
+    if (selectedEnterpriseRows.length !== data.length) {
+      setIsSelectAll(false);
+    } else {
+      setIsSelectAll(true);
+    }
+  }, [selectedEnterpriseRows.length, data.length]);
 
   const table = useReactTable({
     data,
@@ -81,6 +87,11 @@ export function EnterpriseDataTable({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    initialState: {
+      pagination: {
+        pageSize: 20,
+      },
+    },
     state: {
       sorting,
       columnFilters,
@@ -99,6 +110,16 @@ export function EnterpriseDataTable({
     });
   };
 
+  const handleSelectAll = () => {
+    if (isSelectAll) {
+      setIsSelectAll(false);
+      setSelectedEnterpriseRows([]);
+    } else {
+      setIsSelectAll(true);
+      setSelectedEnterpriseRows(data);
+    }
+  };
+
   const handleCloseModal = () => {
     setAction(""); // close modal
     // setSelectedEnterpriseRows([]);
@@ -106,9 +127,21 @@ export function EnterpriseDataTable({
     // table.toggleAllRowsSelected(false);
   };
 
+  const handleRow = (value: number) => {
+    if (value < 1 || value > 20) {
+      toast({
+        title: "The value must be between 1 to 20",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      setLimit(value);
+    }
+  };
+
   React.useEffect(() => {
     handleCloseModal();
-  }, [page, stateChanged]);
+  }, [page, stateChanged, limit]);
 
   React.useEffect(() => {
     const fetch = async () => {
@@ -126,7 +159,9 @@ export function EnterpriseDataTable({
       }
     };
     fetch();
-  }, [api, page, stateChanged]);
+  }, [api, page, stateChanged, limit]);
+
+  console.log(tabName, "tabname", action);
 
   return (
     <div className="w-full">
@@ -148,6 +183,18 @@ export function EnterpriseDataTable({
           setAction={setAction}
           setStateChanged={setStateChanged}
         />
+        <div className="flex gap-2 items-center ml-auto">
+          <h3>Rows :</h3>
+          <input
+            type="number"
+            placeholder="Rows"
+            value={limit}
+            min={1}
+            max={20}
+            onChange={(e) => handleRow(Number(e.target.value))}
+            className="w-14 border rounded p-2"
+          />
+        </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -199,6 +246,13 @@ export function EnterpriseDataTable({
                             header.column.columnDef.header,
                             header.getContext()
                           )}
+                      {header.id === "select" && (
+                        <Checkbox
+                          checked={isSelectAll}
+                          onClick={handleSelectAll}
+                          aria-label="Select all"
+                        />
+                      )}
                     </TableHead>
                   );
                 })}
@@ -231,10 +285,9 @@ export function EnterpriseDataTable({
                       {index === 0 ? (
                         <Checkbox
                           className=""
-                          checked={row.getIsSelected()}
-                          onCheckedChange={(value) => {
-                            row.toggleSelected(!!value);
-                          }}
+                          checked={selectedEnterpriseRows.includes(
+                            row.original
+                          )}
                           onClick={() => handleRowSelection(row.original)}
                         />
                       ) : (

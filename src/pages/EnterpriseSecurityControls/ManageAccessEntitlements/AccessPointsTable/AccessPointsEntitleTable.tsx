@@ -34,6 +34,7 @@ import { useManageAccessEntitlementsContext } from "@/Context/ManageAccessEntitl
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useLocation } from "react-router-dom";
 import columns from "./Columns";
+import { toast } from "@/components/ui/use-toast";
 
 const AccessPointsEntitleTable = () => {
   // Global Context and Location
@@ -53,6 +54,7 @@ const AccessPointsEntitleTable = () => {
     totalPage,
     limit,
     isLoading,
+    setLimit,
   } = useManageAccessEntitlementsContext();
 
   // State Hooks
@@ -74,6 +76,11 @@ const AccessPointsEntitleTable = () => {
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: { sorting, columnFilters, columnVisibility, rowSelection },
+    initialState: {
+      pagination: {
+        pageSize: 20,
+      },
+    },
   });
 
   // Row selection handler
@@ -122,6 +129,18 @@ const AccessPointsEntitleTable = () => {
     });
   }, [table]);
 
+  const handleRow = (value: number) => {
+    if (value < 1 || value > 20) {
+      toast({
+        title: "The value must be between 1 to 20",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      setLimit(value);
+    }
+  };
+
   // Table Rendering
   return (
     <div className="px-3">
@@ -153,10 +172,9 @@ const AccessPointsEntitleTable = () => {
               setAccessPointStatus("create");
             }}
             disabled={
-              !selectedManageAccessEntitlements?.def_entitlement_id ||
-              selectedAccessEntitlements?.def_entitlement_id !==
-                selectedManageAccessEntitlements?.def_entitlement_id ||
-              selectedAccessEntitlements.def_entitlement_id !== 0
+              selectedManageAccessEntitlements?.def_entitlement_id !==
+                selectedAccessEntitlements.def_entitlement_id ||
+              selectedManageAccessEntitlements.def_entitlement_id === 0
             }
           >
             <Plus />
@@ -172,33 +190,50 @@ const AccessPointsEntitleTable = () => {
             </h3>
           )}
         </div>
+        <div className="flex gap-2">
+          {/**Rows */}
+          <div className="flex gap-2 items-center ml-auto">
+            <h3>Rows :</h3>
+            <input
+              type="number"
+              placeholder="Rows"
+              value={limit}
+              min={5}
+              max={20}
+              onChange={(e) => handleRow(Number(e.target.value))}
+              className="w-14 border rounded p-2"
+            />
+          </div>
 
-        {/* Dropdown for Column Visibility */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                >
-                  {column.id}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+          {/* Dropdown for Column Visibility */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
 
       {/* Table Section */}
-      <div className="rounded-md border">
+      <div className="rounded-md border max-h-[40vh] overflow-auto">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -249,7 +284,7 @@ const AccessPointsEntitleTable = () => {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-[8.8rem] text-center"
+                  className="h-[40vh] text-center"
                 >
                   <Spinner color="black" size="40" />
                 </TableCell>
