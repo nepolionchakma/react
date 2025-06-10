@@ -19,15 +19,19 @@ const IconController = React.forwardRef<SVGSVGElement, IconControllerProps>(
       color: string
     ) => {
       switch (iconName) {
-        case "Cancel":
+        case "cancel":
           return (
             <CircleOff width={width} height={height} color={color} ref={ref} />
           );
-        case "ReSchedule":
+        case "re shedule":
           return (
             <Circle width={width} height={height} color={color} ref={ref} />
           );
-        case "Delete":
+        case "delete":
+          return (
+            <Trash width={width} height={height} color={color} ref={ref} />
+          );
+        case "move to reyclebin":
           return (
             <Trash width={width} height={height} color={color} ref={ref} />
           );
