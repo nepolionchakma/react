@@ -21,18 +21,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { ChevronDown, FileEdit, Plus, Trash } from "lucide-react";
+
+import { ChevronDown, FileEdit, Plus } from "lucide-react";
 import {
   ColumnFiltersState,
   SortingState,
@@ -54,6 +44,7 @@ import {
 } from "@/types/interfaces/ManageAccessEntitlements.interface";
 import { useManageAccessEntitlementsContext } from "@/Context/ManageAccessEntitlements/ManageAccessEntitlementsContext";
 import { toast } from "@/components/ui/use-toast";
+import Alert from "@/components/Alert/Alert";
 
 // Main Component
 const ManageAccessEntitlementsTable = () => {
@@ -200,9 +191,9 @@ const ManageAccessEntitlementsTable = () => {
     },
   });
 
-  const handleCancel = () => {
-    setDeleteAccessPointsElements([]);
-  };
+  // const handleCancel = () => {
+  //   setDeleteAccessPointsElements([]);
+  // };
 
   // Delete items generate Handler
   const handleGenerateAccessPointsDelete = async () => {
@@ -370,7 +361,48 @@ const ManageAccessEntitlementsTable = () => {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span>
-                      <AlertDialog>
+                      <Alert
+                        disabled={
+                          selectedAccessEntitlements.def_entitlement_id === 0
+                        }
+                        actionName="delete"
+                        onContinue={handleDelete}
+                        onClick={handleGenerateAccessPointsDelete}
+                      >
+                        <span className="flex flex-col gap-1">
+                          {deleteLoading ? (
+                            <span className="h-10 w-10 mx-auto p-2">
+                              <l-tailspin
+                                size="30"
+                                stroke="5"
+                                speed="0.9"
+                                color="black"
+                              />
+                            </span>
+                          ) : (
+                            <span>
+                              <span className="font-bold">
+                                {selectedAccessEntitlements.entitlement_name}
+                              </span>
+
+                              {deleteAccessPointsElements && (
+                                <span>
+                                  {deleteAccessPointsElements.map((item) => (
+                                    <span
+                                      key={item.def_access_point_id}
+                                      className="flex gap-1"
+                                    >
+                                      {item.element_name}
+                                    </span>
+                                  ))}
+                                </span>
+                              )}
+                            </span>
+                          )}
+                          {isLoading && <span>loading</span>}
+                        </span>
+                      </Alert>
+                      {/* <AlertDialog>
                         <AlertDialogTrigger
                           disabled={
                             selectedAccessEntitlements.def_entitlement_id === 0
@@ -441,7 +473,7 @@ const ManageAccessEntitlementsTable = () => {
                             </AlertDialogAction>
                           </AlertDialogFooter>
                         </AlertDialogContent>
-                      </AlertDialog>
+                      </AlertDialog> */}
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>

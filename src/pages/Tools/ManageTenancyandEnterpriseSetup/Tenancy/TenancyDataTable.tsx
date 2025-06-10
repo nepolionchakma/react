@@ -74,6 +74,8 @@ export function TenancyDataTable({
     }
   }, [selectedTenancyRows.length, data.length]);
 
+  const selectedTenancyRowsID = selectedTenancyRows.map((row) => row.tenant_id);
+
   const table = useReactTable({
     data,
     columns,
@@ -147,10 +149,9 @@ export function TenancyDataTable({
         setIsLoading(true);
         console.log(`/def-tenants/${page}/${limit}`);
         const res = await api.get(`/def-tenants/${page}/${limit}`);
-        console.log(res);
 
         setData(res.data.items);
-        setTotalPage(res.data.totalPages);
+        setTotalPage(res.data.pages);
       } catch (error) {
         console.log(error);
       } finally {
@@ -278,7 +279,9 @@ export function TenancyDataTable({
                       {index === 0 ? (
                         <Checkbox
                           className=""
-                          checked={selectedTenancyRows.includes(row.original)}
+                          checked={selectedTenancyRowsID.includes(
+                            row.original.tenant_id
+                          )}
                           onClick={() => handleRowSelection(row.original)}
                         />
                       ) : (

@@ -32,6 +32,7 @@ const ActionItems = ({
   setStateChanged,
 }: ActionItemsProps) => {
   const api = useAxiosPrivate();
+  console.log(selectedEnterpriseRows.length);
   const handleDelete = async () => {
     try {
       const res = await api.delete(
@@ -61,6 +62,7 @@ const ActionItems = ({
                 }
               >
                 <FileEdit
+                  size={24}
                   className={`${
                     selectedEnterpriseRows.length > 1 ||
                     selectedEnterpriseRows.length === 0
@@ -83,15 +85,10 @@ const ActionItems = ({
               <span>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <button
-                      disabled={
-                        selectedEnterpriseRows.length > 1 ||
-                        selectedEnterpriseRows.length === 0
-                      }
-                    >
+                    <button disabled={selectedEnterpriseRows.length === 0}>
                       <Trash
+                        size={24}
                         className={`${
-                          selectedEnterpriseRows.length > 1 ||
                           selectedEnterpriseRows.length === 0
                             ? "cursor-not-allowed text-slate-200"
                             : "cursor-pointer"

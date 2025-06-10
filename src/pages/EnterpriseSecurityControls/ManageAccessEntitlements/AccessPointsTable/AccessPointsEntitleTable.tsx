@@ -158,7 +158,7 @@ const AccessPointsEntitleTable = () => {
               !selectedManageAccessEntitlements?.def_entitlement_id ||
               selectedAccessEntitlements?.def_entitlement_id !==
                 selectedManageAccessEntitlements?.def_entitlement_id ||
-              selectedAccessEntitlements.def_entitlement_id !== 0
+              selectedAccessEntitlements.def_entitlement_id === 0
             }
           >
             <h3>Access Points</h3>

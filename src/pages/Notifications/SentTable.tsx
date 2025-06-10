@@ -13,19 +13,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { useToast } from "@/components/ui/use-toast";
-import { Check, Trash, View, X } from "lucide-react";
+import { View } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import TableRowCounter from "@/components/TableCounter/TableRowCounter";
 import Spinner from "@/components/Spinner/Spinner";
@@ -35,6 +24,7 @@ import { Message } from "@/types/interfaces/users.interface";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+import Alert from "@/components/Alert/Alert";
 
 interface SentTableProps {
   path: string;
@@ -185,32 +175,11 @@ const SentTable = ({ path, person }: SentTableProps) => {
                         <TooltipTrigger asChild>
                           <span>
                             {" "}
-                            <AlertDialog>
-                              <AlertDialogTrigger>
-                                <Trash />
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>
-                                    Are you sure?
-                                  </AlertDialogTitle>
-                                </AlertDialogHeader>
-                                <AlertDialogDescription>
-                                  This message will be moved to the Recycle Bin.
-                                </AlertDialogDescription>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel className="bg-Red-200 text-white flex justify-center items-center">
-                                    <X />
-                                  </AlertDialogCancel>
-                                  <AlertDialogAction
-                                    className="bg-green-600 text-white flex justify-center items-center"
-                                    onClick={() => handleDelete(msg.id)}
-                                  >
-                                    <Check />
-                                  </AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
+                            <Alert
+                              disabled={false}
+                              actionName="move to reyclebin"
+                              onContinue={() => handleDelete(msg.id)}
+                            />
                           </span>
                         </TooltipTrigger>
                         <TooltipContent>

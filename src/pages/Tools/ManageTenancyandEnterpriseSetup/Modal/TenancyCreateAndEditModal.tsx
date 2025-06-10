@@ -51,7 +51,9 @@ const TenancyCreateAndEditModal = ({
         }
       }
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
       setIsLoading(false);
       handleClose();

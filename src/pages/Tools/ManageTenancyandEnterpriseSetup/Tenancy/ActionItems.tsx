@@ -1,24 +1,14 @@
-import {
-  AlertDialogAction,
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { toast } from "@/components/ui/use-toast";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { ITenantsTypes } from "@/types/interfaces/users.interface";
-import { FileEdit, PlusIcon, Trash } from "lucide-react";
+import { FileEdit, PlusIcon } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import Alert from "@/components/Alert/Alert";
 
 interface ActionItemsProps {
   selectedTenancyRows: ITenantsTypes[];
@@ -32,6 +22,7 @@ const ActionItems = ({
   setStateChanged,
 }: ActionItemsProps) => {
   const api = useAxiosPrivate();
+
   const handleDelete = async () => {
     try {
       const res = await api.delete(
@@ -50,7 +41,7 @@ const ActionItems = ({
   };
   return (
     <div className="flex gap-3 items-center px-4 py-2 border rounded">
-      <div className="flex gap-3">
+      <div className="flex gap-3 items-center">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
@@ -96,17 +87,25 @@ const ActionItems = ({
           <Tooltip>
             <TooltipTrigger asChild>
               <span>
-                <AlertDialog>
+                <Alert
+                  disabled={selectedTenancyRows.length === 0}
+                  children={
+                    <>
+                      {selectedTenancyRows.map((item, index) => (
+                        <span key={item.tenant_id} className="block text-black">
+                          {index + 1}. Tenant Name : {item.tenant_name}
+                        </span>
+                      ))}
+                    </>
+                  }
+                  actionName="delete"
+                  onContinue={handleDelete}
+                ></Alert>
+                {/* <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <button
-                      disabled={
-                        selectedTenancyRows.length > 1 ||
-                        selectedTenancyRows.length === 0
-                      }
-                    >
+                    <button disabled={selectedTenancyRows.length === 0}>
                       <Trash
                         className={`${
-                          selectedTenancyRows.length > 1 ||
                           selectedTenancyRows.length === 0
                             ? "cursor-not-allowed text-slate-200"
                             : "cursor-pointer"
@@ -141,7 +140,7 @@ const ActionItems = ({
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
-                </AlertDialog>
+                </AlertDialog> */}
               </span>
             </TooltipTrigger>
             <TooltipContent>
