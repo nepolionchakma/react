@@ -1,4 +1,4 @@
-import { Send, Delete, ArrowLeft, Trash, Save } from "lucide-react";
+import { Send, Delete, ArrowLeft, Save } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -28,6 +28,7 @@ import Spinner from "@/components/Spinner/Spinner";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+import Alert from "@/components/Alert/Alert";
 // import { v4 as uuidv4 } from "uuid";
 
 interface IOldMsgTypes {
@@ -305,7 +306,7 @@ const SingleDraft = () => {
                   <TooltipTrigger asChild>
                     <span className="p-1 rounded-md hover:bg-winter-100/50 h-7">
                       <Link to="/notifications/drafts">
-                        <ArrowLeft size={20} />
+                        <ArrowLeft size={20} color="black" />
                       </Link>
                     </span>
                   </TooltipTrigger>
@@ -318,12 +319,17 @@ const SingleDraft = () => {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span>
-                      <button
+                      <Alert
+                        disabled={false}
+                        actionName="move to reyclebin"
+                        onContinue={handleDelete}
+                      />
+                      {/* <button
                         onClick={handleDelete}
                         className="p-1 rounded-md hover:bg-winter-100/50"
                       >
                         <Trash size={20} />
-                      </button>
+                      </button> */}
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>

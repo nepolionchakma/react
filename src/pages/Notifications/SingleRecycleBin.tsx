@@ -1,4 +1,4 @@
-import { ArrowLeft, Check, Ellipsis, RotateCcw, Trash2, X } from "lucide-react";
+import { ArrowLeft, Ellipsis, RotateCcw } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import {
   Tooltip,
@@ -12,17 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+
 import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useToast } from "@/components/ui/use-toast";
@@ -31,6 +21,7 @@ import { Message } from "@/types/interfaces/users.interface";
 import Spinner from "@/components/Spinner/Spinner";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+import Alert from "@/components/Alert/Alert";
 
 const SingleRecycleBin = () => {
   const api = useAxiosPrivate();
@@ -242,7 +233,12 @@ const SingleRecycleBin = () => {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <span>
-                              <AlertDialog>
+                              <Alert
+                                disabled={false}
+                                actionName="delete"
+                                onContinue={handleDelete}
+                              />
+                              {/* <AlertDialog>
                                 <AlertDialogTrigger>
                                   <Trash2 size={20} />
                                 </AlertDialogTrigger>
@@ -268,7 +264,7 @@ const SingleRecycleBin = () => {
                                     </AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
-                              </AlertDialog>
+                              </AlertDialog> */}
                             </span>
                           </TooltipTrigger>
                           <TooltipContent>

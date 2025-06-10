@@ -6,7 +6,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import { ArrowLeft, Ellipsis, Trash } from "lucide-react";
+import { ArrowLeft, Ellipsis } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ReplyDialog from "./ReplyDialog";
@@ -22,6 +22,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+import Alert from "@/components/Alert/Alert";
 
 const SingleSent = () => {
   const api = useAxiosPrivate();
@@ -250,12 +251,17 @@ const SingleSent = () => {
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <span>
-                                <button
+                                <Alert
+                                  disabled={false}
+                                  actionName="move to reyclebin"
+                                  onContinue={() => handleDelete(msg.id)}
+                                />
+                                {/* <button
                                   onClick={() => handleDelete(msg.id)}
                                   className="p-1 rounded-md hover:bg-winter-100/50"
                                 >
                                   <Trash size={20} />
-                                </button>
+                                </button> */}
                               </span>
                             </TooltipTrigger>
                             <TooltipContent>

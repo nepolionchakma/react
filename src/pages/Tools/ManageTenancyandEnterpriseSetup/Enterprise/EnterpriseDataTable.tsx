@@ -76,6 +76,10 @@ export function EnterpriseDataTable({
     }
   }, [selectedEnterpriseRows.length, data.length]);
 
+  const selectedEnterpriseRowsName = selectedEnterpriseRows.map(
+    (row) => row.tenant_id
+  );
+
   const table = useReactTable({
     data,
     columns,
@@ -285,8 +289,8 @@ export function EnterpriseDataTable({
                       {index === 0 ? (
                         <Checkbox
                           className=""
-                          checked={selectedEnterpriseRows.includes(
-                            row.original
+                          checked={selectedEnterpriseRowsName.includes(
+                            row.original.tenant_id
                           )}
                           onClick={() => handleRowSelection(row.original)}
                         />

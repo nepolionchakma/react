@@ -20,10 +20,11 @@ import IconController from "@/IconController/IconController";
 
 interface AlertProps {
   disabled: boolean;
-  tooltipTitle: string;
+  tooltipTitle?: string;
   children?: React.ReactNode;
   actionName: string;
   onContinue: () => void;
+  onClick?: () => void;
 }
 
 const Alert = ({
@@ -32,11 +33,12 @@ const Alert = ({
   children,
   actionName,
   onContinue,
+  onClick,
 }: AlertProps) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <button disabled={disabled}>
+        <button onClick={onClick} disabled={disabled}>
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
