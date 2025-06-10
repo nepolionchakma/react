@@ -32,18 +32,20 @@ import Pagination5 from "@/components/Pagination/Pagination5";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
+import { toast } from "@/components/ui/use-toast";
 
 export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
   {
     id: "select",
-    cell: ({ row }) => (
-      <Checkbox
-        disabled
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
+    // cell: ({ row }) => (
+    //   <Checkbox
+    //     // disabled
+    //     checked={row.getIsSelected()}
+    //     onCheckedChange={(value) => row.toggleSelected(!!value)}
+    //     aria-label="Select row"
+    //     className="w-9"
+    //   />
+    // ),
     enableSorting: false,
     enableHiding: false,
   },
@@ -164,12 +166,23 @@ export function TaskNameTable() {
     });
   };
 
+  const handleRow = (value: number) => {
+    if (value < 1 || value > 20) {
+      toast({
+        title: "The value must be between 1 to 20",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      setLimit(value);
+    }
+  };
   return (
     <div className="px-3">
       {/* top icon and columns*/}
       <div className="flex gap-3 items-center justify-between py-2">
         <Input
-          placeholder="Filter User Task Name"
+          placeholder="Search by User Task Name.."
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
           className="w-[20rem] px-4 py-2"
@@ -181,8 +194,8 @@ export function TaskNameTable() {
             placeholder="Rows"
             value={limit}
             min={1}
-            // max={20}
-            onChange={(e) => setLimit(Number(e.target.value))}
+            max={20}
+            onChange={(e) => handleRow(Number(e.target.value))}
             className="w-14 border rounded p-2"
           />
         </div>
@@ -228,7 +241,7 @@ export function TaskNameTable() {
                       <TableHead
                         key={header.id}
                         className={`border border-slate-400 bg-slate-200 p-1 h-9 ${
-                          header.id === "select" && "w-3"
+                          header.id === "select" && "w-6"
                         }`}
                       >
                         {header.isPlaceholder
@@ -238,9 +251,9 @@ export function TaskNameTable() {
                               header.getContext()
                             )}
                         {/* Example: Checkbox for selecting all rows */}
-                        {header.id === "select" && (
+                        {/* {header.id === "select" && (
                           <Checkbox disabled className="mr-1" />
-                        )}
+                        )} */}
                       </TableHead>
                     );
                   })}
@@ -273,10 +286,10 @@ export function TaskNameTable() {
                         {index === 0 ? (
                           <Checkbox
                             className=""
-                            checked={row.id === selectedRowId}
-                            onCheckedChange={(value) =>
-                              row.toggleSelected(!!value)
-                            }
+                            checked={selectedRowId === row.id}
+                            // onCheckedChange={(value) =>
+                            //   row.toggleSelected(!!value)
+                            // }
                             onClick={() => {
                               setSelectedRowId((prev) => {
                                 if (prev === row.id) {

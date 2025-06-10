@@ -10,20 +10,15 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, FileEdit, PlusIcon, Trash } from "lucide-react";
+import { ChevronDown, FileEdit, PlusIcon } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { tailspin } from "ldrs";
 tailspin.register();
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -46,24 +41,33 @@ import AddUser from "@/components/AddUser/AddUser";
 import { IUsersInfoTypes } from "@/types/interfaces/users.interface";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
+import { Input } from "@/components/ui/input";
+import Alert from "@/components/Alert/Alert";
+import { toast } from "@/components/ui/use-toast";
 interface Props {
   selectedUser: IUsersInfoTypes;
   setSelectedUser: React.Dispatch<React.SetStateAction<IUsersInfoTypes>>;
 }
 export function UsersTable({ selectedUser, setSelectedUser }: Props) {
   const {
-    isLoading,
+    // isLoading,
+    // setIsLoading,
     fetchCombinedUser,
-    usersInfo: data,
-    page,
-    setPage,
-    totalPage,
+    searchCombinedUser,
+    // usersInfo: data,
+    // page,
+    // setPage,
+    // totalPage,
     deleteCombinedUser,
     isOpenModal,
     setIsOpenModal,
     token,
+    stateChange,
   } = useGlobalContext();
-
+  const [data, setData] = React.useState<IUsersInfoTypes[] | []>([]);
+  const [page, setPage] = React.useState(1);
+  const [totalPage, setTotalPage] = React.useState(1);
+  const [isLoading, setIsLoading] = React.useState(false);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -71,9 +75,55 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
+  const [limit, setLimit] = React.useState<number>(3);
+
+  const handleQuery = (e: string) => {
+    if (e === "") {
+      setQuery({ isEmpty: true, value: e });
+      setPage(1);
+    } else {
+      setQuery({ isEmpty: false, value: e });
+      setPage(1);
+    }
+  };
   React.useEffect(() => {
-    fetchCombinedUser();
-  }, []);
+    const fetchData = async () => {
+      try {
+        setIsLoading(true);
+        if (!query.isEmpty) {
+          const res = await searchCombinedUser(page, limit, query.value);
+
+          if (res) {
+            setData(res.items);
+            setPage(res.page);
+            setTotalPage(res.pages);
+          }
+        } else {
+          const res = await fetchCombinedUser(page, limit);
+          if (res) {
+            setData(res.items);
+            setPage(res.page);
+            setTotalPage(res.pages);
+          }
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoading(false);
+        //table toggle false
+        table.toggleAllRowsSelected(false);
+        // setSelected([]);
+      }
+    };
+    setIsLoading(true);
+    const delayDebounce = setTimeout(() => {
+      fetchData();
+      handleCloseModal();
+    }, 1000);
+
+    return () => clearTimeout(delayDebounce);
+  }, [limit, page, query.value, stateChange]);
 
   const handleRowSelection = (rowSelection: IUsersInfoTypes) => {
     if (selectedUser.user_name === rowSelection.user_name) {
@@ -132,36 +182,46 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
     },
   });
 
-  React.useEffect(() => {
-    if (page > 1 || page < totalPage) {
-      fetchCombinedUser();
-    }
-  }, [page, totalPage]);
+  // React.useEffect(() => {
+  //   if (page > 1 || page < totalPage) {
+  //     fetchCombinedUser();
+  //   }
+  // }, [page, totalPage]);
   const handleOpenModal = (modelName: string) => {
     setIsOpenModal(modelName);
   };
   const handleCloseModal = () => {
     setIsOpenModal(""); // close modal
-    setSelectedUser({
-      user_id: 0,
-      user_name: "string",
-      email_addresses: "",
-      profile_picture: {
-        original: "",
-        thumbnail: "",
-      },
-      first_name: "",
-      middle_name: "",
-      last_name: "",
-      job_title: "",
-    });
+    // setSelectedUser({
+    //   user_id: 0,
+    //   user_name: "string",
+    //   email_addresses: "",
+    //   profile_picture: {
+    //     original: "",
+    //     thumbnail: "",
+    //   },
+    //   first_name: "",
+    //   middle_name: "",
+    //   last_name: "",
+    //   job_title: "",
+    // });
     //table toggle false
-    table.toggleAllRowsSelected(false);
+    // table.toggleAllRowsSelected(false);
   };
-  React.useEffect(() => {
-    handleCloseModal();
-  }, [page]);
-
+  // React.useEffect(() => {
+  //   handleCloseModal();
+  // }, [page]);
+  const handleRow = (value: number) => {
+    if (value < 1 || value > 20) {
+      toast({
+        title: "The value must be between 1 to 20",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      setLimit(value);
+    }
+  };
   return (
     <div className="px-3">
       {isOpenModal === "create_user" ? (
@@ -182,15 +242,24 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
         )
       )}
       {/* top icon and columns*/}
-      <div className="flex gap-3 items-center py-2">
-        <div className="flex gap-3">
-          <div className="flex gap-3 items-center px-4 py-2 border rounded">
-            <div className="flex gap-3">
-              <PlusIcon
-                className="cursor-pointer"
-                onClick={() => handleOpenModal("create_user")}
-              />
-              <button disabled={selectedUser.user_id === 0}>
+      <div className="flex gap-3 items-center justify-between py-2">
+        <div className="flex gap-3 items-center px-4 py-2 border rounded">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger>
+                <PlusIcon
+                  className="cursor-pointer"
+                  onClick={() => handleOpenModal("create_user")}
+                />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Create An Account</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger disabled={selectedUser.user_id === 0}>
                 <FileEdit
                   className={`${
                     selectedUser.user_id === 0
@@ -199,48 +268,43 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
                   }`}
                   onClick={() => handleOpenModal("edit_user")}
                 />
-              </button>
-
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <button
-                    disabled={
-                      selectedUser.user_id === 0 || token.user_type !== "System"
-                    }
-                  >
-                    <Trash
-                      className={`${
-                        selectedUser.user_id === 0 ||
-                        token.user_type !== "System"
-                          ? "cursor-not-allowed text-slate-200"
-                          : "cursor-pointer"
-                      }`}
-                    />
-                  </button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Are you absolutely sure?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      <span className="block text-black">
-                        1. username : {selectedUser.user_name}
-                      </span>
-                      This action cannot be undone. This will permanently delete
-                      your account and remove your data from our servers.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete}>
-                      Continue
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </div>
-          </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Edit Account</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+          <Alert
+            disabled={
+              selectedUser.user_id === 0 ||
+              token.user_type.toLocaleLowerCase() !== "system"
+            } // disable condition
+            tooltipTitle="Delete Account" // tooltip title
+            actionName="Delete" // Cancel/Reschedule
+            onContinue={handleDelete} // funtion
+          >
+            <span className="block text-black">
+              1. username : {selectedUser.user_name}
+            </span>
+          </Alert>
+        </div>
+        <Input
+          placeholder="Search by User Task Name.."
+          value={query.value}
+          onChange={(e) => handleQuery(e.target.value)}
+          className="max-w-sm px-4 py-2"
+        />
+        <div className="flex gap-2 items-center ml-auto">
+          <h3>Rows :</h3>
+          <input
+            type="number"
+            placeholder="Rows"
+            value={limit}
+            min={1}
+            max={20}
+            onChange={(e) => handleRow(Number(e.target.value))}
+            className="w-14 border rounded p-2"
+          />
         </div>
         {/* Columns */}
         <DropdownMenu>
@@ -350,9 +414,9 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
                             checked={
                               row.original.user_id === selectedUser.user_id
                             }
-                            onCheckedChange={(value) => {
-                              row.toggleSelected(!!value);
-                            }}
+                            // onCheckedChange={(value) => {
+                            //   row.toggleSelected(!!value);
+                            // }}
                             onClick={() => handleRowSelection(row.original)}
                           />
                         ) : (

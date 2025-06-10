@@ -7,7 +7,7 @@ import {
   useEffect,
   useState,
 } from "react";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import {
   Token,
   Users,
@@ -17,6 +17,7 @@ import {
   IUpdateUserTypes,
   IUserPasswordResetTypes,
   IUserLinkedDevices,
+  IGetResponeUsersInfoTypes,
 } from "@/types/interfaces/users.interface";
 import {
   IDataSourcePostTypes,
@@ -70,8 +71,16 @@ interface GlobalContex {
   setCombinedUser: React.Dispatch<
     React.SetStateAction<IUsersInfoTypes | undefined>
   >;
-  usersInfo: IUsersInfoTypes[];
-  fetchCombinedUser: () => Promise<void>;
+  // usersInfo: IUsersInfoTypes[];
+  fetchCombinedUser: (
+    page: number,
+    limit: number
+  ) => Promise<IGetResponeUsersInfoTypes | undefined>;
+  searchCombinedUser: (
+    page: number,
+    limit: number,
+    userName: string
+  ) => Promise<IGetResponeUsersInfoTypes | undefined>;
   //lazy loading
   page: number;
   setPage: Dispatch<React.SetStateAction<number>>;
@@ -90,6 +99,8 @@ interface GlobalContex {
   isUserLoading: boolean;
   presentDevice: IUserLinkedDevices;
   setPresentDevice: Dispatch<SetStateAction<IUserLinkedDevices>>;
+  stateChange: number;
+  setStateChange: Dispatch<SetStateAction<number>>;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -119,6 +130,7 @@ export function GlobalContextProvider({
   // const { setIsOpenModal } = useManageAccessEntitlementsContext();
   const userDevice = useUserDevice();
   const api = useAxiosPrivate();
+  const FLASK_ENDPOINT_URL = import.meta.env.VITE_FLASK_ENDPOINT_URL;
   const [open, setOpen] = useState<boolean>(false);
   const [token, setToken] = useState<Token>(userExample);
   const [isUserLoading, setIsUserLoading] = useState(true);
@@ -126,7 +138,8 @@ export function GlobalContextProvider({
   const [users, setUsers] = useState<Users[]>([]);
   const [combinedUser, setCombinedUser] = useState<IUsersInfoTypes>();
   const [isCombinedUserLoading, setIsCombinedUserLoading] = useState(true);
-  const [usersInfo, setUsersInfo] = useState<IUsersInfoTypes[]>([]);
+  const [stateChange, setStateChange] = useState<number>(0);
+  // const [usersInfo, setUsersInfo] = useState<IUsersInfoTypes[]>([]);
   const [isOpenModal, setIsOpenModal] = useState<string>("");
   const [isOpenScheduleModal, setIsOpenScheduleModal] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -180,19 +193,37 @@ export function GlobalContextProvider({
   }, [api, token?.user_id, updateProfileImage]);
 
   //user info
-  const fetchCombinedUser = async () => {
+  const fetchCombinedUser = async (page: number, limit: number) => {
     try {
       setIsLoading(true);
-      const users = await api.get<Users[]>(`/users`);
-      const res = await api.get<IUsersInfoTypes[]>(
+      const res = await api.get<IGetResponeUsersInfoTypes>(
         `/combined-user/${page}/${limit}`
       );
-      const totalCount = users.data.length;
-      const totalPages = Math.ceil(totalCount / limit);
 
-      setUsersInfo(res.data);
-      setTotalPage(totalPages);
-      setCurrentPage(page);
+      setTotalPage(res.data.pages);
+      setCurrentPage(res.data.page);
+      return res.data ?? {};
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const searchCombinedUser = async (
+    page: number,
+    limit: number,
+    userName: string
+  ) => {
+    try {
+      setIsLoading(true);
+      const res = await api.get<IGetResponeUsersInfoTypes>(
+        `/combined-user/search/${page}/${limit}?user_name=${userName}`
+      );
+      // console.log(res.data, "res.data");
+      // setUsersInfo(res.data.items ?? []);
+      // setTotalPage(res.data.pages);
+      // setCurrentPage(res.data.page);
+      return res.data;
     } catch (error) {
       console.log(error);
     } finally {
@@ -215,7 +246,7 @@ export function GlobalContextProvider({
       password,
     } = postData;
     try {
-      const res = await api.post<IAddUserTypes>(`/combined-user`, {
+      const res = await axios.post(`${FLASK_ENDPOINT_URL}/users`, {
         user_type,
         user_name,
         email_addresses,
@@ -228,13 +259,34 @@ export function GlobalContextProvider({
         job_title,
         password,
       });
+      // const res = await api.post(
+      //   `/combined-user`,
+      //   {
+      //     user_type,
+      //     user_name,
+      //     email_addresses,
+      //     created_by,
+      //     last_updated_by,
+      //     tenant_id,
+      //     first_name,
+      //     middle_name,
+      //     last_name,
+      //     job_title,
+      //     password,
+      //   },
+      //   {
+      //     baseURL: `${FLASK_ENDPOINT_URL}/users`,
+      //   }
+      // );
+      console.log(res, "res");
       if (res.status === 201) {
         setIsLoading(false);
         toast({
-          description: `User added successfully.`,
+          description: `${res.data.message}`,
         });
       }
     } catch (error) {
+      console.log(error);
       if (error instanceof AxiosError && error.response) {
         if (error.response.status) {
           toast({
@@ -245,28 +297,38 @@ export function GlobalContextProvider({
 
       console.log(error);
     } finally {
-      fetchCombinedUser();
+      setStateChange(Math.random() + 23 * 3000);
     }
   };
   const updateUser = async (user_id: number, userInfo: IUpdateUserTypes) => {
     setIsLoading(true);
     try {
-      const res = await api.put<IUpdateUserTypes>(
-        `/combined-user/${user_id}`,
+      const res = await axios.put(
+        `${FLASK_ENDPOINT_URL}/users/${user_id}`,
         userInfo
       );
+      // const res = await api.put<IUpdateUserTypes>(
+      //   `/combined-user/${user_id}`,
+      //   userInfo
+      // );
       if (res.status === 200) {
         setIsLoading(false);
         setIsOpenModal("");
-        fetchCombinedUser();
         toast({
-          description: `Updated successfully.`,
+          description: `${res.data.message}`,
         });
       }
     } catch (error) {
+      if (error instanceof AxiosError && error.response) {
+        if (error.response.status) {
+          toast({
+            description: `${error.message}`,
+          });
+        }
+      }
       console.log(error);
     } finally {
-      fetchCombinedUser();
+      setStateChange(Math.random() + 23 * 3000);
     }
   };
   const resetPassword = async (resetData: IUserPasswordResetTypes) => {
@@ -315,13 +377,12 @@ export function GlobalContextProvider({
     } catch (error) {
       console.log(error);
       if (error instanceof Error) {
-        fetchCombinedUser();
         toast({
           description: `Error: ${error.message}`,
         });
       }
     } finally {
-      fetchCombinedUser();
+      setStateChange(Math.random() + 23 * 3000);
       setIsLoading(false);
     }
   };
@@ -493,6 +554,7 @@ export function GlobalContextProvider({
   const fetchTenants = async () => {
     try {
       const res = await api.get<ITenantsTypes[]>(`/def-tenants`);
+      console.log(res, "res");
       return res.data;
     } catch (error) {
       console.log(error);
@@ -523,8 +585,9 @@ export function GlobalContextProvider({
         fetchTenants,
         combinedUser,
         setCombinedUser,
-        usersInfo,
+        // usersInfo,
         fetchCombinedUser,
+        searchCombinedUser,
         page,
         setPage,
         totalPage,
@@ -542,6 +605,8 @@ export function GlobalContextProvider({
         isUserLoading,
         presentDevice,
         setPresentDevice,
+        stateChange,
+        setStateChange,
       }}
     >
       <SocketContextProvider>

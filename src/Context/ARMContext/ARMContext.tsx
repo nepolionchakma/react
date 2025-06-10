@@ -272,7 +272,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       const response = await api.get<IGetResponseARMTaskParametersTypes>(
         `/arm-tasks/task-params/${task_name}/${page}/${limit}`
       );
-      console.log(response);
+      // console.log(response);
       // const [countTasksParameters, tasksParameters] = await Promise.all([
       //   api.get<IARMTaskParametersTypes[]>(
       //     `/arm-tasks/task-params/${task_name}`
@@ -309,7 +309,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     task_name: string,
     def_param_id: number
   ) => {
-    console.log(task_name, def_param_id, "req.params");
+    // console.log(task_name, def_param_id, "req.params");
     // /Delete_TaskParams/<string:task_name>/<int:def_param_id>
     try {
       const res = await api.delete(

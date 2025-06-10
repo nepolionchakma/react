@@ -209,7 +209,6 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
 
         if (res) {
           toast({
-            title: "Info !!!",
             description: `${res.data.message}`,
           });
         }
@@ -217,7 +216,6 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
       } catch (error) {
         if (error instanceof AxiosError) {
           toast({
-            title: "Info !!!",
             variant: "destructive",
             description: `Error : ${error.message}`,
           });
@@ -239,7 +237,6 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
       console.log(error);
       if (error instanceof AxiosError) {
         toast({
-          title: "Info !!!",
           variant: "destructive",
           description: `Error : ${error.message}`,
         });

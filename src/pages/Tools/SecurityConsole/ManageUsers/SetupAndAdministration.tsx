@@ -33,6 +33,10 @@ const SetupAndAdministration = () => {
       try {
         if (selectedUser) {
           setIsLoading(true);
+          if (selectedUser.user_id === 0) {
+            setData([]);
+            return;
+          }
           const resData = await api.get(
             `/access-profiles/${selectedUser.user_id}`
           );
