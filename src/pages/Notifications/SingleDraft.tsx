@@ -65,7 +65,7 @@ const SingleDraft = () => {
   const [userChanged, setuserChanged] = useState<boolean>(false);
   const sender = {
     name: token?.user_name,
-    profile_picture: token?.profile_picture.thumbnail,
+    profile_picture: token?.profile_picture?.thumbnail,
   };
   const receiverNames = recivers.map((rcvr) => rcvr.name);
   const totalusers = [...receiverNames, token?.user_name];
@@ -123,7 +123,7 @@ const SingleDraft = () => {
       const newReceivers = actualUsers.map((usr) => {
         return {
           name: usr.user_name,
-          profile_picture: usr.profile_picture.thumbnail,
+          profile_picture: usr.profile_picture?.thumbnail,
         };
       });
       setRecivers(newReceivers);
@@ -360,7 +360,7 @@ const SingleDraft = () => {
                         onClick={() =>
                           handleReciever({
                             name: user.user_name,
-                            profile_picture: user.profile_picture.thumbnail,
+                            profile_picture: user.profile_picture?.thumbnail,
                           })
                         }
                         key={user.user_id}
@@ -369,7 +369,7 @@ const SingleDraft = () => {
                         <div className="flex flex-row gap-1 items-center">
                           <Avatar className="h-4 w-4">
                             <AvatarImage
-                              src={`${url}/${user.profile_picture.thumbnail}`}
+                              src={`${url}/${user.profile_picture?.thumbnail}`}
                             />
                             <AvatarFallback>
                               {user.user_name.slice(0, 1)}

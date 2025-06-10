@@ -40,7 +40,7 @@ const ReplyDialog = ({
   const { toast } = useToast();
   const sender = {
     name: user,
-    profile_picture: token?.profile_picture.thumbnail,
+    profile_picture: token?.profile_picture?.thumbnail,
   };
   const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const totalInvolved = [...parrentMessage.recivers, parrentMessage.sender];

@@ -20,8 +20,8 @@ export interface IManageAccessEntitlementsPerPageTypes {
   currentPage: number;
 }
 export interface IFetchAccessPointsElementTypes {
-  access_point_id: number;
-  data_source_id: number;
+  def_access_point_id: number;
+  def_data_source_id: number;
   element_name: string;
   description: string;
   platform: string;
@@ -34,10 +34,7 @@ export interface IFetchAccessPointsElementTypes {
   last_updated_by: string;
   last_updated_on: string;
 }
-export interface IFetchCombinedAccessPointsElementAndDatasourceTypes
-  extends IFetchAccessPointsElementTypes {
-  dataSource: IDataSourcePostTypes;
-}
+
 export interface IManageEntitlementElementDataDeleteTypes {
   entitlement_id: number;
   res: IFetchAccessPointsElementTypes[] | undefined;
@@ -47,8 +44,8 @@ export interface IFetchAccessEntitlementElementsTypes {
   access_point_id: number;
 }
 export interface ICreateAccessPointsElementTypes {
-  access_point_id?: number;
-  data_source_id: number;
+  def_access_point_id?: number;
+  def_data_source_id: number;
   element_name: string;
   description: string;
   platform: string;
@@ -141,4 +138,9 @@ export interface IManageAccessModelSearchFilterTypes {
   model_name: string;
   state: string;
   last_run_date: string;
+}
+
+export interface IFetchCombinedAccessPointsElementAndDatasourceTypes
+  extends IFetchAccessPointsElementTypes {
+  dataSource: IDataSourcePostTypes;
 }

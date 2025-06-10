@@ -39,7 +39,7 @@ const ComposeButton = () => {
   const [isAllClicked, setIsAllClicked] = useState(true);
   const sender = {
     name: user,
-    profile_picture: token?.profile_picture.thumbnail,
+    profile_picture: token?.profile_picture?.thumbnail,
   };
   const id = uuidv4();
   const date = new Date();
@@ -76,7 +76,7 @@ const ComposeButton = () => {
       const newReceivers = actualUsers.map((usr) => {
         return {
           name: usr.user_name,
-          profile_picture: usr.profile_picture.thumbnail,
+          profile_picture: usr.profile_picture?.thumbnail,
         };
       });
       setRecivers(newReceivers);
@@ -217,7 +217,7 @@ const ComposeButton = () => {
                     onClick={() =>
                       handleReciever({
                         name: user.user_name,
-                        profile_picture: user.profile_picture.thumbnail,
+                        profile_picture: user.profile_picture?.thumbnail,
                       })
                     }
                     key={user.user_id}
@@ -226,7 +226,7 @@ const ComposeButton = () => {
                     <div className="flex flex-row gap-1 items-center">
                       <Avatar className="h-4 w-4">
                         <AvatarImage
-                          src={`${apiUrl}/${user.profile_picture.thumbnail}`}
+                          src={`${apiUrl}/${user.profile_picture?.thumbnail}`}
                         />
                         <AvatarFallback>
                           {user.user_name.slice(0, 1)}

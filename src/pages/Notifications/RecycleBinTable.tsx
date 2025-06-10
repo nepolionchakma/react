@@ -210,7 +210,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
 
   return (
     <>
-      <div className="ml-[11rem] border rounded-md shadow-sm p-4 mb-4">
+      <div className="ml-[11rem] border rounded-md shadow-sm p-4 mb-4 max-h-[80vh] overflow-auto">
         <div className="flex justify-between">
           <h1 className="text-lg font-bold mb-6 ">{path} </h1>
           <div>
@@ -248,7 +248,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
         </div>
         <Table>
           <TableHeader>
-            <TableRow className="bg-white hover:bg-white">
+            <TableRow className="bg-slate-200 hover:bg-white">
               <TableHead className="w-[3rem] font-bold">Origin</TableHead>
               <TableHead className="w-[7rem] font-bold">{person}</TableHead>
               <TableHead className="font-bold">Subject</TableHead>
@@ -281,7 +281,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
                         ? "(no user)"
                         : msg.recivers.includes({
                             name: user,
-                            profile_picture: token.profile_picture.thumbnail,
+                            profile_picture: token.profile_picture?.thumbnail,
                           })
                         ? msg.sender.name
                         : msg.recivers[0].name}

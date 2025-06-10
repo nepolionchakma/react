@@ -50,6 +50,8 @@ const ManageAccessPointsEntitleModal: FC<IManageAccessEntitlementsProps> = ({
       message: "Select a option",
     }),
   });
+
+  console.log(selectedItem);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {

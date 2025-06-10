@@ -5,7 +5,7 @@ const Alerts = () => {
   return (
     <div className="flex justify-between gap-4 flex-wrap flex-grow pb-4">
       <Card className="w-[49.3%] flex gap-4 p-4">
-        <div className="bg-blue-600 w-[40px] h-[40px] flex justify-center items-center rounded-full">
+        <div className="bg-red-600 w-[40px] h-[36px] flex justify-center items-center rounded-full">
           <CircleAlert color="white" />
         </div>
         <div className="flex flex-col gap-2 w-full">
@@ -38,7 +38,7 @@ const Alerts = () => {
       </Card>
 
       <Card className="w-[49.3%] flex gap-4 p-4">
-        <div className="bg-blue-600 w-[40px] h-[40px] flex justify-center items-center rounded-full">
+        <div className="bg-red-600 w-[40px] h-[36px] flex justify-center items-center rounded-full">
           <CircleAlert color="white" />
         </div>
         <div className="flex flex-col gap-2 w-full">
@@ -71,7 +71,7 @@ const Alerts = () => {
       </Card>
 
       <Card className="w-[49.3%] flex gap-4 p-4">
-        <div className="bg-blue-600 w-[40px] h-[40px] flex justify-center items-center rounded-full">
+        <div className="bg-red-600 w-[40px] h-[36px] flex justify-center items-center rounded-full">
           <CircleAlert color="white" />
         </div>
         <div className="flex flex-col gap-2 w-full">
@@ -104,7 +104,7 @@ const Alerts = () => {
       </Card>
 
       <Card className="w-[49.3%] flex gap-4 p-4">
-        <div className="bg-blue-600 w-[40px] h-[40px] flex justify-center items-center rounded-full">
+        <div className="bg-red-600 w-[40px] h-[36px] flex justify-center items-center rounded-full">
           <CircleAlert color="white" />
         </div>
         <div className="flex flex-col gap-2 w-full">

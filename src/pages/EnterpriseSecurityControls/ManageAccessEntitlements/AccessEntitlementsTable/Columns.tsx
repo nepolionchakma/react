@@ -1,6 +1,13 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import { IManageAccessEntitlementsTypes } from "@/types/interfaces/ManageAccessEntitlements.interface";
 import { ColumnDef } from "@tanstack/react-table";
+
+const convertDate = (isoDateString: Date) => {
+  const date = new Date(isoDateString);
+  const formattedDate = date.toLocaleString();
+  return formattedDate;
+};
+
 const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
   {
     id: "select",
@@ -15,7 +22,7 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "entitlement_id",
+    accessorKey: "def_entitlement_id",
     header: ({ column }) => {
       return (
         <div
@@ -26,10 +33,10 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
         </div>
       );
     },
-    // header: "Datasource Name",
+
     cell: ({ row }) => (
       <div className="capitalize min-w-max">
-        {row.getValue("entitlement_id")}
+        {row.getValue("def_entitlement_id")}
       </div>
     ),
   },
@@ -116,7 +123,7 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
       );
     },
     cell: ({ row }) => {
-      const sliceDate = String(row.getValue("effective_date")).slice(0, 10);
+      const sliceDate = convertDate(row.getValue("effective_date"));
       return <div className="capitalize min-w-max">{sliceDate}</div>;
     },
   },
@@ -149,7 +156,7 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
       );
     },
     cell: ({ row }) => {
-      const sliceDate = String(row.getValue("revision_date")).slice(0, 10);
+      const sliceDate = convertDate(row.getValue("revision_date"));
       return <div className="capitalize min-w-max">{sliceDate}</div>;
     },
   },
@@ -166,7 +173,7 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
       );
     },
     cell: ({ row }) => {
-      const sliceDate = String(row.getValue("created_on")).slice(0, 10);
+      const sliceDate = convertDate(row.getValue("created_on"));
       return <div className="capitalize min-w-max">{sliceDate}</div>;
     },
   },
@@ -199,7 +206,7 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
       );
     },
     cell: ({ row }) => {
-      const sliceDate = String(row.getValue("last_updated_on")).slice(0, 10);
+      const sliceDate = convertDate(row.getValue("last_updated_on"));
       return <div className="capitalize min-w-max">{sliceDate}</div>;
     },
   },
