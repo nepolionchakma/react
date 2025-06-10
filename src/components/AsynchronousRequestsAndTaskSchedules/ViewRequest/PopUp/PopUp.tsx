@@ -14,6 +14,7 @@ const PopUp = ({ action, data, setData }: IResultsProps) => {
           <X onClick={() => setData("")} className="cursor-pointer" />
         </div>
         <div className="p-2 flex flex-col ">
+          {/* {JSON.stringify(data)} */}
           {Object.entries(data).map(([key, value]) => (
             <div key={key}>
               {action === "Parameters" ? (

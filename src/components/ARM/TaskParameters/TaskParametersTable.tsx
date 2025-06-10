@@ -16,18 +16,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, FileEdit, PlusIcon, Trash } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { ChevronDown, FileEdit, PlusIcon } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -52,6 +42,8 @@ import { IARMTaskParametersTypes } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import TaskParametersModal from "../TaskParametersModal/TaskParametersModal";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/components/ui/use-toast";
+import Alert from "@/components/Alert/Alert";
 
 export function TaskParametersTable() {
   const {
@@ -175,9 +167,9 @@ export function TaskParametersTable() {
 
   const handleCloseModal = () => {
     setIsOpenModal(""); // close modal
-    setSelectedTaskParameters([]);
+    // setSelectedTaskParameters([]);
     //table toggle false
-    table.toggleAllRowsSelected(false);
+    // table.toggleAllRowsSelected(false);
   };
 
   const handleDeleteParameters = async (
@@ -199,6 +191,18 @@ export function TaskParametersTable() {
   //   table.toggleAllRowsSelected(false);
   //   setSelectedTaskParameters([]);
   // }, [page, selectedTask?.def_task_id]);
+
+  const handleRow = (value: number) => {
+    if (value < 1 || value > 20) {
+      toast({
+        title: "The value must be between 1 to 20",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      setLimit(value);
+    }
+  };
 
   return (
     <div className="px-3">
@@ -227,7 +231,7 @@ export function TaskParametersTable() {
         <div className="flex gap-3">
           <div className="flex gap-3 items-center px-4 py-2 border rounded">
             <div className="flex gap-3">
-              <button>
+              <button disabled={!selectedTask?.def_task_id}>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -250,7 +254,8 @@ export function TaskParametersTable() {
               <button
                 disabled={
                   selectedTaskParameters.length > 1 ||
-                  selectedTaskParameters.length === 0
+                  selectedTaskParameters.length === 0 ||
+                  !selectedTask?.def_task_id
                 }
               >
                 <TooltipProvider>
@@ -272,9 +277,35 @@ export function TaskParametersTable() {
                   </Tooltip>
                 </TooltipProvider>
               </button>
-
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
+              <Alert
+                disabled={
+                  selectedTaskParameters.length === 0 ||
+                  !selectedTask?.def_task_id
+                } // disable condition
+                tooltipTitle="Delete Parameter" // tooltip title
+                actionName="Delete" // Cancel/Reschedule
+                onContinue={() =>
+                  handleDeleteParameters(
+                    selectedTaskParameters[0].task_name,
+                    selectedTaskParameters[0].def_param_id
+                  )
+                } // funtion
+              >
+                <>Parameter Name :</>
+                {selectedTaskParameters.map((item, i) => (
+                  <span key={item.def_param_id}>
+                    {i + 1}.{item.parameter_name}
+                  </span>
+                ))}
+              </Alert>
+              {/* <AlertDialog>
+                <AlertDialogTrigger
+                  asChild
+                  disabled={
+                    selectedTaskParameters.length === 0 ||
+                    !selectedTask?.def_task_id
+                  }
+                >
                   <button>
                     <TooltipProvider>
                       <Tooltip>
@@ -318,12 +349,12 @@ export function TaskParametersTable() {
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
-              </AlertDialog>
+              </AlertDialog> */}
             </div>
           </div>
         </div>
         <Input
-          placeholder="Filter Parameter Name"
+          placeholder="Search by Parameter Name.."
           value={
             (table.getColumn("parameter_name")?.getFilterValue() as string) ??
             ""
@@ -353,8 +384,8 @@ export function TaskParametersTable() {
             placeholder="Rows"
             value={limit}
             min={1}
-            // max={20}
-            onChange={(e) => setLimit(Number(e.target.value))}
+            max={20}
+            onChange={(e) => handleRow(Number(e.target.value))}
             className="w-14 border rounded p-2"
           />
         </div>
@@ -464,10 +495,17 @@ export function TaskParametersTable() {
                         {index === 0 ? (
                           <Checkbox
                             className=""
-                            checked={row.getIsSelected()}
-                            onCheckedChange={(value) =>
-                              row.toggleSelected(!!value)
-                            }
+                            checked={selectedTaskParameters.includes(
+                              row.original
+                            )}
+                            // checked={selectedTaskParameters.some(
+                            //   (taskParameter) =>
+                            //     taskParameter.def_param_id ===
+                            //     row.original.def_param_id
+                            // )}
+                            // onCheckedChange={(value) =>
+                            //   row.toggleSelected(!!value)
+                            // }
                             onClick={() => handleRowSelection(row.original)}
                           />
                         ) : (
