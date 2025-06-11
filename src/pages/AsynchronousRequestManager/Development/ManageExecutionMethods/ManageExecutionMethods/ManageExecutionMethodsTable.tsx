@@ -141,12 +141,8 @@ export function ManageExecutionMethodsTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
-    },
-    initialState: {
-      columnVisibility: {
-        id: false,
-      },
       pagination: {
+        pageIndex: 0,
         pageSize: limit,
       },
     },
@@ -188,14 +184,15 @@ export function ManageExecutionMethodsTable() {
   }, [table]);
 
   const handleRow = (value: number) => {
-    if (value < 1 || value > 20) {
+    if (value < 1) {
       toast({
-        title: "The value must be between 1 to 20",
+        title: "The value must getter than 0",
         variant: "destructive",
       });
       return;
     } else {
       setLimit(value);
+      setPage(1);
     }
   };
 
@@ -259,7 +256,7 @@ export function ManageExecutionMethodsTable() {
             <Alert
               disabled={selected.length === 0}
               tooltipTitle="Delete Execution Method"
-              actionName="Delete"
+              actionName="delete"
               onContinue={() => handleDelete(selected)}
             >
               <span className="font-semibold block text-black">
@@ -272,52 +269,6 @@ export function ManageExecutionMethodsTable() {
                 </span>
               ))}
             </Alert>
-            {/* <AlertDialog>
-              <AlertDialogTrigger asChild disabled={selected.length === 0}>
-                <button>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Trash
-                          className={`${
-                            selected.length === 0
-                              ? "text-slate-200 cursor-not-allowed"
-                              : "cursor-pointer"
-                          }`}
-                        />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Delete Execution Method</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    form the server.
-                    <span className="font-semibold block text-black">
-                      Selected Execution Method Name
-                      {selected.length > 1 ? "'s are" : " is"} :{" "}
-                    </span>
-                    {selected.map((row, i) => (
-                      <span key={i} className="flex flex-col text-black">
-                        {i + 1}. {row.execution_method}
-                      </span>
-                    ))}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => handleDelete(selected)}>
-                    Continue
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog> */}
           </div>
         </div>
         <Input
@@ -333,7 +284,7 @@ export function ManageExecutionMethodsTable() {
             placeholder="Rows"
             value={limit}
             min={1}
-            max={20}
+            // max={20}
             onChange={(e) => handleRow(Number(e.target.value))}
             className="w-14 border rounded p-2"
           />
@@ -379,7 +330,9 @@ export function ManageExecutionMethodsTable() {
                     return (
                       <TableHead
                         key={header.id}
-                        className="border border-slate-400 bg-slate-200 p-1 h-9"
+                        className={`border border-slate-400 bg-slate-200 p-1 h-9 ${
+                          header.id === "select" ? "w-6" : ""
+                        }`}
                       >
                         {header.isPlaceholder
                           ? null

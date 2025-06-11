@@ -154,6 +154,11 @@ export function UserProfileTable({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    initialState: {
+      pagination: {
+        pageSize: 20,
+      },
+    },
     state: {
       sorting,
       columnFilters,
@@ -244,7 +249,7 @@ export function UserProfileTable({
                   selectedUser.user_id === 0 || selectedProfile.length === 0
                 } // disable condition
                 tooltipTitle="Delete Profile" // tooltip title
-                actionName="Delete" // Cancel/Reschedule
+                actionName="delete" // Cancel/Reschedule
                 onContinue={handleDelete} // funtion
               >
                 {selectedProfile.map((item, index) => (

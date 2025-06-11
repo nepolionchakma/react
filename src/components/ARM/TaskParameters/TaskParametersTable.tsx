@@ -130,7 +130,6 @@ export function TaskParametersTable() {
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -142,6 +141,10 @@ export function TaskParametersTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
+      pagination: {
+        pageIndex: 0,
+        pageSize: limit,
+      },
     },
   });
   // default hidden columns
@@ -193,14 +196,15 @@ export function TaskParametersTable() {
   // }, [page, selectedTask?.def_task_id]);
 
   const handleRow = (value: number) => {
-    if (value < 1 || value > 20) {
+    if (value < 1) {
       toast({
-        title: "The value must be between 1 to 20",
+        title: "The value must getter than 0",
         variant: "destructive",
       });
       return;
     } else {
       setLimit(value);
+      setPage(1);
     }
   };
 
@@ -283,7 +287,7 @@ export function TaskParametersTable() {
                   !selectedTask?.def_task_id
                 } // disable condition
                 tooltipTitle="Delete Parameter" // tooltip title
-                actionName="Delete" // Cancel/Reschedule
+                actionName="delete" // Cancel/Reschedule
                 onContinue={() =>
                   handleDeleteParameters(
                     selectedTaskParameters[0].task_name,
@@ -298,58 +302,6 @@ export function TaskParametersTable() {
                   </span>
                 ))}
               </Alert>
-              {/* <AlertDialog>
-                <AlertDialogTrigger
-                  asChild
-                  disabled={
-                    selectedTaskParameters.length === 0 ||
-                    !selectedTask?.def_task_id
-                  }
-                >
-                  <button>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Trash
-                            className={`${
-                              selectedTaskParameters.length === 0
-                                ? "text-slate-200 cursor-not-allowed"
-                                : "cursor-pointer"
-                            }`}
-                          />
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>Delete Parameter</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Are you absolutely sure?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      from the server.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={() =>
-                        handleDeleteParameters(
-                          selectedTaskParameters[0].task_name,
-                          selectedTaskParameters[0].def_param_id
-                        )
-                      }
-                    >
-                      Continue
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog> */}
             </div>
           </div>
         </div>
@@ -384,7 +336,7 @@ export function TaskParametersTable() {
             placeholder="Rows"
             value={limit}
             min={1}
-            max={20}
+            // max={20}
             onChange={(e) => handleRow(Number(e.target.value))}
             className="w-14 border rounded p-2"
           />
