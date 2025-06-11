@@ -262,7 +262,6 @@ const DND: FC = () => {
       )
   );
 
-  console.log(isActionLoading, "loading");
   const handleSave = async () => {
     const upsertLogics = items.map((item) => ({
       def_global_condition_logic_id: item.def_global_condition_logic_id,

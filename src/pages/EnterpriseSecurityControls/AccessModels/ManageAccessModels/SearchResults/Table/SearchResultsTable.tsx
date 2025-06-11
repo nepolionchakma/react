@@ -187,6 +187,8 @@ const SearchResultsTable = () => {
       }
     });
   };
+
+  console.log(willBeDelete, "ddelete");
   const handleDeleteCalculate = async () => {
     const results: IManageAccessModelLogicExtendTypes[] = [];
 

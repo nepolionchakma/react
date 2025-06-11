@@ -30,6 +30,7 @@ import {
 import {
   ArrowUpDown,
   ChevronDown,
+  Dot,
   // Dot,
   FileEdit,
   Plus,
@@ -281,11 +282,15 @@ const ManageGlobalConditionsTable = () => {
   const handleDeleteCalculate = async () => {
     const results: IManageGlobalConditionLogicExtendTypes[] = [];
     try {
-      const deletePromises = selectedManageGlobalConditionItem.map((item) => {
-        if (item.def_global_condition_id) {
-          manageGlobalConditionDeleteCalculate(item.def_global_condition_id);
+      const deletePromises = selectedManageGlobalConditionItem.map(
+        async (item) => {
+          if (item.def_global_condition_id) {
+            return await manageGlobalConditionDeleteCalculate(
+              item.def_global_condition_id
+            );
+          }
         }
-      });
+      );
 
       const responses = await Promise.all(deletePromises);
       responses.forEach((res) => {
@@ -295,7 +300,8 @@ const ManageGlobalConditionsTable = () => {
           results.push(res);
         }
       });
-      setWillBeDelete((prev) => [...prev, ...results]);
+      // setWillBeDelete((prev) => [...prev, ...results]);
+      setWillBeDelete(results);
     } catch (error) {
       console.log("Error Deleting Global model items", error);
     }
@@ -379,16 +385,23 @@ const ManageGlobalConditionsTable = () => {
                 tooltipTitle="Delete Global Condition"
               >
                 <span>
-                  <br />
                   {selectedManageGlobalConditionItem.map((item) => (
                     <span
                       key={item.def_global_condition_id}
                       className=" flex items-center text-red-500"
                     >
                       <span>NAME : {item.name}</span>
-                      {/* <Dot size={30} /> {item.object} {item.attribute}
+                    </span>
+                  ))}
+                  <br />
+                  {willBeDelete.map((item) => (
+                    <span
+                      key={item.id}
+                      className=" flex items-center text-red-500"
+                    >
+                      <Dot size={30} /> {item.object} {item.attribute}
                       {item.value}
-                      {item.condition} */}
+                      {item.condition}
                     </span>
                   ))}
                 </span>
