@@ -141,13 +141,9 @@ export function ManageExecutionMethodsTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
-    },
-    initialState: {
-      columnVisibility: {
-        id: false,
-      },
       pagination: {
-        pageSize: 20,
+        pageIndex: 0,
+        pageSize: limit,
       },
     },
   });
@@ -188,14 +184,15 @@ export function ManageExecutionMethodsTable() {
   }, [table]);
 
   const handleRow = (value: number) => {
-    if (value < 1 || value > 20) {
+    if (value < 1) {
       toast({
-        title: "The value must be between 1 to 20",
+        title: "The value must getter than 0",
         variant: "destructive",
       });
       return;
     } else {
       setLimit(value);
+      setPage(1);
     }
   };
 
@@ -287,7 +284,7 @@ export function ManageExecutionMethodsTable() {
             placeholder="Rows"
             value={limit}
             min={1}
-            max={20}
+            // max={20}
             onChange={(e) => handleRow(Number(e.target.value))}
             className="w-14 border rounded p-2"
           />

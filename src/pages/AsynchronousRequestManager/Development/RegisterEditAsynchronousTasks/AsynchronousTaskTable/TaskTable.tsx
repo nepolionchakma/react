@@ -141,14 +141,6 @@ export function TaskTable() {
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    initialState: {
-      pagination: {
-        pageSize: 20,
-      },
-      columnVisibility: {
-        id: false,
-      },
-    },
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
     state: {
@@ -156,6 +148,10 @@ export function TaskTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
+      pagination: {
+        pageIndex: 0,
+        pageSize: limit,
+      },
     },
   });
 
@@ -201,14 +197,15 @@ export function TaskTable() {
   };
 
   const handleRow = (value: number) => {
-    if (value < 1 || value > 20) {
+    if (value < 1) {
       toast({
-        title: "The value must be between 1 to 20",
+        title: "The value must getter than 0",
         variant: "destructive",
       });
       return;
     } else {
       setLimit(value);
+      setPage(1);
     }
   };
 
@@ -298,7 +295,7 @@ export function TaskTable() {
             placeholder="Rows"
             value={limit}
             min={1}
-            max={20}
+            // max={20}
             onChange={(e) => handleRow(Number(e.target.value))}
             className="w-14 border rounded p-2"
           />

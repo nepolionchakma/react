@@ -99,16 +99,15 @@ export function TaskNameTable() {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    initialState: {
-      pagination: {
-        pageSize: 10,
-      },
-    },
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
+      pagination: {
+        pageIndex: 0,
+        pageSize: limit,
+      },
     },
   });
 
@@ -172,14 +171,15 @@ export function TaskNameTable() {
   };
 
   const handleRow = (value: number) => {
-    if (value < 1 || value > 10) {
+    if (value < 1) {
       toast({
-        title: "The value must be between 1 to 10",
+        title: "The value must getter than 0",
         variant: "destructive",
       });
       return;
     } else {
       setLimit(value);
+      setPage(1);
     }
   };
   return (
@@ -199,7 +199,7 @@ export function TaskNameTable() {
             placeholder="Rows"
             value={limit}
             min={1}
-            max={20}
+            // max={20}
             onChange={(e) => handleRow(Number(e.target.value))}
             className="w-14 border rounded p-2"
           />

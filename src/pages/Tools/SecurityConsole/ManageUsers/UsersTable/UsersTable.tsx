@@ -174,57 +174,35 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    initialState: {
-      pagination: {
-        pageSize: 10,
-      },
-    },
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
+      pagination: {
+        pageIndex: 0,
+        pageSize: limit,
+      },
     },
   });
 
-  // React.useEffect(() => {
-  //   if (page > 1 || page < totalPage) {
-  //     fetchCombinedUser();
-  //   }
-  // }, [page, totalPage]);
   const handleOpenModal = (modelName: string) => {
     setIsOpenModal(modelName);
   };
   const handleCloseModal = () => {
     setIsOpenModal(""); // close modal
-    // setSelectedUser({
-    //   user_id: 0,
-    //   user_name: "string",
-    //   email_addresses: "",
-    //   profile_picture: {
-    //     original: "",
-    //     thumbnail: "",
-    //   },
-    //   first_name: "",
-    //   middle_name: "",
-    //   last_name: "",
-    //   job_title: "",
-    // });
-    //table toggle false
-    // table.toggleAllRowsSelected(false);
   };
-  // React.useEffect(() => {
-  //   handleCloseModal();
-  // }, [page]);
+
   const handleRow = (value: number) => {
-    if (value < 1 || value > 10) {
+    if (value < 1) {
       toast({
-        title: "The value must be between 1 to 10",
+        title: "The value must getter than 0",
         variant: "destructive",
       });
       return;
     } else {
       setLimit(value);
+      setPage(1);
     }
   };
   return (
@@ -306,7 +284,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
             placeholder="Rows"
             value={limit}
             min={1}
-            max={20}
+            // max={20}
             onChange={(e) => handleRow(Number(e.target.value))}
             className="w-14 border rounded p-2"
           />
