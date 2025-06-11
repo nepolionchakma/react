@@ -27,7 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Check, RotateCcw, Trash, Trash2, View, X } from "lucide-react";
+import { Check, RotateCcw, Trash2, View, X } from "lucide-react";
 import TableRowCounter from "@/components/TableCounter/TableRowCounter";
 import Spinner from "@/components/Spinner/Spinner";
 import Pagination5 from "@/components/Pagination/Pagination5";
@@ -35,6 +35,7 @@ import { toast } from "@/components/ui/use-toast";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import { useNavigate } from "react-router-dom";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+import Alert from "@/components/Alert/Alert";
 interface RecycleBinTableProps {
   path: string;
   person: string;
@@ -210,13 +211,13 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
 
   return (
     <>
-      <div className="ml-[11rem] border rounded-md shadow-sm p-4 mb-4">
+      <div className="ml-[11rem] border rounded-md shadow-sm p-4 mb-4 max-h-[80vh] overflow-auto">
         <div className="flex justify-between">
           <h1 className="text-lg font-bold mb-6 ">{path} </h1>
           <div>
             <AlertDialog>
               <AlertDialogTrigger className="bg-white text-white cursor-default">
-                <Trash /> <span>Empty Bin</span>
+                <Trash2 /> <span>Empty Bin</span>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
@@ -248,7 +249,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
         </div>
         <Table>
           <TableHeader>
-            <TableRow className="bg-white hover:bg-white">
+            <TableRow className="bg-slate-200 hover:bg-white">
               <TableHead className="w-[3rem] font-bold">Origin</TableHead>
               <TableHead className="w-[7rem] font-bold">{person}</TableHead>
               <TableHead className="font-bold">Subject</TableHead>
@@ -281,7 +282,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
                         ? "(no user)"
                         : msg.recivers.includes({
                             name: user,
-                            profile_picture: token.profile_picture.thumbnail,
+                            profile_picture: token.profile_picture?.thumbnail,
                           })
                         ? msg.sender.name
                         : msg.recivers[0].name}
@@ -332,33 +333,11 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <span>
-                              <AlertDialog>
-                                <AlertDialogTrigger>
-                                  <Trash2 />
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>
-                                      Are you absolutely sure?
-                                    </AlertDialogTitle>
-                                  </AlertDialogHeader>
-                                  <AlertDialogDescription>
-                                    This action cannot be undone. This message
-                                    will be deleted permanently.
-                                  </AlertDialogDescription>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel className="bg-Red-200 text-white flex justify-center items-center">
-                                      <X />
-                                    </AlertDialogCancel>
-                                    <AlertDialogAction
-                                      className="bg-green-600 text-white flex justify-center items-center"
-                                      onClick={() => handleDelete(msg)}
-                                    >
-                                      <Check />
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
+                              <Alert
+                                disabled={false}
+                                actionName="delete"
+                                onContinue={() => handleDelete(msg)}
+                              />
                             </span>
                           </TooltipTrigger>
                           <TooltipContent>

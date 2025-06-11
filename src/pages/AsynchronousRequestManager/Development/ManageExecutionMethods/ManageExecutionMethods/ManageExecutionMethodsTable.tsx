@@ -10,7 +10,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, FileEdit, PlusIcon, Trash } from "lucide-react";
+import { ChevronDown, FileEdit, PlusIcon } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -34,17 +34,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import columns from "./Columns";
 import Pagination5 from "@/components/Pagination/Pagination5";
@@ -52,6 +41,8 @@ import { IExecutionMethodsTypes } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import ExecutionMethodEdit from "../ExecutionMethodEdit/ExecutionMethodEdit";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
+import { toast } from "@/components/ui/use-toast";
+import Alert from "@/components/Alert/Alert";
 
 export function ManageExecutionMethodsTable() {
   const {
@@ -156,7 +147,7 @@ export function ManageExecutionMethodsTable() {
         id: false,
       },
       pagination: {
-        pageSize: limit,
+        pageSize: 20,
       },
     },
   });
@@ -165,11 +156,11 @@ export function ManageExecutionMethodsTable() {
   };
   const handleCloseModal = () => {
     setIsOpenModal(""); // close modal
-    setSelected([]);
+    // setSelected([]);
     //table toggle false
-    table.toggleAllRowsSelected(false);
+    // table.toggleAllRowsSelected(false);
   };
-
+  // console.log(selected, "selected");
   // default unselect
   const hiddenColumns = [
     "created_by",
@@ -195,6 +186,18 @@ export function ManageExecutionMethodsTable() {
       }
     });
   }, [table]);
+
+  const handleRow = (value: number) => {
+    if (value < 1 || value > 20) {
+      toast({
+        title: "The value must be between 1 to 20",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      setLimit(value);
+    }
+  };
 
   return (
     <div className="px-3">
@@ -253,56 +256,26 @@ export function ManageExecutionMethodsTable() {
                 </Tooltip>
               </TooltipProvider>
             </button>
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <button>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Trash
-                          className={`${
-                            selected.length === 0
-                              ? "text-slate-200 cursor-not-allowed"
-                              : "cursor-pointer"
-                          }`}
-                        />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Delete Execution Method</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    form the server.
-                    <span className="font-semibold block text-black">
-                      Selected Execution Method Name
-                      {selected.length > 1 ? "'s are" : " is"} :{" "}
-                    </span>
-                    {selected.map((row, i) => (
-                      <span key={i} className="flex flex-col text-black">
-                        {i + 1}. {row.execution_method}
-                      </span>
-                    ))}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={() => handleDelete(selected)}>
-                    Continue
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <Alert
+              disabled={selected.length === 0}
+              tooltipTitle="Delete Execution Method"
+              actionName="delete"
+              onContinue={() => handleDelete(selected)}
+            >
+              <span className="font-semibold block text-black">
+                Selected Execution Method Name
+                {selected.length > 1 ? "'s are" : " is"} :{" "}
+              </span>
+              {selected.map((row, i) => (
+                <span key={i} className="flex flex-col text-black">
+                  {i + 1}. {row.execution_method}
+                </span>
+              ))}
+            </Alert>
           </div>
         </div>
         <Input
-          placeholder="Filter by Internal Execution Method"
+          placeholder="Search by Internal Execution Method.."
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
           className="w-[20rem] px-4 py-2"
@@ -314,8 +287,8 @@ export function ManageExecutionMethodsTable() {
             placeholder="Rows"
             value={limit}
             min={1}
-            // max={20}
-            onChange={(e) => setLimit(Number(e.target.value))}
+            max={20}
+            onChange={(e) => handleRow(Number(e.target.value))}
             className="w-14 border rounded p-2"
           />
         </div>
@@ -360,7 +333,9 @@ export function ManageExecutionMethodsTable() {
                     return (
                       <TableHead
                         key={header.id}
-                        className="border border-slate-400 bg-slate-200 p-1 h-9"
+                        className={`border border-slate-400 bg-slate-200 p-1 h-9 ${
+                          header.id === "select" ? "w-6" : ""
+                        }`}
                       >
                         {header.isPlaceholder
                           ? null
@@ -422,10 +397,10 @@ export function ManageExecutionMethodsTable() {
                         {index === 0 ? (
                           <Checkbox
                             className=""
-                            checked={row.getIsSelected()}
-                            onCheckedChange={(value) =>
-                              row.toggleSelected(!!value)
-                            }
+                            checked={selected.includes(row.original)}
+                            // onCheckedChange={(value) =>
+                            //   row.toggleSelected(!!value)
+                            // }
                             onClick={() => handleRowSelection(row.original)}
                           />
                         ) : (

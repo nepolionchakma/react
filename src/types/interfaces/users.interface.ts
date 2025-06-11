@@ -92,6 +92,12 @@ export interface IPersonsTypes {
   job_title: string;
 }
 export interface IUsersInfoTypes extends Users, IPersonsTypes {}
+export interface IGetResponeUsersInfoTypes {
+  items: IUsersInfoTypes[];
+  total: number;
+  page: number;
+  pages: number;
+}
 
 export interface IUserPasswordResetTypes {
   user_id: number;

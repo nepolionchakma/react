@@ -10,7 +10,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, CircleOff, FileEdit, PlusIcon } from "lucide-react";
+import { ChevronDown, FileEdit, PlusIcon } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -34,17 +34,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import columns from "./Columns";
 import Pagination5 from "@/components/Pagination/Pagination5";
@@ -52,6 +42,8 @@ import { IARMAsynchronousTasksTypes } from "@/types/interfaces/ARM.interface";
 import AsynchronousRegisterEditTaskModal from "../AsynchronousRegisterEditTaskModal/AsynchronousRegisterEditTaskModal";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
+import { toast } from "@/components/ui/use-toast";
+import Alert from "@/components/Alert/Alert";
 
 export function TaskTable() {
   const {
@@ -151,7 +143,7 @@ export function TaskTable() {
     getFilteredRowModel: getFilteredRowModel(),
     initialState: {
       pagination: {
-        pageSize: limit,
+        pageSize: 20,
       },
       columnVisibility: {
         id: false,
@@ -192,12 +184,12 @@ export function TaskTable() {
 
   const handleCloseModal = () => {
     setIsOpenModal(""); // close modal
-    setSelected(undefined);
+    // setSelected(undefined);
     //table toggle false
-    table.toggleAllRowsSelected(false);
+    // table.toggleAllRowsSelected(false);
   };
+
   const handleCancel = async (selected: IARMAsynchronousTasksTypes) => {
-    console.log(selected, "selected");
     try {
       await cancelAsyncTasks(selected.task_name);
       // selected.forEach(async (task) => {
@@ -205,6 +197,18 @@ export function TaskTable() {
       // });
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  const handleRow = (value: number) => {
+    if (value < 1 || value > 20) {
+      toast({
+        title: "The value must be between 1 to 20",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      setLimit(value);
     }
   };
 
@@ -268,50 +272,21 @@ export function TaskTable() {
               </Tooltip>
             </TooltipProvider>
           </button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <button disabled={!selected}>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <CircleOff
-                        className={`${
-                          !selected
-                            ? "text-slate-200 cursor-not-allowed"
-                            : "cursor-pointer"
-                        }`}
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Cancel Task</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Cancel Task?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  <>Selected Task:</>
-                  <br />
-                  <br />
-                  <span className="block text-black">
-                    Task name : {selected?.task_name}
-                  </span>
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => handleCancel(selected!)}>
-                  Continue
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+          <Alert
+            disabled={
+              !selected || selected?.cancelled_yn.toLocaleLowerCase() === "y"
+            }
+            tooltipTitle="Cancel Task"
+            actionName="cancel"
+            onContinue={() => handleCancel(selected!)}
+          >
+            <span className="block text-center">
+              Task name - {selected?.task_name}
+            </span>
+          </Alert>
         </div>
         <Input
-          placeholder="Filter User Task Name"
+          placeholder="Search by User Task Name.."
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
           className="w-[20rem] px-4 py-2"
@@ -323,8 +298,8 @@ export function TaskTable() {
             placeholder="Rows"
             value={limit}
             min={1}
-            // max={20}
-            onChange={(e) => setLimit(Number(e.target.value))}
+            max={20}
+            onChange={(e) => handleRow(Number(e.target.value))}
             className="w-14 border rounded p-2"
           />
         </div>
@@ -367,7 +342,9 @@ export function TaskTable() {
                     return (
                       <TableHead
                         key={header.id}
-                        className="border border-slate-400 bg-slate-200 p-1 h-9"
+                        className={`border border-slate-400 bg-slate-200 p-1 h-9 items-center ${
+                          header.id === "select" && "w-6"
+                        }`}
                       >
                         {header.isPlaceholder
                           ? null

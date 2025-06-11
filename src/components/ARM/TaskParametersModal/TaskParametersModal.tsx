@@ -86,21 +86,24 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
     const addTaskParams = async () => {
       try {
         setIsLoading(true);
-        await api.post(
+        const res = await api.post(
           `/arm-tasks/add-task-params/${selectedTask?.task_name}`,
           postData
         );
-        toast({
-          title: "Info !!!",
-          description: `Added successfully.`,
-        });
-        handleCloseModal();
+        console.log(res, "res");
+        if (res.status === 201) {
+          toast({
+            description: `${res.data.message}`,
+          });
+          handleCloseModal();
+        }
       } catch (error) {
-        toast({
-          title: "Info !!!",
-          description: `Error : Failed to create task parameters.`,
-          variant: "destructive",
-        });
+        if (error instanceof AxiosError) {
+          toast({
+            description: `Error : ${error.message}`,
+            variant: "destructive",
+          });
+        }
       } finally {
         setIsLoading(false);
         reset();
@@ -110,21 +113,22 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
     const updateParams = async () => {
       try {
         setIsLoading(true);
-        await api.put(
+        const res = await api.put(
           `/arm-tasks/update-task-params/${selectedTask?.task_name}/${selected.def_param_id}`,
           putData
         );
-
-        toast({
-          title: "Info !!!",
-          description: `Added successfully.`,
-        });
-        handleCloseModal();
+        console.log(res, "res");
+        if (res.status === 200) {
+          toast({
+            description: `${res.data.message}`,
+          });
+          handleCloseModal();
+        }
       } catch (error) {
         if (error instanceof AxiosError) {
           toast({
-            title: "Info !!!",
             description: `Error : ${error.message}`,
+            variant: "destructive",
           });
         }
       } finally {
@@ -219,7 +223,7 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
                 {isLoading ? (
                   <l-tailspin size="15" stroke="3" speed="0.9" color="white" />
                 ) : (
-                  "Submit"
+                  <>{isOpenModal === "add_task_params" ? "Add" : "Update"}</>
                 )}
               </Button>
             </div>

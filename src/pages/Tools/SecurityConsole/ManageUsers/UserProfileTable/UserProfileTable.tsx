@@ -10,20 +10,9 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, FileEdit, PlusIcon, Trash } from "lucide-react";
+import { ChevronDown, FileEdit, PlusIcon } from "lucide-react";
 import { tailspin } from "ldrs";
 tailspin.register();
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -51,6 +40,13 @@ import UpdateProfileIDModal from "@/pages/Profile/UpdateProfileIDModal/UpdatePro
 import { toast } from "@/components/ui/use-toast";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import CreateAccessProfile from "./CreateAccessProfile/CreateAccessProfile";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import Alert from "@/components/Alert/Alert";
 interface Props {
   profileData: IProfilesType[];
   isUpdated: number;
@@ -70,7 +66,11 @@ export function UserProfileTable({
   primaryCheckedItem,
 }: Props) {
   const api = useAxiosPrivate();
-  const { fetchCombinedUser, page, setPage, totalPage } = useGlobalContext();
+  const {
+    // fetchCombinedUser, page,
+    setPage,
+    // totalPage
+  } = useGlobalContext();
   const [openModalName, setOpenModalName] = React.useState("");
   const [isCreateNewProfile, setIsCreateNewProfile] = React.useState(false);
   const [isUpdateProfile, setIsUpdateProfile] = React.useState(false);
@@ -93,14 +93,14 @@ export function UserProfileTable({
       displayOrder.indexOf(b.profile_type)
   );
 
-  React.useEffect(() => {
-    fetchCombinedUser();
-  }, []);
-  React.useEffect(() => {
-    if (page > 1 || page < totalPage) {
-      fetchCombinedUser();
-    }
-  }, [page, totalPage]);
+  // React.useEffect(() => {
+  //   fetchCombinedUser();
+  // }, []);
+  // React.useEffect(() => {
+  //   if (page > 1 || page < totalPage) {
+  //     fetchCombinedUser();
+  //   }
+  // }, [page, totalPage]);
 
   React.useEffect(() => {
     handleCloseModal();
@@ -118,10 +118,10 @@ export function UserProfileTable({
 
   const handleDelete = async () => {
     // deleteCombinedUser(selected);
-    for (const element of selectedProfile) {
+    for (const profile of selectedProfile) {
       try {
         const res = await api.delete(
-          `/access-profiles/${element.user_id}/${element.serial_number}`
+          `/access-profiles/${profile.user_id}/${profile.serial_number}`
         );
         if (res.status === 200) {
           toast({
@@ -154,6 +154,11 @@ export function UserProfileTable({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    initialState: {
+      pagination: {
+        pageSize: 20,
+      },
+    },
     state: {
       sorting,
       columnFilters,
@@ -200,75 +205,59 @@ export function UserProfileTable({
         <div className="flex gap-3">
           <div className="flex gap-3 items-center px-4 py-2 border rounded">
             <div className="flex gap-3">
-              <button disabled={selectedUser.user_id === 0}>
-                <PlusIcon
-                  className={`${
-                    selectedUser.user_id === 0
-                      ? "text-slate-200 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}
-                  onClick={() => handleOpenModal("create_user_profile")}
-                />
-              </button>
-              <button
-                disabled={
-                  selectedProfile.length > 1 || selectedProfile.length === 0
-                }
-              >
-                <FileEdit
-                  className={`${
-                    selectedProfile.length > 1 || selectedProfile.length === 0
-                      ? "text-slate-200 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}
-                  onClick={() => handleOpenModal("edit_user_profile")}
-                />
-              </button>
-
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <button
-                    disabled={
-                      // token.user_type !== "system" ||
-                      selectedProfile.length === 0
-                    }
-                  >
-                    <Trash
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger disabled={selectedUser.user_id === 0}>
+                    <PlusIcon
                       className={`${
-                        // token.user_type !== "system" ||
-                        selectedProfile.length === 0
-                          ? "cursor-not-allowed text-slate-200"
+                        selectedUser.user_id === 0
+                          ? "text-slate-200 cursor-not-allowed"
                           : "cursor-pointer"
                       }`}
+                      onClick={() => handleOpenModal("create_user_profile")}
                     />
-                  </button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Are you absolutely sure?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      {selectedProfile.map((item, index) => (
-                        <span
-                          key={item.serial_number}
-                          className="block text-red-500"
-                        >
-                          {index + 1}. Profile id : {item.profile_id}
-                        </span>
-                      ))}
-                      This action cannot be undone. This will permanently delete
-                      your account and remove your data from our servers.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete}>
-                      Continue
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Create A New Profile</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger
+                    disabled={
+                      selectedProfile.length > 1 || selectedProfile.length === 0
+                    }
+                  >
+                    <FileEdit
+                      className={`${
+                        selectedProfile.length > 1 ||
+                        selectedProfile.length === 0
+                          ? "text-slate-200 cursor-not-allowed"
+                          : "cursor-pointer"
+                      }`}
+                      onClick={() => handleOpenModal("edit_user_profile")}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Update Profile</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <Alert
+                disabled={
+                  selectedUser.user_id === 0 || selectedProfile.length === 0
+                } // disable condition
+                tooltipTitle="Delete Profile" // tooltip title
+                actionName="delete" // Cancel/Reschedule
+                onContinue={handleDelete} // funtion
+              >
+                {selectedProfile.map((item, index) => (
+                  <span key={item.serial_number} className="block text-black">
+                    {index + 1}. {item.profile_type} : {item.profile_id}
+                  </span>
+                ))}
+              </Alert>
             </div>
           </div>
         </div>
@@ -321,7 +310,9 @@ export function UserProfileTable({
                     return (
                       <TableHead
                         key={header.id}
-                        className="border border-slate-400 bg-slate-200 p-1 h-9"
+                        className={`border border-slate-400 bg-slate-200 p-1 h-9 ${
+                          header.id === "select" ? "w-6" : ""
+                        }`}
                       >
                         {header.isPlaceholder
                           ? null
@@ -344,7 +335,7 @@ export function UserProfileTable({
                                 const selectedRows = table
                                   .getSelectedRowModel()
                                   .rows.map((row) => row.original);
-                                console.log(selectedRows);
+                                // console.log(selectedRows);
                                 setSelectedProfile(selectedRows);
                               }, 0);
                             }}
@@ -387,10 +378,10 @@ export function UserProfileTable({
                         {index === 0 ? (
                           <Checkbox
                             className=""
-                            checked={row.getIsSelected()}
-                            onCheckedChange={(value) =>
-                              row.toggleSelected(!!value)
-                            }
+                            checked={selectedProfile.includes(row.original)}
+                            // onCheckedChange={(value) =>
+                            //   row.toggleSelected(!!value)
+                            // }
                             onClick={() => handleRowSelection(row.original)}
                           />
                         ) : (

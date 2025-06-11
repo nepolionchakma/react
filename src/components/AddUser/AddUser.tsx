@@ -26,6 +26,7 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
     isLoading,
     updateUser,
     isOpenModal,
+    setStateChange,
   } = useGlobalContext();
   const [userType, setUserType] = useState<string>("person");
   const [tenants, setTenants] = useState<ITenantsTypes[] | undefined>([]);
@@ -175,6 +176,7 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
     } catch (error) {
       console.log(error);
     } finally {
+      setStateChange(Math.random() + 23 * 3000);
       reset();
       handleCloseModal();
     }

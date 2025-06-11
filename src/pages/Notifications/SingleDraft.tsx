@@ -1,4 +1,4 @@
-import { Send, Delete, ArrowLeft, Trash, Save } from "lucide-react";
+import { Send, Delete, ArrowLeft, Save } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -28,6 +28,7 @@ import Spinner from "@/components/Spinner/Spinner";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+import Alert from "@/components/Alert/Alert";
 // import { v4 as uuidv4 } from "uuid";
 
 interface IOldMsgTypes {
@@ -65,7 +66,7 @@ const SingleDraft = () => {
   const [userChanged, setuserChanged] = useState<boolean>(false);
   const sender = {
     name: token?.user_name,
-    profile_picture: token?.profile_picture.thumbnail,
+    profile_picture: token?.profile_picture?.thumbnail,
   };
   const receiverNames = recivers.map((rcvr) => rcvr.name);
   const totalusers = [...receiverNames, token?.user_name];
@@ -123,7 +124,7 @@ const SingleDraft = () => {
       const newReceivers = actualUsers.map((usr) => {
         return {
           name: usr.user_name,
-          profile_picture: usr.profile_picture.thumbnail,
+          profile_picture: usr.profile_picture?.thumbnail,
         };
       });
       setRecivers(newReceivers);
@@ -305,7 +306,7 @@ const SingleDraft = () => {
                   <TooltipTrigger asChild>
                     <span className="p-1 rounded-md hover:bg-winter-100/50 h-7">
                       <Link to="/notifications/drafts">
-                        <ArrowLeft size={20} />
+                        <ArrowLeft size={20} color="black" />
                       </Link>
                     </span>
                   </TooltipTrigger>
@@ -318,12 +319,17 @@ const SingleDraft = () => {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span>
-                      <button
+                      <Alert
+                        disabled={false}
+                        actionName="move to reyclebin"
+                        onContinue={handleDelete}
+                      />
+                      {/* <button
                         onClick={handleDelete}
                         className="p-1 rounded-md hover:bg-winter-100/50"
                       >
                         <Trash size={20} />
-                      </button>
+                      </button> */}
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
@@ -360,7 +366,7 @@ const SingleDraft = () => {
                         onClick={() =>
                           handleReciever({
                             name: user.user_name,
-                            profile_picture: user.profile_picture.thumbnail,
+                            profile_picture: user.profile_picture?.thumbnail,
                           })
                         }
                         key={user.user_id}
@@ -369,7 +375,7 @@ const SingleDraft = () => {
                         <div className="flex flex-row gap-1 items-center">
                           <Avatar className="h-4 w-4">
                             <AvatarImage
-                              src={`${url}/${user.profile_picture.thumbnail}`}
+                              src={`${url}/${user.profile_picture?.thumbnail}`}
                             />
                             <AvatarFallback>
                               {user.user_name.slice(0, 1)}

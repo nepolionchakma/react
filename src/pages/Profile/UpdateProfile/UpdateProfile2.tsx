@@ -14,8 +14,8 @@ const UpdateProfile: React.FC = () => {
     useGlobalContext();
   const profileLogo = isCombinedUserLoading
     ? DefaultLogo
-    : combinedUser?.profile_picture
-    ? `${url}/${combinedUser.profile_picture.original}`
+    : combinedUser?.profile_picture?.original
+    ? `${url}/${combinedUser?.profile_picture?.original}`
     : `${url}/uploads/profiles/default/loading.gif`;
 
   const [formData, setFormData] = useState({

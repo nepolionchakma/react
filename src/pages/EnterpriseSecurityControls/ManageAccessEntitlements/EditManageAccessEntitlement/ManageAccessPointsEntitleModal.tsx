@@ -50,6 +50,8 @@ const ManageAccessPointsEntitleModal: FC<IManageAccessEntitlementsProps> = ({
       message: "Select a option",
     }),
   });
+
+  console.log(selectedItem);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -100,7 +102,7 @@ const ManageAccessPointsEntitleModal: FC<IManageAccessEntitlementsProps> = ({
     };
     if (mangeAccessEntitlementAction === "edit") {
       updateManageAccessEntitlements(id, putData);
-      setSelected([]);
+      setSelected({} as IManageAccessEntitlementsTypes);
       table
         ?.getRowModel()
         .rows.forEach((row: Row<IManageAccessEntitlementsTypes>) =>

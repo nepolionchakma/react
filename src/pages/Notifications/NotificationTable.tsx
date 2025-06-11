@@ -13,18 +13,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Check, Trash, View, X } from "lucide-react";
+import { View } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { useNavigate } from "react-router-dom";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
@@ -35,6 +24,7 @@ import { useEffect, useState } from "react";
 import { Message } from "@/types/interfaces/users.interface";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+import Alert from "@/components/Alert/Alert";
 
 interface NotificationTableProps {
   path: string;
@@ -127,7 +117,7 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
 
   return (
     <>
-      <div className="ml-[11rem] border rounded-md shadow-sm p-4 mb-4">
+      <div className="ml-[11rem] border rounded-md shadow-sm p-4 mb-4 max-h-[80vh] overflow-auto">
         <div className="flex justify-between">
           <h1 className="text-lg font-bold mb-6 ">{path}</h1>
           <TableRowCounter
@@ -138,7 +128,7 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
         </div>
         <Table>
           <TableHeader>
-            <TableRow className="bg-white hover:bg-white">
+            <TableRow className="bg-slate-200 hover:bg-white">
               <TableHead className="w-[7rem] font-bold">{person}</TableHead>
               <TableHead className="font-bold">Subject</TableHead>
               <TableHead className="w-[7rem] font-bold">Date</TableHead>
@@ -204,33 +194,11 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <span>
-                              <AlertDialog>
-                                <AlertDialogTrigger>
-                                  <Trash />
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>
-                                      Are you sure?
-                                    </AlertDialogTitle>
-                                  </AlertDialogHeader>
-                                  <AlertDialogDescription>
-                                    This message will be moved to the Recycle
-                                    Bin.
-                                  </AlertDialogDescription>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel className="bg-Red-200 text-white flex justify-center items-center">
-                                      <X />
-                                    </AlertDialogCancel>
-                                    <AlertDialogAction
-                                      className="bg-green-600 text-white flex justify-center items-center"
-                                      onClick={() => handleDelete(msg.id)}
-                                    >
-                                      <Check />
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
+                              <Alert
+                                disabled={false}
+                                actionName="move to reyclebin"
+                                onContinue={() => handleDelete(msg.id)}
+                              />
                             </span>
                           </TooltipTrigger>
                           <TooltipContent>
