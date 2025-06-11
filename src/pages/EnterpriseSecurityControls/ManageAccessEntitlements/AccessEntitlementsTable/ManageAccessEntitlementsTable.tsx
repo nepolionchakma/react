@@ -241,9 +241,9 @@ const ManageAccessEntitlementsTable = () => {
   };
 
   const handleRow = (value: number) => {
-    if (value < 1 || value > 10) {
+    if (value < 1) {
       toast({
-        title: "The value must be between 1 to 10",
+        title: "The value must be greater than 0",
         variant: "destructive",
       });
       return;
