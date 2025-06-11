@@ -132,7 +132,6 @@ const SearchResultsTable = () => {
       clearTimeout(handleDebounce);
     };
   }, [query]);
-
   React.useEffect(() => {
     if (selectedAccessModelItem.length !== data.length) {
       setIsSelectAll(false);
@@ -455,19 +454,6 @@ const SearchResultsTable = () => {
                       {header.id === "select" && (
                         <Checkbox
                           checked={isSelectAll}
-                          // onCheckedChange={(value) => {
-                          //   // Toggle all page rows selected
-                          //   table.toggleAllPageRowsSelected(!!value);
-
-                          //   // Use a timeout to log the selected data
-                          //   setTimeout(() => {
-                          //     const selectedRows = table
-                          //       .getSelectedRowModel()
-                          //       .rows.map((row) => row.original);
-                          //     // console.log(selectedRows);
-                          //     setSelectedAccessModelItem(selectedRows);
-                          //   }, 0);
-                          // }}
                           onClick={handleSelectAll}
                           aria-label="Select all"
                         />

@@ -79,7 +79,7 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
     },
     cell: ({ row }) => {
       const data: string = row.getValue("last_run_date");
-      const date = new Date(data).toLocaleDateString();
+      const date = new Date(data).toLocaleString();
       return <div className="capitalize px-1">{date}</div>;
     },
   },
@@ -154,8 +154,7 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
     },
     cell: ({ row }) => {
       const data: string = row.getValue("revision_date");
-      console.log(data);
-      const date = new Date(data).toLocaleDateString();
+      const date = new Date(data).toLocaleString();
       return <div className="capitalize px-1">{date}</div>;
     },
   },
