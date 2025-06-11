@@ -231,93 +231,92 @@ export function TaskParametersTable() {
         )
       )}
       {/* top icon and columns*/}
-      <div className="flex gap-3 items-center py-2">
-        <div className="flex gap-3">
-          <div className="flex gap-3 items-center px-4 py-2 border rounded">
-            <div className="flex gap-3">
-              <button disabled={!selectedTask?.def_task_id}>
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <PlusIcon
-                        className={`${
-                          !selectedTask?.def_task_id
-                            ? "text-slate-200 cursor-not-allowed"
-                            : "cursor-pointer"
-                        }`}
-                        onClick={() => handleOpenModal("add_task_params")}
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Add parameter</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </button>
+      <div className="flex items-center justify-between py-2">
+        <div className="flex items-center gap-2">
+          <div className="flex gap-2 items-center border p-2 rounded-md">
+            <button disabled={!selectedTask?.def_task_id}>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <PlusIcon
+                      className={`${
+                        !selectedTask?.def_task_id
+                          ? "text-slate-200 cursor-not-allowed"
+                          : "cursor-pointer"
+                      }`}
+                      onClick={() => handleOpenModal("add_task_params")}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Add parameter</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </button>
 
-              <button
-                disabled={
-                  selectedTaskParameters.length > 1 ||
-                  selectedTaskParameters.length === 0 ||
-                  !selectedTask?.def_task_id
-                }
-              >
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <FileEdit
-                        className={`${
-                          selectedTaskParameters.length > 1 ||
-                          selectedTaskParameters.length === 0
-                            ? "text-slate-200 cursor-not-allowed"
-                            : "cursor-pointer"
-                        }`}
-                        onClick={() => handleOpenModal("update_task_params")}
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Edit Parameter</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              </button>
-              <Alert
-                disabled={
-                  selectedTaskParameters.length === 0 ||
-                  !selectedTask?.def_task_id
-                } // disable condition
-                tooltipTitle="Delete Parameter" // tooltip title
-                actionName="delete" // Cancel/Reschedule
-                onContinue={() =>
-                  handleDeleteParameters(
-                    selectedTaskParameters[0].task_name,
-                    selectedTaskParameters[0].def_param_id
-                  )
-                } // funtion
-              >
-                <>Parameter Name :</>
-                {selectedTaskParameters.map((item, i) => (
-                  <span key={item.def_param_id}>
-                    {i + 1}.{item.parameter_name}
-                  </span>
-                ))}
-              </Alert>
-            </div>
+            <button
+              disabled={
+                selectedTaskParameters.length > 1 ||
+                selectedTaskParameters.length === 0 ||
+                !selectedTask?.def_task_id
+              }
+            >
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <FileEdit
+                      className={`${
+                        selectedTaskParameters.length > 1 ||
+                        selectedTaskParameters.length === 0
+                          ? "text-slate-200 cursor-not-allowed"
+                          : "cursor-pointer"
+                      }`}
+                      onClick={() => handleOpenModal("update_task_params")}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Edit Parameter</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </button>
+            <Alert
+              disabled={
+                selectedTaskParameters.length === 0 ||
+                !selectedTask?.def_task_id
+              } // disable condition
+              tooltipTitle="Delete Parameter" // tooltip title
+              actionName="delete" // Cancel/Reschedule
+              onContinue={() =>
+                handleDeleteParameters(
+                  selectedTaskParameters[0].task_name,
+                  selectedTaskParameters[0].def_param_id
+                )
+              } // funtion
+            >
+              <>Parameter Name :</>
+              {selectedTaskParameters.map((item, i) => (
+                <span key={item.def_param_id}>
+                  {i + 1}.{item.parameter_name}
+                </span>
+              ))}
+            </Alert>
+            {/* </div> */}
           </div>
+          <Input
+            placeholder="Search by Parameter Name.."
+            value={
+              (table.getColumn("parameter_name")?.getFilterValue() as string) ??
+              ""
+            }
+            onChange={(event) =>
+              table
+                .getColumn("parameter_name")
+                ?.setFilterValue(event.target.value)
+            }
+            className="w-[20rem] px-4 py-2"
+          />
         </div>
-        <Input
-          placeholder="Search by Parameter Name.."
-          value={
-            (table.getColumn("parameter_name")?.getFilterValue() as string) ??
-            ""
-          }
-          onChange={(event) =>
-            table
-              .getColumn("parameter_name")
-              ?.setFilterValue(event.target.value)
-          }
-          className="w-[20rem] px-4 py-2"
-        />
 
         <div className="mx-auto">
           {selectedTask?.def_task_id && (
@@ -329,45 +328,51 @@ export function TaskParametersTable() {
             </h3>
           )}
         </div>
-        <div className="flex gap-2 items-center ml-auto">
-          <h3>Rows :</h3>
-          <input
-            type="number"
-            placeholder="Rows"
-            value={limit}
-            min={1}
-            // max={20}
-            onChange={(e) => handleRow(Number(e.target.value))}
-            className="w-14 border rounded p-2"
-          />
+
+        <div className="flex items-center gap-2">
+          <div className="flex gap-2 items-center ml-auto">
+            <h3>Rows :</h3>
+            <input
+              type="number"
+              placeholder="Rows"
+              value={limit}
+              min={1}
+              // max={20}
+              onChange={(e) => handleRow(Number(e.target.value))}
+              className="w-14 border rounded p-2"
+            />
+          </div>
+          {/* Columns */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="max-h-72 overflow-y-auto"
+            >
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        {/* Columns */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="max-h-72 overflow-y-auto">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
       {/* Table */}
       <div className="rounded-md border">
