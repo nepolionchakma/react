@@ -498,7 +498,6 @@ const ManageGlobalConditionsTable = () => {
             placeholder="Rows"
             value={limit}
             min={1}
-            max={20}
             onChange={(e) => handleRow(Number(e.target.value))}
             className="w-14 border rounded-md p-2"
           />

@@ -204,8 +204,7 @@ export function ViewRequestTable() {
             type="number"
             placeholder="Rows"
             value={limit}
-            min={8}
-            max={20}
+            min={1}
             onChange={(e) => handleRow(Number(e.target.value))}
             className="w-14 border rounded p-2"
           />

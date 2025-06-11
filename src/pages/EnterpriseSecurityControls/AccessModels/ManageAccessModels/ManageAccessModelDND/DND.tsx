@@ -102,7 +102,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
 
   //changed Access GlobalCondition Value
   const changedAccessModel = form.watch();
-  const isChangedAccessGlobalCondition = form.formState.isDirty;
+  const isChangedAccessAccessModel = form.formState.isDirty;
 
   //Top Form END
   ring.register(); // Default values shown
@@ -291,7 +291,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
 
     try {
       setIsActionLoading(true);
-      if (isChangedAccessGlobalCondition) {
+      if (isChangedAccessAccessModel) {
         api
           .put(
             `/def-access-models/${selectedItem[0].def_access_model_id}`,
@@ -373,13 +373,13 @@ const DND: FC<IManageAccessModelDNDProps> = ({
           ) : (
             <Save
               onClick={
-                items.length > 0 || isChangedAccessGlobalCondition
+                items.length > 0 || isChangedAccessAccessModel
                   ? handleSave
                   : undefined
               }
               size={30}
               className={`rounded p-1 duration-300 z-50 ${
-                items.length > 0 || isChangedAccessGlobalCondition
+                items.length > 0 || isChangedAccessAccessModel
                   ? "bg-slate-300 hover:text-white hover:bg-slate-500 hover:scale-110 cursor-pointer"
                   : "opacity-40 cursor-not-allowed"
               }`}

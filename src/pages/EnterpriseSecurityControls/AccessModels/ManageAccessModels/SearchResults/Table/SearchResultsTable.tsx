@@ -369,7 +369,6 @@ const SearchResultsTable = () => {
               placeholder="Rows"
               value={limit}
               min={1}
-              max={20}
               onChange={(e) => handleRow(Number(e.target.value))}
               className="w-14 h-8 border rounded-lg p-2"
             />

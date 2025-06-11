@@ -1,8 +1,10 @@
 import {
   closestCenter,
   DndContext,
+  DragEndEvent,
   DragOverEvent,
   DragOverlay,
+  DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
@@ -27,7 +29,7 @@ const DND: FC = () => {
   const api = useAxiosPrivate();
   const {
     isLoading,
-    setStateChange,
+    // setStateChange,
     isEditModalOpen,
     setIsEditModalOpen,
     selectedManageGlobalConditionItem: selectedItem,
@@ -94,11 +96,7 @@ const DND: FC = () => {
   });
   //changed Access GlobalCondition Value
   const changedAccessGlobalCondition = form.watch();
-  const isChangedAccessGlobalCondition =
-    selectedItem[0].name !== changedAccessGlobalCondition.name ||
-    selectedItem[0].description !== changedAccessGlobalCondition.description ||
-    selectedItem[0].datasource !== changedAccessGlobalCondition.datasource ||
-    selectedItem[0].status !== changedAccessGlobalCondition.status;
+  const isChangedAccessGlobalCondition = form.formState.isDirty;
   //Top Form END
   ring.register(); // Default values shown
 
@@ -147,8 +145,8 @@ const DND: FC = () => {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
-  const handleDragStart = (event: any) => {
-    setActiveId(event.active.id);
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as number);
   };
   const findContainer = (id: string | number | undefined) => {
     if (leftWidgets.some((item) => item.def_global_condition_logic_id === id)) {
@@ -224,7 +222,7 @@ const DND: FC = () => {
     }
   };
 
-  const handleDragEnd = (event: any) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     // console.log(active, over, "handleDragEnd");
     if (over) {
@@ -263,7 +261,8 @@ const DND: FC = () => {
           ori.widget_state === item.widget_state
       )
   );
-  console.log(rightWidgets, "aafdd");
+
+  console.log(isActionLoading, "loading");
   const handleSave = async () => {
     const upsertLogics = items.map((item) => ({
       def_global_condition_logic_id: item.def_global_condition_logic_id,
@@ -279,7 +278,6 @@ const DND: FC = () => {
       widget_position: item.widget_position,
       widget_state: item.widget_state,
     }));
-    console.log(upsertAttributes, upsertLogics);
 
     try {
       setIsActionLoading(true);
@@ -326,20 +324,15 @@ const DND: FC = () => {
             title: "Info !!!",
             description: "Save data successfully.",
           });
-          form.reset({
-            name: selectedItem[0].name ?? "",
-            description: selectedItem[0].description ?? "",
-            datasource: selectedItem[0].datasource ?? "",
-            status: selectedItem[0].status ?? "",
-          });
 
           setOriginalData([...rightWidgets]);
+          setIsActionLoading(false);
         }
       }
     } catch (error) {
       console.error("Error saving data:", error);
     } finally {
-      setIsActionLoading(false);
+      form.reset(form.getValues());
     }
   };
   return (
@@ -378,7 +371,7 @@ const DND: FC = () => {
             onClick={() => {
               setIsEditModalOpen(!isEditModalOpen);
               // Change the state
-              setStateChange((prev) => prev + 1);
+              // setStateChange((prev) => prev + 1);
             }}
             className="cursor-pointer hover:text-white bg-slate-300 hover:bg-slate-500  rounded p-1 hover:scale-110 duration-300 z-50"
           />

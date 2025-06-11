@@ -12,7 +12,6 @@ interface IDraggableListProps {
   items: IManageGlobalConditionLogicExtendTypes[];
 }
 const DraggableList: FC<IDraggableListProps> = ({ id, items }) => {
-  console.log(items, "Drag list");
   return (
     <SortableContext
       id={id}
