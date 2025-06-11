@@ -40,7 +40,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     manageAccessModelAttrMaxId,
     isActionLoading,
     setIsActionLoading,
-    setStateChange,
+    // setStateChange,
   } = useAACContext();
 
   const [rightWidgets, setRightWidgets] = useState<Extend[]>([]);
@@ -391,7 +391,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
             onClick={() => {
               setOpenEditModal(!isOpenEditModal);
               // Change the state
-              setStateChange((prev) => prev + 1);
+              // setStateChange((prev) => prev + 1);
             }}
             className="cursor-pointer hover:text-white bg-slate-300 hover:bg-slate-500  rounded p-1 hover:scale-110 duration-300 z-50"
           />

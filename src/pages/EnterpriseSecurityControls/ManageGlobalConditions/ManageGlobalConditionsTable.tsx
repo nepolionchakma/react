@@ -3,17 +3,17 @@ import { tailspin } from "ldrs";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+// import {
+//   AlertDialog,
+//   AlertDialogAction,
+//   AlertDialogCancel,
+//   AlertDialogContent,
+//   AlertDialogDescription,
+//   AlertDialogFooter,
+//   AlertDialogHeader,
+//   AlertDialogTitle,
+//   AlertDialogTrigger,
+// } from "@/components/ui/alert-dialog";
 
 import {
   ColumnDef,
@@ -27,7 +27,14 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, FileEdit, Plus, Trash } from "lucide-react";
+import {
+  ArrowUpDown,
+  ChevronDown,
+  // Dot,
+  FileEdit,
+  Plus,
+  // Trash,
+} from "lucide-react";
 
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -60,6 +67,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/use-toast";
+import Alert from "@/components/Alert/Alert";
 
 const ManageGlobalConditionsTable = () => {
   const {
@@ -98,10 +106,12 @@ const ManageGlobalConditionsTable = () => {
   >([]);
 
   useEffect(() => {
-    if (selectedManageGlobalConditionItem.length !== data.length) {
-      setIsSelectAll(false);
-    } else {
-      setIsSelectAll(true);
+    if (data.length > 0) {
+      if (selectedManageGlobalConditionItem.length !== data.length) {
+        setIsSelectAll(false);
+      } else {
+        setIsSelectAll(true);
+      }
     }
   }, [selectedManageGlobalConditionItem.length, data.length]);
 
@@ -361,7 +371,34 @@ const ManageGlobalConditionsTable = () => {
                   <p>Edit Global Condition</p>
                 </TooltipContent>
               </Tooltip>
-              <AlertDialog>
+              <Alert
+                actionName="delete"
+                disabled={selectedManageGlobalConditionItem.length === 0}
+                onContinue={handleDelete}
+                onClick={handleDeleteCalculate}
+                tooltipTitle="Delete Global Condition"
+              >
+                <span>
+                  <br />
+                  {selectedManageGlobalConditionItem.map((item) => (
+                    <span
+                      key={item.def_global_condition_id}
+                      className=" flex items-center text-red-500"
+                    >
+                      <span>NAME : {item.name}</span>
+                      {/* <Dot size={30} /> {item.object} {item.attribute}
+                      {item.value}
+                      {item.condition} */}
+                    </span>
+                  ))}
+                </span>
+                <span>
+                  Note: This action cannot be undone. This will permanently
+                  delete your account and remove your data from our servers.
+                </span>
+              </Alert>
+
+              {/* <AlertDialog>
                 <AlertDialogTrigger
                   disabled={selectedManageGlobalConditionItem.length === 0}
                 >
@@ -444,7 +481,7 @@ const ManageGlobalConditionsTable = () => {
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
-              </AlertDialog>
+              </AlertDialog> */}
             </TooltipProvider>
           </div>
         </div>
@@ -463,36 +500,36 @@ const ManageGlobalConditionsTable = () => {
             min={1}
             max={20}
             onChange={(e) => handleRow(Number(e.target.value))}
-            className="w-14 border rounded p-2"
+            className="w-14 border rounded-md p-2"
           />
+          {/* Columns */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        {/* Columns */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
       {/* Table */}
       <div className="rounded-md border">

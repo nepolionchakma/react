@@ -124,10 +124,12 @@ const SearchResultsTable = () => {
     };
   }, [query]);
   React.useEffect(() => {
-    if (selectedAccessModelItem.length !== data.length) {
-      setIsSelectAll(false);
-    } else {
-      setIsSelectAll(true);
+    if (data.length > 0) {
+      if (selectedAccessModelItem.length !== data.length) {
+        setIsSelectAll(false);
+      } else {
+        setIsSelectAll(true);
+      }
     }
   }, [selectedAccessModelItem.length, data.length]);
 
@@ -269,7 +271,7 @@ const SearchResultsTable = () => {
 
       <div className="flex items-center justify-between py-4 ">
         {/* create, edit, delete and search by name  */}
-        <div className="flex items-center">
+        <div className="flex items-center gap-2">
           <div className="flex gap-2 items-center mx-2 border p-1 rounded-md">
             <TooltipProvider>
               <Tooltip>
@@ -307,6 +309,7 @@ const SearchResultsTable = () => {
                 disabled={selectedAccessModelItem.length === 0}
                 onContinue={handleDelete} // Main delete function
                 onClick={handleDeleteCalculate} // Delete calculate function
+                tooltipTitle="Delete Access Model"
               >
                 <>
                   {selectedAccessModelItem.map((modelItem) => (

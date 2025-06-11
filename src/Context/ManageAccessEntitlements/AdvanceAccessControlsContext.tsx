@@ -95,7 +95,13 @@ interface IAACContextTypes {
   setSelectedAccessModelItem: Dispatch<
     SetStateAction<IManageAccessModelsTypes[]>
   >;
-  createDefAccessModel: (postData: IManageAccessModelsTypes) => Promise<void>;
+  createDefAccessModel: (postData: IManageAccessModelsTypes) => Promise<
+    | {
+        data: string;
+        status: number;
+      }
+    | undefined
+  >;
   deleteDefAccessModel: (items: IManageAccessModelsTypes[]) => Promise<void>;
   fetchAccessModelLogics: () => Promise<void>;
   fetchDefAccessModelLogics: (
@@ -523,6 +529,10 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         toast({
           description: `Added successfully.`,
         });
+        return {
+          data: res.data,
+          status: res.status,
+        };
       }
     } catch (error) {
       console.log(error);
