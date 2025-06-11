@@ -10,7 +10,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, Edit, Plus, Trash } from "lucide-react";
+import { ChevronDown, Edit, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -33,17 +33,7 @@ import {
   IManageAccessModelsTypes,
 } from "@/types/interfaces/ManageAccessEntitlements.interface";
 import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+
 import { ring } from "ldrs";
 import AddModel from "../AddModel";
 import EditModel from "../EditModel";
@@ -56,6 +46,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { toast } from "@/components/ui/use-toast";
+import Alert from "@/components/Alert/Alert";
 
 const SearchResultsTable = () => {
   const {
@@ -118,7 +109,7 @@ const SearchResultsTable = () => {
     },
     initialState: {
       pagination: {
-        pageSize: 20,
+        pageSize: limit,
       },
     },
   });
@@ -253,9 +244,9 @@ const SearchResultsTable = () => {
   }, [table]);
 
   const handleRow = (value: number) => {
-    if (value < 1 || value > 20) {
+    if (value < 1) {
       toast({
-        title: "The value must be between 1 to 20",
+        title: "The value must be greater than 0",
         variant: "destructive",
       });
       return;
@@ -276,162 +267,137 @@ const SearchResultsTable = () => {
         />
       )}
 
-      <div className="flex items-center py-4">
-        <div className="flex gap-2 items-center mx-2 border p-1 rounded-md">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Plus
-                  onClick={() => setIsOpenAddModal(true)}
-                  className="hover:scale-110 duration-300 cursor-pointer"
-                />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Create Access Model</p>
-              </TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Edit
-                  onClick={() =>
-                    selectedAccessModelItem.length > 0 &&
-                    setIsOpenEditModal(true)
-                  }
-                  className={`hover:scale-110 duration-300 ${
-                    selectedAccessModelItem.length === 1
-                      ? "text-black cursor-pointer"
-                      : "text-slate-200 cursor-not-allowed"
-                  }`}
-                />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Edit Access Model</p>
-              </TooltipContent>
-            </Tooltip>
+      <div className="flex items-center justify-between py-4 ">
+        {/* create, edit, delete and search by name  */}
+        <div className="flex items-center">
+          <div className="flex gap-2 items-center mx-2 border p-1 rounded-md">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Plus
+                    onClick={() => setIsOpenAddModal(true)}
+                    className="hover:scale-110 duration-300 cursor-pointer"
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Create Access Model</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Edit
+                    onClick={() =>
+                      selectedAccessModelItem.length > 0 &&
+                      setIsOpenEditModal(true)
+                    }
+                    className={`hover:scale-110 duration-300 ${
+                      selectedAccessModelItem.length === 1
+                        ? "text-black cursor-pointer"
+                        : "text-slate-200 cursor-not-allowed"
+                    }`}
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Edit Access Model</p>
+                </TooltipContent>
+              </Tooltip>
 
-            <AlertDialog>
-              <AlertDialogTrigger
+              <Alert
+                actionName="delete"
                 disabled={selectedAccessModelItem.length === 0}
+                onContinue={handleDelete} // Main delete function
+                onClick={handleDeleteCalculate} // Delete calculate function
               >
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Trash
-                      onClick={handleDeleteCalculate}
-                      className={`hover:scale-110 duration-300 ${
-                        selectedAccessModelItem.length === 0
-                          ? "text-slate-200 cursor-not-allowed"
-                          : "text-black cursor-pointer"
-                      }`}
-                    />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Delete Access Model</p>
-                  </TooltipContent>
-                </Tooltip>
-              </AlertDialogTrigger>
-              <AlertDialogContent className="overflow-y-auto max-h-[90%]">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription className="text-black">
-                    {selectedAccessModelItem.map((modelItem) => (
-                      <span key={modelItem.def_access_model_id}>
-                        <span className="capitalize mt-3 font-medium block">
-                          ACCESS_MODEL_NAME : {modelItem.model_name}
-                        </span>
-                        <span>
-                          {isLoading ? (
-                            <span className="block">
-                              <l-tailspin
-                                size="40"
-                                stroke="5"
-                                speed="0.9"
-                                color="black"
-                              ></l-tailspin>
-                            </span>
-                          ) : (
-                            <span>
-                              {willBeDelete
-                                .filter(
-                                  (item) =>
-                                    item.def_access_model_id ===
-                                    modelItem.def_access_model_id
-                                )
-                                .map((item, index) => (
-                                  <span
-                                    key={index}
-                                    className="capitalize flex items-center text-black"
-                                  >
-                                    {index + 1}. Object - {item.object},
-                                    Attribute - {item.attribute}
-                                  </span>
-                                ))}
-                            </span>
-                          )}
-                        </span>
+                <>
+                  {selectedAccessModelItem.map((modelItem) => (
+                    <span key={modelItem.def_access_model_id}>
+                      <span className="capitalize mt-3 font-medium block">
+                        ACCESS_MODEL_NAME : {modelItem.model_name}
                       </span>
-                    ))}
-                    <span className="block mt-3 text-neutral-500">
-                      This action cannot be undone. This will permanently delete
-                      your account and remove your data from our servers.
+                      <span>
+                        {isLoading ? (
+                          <span className="block">
+                            <l-tailspin
+                              size="40"
+                              stroke="5"
+                              speed="0.9"
+                              color="black"
+                            ></l-tailspin>
+                          </span>
+                        ) : (
+                          <span>
+                            {willBeDelete
+                              .filter(
+                                (item) =>
+                                  item.def_access_model_id ===
+                                  modelItem.def_access_model_id
+                              )
+                              .map((item, index) => (
+                                <span
+                                  key={index}
+                                  className="capitalize flex items-center text-black"
+                                >
+                                  {index + 1}. Object - {item.object}, Attribute
+                                  - {item.attribute}
+                                </span>
+                              ))}
+                          </span>
+                        )}
+                      </span>
                     </span>
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter className="sticky -bottom-2 right-0 mt-4">
-                  <AlertDialogCancel onClick={() => setWillBeDelete([])}>
-                    Cancel
-                  </AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDelete}>
-                    Continue
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          </TooltipProvider>
-        </div>
-        <Input
-          placeholder="Search by Model Name"
-          value={query.value}
-          onChange={(e) => handleQuery(e.target.value)}
-          className="max-w-sm h-8"
-        />
-        <div className="flex gap-2 items-center ml-auto">
-          <h3>Rows :</h3>
-          <input
-            type="number"
-            placeholder="Rows"
-            value={limit}
-            min={1}
-            max={20}
-            onChange={(e) => handleRow(Number(e.target.value))}
-            className="w-14 border rounded p-2"
+                  ))}
+                </>
+              </Alert>
+            </TooltipProvider>
+          </div>
+          <Input
+            placeholder="Search by Model Name"
+            value={query.value}
+            onChange={(e) => handleQuery(e.target.value)}
+            className="max-w-sm h-8"
           />
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto h-8">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* Rows and Column */}
+        <div className="flex items-center gap-2">
+          <div className="flex gap-2 items-center ml-auto">
+            <h3>Rows :</h3>
+            <input
+              type="number"
+              placeholder="Rows"
+              value={limit}
+              min={1}
+              max={20}
+              onChange={(e) => handleRow(Number(e.target.value))}
+              className="w-14 h-8 border rounded-lg p-2"
+            />
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto h-8">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       <div className="rounded-md border">
         <Table>

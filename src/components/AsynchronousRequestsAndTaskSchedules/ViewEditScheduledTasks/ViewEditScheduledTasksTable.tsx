@@ -112,11 +112,6 @@ export function ViewEditScheduledTasksTable() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        if (limit === 0) {
-          setData([]);
-          setIsLoading(false);
-          return;
-        }
         setIsLoading(true);
         if (!query.isEmpty) {
           const results = await getSearchAsynchronousRequestsAndTaskSchedules(
@@ -237,7 +232,7 @@ export function ViewEditScheduledTasksTable() {
     },
     initialState: {
       pagination: {
-        pageSize: 20,
+        pageSize: limit,
       },
     },
   });
@@ -283,9 +278,9 @@ export function ViewEditScheduledTasksTable() {
   };
 
   const handleRow = (value: number) => {
-    if (value < 1 || value > 20) {
+    if (value < 1) {
       toast({
-        title: "The value must be between 1 to 20",
+        title: "The value must be greater than 0",
         variant: "destructive",
       });
       return;
@@ -454,36 +449,39 @@ export function ViewEditScheduledTasksTable() {
             min={1}
             max={20}
             onChange={(e) => handleRow(Number(e.target.value))}
-            className="w-14 border rounded p-2"
+            className="w-14 border rounded-md p-2"
           />
+          {/* Columns */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="max-h-72 overflow-y-auto"
+            >
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        {/* Columns */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="max-h-72 overflow-y-auto">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
       {/* Table */}
       <div className="rounded-md border">

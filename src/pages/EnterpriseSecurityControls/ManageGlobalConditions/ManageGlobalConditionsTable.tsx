@@ -237,15 +237,15 @@ const ManageGlobalConditionsTable = () => {
     },
     initialState: {
       pagination: {
-        pageSize: 20,
+        pageSize: limit,
       },
     },
   });
 
   const handleRow = (value: number) => {
-    if (value < 1 || value > 20) {
+    if (value < 1) {
       toast({
-        title: "The value must be between 1 to 20",
+        title: "The value must be greater than 0",
         variant: "destructive",
       });
       return;
