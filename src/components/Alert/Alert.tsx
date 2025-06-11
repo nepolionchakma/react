@@ -38,16 +38,22 @@ const Alert = ({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <button onClick={onClick} disabled={disabled}>
+        <button
+          onClick={onClick}
+          disabled={disabled}
+          className={disabled ? "cursor-not-allowed" : "cursor-pointer"}
+        >
           <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <IconController
-                  name={actionName}
-                  height={24}
-                  width={24}
-                  color={disabled ? "#e5e5e5" : "black"}
-                />
+                <div>
+                  <IconController
+                    name={actionName}
+                    height={24}
+                    width={24}
+                    color={disabled ? "#e5e5e5" : "black"}
+                  />
+                </div>
               </TooltipTrigger>
               <TooltipContent>
                 <p>{tooltipTitle}</p>
