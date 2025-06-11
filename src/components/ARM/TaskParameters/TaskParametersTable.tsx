@@ -198,7 +198,7 @@ export function TaskParametersTable() {
   const handleRow = (value: number) => {
     if (value < 1) {
       toast({
-        title: "The value must getter than 1",
+        title: "The value must getter than 0",
         variant: "destructive",
       });
       return;
