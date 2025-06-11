@@ -130,9 +130,9 @@ const AccessPointsEntitleTable = () => {
   }, [table]);
 
   const handleRow = (value: number) => {
-    if (value < 1 || value > 20) {
+    if (value < 1) {
       toast({
-        title: "The value must be between 1 to 20",
+        title: "The value must be greater than 0",
         variant: "destructive",
       });
       return;
@@ -198,17 +198,16 @@ const AccessPointsEntitleTable = () => {
               type="number"
               placeholder="Rows"
               value={limit}
-              min={5}
-              max={20}
+              min={1}
               onChange={(e) => handleRow(Number(e.target.value))}
-              className="w-14 border rounded p-2"
+              className="w-14 h-8 border rounded-lg p-2"
             />
           </div>
 
           {/* Dropdown for Column Visibility */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline">
+              <Button variant="outline" className="ml-auto h-8">
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

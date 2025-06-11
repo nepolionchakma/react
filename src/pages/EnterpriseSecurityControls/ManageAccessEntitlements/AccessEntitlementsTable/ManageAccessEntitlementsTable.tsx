@@ -421,17 +421,16 @@ const ManageAccessEntitlementsTable = () => {
               type="number"
               placeholder="Rows"
               value={accessEntitlementsLimit}
-              min={3}
-              max={10}
+              min={1}
               onChange={(e) => handleRow(Number(e.target.value))}
-              className="w-14 border rounded p-2"
+              className="w-14 h-8 border rounded-lg p-2"
             />
           </div>
 
           {/* Columns */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
+              <Button variant="outline" className="ml-auto h-8">
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
