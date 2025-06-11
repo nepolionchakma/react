@@ -188,14 +188,15 @@ const SearchResultsTable = () => {
     });
   };
 
-  console.log(willBeDelete, "ddelete");
   const handleDeleteCalculate = async () => {
     const results: IManageAccessModelLogicExtendTypes[] = [];
 
     try {
-      const deletePromises = selectedAccessModelItem.map((item) => {
+      const deletePromises = selectedAccessModelItem.map(async (item) => {
         if (item.def_access_model_id) {
-          manageAccessModelLogicsDeleteCalculate(item?.def_access_model_id);
+          return await manageAccessModelLogicsDeleteCalculate(
+            item?.def_access_model_id
+          );
         }
       });
 

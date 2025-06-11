@@ -337,7 +337,7 @@ const DND: FC = () => {
   return (
     <div>
       <div className="flex justify-between sticky top-0 p-2 bg-slate-300 z-50 overflow-hidden">
-        <h2 className="font-bold">Edit Access Global Conditions</h2>
+        <h2 className="font-bold">Edit Global Conditions</h2>
         <div className="flex gap-2 rounded-lg ">
           {isActionLoading ? (
             <div className="flex items-center rounded p-1 duration-300 z-50 cursor-not-allowed">

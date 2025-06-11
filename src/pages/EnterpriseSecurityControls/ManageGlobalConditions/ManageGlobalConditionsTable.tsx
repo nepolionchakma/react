@@ -30,8 +30,6 @@ import {
 import {
   ArrowUpDown,
   ChevronDown,
-  Dot,
-  // Dot,
   FileEdit,
   Plus,
   // Trash,
@@ -384,31 +382,45 @@ const ManageGlobalConditionsTable = () => {
                 onClick={handleDeleteCalculate}
                 tooltipTitle="Delete Global Condition"
               >
-                <span>
-                  {selectedManageGlobalConditionItem.map((item) => (
-                    <span
-                      key={item.def_global_condition_id}
-                      className=" flex items-center text-red-500"
-                    >
-                      <span>NAME : {item.name}</span>
+                <>
+                  {selectedManageGlobalConditionItem.map((globalItem) => (
+                    <span key={globalItem.def_global_condition_id}>
+                      <span className="capitalize mt-3 font-medium block">
+                        NAME : {globalItem.name}
+                      </span>
+                      <span>
+                        {isLoading ? (
+                          <span className="block">
+                            <l-tailspin
+                              size="40"
+                              stroke="5"
+                              speed="0.9"
+                              color="black"
+                            ></l-tailspin>
+                          </span>
+                        ) : (
+                          <span>
+                            {willBeDelete
+                              .filter(
+                                (wb) =>
+                                  wb.def_global_condition_id ===
+                                  globalItem.def_global_condition_id
+                              )
+                              .map((item, index) => (
+                                <span
+                                  key={index}
+                                  className="capitalize flex items-center text-black"
+                                >
+                                  {index + 1}. Object - {item.object}, Attribute
+                                  - {item.attribute}
+                                </span>
+                              ))}
+                          </span>
+                        )}
+                      </span>
                     </span>
                   ))}
-                  <br />
-                  {willBeDelete.map((item) => (
-                    <span
-                      key={item.id}
-                      className=" flex items-center text-red-500"
-                    >
-                      <Dot size={30} /> {item.object} {item.attribute}
-                      {item.value}
-                      {item.condition}
-                    </span>
-                  ))}
-                </span>
-                <span>
-                  Note: This action cannot be undone. This will permanently
-                  delete your account and remove your data from our servers.
-                </span>
+                </>
               </Alert>
 
               {/* <AlertDialog>
