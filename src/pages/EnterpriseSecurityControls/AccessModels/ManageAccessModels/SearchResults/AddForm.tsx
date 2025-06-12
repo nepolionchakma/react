@@ -21,7 +21,6 @@ import { Input } from "@/components/ui/input";
 import { IManageAccessModelsTypes } from "@/types/interfaces/ManageAccessEntitlements.interface";
 import { FC } from "react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import { useManageAccessEntitlementsContext } from "@/Context/ManageAccessEntitlements/ManageAccessEntitlementsContext";
 import { ring } from "ldrs";
 import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
 interface IManageAccessEntitlementsProps {
@@ -32,10 +31,9 @@ const AddForm: FC<IManageAccessEntitlementsProps> = ({
   // items,
   setOpenAddModal,
 }) => {
-  const { createDefAccessModel } = useAACContext();
+  const { createDefAccessModel, isLoading } = useAACContext();
   const { token } = useGlobalContext();
   // const maxId = Math.max(...items.map((data) => data.manage_access_model_id));
-  const { isLoading } = useManageAccessEntitlementsContext();
 
   const FormSchema = z.object({
     model_name: z.string(),
@@ -55,7 +53,7 @@ const AddForm: FC<IManageAccessEntitlementsProps> = ({
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
     const postData = {
       model_name: data.model_name,
       description: data.description,
@@ -65,12 +63,11 @@ const AddForm: FC<IManageAccessEntitlementsProps> = ({
       created_by: token?.user_name,
       last_updated_by: token?.user_name,
     };
-    try {
-      createDefAccessModel(postData);
-      form.reset();
+
+    const res = await createDefAccessModel(postData);
+    if (res) {
       setOpenAddModal(false);
-    } catch (error) {
-      console.log(error);
+      form.reset();
     }
   }
 

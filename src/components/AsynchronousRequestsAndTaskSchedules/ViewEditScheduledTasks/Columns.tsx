@@ -166,7 +166,7 @@ export const columns = (
     },
     cell: ({ row }) => {
       const data: string = row.getValue("creation_date");
-      const date = new Date(data).toLocaleDateString();
+      const date = new Date(data).toLocaleString("en-US");
       return <div className="min-w-max">{date} </div>;
     },
   },
@@ -188,7 +188,7 @@ export const columns = (
     },
     cell: ({ row }) => {
       const data: string = row.getValue("last_update_date");
-      const date = new Date(data).toLocaleDateString();
+      const date = new Date(data).toLocaleString("en-US");
       return <div className=" min-w-max">{date} </div>;
     },
   },

@@ -35,15 +35,26 @@ interface IAACContextTypes {
   isOpenManageGlobalConditionModal: boolean;
   setIsOpenManageGlobalConditionModal: Dispatch<SetStateAction<boolean>>;
   fetchManageGlobalConditions: () => Promise<void>;
-  getGlobalConditions: (page: number, limit: number) => Promise<void>;
+  getlazyLoadingGlobalConditions: (
+    page: number,
+    limit: number
+  ) => Promise<void>;
   manageGlobalConditions: IManageGlobalConditionTypes[];
+  setManageGlobalConditions: Dispatch<
+    SetStateAction<IManageGlobalConditionTypes[]>
+  >;
+  getSearchGlobalConditions: (
+    page: number,
+    limit: number,
+    name: string
+  ) => Promise<void>;
   selectedManageGlobalConditionItem: IManageGlobalConditionTypes[];
   setSelectedManageGlobalConditionItem: Dispatch<
     SetStateAction<IManageGlobalConditionTypes[]>
   >;
   createManageGlobalCondition: (
     postData: IManageGlobalConditionTypes
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   fetchManageGlobalConditionLogics: (
     filterId: number
   ) => Promise<IManageGlobalConditionLogicExtendTypes[] | undefined>;
@@ -70,14 +81,23 @@ interface IAACContextTypes {
   fetchDefAccessModels: () => Promise<
     IManageAccessModelsTypes[] | [] | undefined
   >;
+  lazyLoadingDefAccessModels: (page: number, limit: number) => Promise<void>;
+  getSearchAccessModels: (
+    page: number,
+    limit: number,
+    model_name: string
+  ) => Promise<void>;
   fetchAccessModelAttributes: () => Promise<void>;
   accessModelLogicAttributes: IManageAccessModelLogicAttributesTypes[];
   manageAccessModels: IManageAccessModelsTypes[] | [];
+  setManageAccessModels: Dispatch<SetStateAction<IManageAccessModelsTypes[]>>;
   selectedAccessModelItem: IManageAccessModelsTypes[];
   setSelectedAccessModelItem: Dispatch<
     SetStateAction<IManageAccessModelsTypes[]>
   >;
-  createDefAccessModel: (postData: IManageAccessModelsTypes) => Promise<void>;
+  createDefAccessModel: (
+    postData: IManageAccessModelsTypes
+  ) => Promise<boolean>;
   deleteDefAccessModel: (items: IManageAccessModelsTypes[]) => Promise<void>;
   fetchAccessModelLogics: () => Promise<void>;
   fetchDefAccessModelLogics: (
@@ -153,7 +173,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   >([]);
   const [maxLogicId, setMaxLogicId] = useState<number>();
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(5);
+  const [limit, setLimit] = useState<number>(8);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -241,14 +261,37 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     }
   };
 
-  const getGlobalConditions = async (page: number, limit: number) => {
+  const getlazyLoadingGlobalConditions = async (
+    page: number,
+    limit: number
+  ) => {
     try {
       setIsLoading(true);
       const resultLazyLoading = await api.get(
         `/def-global-conditions/${page}/${limit}`
       );
-      setManageGlobalConditions(resultLazyLoading.data.results);
-      setTotalPage(resultLazyLoading.data.totalPages);
+      setManageGlobalConditions(resultLazyLoading.data.items);
+      setTotalPage(resultLazyLoading.data.pages);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // search global condition
+  const getSearchGlobalConditions = async (
+    page: number,
+    limit: number,
+    name: string
+  ) => {
+    try {
+      setIsLoading(true);
+      const response = await api.get(
+        `/def-global-conditions/search/${page}/${limit}?name=${name}`
+      );
+      setTotalPage(response.data.pages);
+      setManageGlobalConditions(response.data.items);
     } catch (error) {
       console.log(error);
     } finally {
@@ -259,27 +302,27 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   const createManageGlobalCondition = async (
     postData: IManageGlobalConditionTypes
   ) => {
+    const { name, datasource, description, status } = postData;
     try {
       setIsLoading(true);
-      const { name, datasource, description, status } = postData;
-      const res = await api.post<IManageGlobalConditionTypes>(
+      const res = await api.post<{ message: string }>(
         `/def-global-conditions`,
         { name, datasource, description, status }
       );
       if (res.status === 201) {
         setStateChange((prev) => prev + 1);
         toast({
-          description: `Added successfully.`,
+          description: res.data.message,
         });
+        setIsOpenManageGlobalConditionModal(false);
+        return true;
       }
+      return false;
     } catch (error) {
-      console.log(error);
-      // if (error.response.status === 408) {
-      //   toast({
-      //     title: "Info",
-      //     description: `${error.response.data.message}`,
-      //   });
-      // }
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
+      return false;
     } finally {
       setIsLoading(false);
     }
@@ -332,12 +375,14 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       .then((res) => {
         if (res.status === 200) {
           toast({
-            description: `Deleted successfully.`,
+            description: res.data.message,
           });
         }
       })
       .catch((error) => {
-        console.log(error);
+        if (error instanceof Error) {
+          toast({ title: error.message, variant: "destructive" });
+        }
       })
       .finally(() => {
         setStateChange((prev) => prev + 1);
@@ -413,40 +458,69 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     }
   };
 
+  // lazy loading Access models
+  const lazyLoadingDefAccessModels = async (page: number, limit: number) => {
+    try {
+      setIsLoading(true);
+      const response = await api.get<{
+        items: IManageAccessModelsTypes[];
+        pages: number;
+        page: number;
+      }>(`/def-access-models/${page}/${limit}`);
+      if (response) {
+        setTotalPage(response.data.pages);
+        setCurrentPage(response.data.page);
+        setManageAccessModels(response.data.items);
+      }
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // search access model
+  const getSearchAccessModels = async (
+    page: number,
+    limit: number,
+    model_name: string
+  ) => {
+    try {
+      setIsLoading(true);
+      const response = await api.get(
+        `/def-access-models/search/${page}/${limit}?model_name=${model_name}`
+      );
+      setTotalPage(response.data.pages);
+      setManageAccessModels(response.data.items);
+      setCurrentPage(response.data.page);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Create Acces Model
   const createDefAccessModel = async (postData: IManageAccessModelsTypes) => {
     try {
       setIsLoading(true);
-      const {
-        model_name,
-        description,
-        type,
-        state,
-        run_status,
-        created_by,
-        last_updated_by,
-      } = postData;
-      const res = await api.post(`/def-access-models`, {
-        model_name,
-        description,
-        type,
-        state,
-        run_status,
-        created_by,
-        last_updated_by,
-      });
+      const res = await api.post(`/def-access-models`, postData);
       if (res.status === 201) {
         setStateChange((prev) => prev + 1);
         toast({
-          description: `Added successfully.`,
+          description: res.data.message,
+        });
+        return true;
+      }
+      return false;
+    } catch (error) {
+      if (error instanceof Error) {
+        toast({
+          description: error.message,
+          variant: "destructive",
         });
       }
-    } catch (error) {
-      console.log(error);
-      toast({
-        variant: "destructive",
-        description: `Failed to add.`,
-      });
+      return false;
     } finally {
       setIsLoading(false);
     }
@@ -461,12 +535,17 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         .then((res) => {
           if (res.status === 200) {
             toast({
-              description: `Deleted successfully.`,
+              description: res.data.message,
             });
           }
         })
         .catch((error) => {
-          console.log(error);
+          if (error instanceof Error) {
+            toast({
+              description: error.message,
+              variant: "destructive",
+            });
+          }
         })
         .finally(() => {
           setStateChange((prev) => prev + 1);
@@ -613,8 +692,10 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     isOpenManageGlobalConditionModal,
     setIsOpenManageGlobalConditionModal,
     fetchManageGlobalConditions,
-    getGlobalConditions,
+    getlazyLoadingGlobalConditions,
+    getSearchGlobalConditions,
     manageGlobalConditions,
+    setManageGlobalConditions,
     selectedManageGlobalConditionItem,
     setSelectedManageGlobalConditionItem,
     createManageGlobalCondition,
@@ -629,7 +710,10 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     deleteLogicAndAttributeData,
     deleteGlobalLogicAndAttributeData,
     manageAccessModels,
+    setManageAccessModels,
     fetchDefAccessModels,
+    lazyLoadingDefAccessModels,
+    getSearchAccessModels,
     selectedAccessModelItem,
     setSelectedAccessModelItem,
     createDefAccessModel,

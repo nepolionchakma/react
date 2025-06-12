@@ -10,7 +10,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, Edit, Plus, Trash } from "lucide-react";
+import { ChevronDown, Edit, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -33,22 +33,20 @@ import {
   IManageAccessModelsTypes,
 } from "@/types/interfaces/ManageAccessEntitlements.interface";
 import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+
 import { ring } from "ldrs";
 import AddModel from "../AddModel";
 import EditModel from "../EditModel";
 import columns from "./Columns";
 import Pagination5 from "@/components/Pagination/Pagination5";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { toast } from "@/components/ui/use-toast";
+import Alert from "@/components/Alert/Alert";
 
 const SearchResultsTable = () => {
   const {
@@ -57,6 +55,8 @@ const SearchResultsTable = () => {
     setSelectedAccessModelItem,
     stateChange,
     fetchDefAccessModels,
+    lazyLoadingDefAccessModels,
+    getSearchAccessModels,
     manageAccessModels: data,
     deleteDefAccessModel,
     manageAccessModelLogicsDeleteCalculate,
@@ -64,6 +64,8 @@ const SearchResultsTable = () => {
     page,
     setPage,
     totalPage,
+    limit,
+    setLimit,
   } = useAACContext();
 
   const [isOpenAddModal, setIsOpenAddModal] = React.useState<boolean>(false);
@@ -80,6 +82,9 @@ const SearchResultsTable = () => {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
+  const [debouncedQuery, setDebouncedQuery] = React.useState("");
+  const [isSelectAll, setIsSelectAll] = React.useState(false);
   // const [pagination, setPagination] = React.useState({
   //   pageIndex: 0, //initial page index
   //   pageSize: 5, //default page size
@@ -102,13 +107,66 @@ const SearchResultsTable = () => {
       columnVisibility,
       rowSelection,
     },
+    initialState: {
+      pagination: {
+        pageSize: limit,
+      },
+    },
   });
 
   React.useEffect(() => {
-    if (page > 1 || page < totalPage) {
-      fetchDefAccessModels();
+    const handleDebounce = setTimeout(() => {
+      setDebouncedQuery(query.value);
+    }, 1000);
+
+    return () => {
+      clearTimeout(handleDebounce);
+    };
+  }, [query]);
+  React.useEffect(() => {
+    if (data.length > 0) {
+      if (selectedAccessModelItem.length !== data.length) {
+        setIsSelectAll(false);
+      } else {
+        setIsSelectAll(true);
+      }
     }
-  }, [page, totalPage]);
+  }, [selectedAccessModelItem.length, data.length]);
+
+  const handleSelectAll = () => {
+    if (isSelectAll) {
+      setIsSelectAll(false);
+      setSelectedAccessModelItem([]);
+    } else {
+      setIsSelectAll(true);
+      setSelectedAccessModelItem(data);
+    }
+  };
+
+  const handleQuery = (e: string) => {
+    if (e === "") {
+      setQuery({ isEmpty: true, value: e });
+      setPage(1);
+    } else {
+      setQuery({ isEmpty: false, value: e });
+      setPage(1);
+    }
+  };
+
+  // When query changes, reset page to 1
+  React.useEffect(() => {
+    if (!query.isEmpty) {
+      setPage(1);
+    }
+  }, [query, setPage]);
+
+  React.useEffect(() => {
+    if (debouncedQuery) {
+      getSearchAccessModels(page, limit, debouncedQuery);
+    } else {
+      lazyLoadingDefAccessModels(page, limit);
+    }
+  }, [page, limit, debouncedQuery]);
 
   React.useEffect(() => {
     fetchDefAccessModels();
@@ -129,13 +187,16 @@ const SearchResultsTable = () => {
       }
     });
   };
+
   const handleDeleteCalculate = async () => {
     const results: IManageAccessModelLogicExtendTypes[] = [];
 
     try {
-      const deletePromises = selectedAccessModelItem.map((item) => {
+      const deletePromises = selectedAccessModelItem.map(async (item) => {
         if (item.def_access_model_id) {
-          manageAccessModelLogicsDeleteCalculate(item?.def_access_model_id);
+          return await manageAccessModelLogicsDeleteCalculate(
+            item?.def_access_model_id
+          );
         }
       });
 
@@ -164,7 +225,6 @@ const SearchResultsTable = () => {
       })
     );
     await deleteDefAccessModel(selectedAccessModelItem);
-    setSelectedAccessModelItem([]);
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
     setSelectedAccessModelItem([]);
     setWillBeDelete([]);
@@ -186,6 +246,19 @@ const SearchResultsTable = () => {
       }
     });
   }, [table]);
+
+  const handleRow = (value: number) => {
+    if (value < 1) {
+      toast({
+        title: "The value must be greater than 0",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      setLimit(value);
+    }
+  };
+
   return (
     <div className="w-full">
       {isOpenAddModal && (
@@ -198,39 +271,49 @@ const SearchResultsTable = () => {
         />
       )}
 
-      <div className="flex items-center py-4">
-        <div className="flex gap-2 items-center mx-2 border p-1 rounded-md">
-          <Plus
-            onClick={() => setIsOpenAddModal(true)}
-            className="hover:scale-110 duration-300 cursor-pointer"
-          />
+      <div className="flex items-center justify-between py-4 ">
+        {/* create, edit, delete and search by name  */}
+        <div className="flex items-center gap-2">
+          <div className="flex gap-2 items-center mx-2 border p-1 rounded-md">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Plus
+                    onClick={() => setIsOpenAddModal(true)}
+                    className="hover:scale-110 duration-300 cursor-pointer"
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Add</p>
+                </TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Edit
+                    onClick={() =>
+                      selectedAccessModelItem.length > 0 &&
+                      setIsOpenEditModal(true)
+                    }
+                    className={`hover:scale-110 duration-300 ${
+                      selectedAccessModelItem.length === 1
+                        ? "text-black cursor-pointer"
+                        : "text-slate-200 cursor-not-allowed"
+                    }`}
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Edit</p>
+                </TooltipContent>
+              </Tooltip>
 
-          <Edit
-            onClick={() =>
-              selectedAccessModelItem.length > 0 && setIsOpenEditModal(true)
-            }
-            className={`hover:scale-110 duration-300 cursor-pointer ${
-              selectedAccessModelItem.length === 1
-                ? "text-black "
-                : "text-slate-200"
-            }`}
-          />
-          <AlertDialog>
-            <AlertDialogTrigger disabled={selectedAccessModelItem.length === 0}>
-              <Trash
-                onClick={handleDeleteCalculate}
-                className={`hover:scale-110 duration-300 ${
-                  selectedAccessModelItem.length === 0
-                    ? "text-slate-200 cursor-not-allowed"
-                    : "text-black cursor-pointer"
-                }`}
-              />
-            </AlertDialogTrigger>
-
-            <AlertDialogContent className="overflow-y-auto max-h-[90%]">
-              <AlertDialogHeader>
-                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                <AlertDialogDescription className="text-black">
+              <Alert
+                actionName="delete"
+                disabled={selectedAccessModelItem.length === 0}
+                onContinue={handleDelete} // Main delete function
+                onClick={handleDeleteCalculate} // Delete calculate function
+                tooltipTitle="Delete"
+              >
+                <>
                   {selectedAccessModelItem.map((modelItem) => (
                     <span key={modelItem.def_access_model_id}>
                       <span className="capitalize mt-3 font-medium block">
@@ -268,59 +351,57 @@ const SearchResultsTable = () => {
                       </span>
                     </span>
                   ))}
-                  <span className="block mt-3 text-neutral-500">
-                    This action cannot be undone. This will permanently delete
-                    your account and remove your data from our servers.
-                  </span>
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter className="sticky -bottom-2 right-0 mt-4">
-                <AlertDialogCancel onClick={() => setWillBeDelete([])}>
-                  Cancel
-                </AlertDialogCancel>
-                <AlertDialogAction onClick={handleDelete}>
-                  Continue
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
+                </>
+              </Alert>
+            </TooltipProvider>
+          </div>
+          <Input
+            placeholder="Search by Model Name"
+            value={query.value}
+            onChange={(e) => handleQuery(e.target.value)}
+            className="max-w-sm h-8"
+          />
         </div>
-        <Input
-          placeholder="Filter by model name..."
-          value={
-            (table.getColumn("model_name")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("model_name")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm h-8"
-        />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto h-8">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        {/* Rows and Column */}
+        <div className="flex items-center gap-2">
+          <div className="flex gap-2 items-center ml-auto">
+            <h3>Rows :</h3>
+            <input
+              type="number"
+              placeholder="Rows"
+              value={limit}
+              min={1}
+              onChange={(e) => handleRow(Number(e.target.value))}
+              className="w-14 h-8 border rounded-lg p-2"
+            />
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto h-8">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       <div className="rounded-md border">
         <Table>
@@ -342,25 +423,8 @@ const SearchResultsTable = () => {
                       {/* Example: Checkbox for selecting all rows */}
                       {header.id === "select" && (
                         <Checkbox
-                          checked={
-                            table.getIsAllPageRowsSelected() ||
-                            (table.getIsSomePageRowsSelected() &&
-                              "indeterminate")
-                          }
-                          onCheckedChange={(value) => {
-                            // Toggle all page rows selected
-                            table.toggleAllPageRowsSelected(!!value);
-
-                            // Use a timeout to log the selected data
-                            setTimeout(() => {
-                              const selectedRows = table
-                                .getSelectedRowModel()
-                                .rows.map((row) => row.original);
-                              // console.log(selectedRows);
-                              setSelectedAccessModelItem(selectedRows);
-                            }, 0);
-                          }}
-                          className=""
+                          checked={isSelectAll}
+                          onClick={handleSelectAll}
                           aria-label="Select all"
                         />
                       )}
@@ -396,10 +460,9 @@ const SearchResultsTable = () => {
                       {index === 0 ? (
                         <Checkbox
                           className="m-1"
-                          checked={row.getIsSelected()}
-                          onCheckedChange={(value) =>
-                            row.toggleSelected(!!value)
-                          }
+                          checked={selectedAccessModelItem.includes(
+                            row.original
+                          )}
                           onClick={() => handleRowSelection(row.original)}
                         />
                       ) : (

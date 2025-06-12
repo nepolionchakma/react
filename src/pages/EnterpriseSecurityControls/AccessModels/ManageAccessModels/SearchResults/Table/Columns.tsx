@@ -77,9 +77,11 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
         </div>
       );
     },
-    cell: ({ row }) => (
-      <div className="capitalize px-1">{row.getValue("last_run_date")}</div>
-    ),
+    cell: ({ row }) => {
+      const data: string = row.getValue("last_run_date");
+      const date = new Date(data).toLocaleString();
+      return <div className="capitalize px-1">{date}</div>;
+    },
   },
   {
     accessorKey: "created_by",
@@ -125,9 +127,11 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
         </div>
       );
     },
-    cell: ({ row }) => (
-      <div className="capitalize px-1">{row.getValue("last_updated_date")}</div>
-    ),
+    cell: ({ row }) => {
+      const data: string = row.getValue("last_updated_date");
+      const date = new Date(data).toLocaleString();
+      return <div className="capitalize px-1">{date}</div>;
+    },
   },
   {
     accessorKey: "revision",
@@ -148,9 +152,11 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
         </div>
       );
     },
-    cell: ({ row }) => (
-      <div className="capitalize px-1">{row.getValue("revision_date")}</div>
-    ),
+    cell: ({ row }) => {
+      const data: string = row.getValue("revision_date");
+      const date = new Date(data).toLocaleString();
+      return <div className="capitalize px-1">{date}</div>;
+    },
   },
 ];
 export default columns;

@@ -33,6 +33,7 @@ import Pagination5 from "@/components/Pagination/Pagination5";
 import { IARMViewRequestsTypes } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import PopUp from "./PopUp/PopUp";
+import { toast } from "@/components/ui/use-toast";
 
 export function ViewRequestTable() {
   const {
@@ -78,11 +79,6 @@ export function ViewRequestTable() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        if (limit === 0) {
-          setData([]);
-          setIsLoading(false);
-          return;
-        }
         if (!query.isEmpty) {
           const res = await getSearchViewRequests(page, limit, query.value);
           if (res) {
@@ -172,6 +168,18 @@ export function ViewRequestTable() {
     });
   }, [table]);
 
+  const handleRow = (value: number) => {
+    if (value < 1) {
+      toast({
+        title: "The value must be greater than 0",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      setLimit(value);
+    }
+  };
+
   return (
     <div className="px-3">
       {(viewParameters || viewResult) && (
@@ -185,7 +193,7 @@ export function ViewRequestTable() {
       {/* Filter + Column Controls */}
       <div className="flex gap-3 items-center py-2">
         <Input
-          placeholder="Filter by task Name"
+          placeholder="Search by Task Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
           className="max-w-sm px-4 py-2"
@@ -196,35 +204,38 @@ export function ViewRequestTable() {
             type="number"
             placeholder="Rows"
             value={limit}
-            min={8}
-            max={20}
-            onChange={(e) => setLimit(Number(e.target.value))}
+            min={1}
+            onChange={(e) => handleRow(Number(e.target.value))}
             className="w-14 border rounded p-2"
           />
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="max-h-72 overflow-y-auto"
+            >
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => (
+                  <DropdownMenuCheckboxItem
+                    key={column.id}
+                    className="capitalize"
+                    checked={column.getIsVisible()}
+                    onCheckedChange={(value) =>
+                      column.toggleVisibility(!!value)
+                    }
+                  >
+                    {column.id}
+                  </DropdownMenuCheckboxItem>
+                ))}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="max-h-72 overflow-y-auto">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => (
-                <DropdownMenuCheckboxItem
-                  key={column.id}
-                  className="capitalize"
-                  checked={column.getIsVisible()}
-                  onCheckedChange={(value) => column.toggleVisibility(!!value)}
-                >
-                  {column.id}
-                </DropdownMenuCheckboxItem>
-              ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
 
       {/* Table Section */}

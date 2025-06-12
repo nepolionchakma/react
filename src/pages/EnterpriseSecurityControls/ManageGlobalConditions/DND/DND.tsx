@@ -1,8 +1,10 @@
 import {
   closestCenter,
   DndContext,
+  DragEndEvent,
   DragOverEvent,
   DragOverlay,
+  DragStartEvent,
   PointerSensor,
   useSensor,
   useSensors,
@@ -41,7 +43,7 @@ const DND: FC = () => {
     {
       id: attrMaxId ? attrMaxId + 1 : 1,
       def_global_condition_logic_id: attrMaxId ? attrMaxId + 1 : 1,
-      def_global_condition_id: selectedItem[0].def_global_condition_id,
+      def_global_condition_id: selectedItem[0]?.def_global_condition_id,
       object: "",
       attribute: "",
       condition: "",
@@ -58,7 +60,7 @@ const DND: FC = () => {
     const fetchDataFunc = async () => {
       try {
         const fetchData = await fetchManageGlobalConditionLogics(
-          selectedItem[0].def_global_condition_id
+          selectedItem[0]?.def_global_condition_id
         );
 
         const sortedData = fetchData?.sort(
@@ -86,19 +88,15 @@ const DND: FC = () => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      name: selectedItem[0].name ?? "",
-      description: selectedItem[0].description ?? "",
-      datasource: selectedItem[0].datasource ?? "",
-      status: selectedItem[0].status ?? "",
+      name: selectedItem[0]?.name ?? "",
+      description: selectedItem[0]?.description ?? "",
+      datasource: selectedItem[0]?.datasource ?? "",
+      status: selectedItem[0]?.status ?? "",
     },
   });
   //changed Access GlobalCondition Value
   const changedAccessGlobalCondition = form.watch();
-  const isChangedAccessGlobalCondition =
-    selectedItem[0].name !== changedAccessGlobalCondition.name ||
-    selectedItem[0].description !== changedAccessGlobalCondition.description ||
-    selectedItem[0].datasource !== changedAccessGlobalCondition.datasource ||
-    selectedItem[0].status !== changedAccessGlobalCondition.status;
+  const isChangedAccessGlobalCondition = form.formState.isDirty;
   //Top Form END
   ring.register(); // Default values shown
 
@@ -121,7 +119,7 @@ const DND: FC = () => {
   const newItem = {
     id: getId,
     def_global_condition_logic_id: getId,
-    def_global_condition_id: selectedItem[0].def_global_condition_id,
+    def_global_condition_id: selectedItem[0]?.def_global_condition_id,
     object: "",
     attribute: "",
     condition: "",
@@ -147,8 +145,8 @@ const DND: FC = () => {
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
-  const handleDragStart = (event: any) => {
-    setActiveId(event.active.id);
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as number);
   };
   const findContainer = (id: string | number | undefined) => {
     if (leftWidgets.some((item) => item.def_global_condition_logic_id === id)) {
@@ -223,9 +221,8 @@ const DND: FC = () => {
       });
     }
   };
-  console.log(rightWidgets, "right widgets");
 
-  const handleDragEnd = (event: any) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     // console.log(active, over, "handleDragEnd");
     if (over) {
@@ -264,7 +261,7 @@ const DND: FC = () => {
           ori.widget_state === item.widget_state
       )
   );
-  console.log(rightWidgets, "aafdd");
+
   const handleSave = async () => {
     const upsertLogics = items.map((item) => ({
       def_global_condition_logic_id: item.def_global_condition_logic_id,
@@ -280,30 +277,30 @@ const DND: FC = () => {
       widget_position: item.widget_position,
       widget_state: item.widget_state,
     }));
-    console.log(upsertAttributes, upsertLogics);
 
     try {
       setIsActionLoading(true);
       if (isChangedAccessGlobalCondition) {
         api
           .put(
-            `/def-global-conditions/${selectedItem[0].def_global_condition_id}`,
+            `/def-global-conditions/${selectedItem[0]?.def_global_condition_id}`,
             changedAccessGlobalCondition
           )
           .then((logicResult) => {
             if (logicResult.status === 200) {
               toast({
-                title: "Info !!!",
-                description: "Access Global Condition data Save successfully.",
+                description: logicResult.data.message,
               });
             }
-            console.log("Logic Result:", logicResult);
           })
           .catch((error) => {
-            console.error("Error occurred:", error);
+            if (error instanceof Error) {
+              toast({ title: error.message, variant: "destructive" });
+            }
           })
           .finally(() => {
             setIsActionLoading(false);
+            setStateChange((prev) => prev + 1);
           });
       }
       if (items.length > 0) {
@@ -324,32 +321,28 @@ const DND: FC = () => {
 
         if (attributeResult.status === 200) {
           toast({
-            title: "Info !!!",
             description: "Save data successfully.",
-          });
-          form.reset({
-            name: selectedItem[0].name ?? "",
-            description: selectedItem[0].description ?? "",
-            datasource: selectedItem[0].datasource ?? "",
-            status: selectedItem[0].status ?? "",
           });
 
           setOriginalData([...rightWidgets]);
+          setIsActionLoading(false);
         }
       }
     } catch (error) {
-      console.error("Error saving data:", error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
-      setIsActionLoading(false);
+      form.reset(form.getValues());
     }
   };
   return (
     <div>
       <div className="flex justify-between sticky top-0 p-2 bg-slate-300 z-50 overflow-hidden">
-        <h2 className="font-bold">Edit Access Global Conditions</h2>
+        <h2 className="font-bold">Edit Global Conditions</h2>
         <div className="flex gap-2 rounded-lg ">
           {isActionLoading ? (
-            <div className="flex items-center bg-slate-400 rounded p-1 duration-300 z-50 cursor-not-allowed">
+            <div className="flex items-center rounded p-1 duration-300 z-50 cursor-not-allowed">
               <l-ring
                 size="20"
                 stroke="3"
@@ -366,7 +359,7 @@ const DND: FC = () => {
                   : undefined
               }
               size={30}
-              className={` bg-slate-400 rounded p-1 duration-300 z-50 ${
+              className={`rounded p-1 duration-300 z-50 ${
                 items.length > 0 || isChangedAccessGlobalCondition
                   ? "bg-slate-300 hover:text-white hover:bg-slate-500 hover:scale-110 cursor-pointer"
                   : "opacity-40 cursor-not-allowed"
@@ -379,7 +372,7 @@ const DND: FC = () => {
             onClick={() => {
               setIsEditModalOpen(!isEditModalOpen);
               // Change the state
-              setStateChange((prev) => prev + 1);
+              // setStateChange((prev) => prev + 1);
             }}
             className="cursor-pointer hover:text-white bg-slate-300 hover:bg-slate-500  rounded p-1 hover:scale-110 duration-300 z-50"
           />

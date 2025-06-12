@@ -22,8 +22,6 @@ interface IManageGlobalConditionProps {
 const ManageAccessModelUpdate: FC<IManageGlobalConditionProps> = ({ form }) => {
   const { dataSources } = useAACContext();
 
-  console.log(dataSources);
-
   return (
     <Form {...form}>
       <form>
@@ -85,7 +83,7 @@ const ManageAccessModelUpdate: FC<IManageGlobalConditionProps> = ({ form }) => {
            */}
           <FormField
             control={form.control}
-            name="datasource"
+            name="datasource_name"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Datasource</FormLabel>

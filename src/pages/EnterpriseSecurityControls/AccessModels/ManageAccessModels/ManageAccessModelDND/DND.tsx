@@ -37,14 +37,15 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     isLoading,
     selectedAccessModelItem: selectedItem,
     fetchDefAccessModelLogics,
-    // accessModelLogicAttributes,
-    // maxLogicId,
-    // maxAccModelAttrId,
     manageAccessModelAttrMaxId,
     isActionLoading,
     setIsActionLoading,
-    setStateChange,
+    // setStateChange,
   } = useAACContext();
+
+  const [rightWidgets, setRightWidgets] = useState<Extend[]>([]);
+  const [originalData, setOriginalData] = useState<Extend[]>([]);
+  const [activeId, setActiveId] = useState<number | null>(null);
 
   const iniLeftWidget = [
     {
@@ -62,10 +63,6 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       widget_state: 0,
     },
   ];
-
-  const [rightWidgets, setRightWidgets] = useState<Extend[]>([]);
-  const [originalData, setOriginalData] = useState<Extend[]>([]);
-  const [activeId, setActiveId] = useState<number | null>(null);
   const [leftWidgets, setLeftWidgets] = useState<Extend[]>(iniLeftWidget);
 
   useEffect(() => {
@@ -91,24 +88,21 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     model_name: z.string(),
     description: z.string(),
     state: z.string(),
-    // datasource: z.string(),
+    datasource_name: z.string(),
   });
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       model_name: selectedItem[0].model_name ?? "",
       description: selectedItem[0].description ?? "",
-      // datasource: selectedItem[0].datasource ?? "",
+      datasource_name: selectedItem[0].datasource_name ?? "",
       state: selectedItem[0].state ?? "",
     },
   });
+
   //changed Access GlobalCondition Value
-  const changedAccessGlobalCondition = form.watch();
-  const isChangedAccessGlobalCondition =
-    selectedItem[0].model_name !== changedAccessGlobalCondition.model_name ||
-    selectedItem[0].description !== changedAccessGlobalCondition.description ||
-    // selectedItem[0].datasource !== changedAccessGlobalCondition.datasource ||
-    selectedItem[0].state !== changedAccessGlobalCondition.state;
+  const changedAccessModel = form.watch();
+  const isChangedAccessAccessModel = form.formState.isDirty;
 
   //Top Form END
   ring.register(); // Default values shown
@@ -127,23 +121,24 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       ? Math.max(...rightWidgets.map((item) => item.id))
       : 0;
   const getId = rightWidgets.length > 0 ? attrmaxId + 1 : 1;
-  const newItem = {
-    id: getId,
-    def_access_model_logic_id: getId,
-    def_access_model_id: selectedItem[0].def_access_model_id ?? 0,
-    filter: "",
-    object: "",
-    attribute: "",
-    condition: "",
-    value: "",
-    widget_position: 0,
-    widget_state: 0,
-  };
+
   useEffect(() => {
     if (leftWidgets.length === 0) {
+      const newItem = {
+        id: getId,
+        def_access_model_logic_id: getId,
+        def_access_model_id: selectedItem[0].def_access_model_id ?? 0,
+        filter: "",
+        object: "",
+        attribute: "",
+        condition: "",
+        value: "",
+        widget_position: 0,
+        widget_state: 0,
+      };
       setLeftWidgets((prev) => [...prev, newItem]);
     }
-  }, [leftWidgets.length]);
+  }, [leftWidgets.length, getId, selectedItem]);
 
   const activeItem = activeId ? leftWidget || rightWidget : null;
   const findEmptyInput = rightWidgets.filter(
@@ -294,42 +289,39 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       widget_state: item.widget_state,
     }));
 
-    console.log(upsertAttributes, "attr 356");
-    console.log(upsertLogics, "logic 357");
-
     try {
       setIsActionLoading(true);
-      if (isChangedAccessGlobalCondition) {
+      if (isChangedAccessAccessModel) {
         api
           .put(
             `/def-access-models/${selectedItem[0].def_access_model_id}`,
-            changedAccessGlobalCondition
+            changedAccessModel
           )
           .then((logicResult) => {
-            if (logicResult.status === 200) {
+            if (logicResult?.status === 200) {
               toast({
-                title: "Info !!!",
-                description: "Access Global Condition data Save successfully.",
+                description: logicResult.data.message,
+              });
+            } else {
+              toast({
+                description: "Select Data Source",
+                variant: "destructive",
               });
             }
             // console.log("Logic Result:", logicResult);
           })
           .catch((error) => {
-            if (error.response.status === 408) {
+            if (error instanceof Error) {
               toast({
-                title: "Info !!!",
+                title: error.message,
                 variant: "destructive",
-                description: "Name Already Exists.",
               });
-            } else {
-              console.error("Error occurred:", error);
             }
           })
           .finally(() => {
             setIsActionLoading(false);
           });
       }
-      // setItems([]);
       if (items.length > 0) {
         Promise.all([
           api.post(`/def-access-model-logics/upsert`, upsertLogics),
@@ -341,13 +333,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
           .then(([logicResult, attributeResult]) => {
             if (logicResult.status === 200 && attributeResult.status === 200) {
               toast({
-                title: "Info !!!",
                 description: "Save data successfully.",
-              });
-              form.reset({
-                model_name: selectedItem[0].model_name ?? "",
-                description: selectedItem[0].description ?? "",
-                state: selectedItem[0].state ?? "",
               });
 
               setOriginalData([...rightWidgets]);
@@ -362,18 +348,20 @@ const DND: FC<IManageAccessModelDNDProps> = ({
             setIsActionLoading(false);
           });
       }
-      // setItems([]);
     } catch (error) {
       console.error("Error saving data:", error);
+    } finally {
+      form.reset(form.getValues());
     }
   };
+
   return (
     <div>
       <div className="flex justify-between sticky top-0 p-2 bg-slate-300 z-50 overflow-hidden">
         <h2 className="font-bold">Edit Access Model</h2>
         <div className="flex gap-2 rounded-lg ">
           {isActionLoading ? (
-            <div className="flex items-center bg-slate-400 rounded p-1 duration-300 z-50 cursor-not-allowed">
+            <div className="flex items-center rounded p-1 duration-300 z-50 cursor-not-allowed">
               <l-ring
                 size="20"
                 stroke="3"
@@ -385,13 +373,13 @@ const DND: FC<IManageAccessModelDNDProps> = ({
           ) : (
             <Save
               onClick={
-                items.length > 0 || isChangedAccessGlobalCondition
+                items.length > 0 || isChangedAccessAccessModel
                   ? handleSave
                   : undefined
               }
               size={30}
-              className={` bg-slate-400 rounded p-1 duration-300 z-50 ${
-                items.length > 0 || isChangedAccessGlobalCondition
+              className={`rounded p-1 duration-300 z-50 ${
+                items.length > 0 || isChangedAccessAccessModel
                   ? "bg-slate-300 hover:text-white hover:bg-slate-500 hover:scale-110 cursor-pointer"
                   : "opacity-40 cursor-not-allowed"
               }`}
@@ -403,7 +391,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
             onClick={() => {
               setOpenEditModal(!isOpenEditModal);
               // Change the state
-              setStateChange((prev) => prev + 1);
+              // setStateChange((prev) => prev + 1);
             }}
             className="cursor-pointer hover:text-white bg-slate-300 hover:bg-slate-500  rounded p-1 hover:scale-110 duration-300 z-50"
           />
