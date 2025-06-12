@@ -56,68 +56,84 @@ const columns: ColumnDef<IControlsTypes>[] = [
   },
   {
     accessorKey: "priority",
-    header: ({ column }) => {
-      return (
-        <div
-          className="flex items-center"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Priority
-          <ArrowUpDown className="ml-2 h-4 w-4 hover:text-slate-800 cursor-pointer" />
-        </div>
-      );
-    },
+    header: "Priority",
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("priority")}</div>
     ),
   },
   {
     accessorKey: "datasources",
-    header: ({ column }) => {
-      return (
-        <div
-          className="flex items-center"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Datasources
-          <ArrowUpDown className="ml-2 h-4 w-4 hover:text-slate-800 cursor-pointer" />
-        </div>
-      );
-    },
+    header: "Datasources",
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("datasources")}</div>
     ),
   },
   {
     accessorKey: "control_last_run",
-    header: ({ column }) => {
-      return (
-        <div
-          className="flex items-center"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Control Last Run
-          <ArrowUpDown className="ml-2 h-4 w-4 hover:text-slate-800 cursor-pointer" />
-        </div>
-      );
-    },
+    header: "Control Last Run",
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("control_last_run")}</div>
     ),
   },
   {
     accessorKey: "control_last_updated",
-    header: ({ column }) => {
-      return (
-        <div
-          className="flex items-center"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Control Last Updated
-          <ArrowUpDown className="ml-2 h-4 w-4 hover:text-slate-800 cursor-pointer" />
-        </div>
-      );
-    },
+    header: "Control Last Updated",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("control_last_updated")}</div>
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("control_last_updated")}</div>
+    ),
+  },
+  {
+    accessorKey: "state",
+    header: "State",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("control_last_updated")}</div>
+    ),
+  },
+  {
+    accessorKey: "result_investigator",
+    header: "Result Investigator",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("control_last_updated")}</div>
+    ),
+  },
+  {
+    accessorKey: "authorized_data",
+    header: "Authorized Data",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("control_last_updated")}</div>
+    ),
+  },
+  {
+    accessorKey: "revision",
+    header: "Revision",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("control_last_updated")}</div>
+    ),
+  },
+  {
+    accessorKey: "revision_date",
+    header: "Revision Date",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("control_last_updated")}</div>
+    ),
+  },
+  {
+    accessorKey: "created_date",
+    header: "Created Date",
+    cell: ({ row }) => (
+      <div className="capitalize">{row.getValue("control_last_updated")}</div>
+    ),
+  },
+  {
+    accessorKey: "created_by",
+    header: "Created By",
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("control_last_updated")}</div>
     ),

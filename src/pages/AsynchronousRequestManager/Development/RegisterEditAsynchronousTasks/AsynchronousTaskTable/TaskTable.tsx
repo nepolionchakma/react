@@ -214,7 +214,7 @@ export function TaskTable() {
       {isOpenModal === "register_task" ? (
         <CustomModal4 className="w-[770px]">
           <AsynchronousRegisterEditTaskModal
-            task_name="Register Task"
+            task_name="Register"
             selected={selected!}
             isLoading={isLoading}
             setIsLoading={setIsLoading}
@@ -225,7 +225,7 @@ export function TaskTable() {
         isOpenModal === "edit_task" && (
           <CustomModal4 className="w-[770px]">
             <AsynchronousRegisterEditTaskModal
-              task_name="Edit Task"
+              task_name="Edit"
               selected={selected!}
               isLoading={isLoading}
               setIsLoading={setIsLoading}
@@ -247,7 +247,7 @@ export function TaskTable() {
                   />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Register Task</p>
+                  <p>Register</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -265,7 +265,7 @@ export function TaskTable() {
                     />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Edit Task</p>
+                    <p>Edit</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -274,7 +274,7 @@ export function TaskTable() {
               disabled={
                 !selected || selected?.cancelled_yn.toLocaleLowerCase() === "y"
               }
-              tooltipTitle="Cancel Task"
+              tooltipTitle="Cancel"
               actionName="cancel"
               onContinue={() => handleCancel(selected!)}
             >
@@ -284,7 +284,7 @@ export function TaskTable() {
             </Alert>
           </div>
           <Input
-            placeholder="Search by User Task Name.."
+            placeholder="Search by User Task Name"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
             className="w-[20rem] px-4 py-2"

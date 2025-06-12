@@ -247,7 +247,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
   return (
     <div>
       <div className="p-2 bg-slate-300 rounded-t mx-auto text-center font-bold flex justify-between">
-        <h2>{task_name}</h2>
+        <h2>{task_name} Task</h2>
         <X onClick={() => handleCloseModal()} className="cursor-pointer" />
       </div>
       <div className="px-11 py-4">
@@ -483,7 +483,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                 {isLoading ? (
                   <l-tailspin size="15" stroke="3" speed="0.9" color="white" />
                 ) : (
-                  "Submit"
+                  <>{task_name}</>
                 )}
               </Button>
             </div>

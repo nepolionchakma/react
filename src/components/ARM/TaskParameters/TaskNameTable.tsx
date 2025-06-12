@@ -188,7 +188,7 @@ export function TaskNameTable() {
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-2">
           <Input
-            placeholder="Search by User Task Name.."
+            placeholder="Search by User Task Name"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
             className="w-[20rem] px-4 py-2"

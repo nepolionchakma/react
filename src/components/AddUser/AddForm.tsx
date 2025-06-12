@@ -319,7 +319,7 @@ const AddForm: FC<AddFormProps> = ({
                 color="white"
               ></l-tailspin>
             ) : (
-              "Create"
+              "Add"
             )}
           </Button>
         </div>

@@ -201,7 +201,7 @@ export function ManageExecutionMethodsTable() {
       {isOpenModal === "create_execution_methods" ? (
         <CustomModal4 className="w-[770px]">
           <ExecutionMethodEdit
-            action="Create Execution Method"
+            action="Add"
             selected={selected}
             handleCloseModal={handleCloseModal}
           />
@@ -210,7 +210,7 @@ export function ManageExecutionMethodsTable() {
         isOpenModal === "edit_execution_methods" && (
           <CustomModal4 className="w-[770px]">
             <ExecutionMethodEdit
-              action="Edit Execution Method"
+              action="Edit"
               selected={selected}
               handleCloseModal={handleCloseModal}
             />
@@ -230,7 +230,7 @@ export function ManageExecutionMethodsTable() {
                   />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Create Execution Method</p>
+                  <p>Add</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -248,14 +248,14 @@ export function ManageExecutionMethodsTable() {
                     />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Edit Execution Method</p>
+                    <p>Edit</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </button>
             <Alert
               disabled={selected.length === 0}
-              tooltipTitle="Delete Execution Method"
+              tooltipTitle="Delete"
               actionName="delete"
               onContinue={() => handleDelete(selected)}
             >
@@ -271,7 +271,7 @@ export function ManageExecutionMethodsTable() {
             </Alert>
           </div>
           <Input
-            placeholder="Search by Internal Execution Method.."
+            placeholder="Search by Internal Execution Method"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
             className="w-[20rem] px-4 py-2"
