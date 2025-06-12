@@ -341,9 +341,7 @@ export function ViewEditScheduledTasksTable() {
               {/* delete  */}
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <button
-                  // disabled={!selected}
-                  >
+                  <button disabled={!selected}>
                     {/* <button disabled={selected.length === 0}> */}
                     <TooltipProvider>
                       <Tooltip>
