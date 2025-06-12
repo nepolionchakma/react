@@ -223,7 +223,7 @@ export function TaskParametersTable() {
         isOpenModal === "update_task_params" && (
           <CustomModal3>
             <TaskParametersModal
-              task_name="Update Parameter"
+              task_name="Edit Parameter"
               selected={selectedTaskParameters[0]}
               handleCloseModal={handleCloseModal}
             />
@@ -248,7 +248,7 @@ export function TaskParametersTable() {
                     />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Add parameter</p>
+                    <p>Add</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -275,7 +275,7 @@ export function TaskParametersTable() {
                     />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Edit Parameter</p>
+                    <p>Edit</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -285,7 +285,7 @@ export function TaskParametersTable() {
                 selectedTaskParameters.length === 0 ||
                 !selectedTask?.def_task_id
               } // disable condition
-              tooltipTitle="Delete Parameter" // tooltip title
+              tooltipTitle="Delete" // tooltip title
               actionName="delete" // Cancel/Reschedule
               onContinue={() =>
                 handleDeleteParameters(
@@ -304,7 +304,7 @@ export function TaskParametersTable() {
             {/* </div> */}
           </div>
           <Input
-            placeholder="Search by Parameter Name.."
+            placeholder="Search by Parameter Name"
             value={
               (table.getColumn("parameter_name")?.getFilterValue() as string) ??
               ""

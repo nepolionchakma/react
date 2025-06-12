@@ -111,6 +111,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
         console.log(error);
       } finally {
         setIsLoading(false);
+        setSelectedUser({} as IUsersInfoTypes);
         //table toggle false
         table.toggleAllRowsSelected(false);
         // setSelected([]);
@@ -127,19 +128,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
 
   const handleRowSelection = (rowSelection: IUsersInfoTypes) => {
     if (selectedUser.user_name === rowSelection.user_name) {
-      setSelectedUser({
-        user_id: 0,
-        user_name: "string",
-        email_addresses: "",
-        profile_picture: {
-          original: "",
-          thumbnail: "",
-        },
-        first_name: "",
-        middle_name: "",
-        last_name: "",
-        job_title: "",
-      });
+      setSelectedUser({} as IUsersInfoTypes);
     } else {
       setSelectedUser(rowSelection);
     }
@@ -149,19 +138,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
     deleteCombinedUser([selectedUser]);
     //table toggle empty
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
-    setSelectedUser({
-      user_id: 0,
-      user_name: "string",
-      email_addresses: "",
-      profile_picture: {
-        original: "",
-        thumbnail: "",
-      },
-      first_name: "",
-      middle_name: "",
-      last_name: "",
-      job_title: "",
-    });
+    setSelectedUser({} as IUsersInfoTypes);
   };
   const table = useReactTable({
     data,
@@ -207,7 +184,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
   };
   return (
     <div className="px-3">
-      {isOpenModal === "create_user" ? (
+      {isOpenModal === "add_user" ? (
         <CustomModal4 className="w-[770px] ">
           <AddUser
             selected={selectedUser}
@@ -233,11 +210,11 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
                 <TooltipTrigger>
                   <PlusIcon
                     className="cursor-pointer"
-                    onClick={() => handleOpenModal("create_user")}
+                    onClick={() => handleOpenModal("add_user")}
                   />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Create An Account</p>
+                  <p>Add</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -254,7 +231,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
                   />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Edit Account</p>
+                  <p>Edit</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -263,9 +240,9 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
                 selectedUser.user_id === 0 ||
                 token.user_type.toLocaleLowerCase() !== "system"
               } // disable condition
-              tooltipTitle="Delete Account" // tooltip title
+              tooltipTitle="Delete" // tooltip title
               actionName="delete" // Cancel/Reschedule
-              onContinue={handleDelete} // funtion
+              onContinue={handleDelete} // function
             >
               <span className="block text-black">
                 1. username : {selectedUser.user_name}
@@ -273,7 +250,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
             </Alert>
           </div>
           <Input
-            placeholder="Search by User Task Name.."
+            placeholder="Search by User Task Name"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
             className="w-[20rem] px-4 py-2"

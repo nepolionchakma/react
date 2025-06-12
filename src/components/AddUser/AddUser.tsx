@@ -109,7 +109,7 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues:
-      isOpenModal === "create_user"
+      isOpenModal === "add_user"
         ? {
             user_name: "",
             user_type: "person",
@@ -171,7 +171,7 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
     };
 
     try {
-      isOpenModal === "create_user" && createUser(postData);
+      isOpenModal === "add_user" && createUser(postData);
       isOpenModal === "edit_user" && updateUser(selected.user_id, putData);
     } catch (error) {
       console.log(error);
@@ -185,9 +185,7 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
     <div className=" ">
       <div className="px-6 py-2 bg-slate-300 rounded-t mx-auto text-center font-bold flex justify-between">
         <h1>
-          {isOpenModal === "edit_user"
-            ? "Edit An Account"
-            : "Create An Account"}
+          {isOpenModal === "edit_user" ? "Edit An Account" : "Add An Account"}
         </h1>
 
         <X onClick={() => handleCloseModal()} className="cursor-pointer" />
