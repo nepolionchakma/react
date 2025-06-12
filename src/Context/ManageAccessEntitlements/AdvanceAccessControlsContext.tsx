@@ -95,13 +95,9 @@ interface IAACContextTypes {
   setSelectedAccessModelItem: Dispatch<
     SetStateAction<IManageAccessModelsTypes[]>
   >;
-  createDefAccessModel: (postData: IManageAccessModelsTypes) => Promise<
-    | {
-        data: string;
-        status: number;
-      }
-    | undefined
-  >;
+  createDefAccessModel: (
+    postData: IManageAccessModelsTypes
+  ) => Promise<boolean>;
   deleteDefAccessModel: (items: IManageAccessModelsTypes[]) => Promise<void>;
   fetchAccessModelLogics: () => Promise<void>;
   fetchDefAccessModelLogics: (
@@ -508,40 +504,23 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   const createDefAccessModel = async (postData: IManageAccessModelsTypes) => {
     try {
       setIsLoading(true);
-      const {
-        model_name,
-        description,
-        type,
-        state,
-        run_status,
-        created_by,
-        last_updated_by,
-      } = postData;
-      const res = await api.post(`/def-access-models`, {
-        model_name,
-        description,
-        type,
-        state,
-        run_status,
-        created_by,
-        last_updated_by,
-      });
+      const res = await api.post(`/def-access-models`, postData);
       if (res.status === 201) {
         setStateChange((prev) => prev + 1);
         toast({
-          description: `Added successfully.`,
+          description: res.data.message,
         });
-        return {
-          data: res.data,
-          status: res.status,
-        };
+        return true;
       }
+      return false;
     } catch (error) {
-      console.log(error);
-      toast({
-        variant: "destructive",
-        description: `Failed to add.`,
-      });
+      if (error instanceof Error) {
+        toast({
+          description: error.message,
+          variant: "destructive",
+        });
+      }
+      return false;
     } finally {
       setIsLoading(false);
     }

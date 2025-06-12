@@ -63,14 +63,11 @@ const AddForm: FC<IManageAccessEntitlementsProps> = ({
       created_by: token?.user_name,
       last_updated_by: token?.user_name,
     };
-    try {
-      const res = await createDefAccessModel(postData);
-      if (res && res.status === 201) {
-        setOpenAddModal(false);
-      }
+
+    const res = await createDefAccessModel(postData);
+    if (res) {
+      setOpenAddModal(false);
       form.reset();
-    } catch (error) {
-      console.log(error);
     }
   }
 
