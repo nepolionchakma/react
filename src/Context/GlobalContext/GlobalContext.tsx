@@ -246,6 +246,7 @@ export function GlobalContextProvider({
       password,
     } = postData;
     try {
+      console.log(postData, "postData");
       const res = await axios.post(`${FLASK_ENDPOINT_URL}/users`, {
         user_type,
         user_name,
