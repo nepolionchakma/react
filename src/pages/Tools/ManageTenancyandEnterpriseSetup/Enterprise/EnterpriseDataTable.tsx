@@ -175,6 +175,7 @@ export function EnterpriseDataTable({
             action={action}
             tabName={tabName}
             selectedEnterpriseRows={selectedEnterpriseRows}
+            setSelectedEnterpriseRows={setSelectedEnterpriseRows}
             setStateChanged={setStateChanged}
             handleCloseModal={handleCloseModal}
           />
@@ -186,6 +187,7 @@ export function EnterpriseDataTable({
           selectedEnterpriseRows={selectedEnterpriseRows}
           setAction={setAction}
           setStateChanged={setStateChanged}
+          setSelectedEnterpriseRows={setSelectedEnterpriseRows}
         />
         <div className="flex items-center gap-2">
           <div className="flex gap-2 items-center ml-auto">
