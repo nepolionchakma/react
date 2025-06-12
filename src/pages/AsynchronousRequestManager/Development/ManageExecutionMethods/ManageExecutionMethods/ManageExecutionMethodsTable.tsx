@@ -259,15 +259,17 @@ export function ManageExecutionMethodsTable() {
               actionName="delete"
               onContinue={() => handleDelete(selected)}
             >
-              <span className="font-semibold block text-black">
-                Selected Execution Method Name
-                {selected.length > 1 ? "'s are" : " is"} :{" "}
-              </span>
-              {selected.map((row, i) => (
-                <span key={i} className="flex flex-col text-black">
-                  {i + 1}. {row.execution_method}
+              <span className="flex flex-col items-start">
+                <span className="font-semibold block text-black">
+                  Selected Execution Method Name
+                  {selected.length > 1 ? "'s are" : " is"} :{" "}
                 </span>
-              ))}
+                {selected.map((row, i) => (
+                  <span key={i} className="flex flex-col text-black">
+                    {i + 1}. {row.execution_method}
+                  </span>
+                ))}
+              </span>
             </Alert>
           </div>
           <Input

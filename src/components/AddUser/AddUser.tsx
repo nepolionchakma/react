@@ -48,7 +48,7 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
 
   const FormSchema = z
     .object(
-      isOpenModal === "create_user"
+      isOpenModal === "add_user"
         ? {
             user_type: z.string(),
             user_name: z.string(),
@@ -118,7 +118,7 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
             first_name: "",
             middle_name: "",
             last_name: "",
-            // job_title: "",
+            job_title: "",
             password: "",
             confirm_password: "",
           }

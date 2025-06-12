@@ -278,7 +278,7 @@ export function TaskTable() {
               actionName="cancel"
               onContinue={() => handleCancel(selected!)}
             >
-              <span className="block text-center">
+              <span className="block text-center text-black">
                 Task name - {selected?.task_name}
               </span>
             </Alert>

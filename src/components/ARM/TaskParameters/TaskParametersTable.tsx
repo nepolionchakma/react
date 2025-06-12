@@ -294,12 +294,14 @@ export function TaskParametersTable() {
                 )
               } // funtion
             >
-              <>Parameter Name :</>
-              {selectedTaskParameters.map((item, i) => (
-                <span key={item.def_param_id}>
-                  {i + 1}.{item.parameter_name}
-                </span>
-              ))}
+              <span className="flex flex-col items-start gap-1 text-black">
+                <>Parameter Name :</>
+                {selectedTaskParameters.map((item, i) => (
+                  <span key={item.def_param_id}>
+                    {i + 1}.{item.parameter_name}
+                  </span>
+                ))}
+              </span>
             </Alert>
             {/* </div> */}
           </div>
