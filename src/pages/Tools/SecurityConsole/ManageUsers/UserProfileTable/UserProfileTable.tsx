@@ -179,7 +179,7 @@ export function UserProfileTable({
     //table toggle false
     table.toggleAllRowsSelected(false);
   };
-  console.log(selectedUser, "selectedUser");
+
   return (
     <div className="px-3">
       {openModalName === "add_user_profile" && isCreateNewProfile ? (
@@ -249,9 +249,7 @@ export function UserProfileTable({
                 </Tooltip>
               </TooltipProvider>
               <Alert
-                disabled={
-                  selectedUser.user_id === 0 || selectedProfile.length === 0
-                } // disable condition
+                disabled={!selectedUser.user_id || selectedProfile.length === 0} // disable condition
                 tooltipTitle="Delete" // tooltip title
                 actionName="delete" // Cancel/Reschedule
                 onContinue={handleDelete} // funtion
