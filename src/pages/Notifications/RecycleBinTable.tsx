@@ -63,7 +63,9 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
         );
         setRecycleBinMsg(response.data);
       } catch (error) {
-        console.log("Error fetch recycle bin messages.");
+        if (error instanceof Error) {
+          toast({ title: error.message, variant: "destructive" });
+        }
       } finally {
         setIsLoading(false);
       }
@@ -131,9 +133,9 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
         }
       }
     } catch (error) {
-      toast({
-        title: "There is an error deleting message.",
-      });
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     }
   };
   const emptyRecycleBin = async () => {
@@ -174,7 +176,9 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
         }
       }
     } catch (error) {
-      console.error("Error deleting resource:");
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     }
   };
   const handleNavigate = (id: string) => {
@@ -249,7 +253,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
         </div>
         <Table>
           <TableHeader>
-            <TableRow className="bg-slate-200 hover:bg-white">
+            <TableRow className="bg-slate-200 hover:bg-slate-200">
               <TableHead className="w-[3rem] font-bold">Origin</TableHead>
               <TableHead className="w-[7rem] font-bold">{person}</TableHead>
               <TableHead className="font-bold">Subject</TableHead>
@@ -335,7 +339,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
                             <span>
                               <Alert
                                 disabled={false}
-                                actionName="delete"
+                                actionName="delete permanently"
                                 onContinue={() => handleDelete(msg)}
                               />
                             </span>

@@ -57,7 +57,9 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
         const result = response.data;
         setReceivedMessages(result);
       } catch (error) {
-        console.log("Error fecth inbox messages.");
+        if (error instanceof Error) {
+          toast({ title: error.message, variant: "destructive" });
+        }
       } finally {
         setIsLoading(false);
       }
@@ -86,10 +88,16 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
   const uniquMessagesIds = socketMessage.map((msg) => msg.id);
 
   const handleUniqueMessages = async (parentid: string) => {
-    const res = await api.put(`/messages/update-readers/${parentid}/${user}`);
-    if (res) {
-      navigate(`/notifications/inbox/${parentid}`);
-      handleRead(parentid);
+    try {
+      const res = await api.put(`/messages/update-readers/${parentid}/${user}`);
+      if (res) {
+        navigate(`/notifications/inbox/${parentid}`);
+        handleRead(parentid);
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     }
   };
 
@@ -105,7 +113,9 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
         });
       }
     } catch (error) {
-      console.log("Error when trying message moved to recyclebin.");
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     }
   };
 
@@ -128,7 +138,7 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
         </div>
         <Table>
           <TableHeader>
-            <TableRow className="bg-slate-200 hover:bg-white">
+            <TableRow className="bg-slate-200 hover:bg-slate-200">
               <TableHead className="w-[7rem] font-bold">{person}</TableHead>
               <TableHead className="font-bold">Subject</TableHead>
               <TableHead className="w-[7rem] font-bold">Date</TableHead>
@@ -164,10 +174,6 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
                     </TableCell>
                     <TableCell className="py-2">
                       <span className="font-medium mr-1">{msg.subject}</span>
-                      {/* <span className="text-dark-400 mr-1">
-                      {msg.body?.slice(0, 60)}
-                    </span>
-                    <span>...</span> */}
                     </TableCell>
                     <TableCell className="py-2">
                       {convertDate(msg.date)}
@@ -190,22 +196,12 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
                           </TooltipContent>
                         </Tooltip>
                       </TooltipProvider>
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span>
-                              <Alert
-                                disabled={false}
-                                actionName="move to reyclebin"
-                                onContinue={() => handleDelete(msg.id)}
-                              />
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Move to Recycle Bin</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      <Alert
+                        disabled={false}
+                        actionName="move to reycle bin"
+                        onContinue={() => handleDelete(msg.id)}
+                        tooltipTitle="Move to Recycle Bin"
+                      />
                     </TableCell>
                   </>
                 </TableRow>

@@ -37,7 +37,7 @@ const EnterpriseCreateAndEditModal = ({
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
-  console.log(action);
+  console.log(tabName, "tabname");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

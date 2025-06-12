@@ -6,12 +6,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 
 import { ChangeEvent, useEffect, useState } from "react";
 import { Check } from "lucide-react";
@@ -29,6 +23,7 @@ import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import Alert from "@/components/Alert/Alert";
+import CustomTooltip from "@/components/Tooltip/Tooltip";
 // import { v4 as uuidv4 } from "uuid";
 
 interface IOldMsgTypes {
@@ -88,7 +83,9 @@ const SingleDraft = () => {
           body: result?.body,
         });
       } catch (error) {
-        console.log(error);
+        if (error instanceof Error) {
+          toast({ title: error.message, variant: "destructive" });
+        }
       } finally {
         setIsLoading(false);
       }
@@ -187,7 +184,9 @@ const SingleDraft = () => {
         }, 500);
       }
     } catch (error) {
-      console.error("Error:", error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
       setRecivers([]);
       setSubject("");
@@ -248,7 +247,9 @@ const SingleDraft = () => {
         });
       }
     } catch (error) {
-      console.error("Error deleting resource:", error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     }
   };
 
@@ -301,42 +302,20 @@ const SingleDraft = () => {
         <Card className="w-full mb-4">
           <CardHeader>
             <div className="flex text-dark-400">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span className="p-1 rounded-md hover:bg-winter-100/50 h-7">
-                      <Link to="/notifications/drafts">
-                        <ArrowLeft size={20} color="black" />
-                      </Link>
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Back</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span>
-                      <Alert
-                        disabled={false}
-                        actionName="move to reyclebin"
-                        onContinue={handleDelete}
-                      />
-                      {/* <button
-                        onClick={handleDelete}
-                        className="p-1 rounded-md hover:bg-winter-100/50"
-                      >
-                        <Trash size={20} />
-                      </button> */}
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Move to Recycle Bin</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <CustomTooltip tooltipTitle="Back">
+                <span className="p-1 rounded-md h-7">
+                  <Link to="/notifications/drafts">
+                    <ArrowLeft size={20} color="black" />
+                  </Link>
+                </span>
+              </CustomTooltip>
+
+              <Alert
+                disabled={false}
+                actionName="move to reycle bin"
+                onContinue={handleDelete}
+                tooltipTitle="Move to Recycle Bin"
+              />
             </div>
             <CardTitle className=" font-bold">Draft Message Check</CardTitle>
           </CardHeader>

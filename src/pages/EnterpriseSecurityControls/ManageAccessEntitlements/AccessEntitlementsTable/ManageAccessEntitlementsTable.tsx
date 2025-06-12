@@ -1,12 +1,7 @@
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -45,6 +40,7 @@ import {
 import { useManageAccessEntitlementsContext } from "@/Context/ManageAccessEntitlements/ManageAccessEntitlementsContext";
 import { toast } from "@/components/ui/use-toast";
 import Alert from "@/components/Alert/Alert";
+import CustomTooltip from "@/components/Tooltip/Tooltip";
 
 // Main Component
 const ManageAccessEntitlementsTable = () => {
@@ -191,10 +187,6 @@ const ManageAccessEntitlementsTable = () => {
     },
   });
 
-  // const handleCancel = () => {
-  //   setDeleteAccessPointsElements([]);
-  // };
-
   // Delete items generate Handler
   const handleGenerateAccessPointsDelete = async () => {
     try {
@@ -202,10 +194,12 @@ const ManageAccessEntitlementsTable = () => {
       const result = await fetchAccessPointsEntitlementForDelete(
         selectedAccessEntitlements
       );
-      console.log(result, "result");
+
       setDeleteAccessPointsElements(result);
     } catch (error) {
-      console.error(error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
       setDeleteLoading(false);
     }
@@ -277,139 +271,107 @@ const ManageAccessEntitlementsTable = () => {
     <div className="px-3">
       {/* Top Actions */}
       <div className="flex gap-3 justify-between items-center py-2">
-        <div className="flex gap-3">
+        <div className="flex gap-3 items-center">
           <div className="flex gap-3 items-center px-4 py-2 border rounded">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span>
-                    <Plus
-                      className="cursor-pointer hover:scale-110 duration-300 "
-                      onClick={() => {
-                        setEditManageAccessEntitlement(true);
-                        setSelectedManageAccessEntitlements(
-                          {} as IManageAccessEntitlementsTypes
-                        );
-                        setFilteredData([]);
-                        setSelectedAccessEntitlements({
-                          def_entitlement_id: 0,
-                          entitlement_name: "",
-                          description: "",
-                          comments: "",
-                          status: "",
-                          effective_date: "",
-                          revison: 0,
-                          revision_date: "",
-                          created_on: "",
-                          last_updated_on: "",
-                          last_updated_by: "",
-                          created_by: "",
-                        });
-                        table
-                          .getRowModel()
-                          .rows.forEach((row) => row.toggleSelected(false));
-                        setMangeAccessEntitlementAction("add");
-                      }}
-                    />
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Add Access Entitlement</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <CustomTooltip tooltipTitle="Add">
+              <span>
+                <Plus
+                  className="cursor-pointer"
+                  onClick={() => {
+                    setEditManageAccessEntitlement(true);
+                    setSelectedManageAccessEntitlements(
+                      {} as IManageAccessEntitlementsTypes
+                    );
+                    setFilteredData([]);
+                    setSelectedAccessEntitlements({
+                      def_entitlement_id: 0,
+                      entitlement_name: "",
+                      description: "",
+                      comments: "",
+                      status: "",
+                      effective_date: "",
+                      revison: 0,
+                      revision_date: "",
+                      created_on: "",
+                      last_updated_on: "",
+                      last_updated_by: "",
+                      created_by: "",
+                    });
+                    table
+                      .getRowModel()
+                      .rows.forEach((row) => row.toggleSelected(false));
+                    setMangeAccessEntitlementAction("add");
+                  }}
+                />
+              </span>
+            </CustomTooltip>
 
             {selectedAccessEntitlements.def_entitlement_id !== 0 ? (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span>
-                      <FileEdit
-                        className="cursor-pointer hover:scale-110 duration-300"
-                        onClick={() => {
-                          setEditManageAccessEntitlement(true);
-                          setSelectedManageAccessEntitlements(
-                            selectedAccessEntitlements
-                          );
-                          setMangeAccessEntitlementAction("edit");
-                          setTable(table);
-                        }}
-                      />
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Edit Access Entitlements</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <CustomTooltip tooltipTitle="Edit">
+                <span>
+                  <FileEdit
+                    className="cursor-pointer hover:scale-110 duration-300"
+                    onClick={() => {
+                      setEditManageAccessEntitlement(true);
+                      setSelectedManageAccessEntitlements(
+                        selectedAccessEntitlements
+                      );
+                      setMangeAccessEntitlementAction("edit");
+                      setTable(table);
+                    }}
+                  />
+                </span>
+              </CustomTooltip>
             ) : (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span>
-                      <FileEdit className="cursor-not-allowed text-slate-200" />
-                    </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Edit Access Entitlements</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <CustomTooltip tooltipTitle="Edit">
+                <span>
+                  <FileEdit className="cursor-not-allowed text-slate-200" />
+                </span>
+              </CustomTooltip>
             )}
-            <div className="flex items-center">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <span>
-                      <Alert
-                        disabled={
-                          selectedAccessEntitlements.def_entitlement_id === 0
-                        }
-                        actionName="delete"
-                        onContinue={handleDelete}
-                        onClick={handleGenerateAccessPointsDelete}
-                      >
-                        <span className="flex flex-col gap-1">
-                          {deleteLoading ? (
-                            <span className="h-10 w-10 mx-auto p-2">
-                              <l-tailspin
-                                size="30"
-                                stroke="5"
-                                speed="0.9"
-                                color="black"
-                              />
-                            </span>
-                          ) : (
-                            <span>
-                              <span className="font-bold">
-                                {selectedAccessEntitlements.entitlement_name}
-                              </span>
-
-                              {deleteAccessPointsElements && (
-                                <span>
-                                  {deleteAccessPointsElements.map((item) => (
-                                    <span
-                                      key={item.def_access_point_id}
-                                      className="flex gap-1"
-                                    >
-                                      {item.element_name}
-                                    </span>
-                                  ))}
-                                </span>
-                              )}
-                            </span>
-                          )}
-                          {isLoading && <span>loading</span>}
-                        </span>
-                      </Alert>
+            <Alert
+              disabled={selectedAccessEntitlements.def_entitlement_id === 0}
+              actionName="delete"
+              onContinue={handleDelete}
+              onClick={handleGenerateAccessPointsDelete}
+              tooltipTitle="Delete"
+            >
+              <span className="flex flex-col gap-1">
+                {deleteLoading ? (
+                  <span className="h-10 w-10 mx-auto p-2">
+                    <l-tailspin
+                      size="30"
+                      stroke="5"
+                      speed="0.9"
+                      color="black"
+                    />
+                  </span>
+                ) : (
+                  <span className="flex flex-col items-start gap-1">
+                    <span className="font-bold">
+                      Entitlement Name:
+                      {` ${selectedAccessEntitlements.entitlement_name}`}
                     </span>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Delete Access Entitlements</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
+
+                    <span>
+                      {deleteAccessPointsElements && (
+                        <span>
+                          {deleteAccessPointsElements.map((item, index) => (
+                            <span
+                              key={item.def_access_point_id}
+                              className="flex gap-1"
+                            >
+                              {index + 1}. {item.element_name}
+                            </span>
+                          ))}
+                        </span>
+                      )}
+                    </span>
+                  </span>
+                )}
+                {isLoading && <span>loading</span>}
+              </span>
+            </Alert>
           </div>
         </div>
 

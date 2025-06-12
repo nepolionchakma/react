@@ -2,13 +2,9 @@ import { toast } from "@/components/ui/use-toast";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { IEnterprisesTypes } from "@/types/interfaces/users.interface";
 import { FileEdit } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import Alert from "@/components/Alert/Alert";
+import CustomTooltip from "@/components/Tooltip/Tooltip";
 
 interface ActionItemsProps {
   selectedEnterpriseRows: IEnterprisesTypes[];
@@ -43,7 +39,9 @@ const ActionItems = ({
           setSelectedEnterpriseRows([]);
         }
       } catch (error) {
-        console.log(error);
+        if (error instanceof Error) {
+          toast({ title: error.message, variant: "destructive" });
+        }
       } finally {
         setStateChanged(Math.random() + 23 * 3000);
       }
@@ -53,7 +51,7 @@ const ActionItems = ({
   const handleAction = () => {
     console.log(selectedEnterpriseRows, "59");
     if (selectedEnterpriseRows[0].enterprise_name === null) {
-      setAction("create");
+      setAction("add");
     } else {
       setAction("edit");
     }
@@ -61,99 +59,40 @@ const ActionItems = ({
   return (
     <div className="flex gap-3 items-center px-4 py-2 border rounded">
       <div className="flex gap-3 items-center">
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                disabled={
-                  selectedEnterpriseRows.length > 1 ||
-                  selectedEnterpriseRows.length === 0
-                }
-              >
-                <FileEdit
-                  size={24}
-                  className={`${
-                    selectedEnterpriseRows.length > 1 ||
-                    selectedEnterpriseRows.length === 0
-                      ? "text-slate-200 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}
-                  onClick={handleAction}
-                />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Edit Enterprise Setup</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <CustomTooltip tooltipTitle="Edit">
+          <button
+            disabled={
+              selectedEnterpriseRows.length > 1 ||
+              selectedEnterpriseRows.length === 0
+            }
+          >
+            <FileEdit
+              size={23}
+              className={`${
+                selectedEnterpriseRows.length > 1 ||
+                selectedEnterpriseRows.length === 0
+                  ? "text-slate-200 cursor-not-allowed"
+                  : "cursor-pointer"
+              }`}
+              onClick={handleAction}
+            />
+          </button>
+        </CustomTooltip>
 
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span>
-                <Alert
-                  actionName="delete"
-                  disabled={selectedEnterpriseRows.length === 0}
-                  onContinue={handleDelete}
-                >
-                  <div className="flex flex-col items-start">
-                    {selectedEnterpriseRows.map((item, index) => (
-                      <span key={item.tenant_id} className="text-black">
-                        {index + 1}. Enterprise Name : {item.enterprise_name}
-                      </span>
-                    ))}
-                  </div>
-                </Alert>
-                {/* <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <button disabled={selectedEnterpriseRows.length === 0}>
-                      <Trash
-                        size={24}
-                        className={`${
-                          selectedEnterpriseRows.length === 0
-                            ? "cursor-not-allowed text-slate-200"
-                            : "cursor-pointer"
-                        }`}
-                      />
-                    </button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Are you absolutely sure?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        {selectedEnterpriseRows.map((item, index) => (
-                          <span
-                            key={item.tenant_id}
-                            className="block text-black"
-                          >
-                            {index + 1}. Enterprise Name :{" "}
-                            {item.enterprise_name}
-                          </span>
-                        ))}
-                        <span className="mt-2 text-sm text-muted-foreground block">
-                          This action cannot be undone. This will permanently
-                          delete your data from the server.
-                        </span>
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDelete}>
-                        Continue
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog> */}
+        <Alert
+          actionName="delete"
+          disabled={selectedEnterpriseRows.length === 0}
+          onContinue={handleDelete}
+          tooltipTitle="Delete"
+        >
+          <div className="flex flex-col items-start">
+            {selectedEnterpriseRows.map((item, index) => (
+              <span key={item.tenant_id} className="text-black">
+                {index + 1}. Enterprise Name : {item.enterprise_name}
               </span>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Delete Enterprise Setup</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+            ))}
+          </div>
+        </Alert>
       </div>
     </div>
   );

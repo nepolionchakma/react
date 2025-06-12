@@ -136,6 +136,7 @@ const ComposeButton = () => {
       if (error instanceof Error) {
         toast({
           title: error.message,
+          variant: "destructive",
         });
       }
     } finally {
@@ -171,7 +172,9 @@ const ComposeButton = () => {
         });
       }
     } catch (error) {
-      console.error("Error:", error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
       setIsDrafting(false);
       setRecivers([]);

@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import Alert from "@/components/Alert/Alert";
+import CustomTooltip from "@/components/Tooltip/Tooltip";
 
 const SingleMessage = () => {
   const api = useAxiosPrivate();
@@ -65,6 +66,7 @@ const SingleMessage = () => {
         if (error instanceof Error) {
           toast({
             title: `${error.message}}`,
+            variant: "destructive",
           });
         }
       } finally {
@@ -86,6 +88,7 @@ const SingleMessage = () => {
         if (error instanceof Error) {
           toast({
             title: `${error.message}}`,
+            variant: "destructive",
           });
         }
       } finally {
@@ -120,6 +123,7 @@ const SingleMessage = () => {
       if (error instanceof Error) {
         toast({
           title: `${error.message}`,
+          variant: "destructive",
         });
       }
     }
@@ -174,7 +178,7 @@ const SingleMessage = () => {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span className="p-1 rounded-md hover:bg-winter-100/50 h-7">
+                  <span className="p-1 rounded-md  h-7">
                     <Link to="/notifications/inbox">
                       <ArrowLeft size={20} />
                     </Link>
@@ -236,37 +240,21 @@ const SingleMessage = () => {
                         {convertDate(msg.date)}
                       </p>
                       <div className="flex items-center">
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span>
-                                <ReplyDialog
-                                  setTotalMessages={setTotalMessages}
-                                  parrentMessage={parrentMessage}
-                                />
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Reply</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span>
-                                <Alert
-                                  disabled={false}
-                                  actionName="move to reyclebin"
-                                  onContinue={() => handleDelete(msg.id)}
-                                />
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Move to Recycle Bin</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                        <CustomTooltip tooltipTitle="Reply">
+                          <span>
+                            <ReplyDialog
+                              setTotalMessages={setTotalMessages}
+                              parrentMessage={parrentMessage}
+                            />
+                          </span>
+                        </CustomTooltip>
+
+                        <Alert
+                          disabled={false}
+                          actionName="move to reycle bin"
+                          onContinue={() => handleDelete(msg.id)}
+                          tooltipTitle="Move to Recycle Bin"
+                        />
                       </div>
                     </div>
                   </div>

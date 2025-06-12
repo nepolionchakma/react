@@ -1,4 +1,4 @@
-import { Circle, CircleOff, Trash } from "lucide-react";
+import { Circle, CircleOff, Trash, Trash2 } from "lucide-react";
 import React from "react";
 
 interface IconControllerProps {
@@ -31,22 +31,20 @@ const IconController = React.forwardRef<SVGSVGElement, IconControllerProps>(
           return (
             <Trash width={width} height={height} color={color} ref={ref} />
           );
-        case "move to reyclebin":
+        case "move to reycle bin":
           return (
             <Trash width={width} height={height} color={color} ref={ref} />
+          );
+        case "delete permanently":
+          return (
+            <Trash2 width={width} height={height} color={color} ref={ref} />
           );
         default:
           return null;
       }
     };
 
-    return (
-      <>
-        <div className="justify-center items-center">
-          {getIcon(name, height, width, color)}
-        </div>
-      </>
-    );
+    return <>{getIcon(name, height, width, color)}</>;
   }
 );
 

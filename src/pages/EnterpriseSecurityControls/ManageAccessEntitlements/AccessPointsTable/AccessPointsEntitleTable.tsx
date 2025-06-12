@@ -56,12 +56,19 @@ const AccessPointsEntitleTable = () => {
     isLoading,
     setLimit,
   } = useManageAccessEntitlementsContext();
-
+  console.log(data, "data");
   // State Hooks
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
+
+  console.log(
+    selectedManageAccessEntitlements,
+    "manageaccess",
+    selectedAccessEntitlements,
+    "access"
+  );
 
   // Table Initialization
   const table = useReactTable({
@@ -105,7 +112,8 @@ const AccessPointsEntitleTable = () => {
     page,
     limit,
     isLoadingAccessPoints,
-    selectedAccessEntitlements.def_entitlement_id,
+    selectedAccessEntitlements,
+    fetchAccessPointsEntitlement,
   ]);
 
   // Effect: Manage Pagination Array based on selected state

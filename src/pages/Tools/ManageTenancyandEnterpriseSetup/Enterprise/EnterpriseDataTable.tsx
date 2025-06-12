@@ -125,10 +125,7 @@ export function EnterpriseDataTable({
   };
 
   const handleCloseModal = () => {
-    setAction(""); // close modal
-    // setSelectedEnterpriseRows([]);
-    //table toggle false
-    // table.toggleAllRowsSelected(false);
+    setAction("");
   };
 
   const handleRow = (value: number) => {
@@ -157,7 +154,9 @@ export function EnterpriseDataTable({
         setData(res.data.items);
         setTotalPage(res.data.pages);
       } catch (error) {
-        console.log(error);
+        if (error instanceof Error) {
+          toast({ title: error.message, variant: "destructive" });
+        }
       } finally {
         setIsLoading(false);
       }
@@ -170,7 +169,7 @@ export function EnterpriseDataTable({
   return (
     <div className="w-full">
       <>
-        {tabName && tabName === "Enterprise Setup" && action && (
+        {tabName && tabName === "Enterprise" && action && (
           <EnterpriseCreateAndEditModal
             action={action}
             tabName={tabName}
