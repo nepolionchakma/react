@@ -333,7 +333,7 @@ export function ViewEditScheduledTasksTable() {
                       />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Edit Schedule Task</p>
+                      <p>Edit</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>
@@ -379,7 +379,7 @@ export function ViewEditScheduledTasksTable() {
                           {selected?.cancelled_yn === "Y" ? (
                             <p>Reschedule Task</p>
                           ) : (
-                            <p>Cancel Scheduled Task</p>
+                            <p>Cancel</p>
                           )}
                           {/* <p>Cancel Schedule Task</p> */}
                         </TooltipContent>
@@ -435,7 +435,7 @@ export function ViewEditScheduledTasksTable() {
           </div>
         </div>
         <Input
-          placeholder="Filter by task Name"
+          placeholder="Search by Task Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
           className="max-w-sm px-4 py-2"

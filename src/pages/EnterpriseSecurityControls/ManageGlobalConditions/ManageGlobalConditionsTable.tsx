@@ -157,14 +157,11 @@ const ManageGlobalConditionsTable = () => {
     } else {
       getlazyLoadingGlobalConditions(page, limit);
     }
-  }, [page, limit, debouncedQuery]);
+    // table.getRowModel().rows.map((row) => row.toggleSelected(false));
+    // setSelectedManageGlobalConditionItem([]);
+  }, [page, limit, debouncedQuery, stateChange]);
 
-  // Fetch Data
-  useEffect(() => {
-    getlazyLoadingGlobalConditions(page, limit);
-    table.getRowModel().rows.map((row) => row.toggleSelected(false));
-    setSelectedManageGlobalConditionItem([]);
-  }, [page, stateChange]);
+  console.log(stateChange, "state");
 
   // loader
   tailspin.register();
@@ -268,7 +265,11 @@ const ManageGlobalConditionsTable = () => {
     setSelectedManageGlobalConditionItem((prevSelected) => {
       if (prevSelected.includes(rowData)) {
         // If the id is already selected, remove it
-        return prevSelected.filter((selectedId) => selectedId !== rowData);
+        return prevSelected.filter(
+          (selectedId) =>
+            selectedId.def_global_condition_id !==
+            rowData.def_global_condition_id
+        );
       } else {
         // If the id is not selected, add it
         return [...prevSelected, rowData];
@@ -322,7 +323,7 @@ const ManageGlobalConditionsTable = () => {
     //   );
     // }
     await deleteManageGlobalCondition(
-      selectedManageGlobalConditionItem[0].def_global_condition_id
+      selectedManageGlobalConditionItem[0]?.def_global_condition_id
     );
     setSelectedManageGlobalConditionItem([]);
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
@@ -337,6 +338,9 @@ const ManageGlobalConditionsTable = () => {
     );
     setManageGlobalConditionTopicData(fetchData ?? []);
   };
+
+  console.log(selectedManageGlobalConditionItem, "selected Item");
+
   return (
     <div className="px-3">
       {/* top icon and columns*/}
@@ -350,14 +354,11 @@ const ManageGlobalConditionsTable = () => {
                     className="cursor-pointer"
                     onClick={() => {
                       setIsOpenManageGlobalConditionModal(true);
-                      // setEditManageAccessEntitlement(true);
-                      // setSelectedManageAccessEntitlements(Object());
-                      // setMangeAccessEntitlementAction("add");
                     }}
                   />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Create Global Condition</p>
+                  <p>Add</p>
                 </TooltipContent>
               </Tooltip>
               <Tooltip>
@@ -372,7 +373,7 @@ const ManageGlobalConditionsTable = () => {
                   )}
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Edit Global Condition</p>
+                  <p>Edit</p>
                 </TooltipContent>
               </Tooltip>
               <Alert
@@ -380,7 +381,7 @@ const ManageGlobalConditionsTable = () => {
                 disabled={selectedManageGlobalConditionItem.length === 0}
                 onContinue={handleDelete}
                 onClick={handleDeleteCalculate}
-                tooltipTitle="Delete Global Condition"
+                tooltipTitle="Delete"
               >
                 <>
                   {selectedManageGlobalConditionItem.map((globalItem) => (
@@ -577,21 +578,6 @@ const ManageGlobalConditionsTable = () => {
                       {header.id === "select" && (
                         <Checkbox
                           checked={isSelectAll}
-                          // onCheckedChange={(value) => {
-                          //   // Toggle all page rows selected
-                          //   table.toggleAllPageRowsSelected(!!value);
-
-                          //   // Use a timeout to log the selected data
-                          //   setTimeout(() => {
-                          //     const selectedRows = table
-                          //       .getSelectedRowModel()
-                          //       .rows.map((row) => row.original);
-                          //     // console.log(selectedRows);
-                          //     setSelectedManageGlobalConditionItem(
-                          //       selectedRows
-                          //     );
-                          //   }, 0);
-                          // }}
                           onClick={handleSelectAll}
                           aria-label="Select all"
                         />
@@ -633,8 +619,10 @@ const ManageGlobalConditionsTable = () => {
                       {index === 0 ? (
                         <Checkbox
                           className="mr-1"
-                          checked={selectedManageGlobalConditionItem.includes(
-                            row.original
+                          checked={selectedManageGlobalConditionItem.some(
+                            (item) =>
+                              item.def_global_condition_id ===
+                              row.original.def_global_condition_id
                           )}
                           onClick={() => handleRowSelection(row.original)}
                         />

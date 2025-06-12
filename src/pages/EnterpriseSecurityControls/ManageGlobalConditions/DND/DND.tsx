@@ -29,7 +29,7 @@ const DND: FC = () => {
   const api = useAxiosPrivate();
   const {
     isLoading,
-    // setStateChange,
+    setStateChange,
     isEditModalOpen,
     setIsEditModalOpen,
     selectedManageGlobalConditionItem: selectedItem,
@@ -43,7 +43,7 @@ const DND: FC = () => {
     {
       id: attrMaxId ? attrMaxId + 1 : 1,
       def_global_condition_logic_id: attrMaxId ? attrMaxId + 1 : 1,
-      def_global_condition_id: selectedItem[0].def_global_condition_id,
+      def_global_condition_id: selectedItem[0]?.def_global_condition_id,
       object: "",
       attribute: "",
       condition: "",
@@ -60,7 +60,7 @@ const DND: FC = () => {
     const fetchDataFunc = async () => {
       try {
         const fetchData = await fetchManageGlobalConditionLogics(
-          selectedItem[0].def_global_condition_id
+          selectedItem[0]?.def_global_condition_id
         );
 
         const sortedData = fetchData?.sort(
@@ -88,10 +88,10 @@ const DND: FC = () => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      name: selectedItem[0].name ?? "",
-      description: selectedItem[0].description ?? "",
-      datasource: selectedItem[0].datasource ?? "",
-      status: selectedItem[0].status ?? "",
+      name: selectedItem[0]?.name ?? "",
+      description: selectedItem[0]?.description ?? "",
+      datasource: selectedItem[0]?.datasource ?? "",
+      status: selectedItem[0]?.status ?? "",
     },
   });
   //changed Access GlobalCondition Value
@@ -119,7 +119,7 @@ const DND: FC = () => {
   const newItem = {
     id: getId,
     def_global_condition_logic_id: getId,
-    def_global_condition_id: selectedItem[0].def_global_condition_id,
+    def_global_condition_id: selectedItem[0]?.def_global_condition_id,
     object: "",
     attribute: "",
     condition: "",
@@ -283,23 +283,24 @@ const DND: FC = () => {
       if (isChangedAccessGlobalCondition) {
         api
           .put(
-            `/def-global-conditions/${selectedItem[0].def_global_condition_id}`,
+            `/def-global-conditions/${selectedItem[0]?.def_global_condition_id}`,
             changedAccessGlobalCondition
           )
           .then((logicResult) => {
             if (logicResult.status === 200) {
               toast({
-                title: "Info !!!",
-                description: "Access Global Condition data Save successfully.",
+                description: logicResult.data.message,
               });
             }
-            console.log("Logic Result:", logicResult);
           })
           .catch((error) => {
-            console.error("Error occurred:", error);
+            if (error instanceof Error) {
+              toast({ title: error.message, variant: "destructive" });
+            }
           })
           .finally(() => {
             setIsActionLoading(false);
+            setStateChange((prev) => prev + 1);
           });
       }
       if (items.length > 0) {
@@ -320,7 +321,6 @@ const DND: FC = () => {
 
         if (attributeResult.status === 200) {
           toast({
-            title: "Info !!!",
             description: "Save data successfully.",
           });
 
@@ -329,7 +329,9 @@ const DND: FC = () => {
         }
       }
     } catch (error) {
-      console.error("Error saving data:", error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
       form.reset(form.getValues());
     }

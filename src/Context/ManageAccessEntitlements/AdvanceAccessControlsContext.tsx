@@ -54,7 +54,7 @@ interface IAACContextTypes {
   >;
   createManageGlobalCondition: (
     postData: IManageGlobalConditionTypes
-  ) => Promise<void>;
+  ) => Promise<boolean>;
   fetchManageGlobalConditionLogics: (
     filterId: number
   ) => Promise<IManageGlobalConditionLogicExtendTypes[] | undefined>;
@@ -306,27 +306,27 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   const createManageGlobalCondition = async (
     postData: IManageGlobalConditionTypes
   ) => {
+    const { name, datasource, description, status } = postData;
     try {
       setIsLoading(true);
-      const { name, datasource, description, status } = postData;
-      const res = await api.post<IManageGlobalConditionTypes>(
+      const res = await api.post<{ message: string }>(
         `/def-global-conditions`,
         { name, datasource, description, status }
       );
       if (res.status === 201) {
         setStateChange((prev) => prev + 1);
         toast({
-          description: `Added successfully.`,
+          description: res.data.message,
         });
+        setIsOpenManageGlobalConditionModal(false);
+        return true;
       }
+      return false;
     } catch (error) {
-      console.log(error);
-      // if (error.response.status === 408) {
-      //   toast({
-      //     title: "Info",
-      //     description: `${error.response.data.message}`,
-      //   });
-      // }
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
+      return false;
     } finally {
       setIsLoading(false);
     }
@@ -379,12 +379,14 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       .then((res) => {
         if (res.status === 200) {
           toast({
-            description: `Deleted successfully.`,
+            description: res.data.message,
           });
         }
       })
       .catch((error) => {
-        console.log(error);
+        if (error instanceof Error) {
+          toast({ title: error.message, variant: "destructive" });
+        }
       })
       .finally(() => {
         setStateChange((prev) => prev + 1);

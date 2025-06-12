@@ -51,19 +51,16 @@ const ManageGlobalConditionsModal: FC<IManageGlobalConditionProps> = () => {
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    try {
-      const postData = {
-        def_global_condition_id: maxId,
-        name: data.name,
-        description: data.description,
-        datasource: data.datasource,
-        status: data.status,
-      };
-      createManageGlobalCondition(postData);
-    } catch (error) {
-      console.log(error);
-    } finally {
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    const postData = {
+      def_global_condition_id: maxId,
+      name: data.name,
+      description: data.description,
+      datasource: data.datasource,
+      status: data.status,
+    };
+    const res = await createManageGlobalCondition(postData);
+    if (res) {
       form.reset();
     }
 
