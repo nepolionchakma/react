@@ -105,6 +105,13 @@ const ManageGlobalConditionsTable = () => {
   >([]);
 
   useEffect(() => {
+    const selectedRowsData = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.original as IManageGlobalConditionTypes);
+    setSelectedManageGlobalConditionItem(selectedRowsData);
+  }, [rowSelection, data]);
+
+  useEffect(() => {
     if (data.length > 0) {
       if (selectedManageGlobalConditionItem.length !== data.length) {
         setIsSelectAll(false);
@@ -114,14 +121,19 @@ const ManageGlobalConditionsTable = () => {
     }
   }, [selectedManageGlobalConditionItem.length, data.length]);
 
+  // const handleSelectAll = () => {
+  //   if (isSelectAll) {
+  //     setIsSelectAll(false);
+  //     setSelectedManageGlobalConditionItem([]);
+  //   } else {
+  //     setIsSelectAll(true);
+  //     setSelectedManageGlobalConditionItem(data);
+  //   }
+  // };
   const handleSelectAll = () => {
-    if (isSelectAll) {
-      setIsSelectAll(false);
-      setSelectedManageGlobalConditionItem([]);
-    } else {
-      setIsSelectAll(true);
-      setSelectedManageGlobalConditionItem(data);
-    }
+    // This now directly interacts with react-table's selection
+    table.toggleAllRowsSelected(!table.getIsAllRowsSelected());
+    setIsSelectAll(!isSelectAll);
   };
 
   const handleQuery = (e: string) => {
@@ -160,8 +172,6 @@ const ManageGlobalConditionsTable = () => {
     // table.getRowModel().rows.map((row) => row.toggleSelected(false));
     // setSelectedManageGlobalConditionItem([]);
   }, [page, limit, debouncedQuery, stateChange]);
-
-  console.log(stateChange, "state");
 
   // loader
   tailspin.register();
@@ -220,7 +230,7 @@ const ManageGlobalConditionsTable = () => {
       ),
     },
   ];
-  //
+
   const table = useReactTable({
     data,
     columns,
@@ -260,24 +270,24 @@ const ManageGlobalConditionsTable = () => {
     }
   };
 
-  // select row
-  const handleRowSelection = (rowData: IManageGlobalConditionTypes) => {
-    setSelectedManageGlobalConditionItem((prevSelected) => {
-      if (prevSelected.includes(rowData)) {
-        // If the id is already selected, remove it
-        return prevSelected.filter(
-          (selectedId) =>
-            selectedId.def_global_condition_id !==
-            rowData.def_global_condition_id
-        );
-      } else {
-        // If the id is not selected, add it
-        return [...prevSelected, rowData];
-      }
-    });
-  };
+  // const handleRowSelection = (rowData: IManageGlobalConditionTypes) => {
+  //   setSelectedManageGlobalConditionItem((prevSelected) => {
+  //     if (prevSelected.includes(rowData)) {
+  //       // If the id is already selected, remove it
+  //       return prevSelected.filter(
+  //         (selectedId) =>
+  //           selectedId.def_global_condition_id !==
+  //           rowData.def_global_condition_id
+  //       );
+  //     } else {
+  //       // If the id is not selected, add it
+  //       return [...prevSelected, rowData];
+  //     }
+  //   });
+  // };
 
   // handle delete Calculate
+
   const handleDeleteCalculate = async () => {
     const results: IManageGlobalConditionLogicExtendTypes[] = [];
     try {
@@ -325,7 +335,6 @@ const ManageGlobalConditionsTable = () => {
     await deleteManageGlobalCondition(
       selectedManageGlobalConditionItem[0]?.def_global_condition_id
     );
-    setSelectedManageGlobalConditionItem([]);
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
     setSelectedManageGlobalConditionItem([]);
     setWillBeDelete([]);
@@ -423,91 +432,6 @@ const ManageGlobalConditionsTable = () => {
                   ))}
                 </>
               </Alert>
-
-              {/* <AlertDialog>
-                <AlertDialogTrigger
-                  disabled={selectedManageGlobalConditionItem.length === 0}
-                >
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Trash
-                        onClick={handleDeleteCalculate}
-                        className={`hover:scale-110 duration-300 ${
-                          selectedManageGlobalConditionItem.length === 0
-                            ? "text-slate-200 cursor-not-allowed"
-                            : "text-slate-800 cursor-pointer"
-                        }`}
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Delete Global Condition</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle className="text-black">
-                      Are you absolutely sure?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action cannot be undone. This will permanently delete
-                      from the server.
-                      <span className="font-semibold block text-black">
-                        Selected Global Condition Name
-                        {selectedManageGlobalConditionItem.length > 1
-                          ? "'s are"
-                          : " is"}{" "}
-                        :{" "}
-                      </span>
-                      {selectedManageGlobalConditionItem.map((modelItem, i) => (
-                        <span key={modelItem.def_global_condition_id}>
-                          <span className="capitalize block text-black">
-                            {i + 1} : {modelItem.name}
-                          </span>
-                          <span>
-                            {isLoading ? (
-                              <span className="block">
-                                <l-tailspin
-                                  size="40"
-                                  stroke="5"
-                                  speed="0.9"
-                                  color="black"
-                                ></l-tailspin>
-                              </span>
-                            ) : (
-                              <span>
-                                {willBeDelete
-                                  .filter(
-                                    (item) =>
-                                      item.def_global_condition_id ===
-                                      modelItem.def_global_condition_id
-                                  )
-                                  .map((item, index) => (
-                                    <span
-                                      key={index}
-                                      className="capitalize flex items-center text-black"
-                                    >
-                                      {index + 1}. Object - {item.object},
-                                      Attribute - {item.attribute}
-                                    </span>
-                                  ))}
-                              </span>
-                            )}
-                          </span>
-                        </span>
-                      ))}
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel onClick={() => setWillBeDelete([])}>
-                      Cancel
-                    </AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDelete}>
-                      Continue
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog> */}
             </TooltipProvider>
           </div>
         </div>
@@ -577,8 +501,8 @@ const ManageGlobalConditionsTable = () => {
                       {/* Example: Checkbox for selecting all rows */}
                       {header.id === "select" && (
                         <Checkbox
-                          checked={isSelectAll}
-                          onClick={handleSelectAll}
+                          checked={table.getIsAllRowsSelected()} // Use react-table's method
+                          onCheckedChange={() => handleSelectAll()}
                           aria-label="Select all"
                         />
                       )}
@@ -619,12 +543,10 @@ const ManageGlobalConditionsTable = () => {
                       {index === 0 ? (
                         <Checkbox
                           className="mr-1"
-                          checked={selectedManageGlobalConditionItem.some(
-                            (item) =>
-                              item.def_global_condition_id ===
-                              row.original.def_global_condition_id
-                          )}
-                          onClick={() => handleRowSelection(row.original)}
+                          checked={row.getIsSelected()} // Use react-table's selection state
+                          onCheckedChange={(value) =>
+                            row.toggleSelected(!!value)
+                          }
                         />
                       ) : (
                         flexRender(

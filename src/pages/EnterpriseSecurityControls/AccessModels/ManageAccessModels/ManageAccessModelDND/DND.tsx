@@ -40,7 +40,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     manageAccessModelAttrMaxId,
     isActionLoading,
     setIsActionLoading,
-    // setStateChange,
+    setStateChange,
   } = useAACContext();
 
   const [rightWidgets, setRightWidgets] = useState<Extend[]>([]);
@@ -320,6 +320,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
           })
           .finally(() => {
             setIsActionLoading(false);
+            setStateChange((prev) => prev + 1);
           });
       }
       if (items.length > 0) {
@@ -346,6 +347,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
           })
           .finally(() => {
             setIsActionLoading(false);
+            setStateChange((prev) => prev + 1);
           });
       }
     } catch (error) {

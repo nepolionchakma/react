@@ -54,7 +54,6 @@ const SearchResultsTable = () => {
     selectedAccessModelItem,
     setSelectedAccessModelItem,
     stateChange,
-    fetchDefAccessModels,
     lazyLoadingDefAccessModels,
     getSearchAccessModels,
     manageAccessModels: data,
@@ -89,6 +88,14 @@ const SearchResultsTable = () => {
   //   pageIndex: 0, //initial page index
   //   pageSize: 5, //default page size
   // });
+
+  React.useEffect(() => {
+    const selectedRow = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.original as IManageAccessModelsTypes);
+    setSelectedAccessModelItem(selectedRow);
+  }, [rowSelection, data]);
+
   const table = useReactTable({
     data,
     columns,
@@ -123,6 +130,7 @@ const SearchResultsTable = () => {
       clearTimeout(handleDebounce);
     };
   }, [query]);
+
   React.useEffect(() => {
     if (data.length > 0) {
       if (selectedAccessModelItem.length !== data.length) {
@@ -134,13 +142,15 @@ const SearchResultsTable = () => {
   }, [selectedAccessModelItem.length, data.length]);
 
   const handleSelectAll = () => {
-    if (isSelectAll) {
-      setIsSelectAll(false);
-      setSelectedAccessModelItem([]);
-    } else {
-      setIsSelectAll(true);
-      setSelectedAccessModelItem(data);
-    }
+    table.toggleAllRowsSelected(!table.getIsAllRowsSelected());
+    setIsSelectAll(!isSelectAll);
+    // if (isSelectAll) {
+    //   setIsSelectAll(false);
+    //   setSelectedAccessModelItem([]);
+    // } else {
+    //   setIsSelectAll(true);
+    //   setSelectedAccessModelItem(data);
+    // }
   };
 
   const handleQuery = (e: string) => {
@@ -166,27 +176,27 @@ const SearchResultsTable = () => {
     } else {
       lazyLoadingDefAccessModels(page, limit);
     }
-  }, [page, limit, debouncedQuery]);
+  }, [page, limit, debouncedQuery, stateChange]);
 
-  React.useEffect(() => {
-    fetchDefAccessModels();
-    table.getRowModel().rows.map((row) => row.toggleSelected(false));
-    setSelectedAccessModelItem([]);
-  }, [stateChange]);
+  // React.useEffect(() => {
+  //   fetchDefAccessModels();
+  //   table.getRowModel().rows.map((row) => row.toggleSelected(false));
+  //   setSelectedAccessModelItem([]);
+  // }, [stateChange]);
   // const data = manageAccessModels ? [...manageAccessModels] : [];
   ring.register();
 
-  const handleRowSelection = (rowData: IManageAccessModelsTypes) => {
-    setSelectedAccessModelItem((prevSelected) => {
-      if (prevSelected.includes(rowData)) {
-        // If the id is already selected, remove it
-        return prevSelected.filter((selectedId) => selectedId !== rowData);
-      } else {
-        // If the id is not selected, add it
-        return [...prevSelected, rowData];
-      }
-    });
-  };
+  // const handleRowSelection = (rowData: IManageAccessModelsTypes) => {
+  //   setSelectedAccessModelItem((prevSelected) => {
+  //     if (prevSelected.includes(rowData)) {
+  //       // If the id is already selected, remove it
+  //       return prevSelected.filter((selectedId) => selectedId !== rowData);
+  //     } else {
+  //       // If the id is not selected, add it
+  //       return [...prevSelected, rowData];
+  //     }
+  //   });
+  // };
 
   const handleDeleteCalculate = async () => {
     const results: IManageAccessModelLogicExtendTypes[] = [];
@@ -423,8 +433,8 @@ const SearchResultsTable = () => {
                       {/* Example: Checkbox for selecting all rows */}
                       {header.id === "select" && (
                         <Checkbox
-                          checked={isSelectAll}
-                          onClick={handleSelectAll}
+                          checked={table.getIsAllRowsSelected()}
+                          onCheckedChange={() => handleSelectAll()}
                           aria-label="Select all"
                         />
                       )}
@@ -460,10 +470,10 @@ const SearchResultsTable = () => {
                       {index === 0 ? (
                         <Checkbox
                           className="m-1"
-                          checked={selectedAccessModelItem.includes(
-                            row.original
-                          )}
-                          onClick={() => handleRowSelection(row.original)}
+                          checked={row.getIsSelected()}
+                          onCheckedChange={(value) =>
+                            row.toggleSelected(!!value)
+                          }
                         />
                       ) : (
                         flexRender(
