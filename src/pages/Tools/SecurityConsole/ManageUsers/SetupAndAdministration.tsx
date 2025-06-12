@@ -46,7 +46,7 @@ const SetupAndAdministration = () => {
     };
     fetchData();
   }, [selectedUser, isUpdated, api]);
-  console.log(data, "data");
+
   return (
     <div>
       <UsersTable

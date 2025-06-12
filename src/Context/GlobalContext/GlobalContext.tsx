@@ -554,7 +554,7 @@ export function GlobalContextProvider({
   const fetchTenants = async () => {
     try {
       const res = await api.get<ITenantsTypes[]>(`/def-tenants`);
-      console.log(res, "res");
+
       return res.data;
     } catch (error) {
       console.log(error);

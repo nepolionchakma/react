@@ -220,10 +220,10 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
             </TooltipProvider>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger disabled={selectedUser.user_id === 0}>
+                <TooltipTrigger disabled={!selectedUser.user_id}>
                   <FileEdit
                     className={`${
-                      selectedUser.user_id === 0
+                      !selectedUser.user_id
                         ? "text-slate-200 cursor-not-allowed"
                         : "cursor-pointer"
                     }`}
@@ -237,7 +237,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
             </TooltipProvider>
             <Alert
               disabled={
-                selectedUser.user_id === 0 ||
+                !selectedUser.user_id ||
                 token.user_type.toLocaleLowerCase() !== "system"
               } // disable condition
               tooltipTitle="Delete" // tooltip title
@@ -245,7 +245,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
               onContinue={handleDelete} // function
             >
               <span className="block text-black">
-                1. username : {selectedUser.user_name}
+                Username : {selectedUser.user_name}
               </span>
             </Alert>
           </div>
