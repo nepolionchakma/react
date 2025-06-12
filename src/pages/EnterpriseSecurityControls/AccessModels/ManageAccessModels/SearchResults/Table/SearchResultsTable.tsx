@@ -225,7 +225,6 @@ const SearchResultsTable = () => {
       })
     );
     await deleteDefAccessModel(selectedAccessModelItem);
-    setSelectedAccessModelItem([]);
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
     setSelectedAccessModelItem([]);
     setWillBeDelete([]);

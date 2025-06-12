@@ -535,12 +535,17 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         .then((res) => {
           if (res.status === 200) {
             toast({
-              description: `Deleted successfully.`,
+              description: res.data.message,
             });
           }
         })
         .catch((error) => {
-          console.log(error);
+          if (error instanceof Error) {
+            toast({
+              description: error.message,
+              variant: "destructive",
+            });
+          }
         })
         .finally(() => {
           setStateChange((prev) => prev + 1);
