@@ -214,7 +214,7 @@ export function TaskTable() {
       {isOpenModal === "register_task" ? (
         <CustomModal4 className="w-[770px]">
           <AsynchronousRegisterEditTaskModal
-            task_name="Register Task"
+            task_name="Register"
             selected={selected!}
             isLoading={isLoading}
             setIsLoading={setIsLoading}
@@ -225,7 +225,7 @@ export function TaskTable() {
         isOpenModal === "edit_task" && (
           <CustomModal4 className="w-[770px]">
             <AsynchronousRegisterEditTaskModal
-              task_name="Edit Task"
+              task_name="Edit"
               selected={selected!}
               isLoading={isLoading}
               setIsLoading={setIsLoading}
@@ -235,98 +235,105 @@ export function TaskTable() {
         )
       )}
       {/* top icon and columns*/}
-      <div className="flex gap-3 items-center justify-between py-2">
-        <div className="flex gap-3 items-center px-4 py-2 border rounded">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <PlusIcon
-                  className="cursor-pointer"
-                  onClick={() => handleOpenModal("register_task")}
-                />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Register Task</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <button disabled={!selected}>
+      <div className="flex items-center justify-between py-2">
+        <div className="flex items-center gap-2">
+          <div className="flex gap-2 items-center border p-2 rounded-md">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <FileEdit
-                    className={`${
-                      !selected
-                        ? "text-slate-200 cursor-not-allowed"
-                        : "cursor-pointer"
-                    }`}
-                    onClick={() => handleOpenModal("edit_task")}
+                  <PlusIcon
+                    className="cursor-pointer"
+                    onClick={() => handleOpenModal("register_task")}
                   />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Edit Task</p>
+                  <p>Register</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
-          </button>
-          <Alert
-            disabled={
-              !selected || selected?.cancelled_yn.toLocaleLowerCase() === "y"
-            }
-            tooltipTitle="Cancel Task"
-            actionName="cancel"
-            onContinue={() => handleCancel(selected!)}
-          >
-            <span className="block text-center">
-              Task name - {selected?.task_name}
-            </span>
-          </Alert>
-        </div>
-        <Input
-          placeholder="Search by User Task Name.."
-          value={query.value}
-          onChange={(e) => handleQuery(e.target.value)}
-          className="w-[20rem] px-4 py-2"
-        />
-        <div className="flex gap-2 items-center ml-auto">
-          <h3>Rows :</h3>
-          <input
-            type="number"
-            placeholder="Rows"
-            value={limit}
-            min={1}
-            // max={20}
-            onChange={(e) => handleRow(Number(e.target.value))}
-            className="w-14 border rounded p-2"
+            <button disabled={!selected}>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <FileEdit
+                      className={`${
+                        !selected
+                          ? "text-slate-200 cursor-not-allowed"
+                          : "cursor-pointer"
+                      }`}
+                      onClick={() => handleOpenModal("edit_task")}
+                    />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Edit</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </button>
+            <Alert
+              disabled={
+                !selected || selected?.cancelled_yn.toLocaleLowerCase() === "y"
+              }
+              tooltipTitle="Cancel"
+              actionName="cancel"
+              onContinue={() => handleCancel(selected!)}
+            >
+              <span className="block text-center">
+                Task name - {selected?.task_name}
+              </span>
+            </Alert>
+          </div>
+          <Input
+            placeholder="Search by User Task Name"
+            value={query.value}
+            onChange={(e) => handleQuery(e.target.value)}
+            className="w-[20rem] px-4 py-2"
           />
         </div>
-        {/* Columns */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="max-h-72 overflow-y-auto">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <div className="flex items-center gap-2">
+          <div className="flex gap-2 items-center ml-auto">
+            <h3>Rows :</h3>
+            <input
+              type="number"
+              placeholder="Rows"
+              value={limit}
+              min={1}
+              // max={20}
+              onChange={(e) => handleRow(Number(e.target.value))}
+              className="w-14 border rounded p-2"
+            />
+          </div>
+          {/* Columns */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="max-h-72 overflow-y-auto"
+            >
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       {/* Table */}
       <div className="rounded-md border">

@@ -38,7 +38,7 @@ const ManageAccessPointsEntitleModal: FC<IManageAccessEntitlementsProps> = ({
     createManageAccessEntitlements,
     updateManageAccessEntitlements,
     isLoading,
-    setSelectedAccessEntitlements: setSelected,
+    // setSelectedAccessEntitlements: setSelected,
     table,
   } = useManageAccessEntitlementsContext();
   const currentDate = new Date().toLocaleDateString();
@@ -51,7 +51,6 @@ const ManageAccessPointsEntitleModal: FC<IManageAccessEntitlementsProps> = ({
     }),
   });
 
-  console.log(selectedItem);
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -102,7 +101,7 @@ const ManageAccessPointsEntitleModal: FC<IManageAccessEntitlementsProps> = ({
     };
     if (mangeAccessEntitlementAction === "edit") {
       updateManageAccessEntitlements(id, putData);
-      setSelected({} as IManageAccessEntitlementsTypes);
+      // setSelected({} as IManageAccessEntitlementsTypes);
       table
         ?.getRowModel()
         .rows.forEach((row: Row<IManageAccessEntitlementsTypes>) =>

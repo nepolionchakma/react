@@ -152,11 +152,11 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
       reset();
     }
   };
-  // console.log(selected,"selected")
+
   return (
     <div>
       <div className="p-2 bg-slate-300 rounded-t mx-auto text-center font-bold flex justify-between">
-        <h2>{action}</h2>
+        <h2>{action} Execution Method</h2>
         <X onClick={() => handleCloseModal()} className="cursor-pointer" />
       </div>
       <div className="px-11 p-5">
@@ -180,7 +180,7 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
                   </FormItem>
                 )}
               />
-              {action !== "Edit Execution Method" && (
+              {action !== "Edit" && (
                 <FormField
                   control={form.control}
                   name="internal_execution_method"
@@ -240,7 +240,7 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
                 {isLoading ? (
                   <l-tailspin size="15" stroke="3" speed="0.9" color="white" />
                 ) : (
-                  "Submit"
+                  <>{action}</>
                 )}
               </Button>
             </div>

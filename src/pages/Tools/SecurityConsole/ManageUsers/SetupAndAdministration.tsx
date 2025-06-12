@@ -12,31 +12,18 @@ const SetupAndAdministration = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<IProfilesType[]>([]);
   // const [filterUserID, setFilterUserID] = useState<number[]>([]);
-  const [selectedUser, setSelectedUser] = useState<IUsersInfoTypes>({
-    user_id: 0,
-    user_name: "string",
-    email_addresses: "",
-    profile_picture: {
-      original: "",
-      thumbnail: "",
-    },
-    first_name: "",
-    middle_name: "",
-    last_name: "",
-    job_title: "",
-  });
+  const [selectedUser, setSelectedUser] = useState<IUsersInfoTypes>(
+    {} as IUsersInfoTypes
+  );
+  const [selectedProfile, setSelectedProfile] = useState<IProfilesType[]>([]);
   const [primaryCheckedItem, setPrimaryCheckedItem] = useState<IProfilesType>();
   const [isUpdated, setIsUpdated] = useState(0);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        if (selectedUser) {
+        if (selectedUser.user_id) {
           setIsLoading(true);
-          if (selectedUser.user_id === 0) {
-            setData([]);
-            return;
-          }
           const resData = await api.get(
             `/access-profiles/${selectedUser.user_id}`
           );
@@ -45,10 +32,9 @@ const SetupAndAdministration = () => {
             (item: IProfilesType) => item.primary_yn === "Y"
           );
           setPrimaryCheckedItem(filterPrimaryData);
-
+          setSelectedProfile([]);
           setData(resData.data);
-        }
-        if (selectedUser.user_name === "") {
+        } else {
           setData([]);
         }
       } catch (error) {
@@ -59,7 +45,7 @@ const SetupAndAdministration = () => {
       }
     };
     fetchData();
-  }, [selectedUser, isUpdated]);
+  }, [selectedUser, isUpdated, api]);
 
   return (
     <div>
@@ -75,6 +61,8 @@ const SetupAndAdministration = () => {
         setIsLoading={setIsLoading}
         selectedUser={selectedUser}
         primaryCheckedItem={primaryCheckedItem}
+        selectedProfile={selectedProfile}
+        setSelectedProfile={setSelectedProfile}
       />
     </div>
   );

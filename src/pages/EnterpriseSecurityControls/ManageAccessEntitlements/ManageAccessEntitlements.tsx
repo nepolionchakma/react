@@ -24,7 +24,7 @@ const ManageAccessEntitlements = () => {
             <div className="flex justify-between p-2 bg-slate-300 rounded-t-lg">
               <h2 className="text-lg font-bold">
                 {mangeAccessEntitlementAction === "edit"
-                  ? "Edit Manage Access Entitlements"
+                  ? "Edit Access Entitlement"
                   : "Add Access Entitlement"}
               </h2>
               <X

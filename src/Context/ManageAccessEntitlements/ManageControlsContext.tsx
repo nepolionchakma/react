@@ -51,18 +51,17 @@ export const ControlsContextProvider = ({
     }
   };
   const createControl = async (data: IControlsTypes) => {
-    await api
-      .post(`/controls`, data)
-      .then((res) => {
-        if (res.status === 201) {
-          toast({
-            description: `Added successfully.`,
-          });
-        }
-      })
-      .catch((error) => {
-        console.log(error);
-      });
+    try {
+      const res = await api.post(`/controls`, data);
+      console.log(res, "res");
+      if (res.status === 201) {
+        toast({
+          description: `Added successfully.`,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const searchFilter = async (data: ISearchTypes) => {

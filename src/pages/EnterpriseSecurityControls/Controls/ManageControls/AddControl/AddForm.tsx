@@ -57,13 +57,7 @@ const AddForm: FC<AddFormProps> = ({
               <FormItem>
                 <FormLabel>Description</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    required
-                    autoFocus
-                    type="text"
-                    placeholder="Description"
-                  />
+                  <Input {...field} type="text" placeholder="Description" />
                 </FormControl>
               </FormItem>
             )}
@@ -77,8 +71,8 @@ const AddForm: FC<AddFormProps> = ({
                 <FormControl>
                   <Input
                     {...field}
-                    autoFocus
-                    type="text"
+                    type="number"
+                    min={1}
                     placeholder="Pending Results Count"
                   />
                 </FormControl>
@@ -118,8 +112,8 @@ const AddForm: FC<AddFormProps> = ({
                 <FormControl>
                   <Input
                     {...field}
-                    autoFocus
-                    type="text"
+                    type="number"
+                    min={1}
                     placeholder="Priority"
                   />
                 </FormControl>
@@ -133,12 +127,7 @@ const AddForm: FC<AddFormProps> = ({
               <FormItem>
                 <FormLabel>Datasources</FormLabel>
                 <FormControl>
-                  <Input
-                    {...field}
-                    autoFocus
-                    type="text"
-                    placeholder="Datasources"
-                  />
+                  <Input {...field} type="text" placeholder="Datasources" />
                 </FormControl>
               </FormItem>
             )}

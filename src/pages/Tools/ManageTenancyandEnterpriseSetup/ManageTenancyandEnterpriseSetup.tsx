@@ -9,7 +9,7 @@ import {
 
 const ManageTenancyandEnterpriseSetup = () => {
   // const api = useAxiosPrivate();
-  const [tabName, setTabName] = useState<string>("tenancy");
+  const [tabName, setTabName] = useState<string>("Tenancy");
   const [action, setAction] = useState("");
   const [selectedTenancyRows, setSelectedTenancyRows] = useState<
     ITenantsTypes[]
@@ -27,7 +27,7 @@ const ManageTenancyandEnterpriseSetup = () => {
           </TabsTrigger>
           <TabsTrigger
             value="enterprise"
-            onClick={() => setTabName("Enterprise Setup")}
+            onClick={() => setTabName("Enterprise")}
           >
             Enterprise Setup
           </TabsTrigger>

@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import Alert from "@/components/Alert/Alert";
+import CustomTooltip from "@/components/Tooltip/Tooltip";
 
 const SingleSent = () => {
   const api = useAxiosPrivate();
@@ -62,6 +63,7 @@ const SingleSent = () => {
         if (error instanceof Error) {
           toast({
             title: `${error.message}}`,
+            variant: "destructive",
           });
         }
       } finally {
@@ -91,6 +93,7 @@ const SingleSent = () => {
         if (error instanceof Error) {
           toast({
             title: `${error.message}}`,
+            variant: "destructive",
           });
         }
       } finally {
@@ -117,6 +120,7 @@ const SingleSent = () => {
       if (error instanceof Error) {
         toast({
           title: `${error.message}`,
+          variant: "destructive",
         });
       }
     }
@@ -167,20 +171,14 @@ const SingleSent = () => {
       ) : (
         <Card className="flex flex-col gap-4 w-full p-4">
           <div className="flex items-center">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="p-1 rounded-md hover:bg-winter-100/50 h-7">
-                    <Link to="/notifications/inbox">
-                      <ArrowLeft size={20} />
-                    </Link>
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Back</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <CustomTooltip tooltipTitle="Back">
+              <span className="p-1 rounded-md h-7">
+                <Link to="/notifications/sent">
+                  <ArrowLeft size={20} />
+                </Link>
+              </span>
+            </CustomTooltip>
+
             <p className="font-bold ml-4">{parrentMessage.subject}</p>
           </div>
           <div className="flex flex-col gap-4 w-full ">
@@ -247,28 +245,12 @@ const SingleSent = () => {
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <span>
-                                <Alert
-                                  disabled={false}
-                                  actionName="move to reyclebin"
-                                  onContinue={() => handleDelete(msg.id)}
-                                />
-                                {/* <button
-                                  onClick={() => handleDelete(msg.id)}
-                                  className="p-1 rounded-md hover:bg-winter-100/50"
-                                >
-                                  <Trash size={20} />
-                                </button> */}
-                              </span>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <p>Move to Recycle Bin</p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
+                        <Alert
+                          disabled={false}
+                          actionName="move to reycle bin"
+                          onContinue={() => handleDelete(msg.id)}
+                          tooltipTitle="Move to Recycle Bin"
+                        />
                       </div>
                     </div>
                   </div>

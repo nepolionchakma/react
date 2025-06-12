@@ -201,7 +201,7 @@ export function ManageExecutionMethodsTable() {
       {isOpenModal === "create_execution_methods" ? (
         <CustomModal4 className="w-[770px]">
           <ExecutionMethodEdit
-            action="Create Execution Method"
+            action="Add"
             selected={selected}
             handleCloseModal={handleCloseModal}
           />
@@ -210,7 +210,7 @@ export function ManageExecutionMethodsTable() {
         isOpenModal === "edit_execution_methods" && (
           <CustomModal4 className="w-[770px]">
             <ExecutionMethodEdit
-              action="Edit Execution Method"
+              action="Edit"
               selected={selected}
               handleCloseModal={handleCloseModal}
             />
@@ -218,9 +218,9 @@ export function ManageExecutionMethodsTable() {
         )
       )}
       {/* top icon and columns*/}
-      <div className="flex gap-3 items-center justify-between py-2">
-        <div className="flex gap-3 items-center px-4 py-2 border rounded">
-          <div className="flex gap-3">
+      <div className="flex items-center justify-between py-2">
+        <div className="flex items-center gap-2">
+          <div className="flex gap-2 items-center border p-2 rounded-md">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -230,7 +230,7 @@ export function ManageExecutionMethodsTable() {
                   />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Create Execution Method</p>
+                  <p>Add</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
@@ -248,14 +248,14 @@ export function ManageExecutionMethodsTable() {
                     />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Edit Execution Method</p>
+                    <p>Edit</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             </button>
             <Alert
               disabled={selected.length === 0}
-              tooltipTitle="Delete Execution Method"
+              tooltipTitle="Delete"
               actionName="delete"
               onContinue={() => handleDelete(selected)}
             >
@@ -270,52 +270,58 @@ export function ManageExecutionMethodsTable() {
               ))}
             </Alert>
           </div>
-        </div>
-        <Input
-          placeholder="Search by Internal Execution Method.."
-          value={query.value}
-          onChange={(e) => handleQuery(e.target.value)}
-          className="w-[20rem] px-4 py-2"
-        />
-        <div className="flex gap-2 items-center ml-auto">
-          <h3>Rows :</h3>
-          <input
-            type="number"
-            placeholder="Rows"
-            value={limit}
-            min={1}
-            // max={20}
-            onChange={(e) => handleRow(Number(e.target.value))}
-            className="w-14 border rounded p-2"
+          <Input
+            placeholder="Search by Internal Execution Method"
+            value={query.value}
+            onChange={(e) => handleQuery(e.target.value)}
+            className="w-[20rem] px-4 py-2"
           />
         </div>
-        {/* Columns */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="max-h-72 overflow-y-auto">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+
+        <div className="flex items-center gap-2">
+          <div className="flex gap-2 items-center ml-auto">
+            <h3>Rows :</h3>
+            <input
+              type="number"
+              placeholder="Rows"
+              value={limit}
+              min={1}
+              // max={20}
+              onChange={(e) => handleRow(Number(e.target.value))}
+              className="w-14 border rounded p-2"
+            />
+          </div>
+          {/* Columns */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="max-h-72 overflow-y-auto"
+            >
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       {/* Table */}
       <div className="rounded-md border">

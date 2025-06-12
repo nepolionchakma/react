@@ -121,16 +121,13 @@ export function TenancyDataTable({
   };
 
   const handleCloseModal = () => {
-    setAction(""); // close modal
-    // setSelectedTenancyRows([]);
-    //table toggle false
-    // table.toggleAllRowsSelected(false);
+    setAction("");
   };
 
   const handleRow = (value: number) => {
-    if (value < 1 || value > 20) {
+    if (value < 1) {
       toast({
-        title: "The value must be between 1 to 20",
+        title: "The value must be greater than 0",
         variant: "destructive",
       });
       return;
@@ -153,7 +150,9 @@ export function TenancyDataTable({
         setData(res.data.items);
         setTotalPage(res.data.pages);
       } catch (error) {
-        console.log(error);
+        if (error instanceof Error) {
+          toast({ title: error.message, variant: "destructive" });
+        }
       } finally {
         setIsLoading(false);
       }
@@ -164,61 +163,64 @@ export function TenancyDataTable({
   return (
     <div className="w-full">
       <>
-        {tabName && tabName === "tenancy" && action && (
+        {tabName && tabName === "Tenancy" && action && (
           <TenancyCreateAndEditModal
             action={action}
             tabName={tabName}
             selectedTenancyRows={selectedTenancyRows}
+            setSelectedTenancyRows={setSelectedTenancyRows}
             setStateChanged={setStateChanged}
             handleCloseModal={handleCloseModal}
           />
         )}
       </>
       {/* Action Items */}
-      <div className="flex items-center py-1">
+      <div className="flex items-center justify-between py-1">
         <ActionItems
           selectedTenancyRows={selectedTenancyRows}
           setAction={setAction}
           setStateChanged={setStateChanged}
+          setSelectedTenancyRows={setSelectedTenancyRows}
         />
-        <div className="flex gap-2 items-center ml-auto">
-          <h3>Rows :</h3>
-          <input
-            type="number"
-            placeholder="Rows"
-            value={limit}
-            min={1}
-            max={20}
-            onChange={(e) => handleRow(Number(e.target.value))}
-            className="w-14 border rounded p-2"
-          />
+        <div className="flex items-center gap-2">
+          <div className="flex gap-2 items-center ml-auto">
+            <h3>Rows :</h3>
+            <input
+              type="number"
+              placeholder="Rows"
+              value={limit}
+              min={1}
+              onChange={(e) => handleRow(Number(e.target.value))}
+              className="w-14 h-8 border rounded-lg p-2"
+            />
+          </div>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto h-8">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
       {/* Table  */}
       <div className="rounded-md border max-h-[65vh] overflow-auto">

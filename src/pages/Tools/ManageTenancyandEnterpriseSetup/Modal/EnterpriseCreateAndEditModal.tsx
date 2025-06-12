@@ -10,6 +10,9 @@ interface ICustomModalTypes {
   action: string;
   tabName: string;
   selectedEnterpriseRows?: IEnterprisesTypes[];
+  setSelectedEnterpriseRows: React.Dispatch<
+    React.SetStateAction<IEnterprisesTypes[]>
+  >;
   setStateChanged: React.Dispatch<React.SetStateAction<number>>;
   handleCloseModal: () => void;
 }
@@ -19,6 +22,7 @@ const EnterpriseCreateAndEditModal = ({
   selectedEnterpriseRows,
   setStateChanged,
   handleCloseModal,
+  setSelectedEnterpriseRows,
 }: ICustomModalTypes) => {
   const api = useAxiosPrivate();
   const [enterpriseName, setEnterpriseName] = useState<string>(
@@ -32,6 +36,8 @@ const EnterpriseCreateAndEditModal = ({
       : ""
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
+  console.log(tabName, "tabname");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -42,17 +48,41 @@ const EnterpriseCreateAndEditModal = ({
         enterprise_type: enterpriseType,
       };
 
-      const res = await api.post(
-        `/def-tenant-enterprise-setup/${selectedEnterpriseRows?.[0].tenant_id}`,
-        data
-      );
-      if (res) {
-        toast({
-          description: `${res.data.message}`,
-        });
+      console.log(data, "data", selectedEnterpriseRows, "selectedenterprises");
+
+      if (action === "edit") {
+        const res = await api.put(
+          `/update_enterprise/${selectedEnterpriseRows?.[0].tenant_id}`,
+          data,
+          {
+            baseURL: flaskUrl,
+          }
+        );
+        if (res.status === 200) {
+          toast({
+            description: `${res.data.message}`,
+          });
+          setSelectedEnterpriseRows([]);
+        }
+      } else {
+        const res = await api.post(
+          `/create_enterprise/${selectedEnterpriseRows?.[0].tenant_id}`,
+          data,
+          {
+            baseURL: flaskUrl,
+          }
+        );
+        if (res.status === 200) {
+          toast({
+            description: `${res.data.message}`,
+          });
+          setSelectedEnterpriseRows([]);
+        }
       }
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
       setIsLoading(false);
       handleClose();

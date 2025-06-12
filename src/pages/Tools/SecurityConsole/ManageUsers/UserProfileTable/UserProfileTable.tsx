@@ -36,10 +36,9 @@ import {
   IUsersInfoTypes,
 } from "@/types/interfaces/users.interface";
 import Pagination5 from "@/components/Pagination/Pagination5";
-import UpdateProfileIDModal from "@/pages/Profile/UpdateProfileIDModal/UpdateProfileIDModal";
 import { toast } from "@/components/ui/use-toast";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
-import CreateAccessProfile from "./CreateAccessProfile/CreateAccessProfile";
+import AddUserProfile from "./AddUserProfile/AddUserProfile";
 import {
   Tooltip,
   TooltipContent,
@@ -47,6 +46,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import Alert from "@/components/Alert/Alert";
+import EditUserProfile from "./EditUserProfile/EditUserProfile";
 interface Props {
   profileData: IProfilesType[];
   isUpdated: number;
@@ -55,6 +55,8 @@ interface Props {
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   selectedUser: IUsersInfoTypes;
   primaryCheckedItem: IProfilesType | undefined;
+  selectedProfile: IProfilesType[];
+  setSelectedProfile: React.Dispatch<React.SetStateAction<IProfilesType[]>>;
 }
 export function UserProfileTable({
   profileData,
@@ -64,6 +66,8 @@ export function UserProfileTable({
   setIsLoading,
   selectedUser,
   primaryCheckedItem,
+  selectedProfile,
+  setSelectedProfile,
 }: Props) {
   const api = useAxiosPrivate();
   const {
@@ -74,9 +78,6 @@ export function UserProfileTable({
   const [openModalName, setOpenModalName] = React.useState("");
   const [isCreateNewProfile, setIsCreateNewProfile] = React.useState(false);
   const [isUpdateProfile, setIsUpdateProfile] = React.useState(false);
-  const [selectedProfile, setSelectedProfile] = React.useState<IProfilesType[]>(
-    []
-  );
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -181,8 +182,8 @@ export function UserProfileTable({
 
   return (
     <div className="px-3">
-      {openModalName === "create_user_profile" && isCreateNewProfile ? (
-        <CreateAccessProfile
+      {openModalName === "add_user_profile" && isCreateNewProfile ? (
+        <AddUserProfile
           selectedUser={selectedUser}
           setIsCreateNewProfile={setIsCreateNewProfile}
           setIsUpdated={setIsUpdated}
@@ -190,7 +191,7 @@ export function UserProfileTable({
       ) : (
         openModalName === "edit_user_profile" &&
         isUpdateProfile && (
-          <UpdateProfileIDModal
+          <EditUserProfile
             editableProfile={selectedProfile[0]}
             setIsOpenModal={setIsUpdateProfile}
             isLoading={isLoading}
@@ -207,18 +208,18 @@ export function UserProfileTable({
             <div className="flex gap-3">
               <TooltipProvider>
                 <Tooltip>
-                  <TooltipTrigger disabled={selectedUser.user_id === 0}>
+                  <TooltipTrigger disabled={!selectedUser.user_id}>
                     <PlusIcon
                       className={`${
-                        selectedUser.user_id === 0
+                        !selectedUser.user_id
                           ? "text-slate-200 cursor-not-allowed"
                           : "cursor-pointer"
                       }`}
-                      onClick={() => handleOpenModal("create_user_profile")}
+                      onClick={() => handleOpenModal("add_user_profile")}
                     />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Create A New Profile</p>
+                    <p>Add</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
@@ -226,13 +227,16 @@ export function UserProfileTable({
                 <Tooltip>
                   <TooltipTrigger
                     disabled={
-                      selectedProfile.length > 1 || selectedProfile.length === 0
+                      selectedProfile.length > 1 ||
+                      selectedProfile.length === 0 ||
+                      !selectedUser.user_id
                     }
                   >
                     <FileEdit
                       className={`${
                         selectedProfile.length > 1 ||
-                        selectedProfile.length === 0
+                        selectedProfile.length === 0 ||
+                        !selectedUser.user_id
                           ? "text-slate-200 cursor-not-allowed"
                           : "cursor-pointer"
                       }`}
@@ -240,15 +244,13 @@ export function UserProfileTable({
                     />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Update Profile</p>
+                    <p>Edit</p>
                   </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
               <Alert
-                disabled={
-                  selectedUser.user_id === 0 || selectedProfile.length === 0
-                } // disable condition
-                tooltipTitle="Delete Profile" // tooltip title
+                disabled={!selectedUser.user_id || selectedProfile.length === 0} // disable condition
+                tooltipTitle="Delete" // tooltip title
                 actionName="delete" // Cancel/Reschedule
                 onContinue={handleDelete} // funtion
               >
@@ -264,7 +266,7 @@ export function UserProfileTable({
 
         {/* Middle Selected User */}
         <div className="mx-auto">
-          {selectedUser.user_id !== 0 && (
+          {selectedUser.user_id && (
             <h3>
               Selected Username:{" "}
               <span className="font-semibold">{selectedUser.user_name}</span>

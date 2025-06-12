@@ -24,7 +24,7 @@ interface ICreateAccessProfileTypes {
   selectedUser: IUsersInfoTypes;
 }
 
-const CreateAccessProfile = ({
+const AddUserProfile = ({
   setIsCreateNewProfile,
   setIsUpdated,
   selectedUser,
@@ -129,4 +129,4 @@ const CreateAccessProfile = ({
   );
 };
 
-export default CreateAccessProfile;
+export default AddUserProfile;

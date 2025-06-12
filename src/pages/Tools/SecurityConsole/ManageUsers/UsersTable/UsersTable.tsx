@@ -111,6 +111,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
         console.log(error);
       } finally {
         setIsLoading(false);
+        setSelectedUser({} as IUsersInfoTypes);
         //table toggle false
         table.toggleAllRowsSelected(false);
         // setSelected([]);
@@ -127,19 +128,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
 
   const handleRowSelection = (rowSelection: IUsersInfoTypes) => {
     if (selectedUser.user_name === rowSelection.user_name) {
-      setSelectedUser({
-        user_id: 0,
-        user_name: "string",
-        email_addresses: "",
-        profile_picture: {
-          original: "",
-          thumbnail: "",
-        },
-        first_name: "",
-        middle_name: "",
-        last_name: "",
-        job_title: "",
-      });
+      setSelectedUser({} as IUsersInfoTypes);
     } else {
       setSelectedUser(rowSelection);
     }
@@ -149,19 +138,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
     deleteCombinedUser([selectedUser]);
     //table toggle empty
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
-    setSelectedUser({
-      user_id: 0,
-      user_name: "string",
-      email_addresses: "",
-      profile_picture: {
-        original: "",
-        thumbnail: "",
-      },
-      first_name: "",
-      middle_name: "",
-      last_name: "",
-      job_title: "",
-    });
+    setSelectedUser({} as IUsersInfoTypes);
   };
   const table = useReactTable({
     data,
@@ -207,7 +184,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
   };
   return (
     <div className="px-3">
-      {isOpenModal === "create_user" ? (
+      {isOpenModal === "add_user" ? (
         <CustomModal4 className="w-[770px] ">
           <AddUser
             selected={selectedUser}
@@ -225,97 +202,102 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
         )
       )}
       {/* top icon and columns*/}
-      <div className="flex gap-3 items-center justify-between py-2">
-        <div className="flex gap-3 items-center px-4 py-2 border rounded">
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <PlusIcon
-                  className="cursor-pointer"
-                  onClick={() => handleOpenModal("create_user")}
-                />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Create An Account</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger disabled={selectedUser.user_id === 0}>
-                <FileEdit
-                  className={`${
-                    selectedUser.user_id === 0
-                      ? "text-slate-200 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}
-                  onClick={() => handleOpenModal("edit_user")}
-                />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Edit Account</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-          <Alert
-            disabled={
-              selectedUser.user_id === 0 ||
-              token.user_type.toLocaleLowerCase() !== "system"
-            } // disable condition
-            tooltipTitle="Delete Account" // tooltip title
-            actionName="delete" // Cancel/Reschedule
-            onContinue={handleDelete} // funtion
-          >
-            <span className="block text-black">
-              1. username : {selectedUser.user_name}
-            </span>
-          </Alert>
-        </div>
-        <Input
-          placeholder="Search by User Task Name.."
-          value={query.value}
-          onChange={(e) => handleQuery(e.target.value)}
-          className="max-w-sm px-4 py-2"
-        />
-        <div className="flex gap-2 items-center ml-auto">
-          <h3>Rows :</h3>
-          <input
-            type="number"
-            placeholder="Rows"
-            value={limit}
-            min={1}
-            // max={20}
-            onChange={(e) => handleRow(Number(e.target.value))}
-            className="w-14 border rounded p-2"
+      <div className="flex items-center justify-between py-2">
+        <div className="flex items-center gap-2">
+          <div className="flex gap-2 items-center  border p-2 rounded-md">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <PlusIcon
+                    className="cursor-pointer"
+                    onClick={() => handleOpenModal("add_user")}
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Add</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger disabled={!selectedUser.user_id}>
+                  <FileEdit
+                    className={`${
+                      !selectedUser.user_id
+                        ? "text-slate-200 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                    onClick={() => handleOpenModal("edit_user")}
+                  />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Edit</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+            <Alert
+              disabled={
+                !selectedUser.user_id ||
+                token.user_type.toLocaleLowerCase() !== "system"
+              } // disable condition
+              tooltipTitle="Delete" // tooltip title
+              actionName="delete" // Cancel/Reschedule
+              onContinue={handleDelete} // function
+            >
+              <span className="block text-black">
+                Username : {selectedUser.user_name}
+              </span>
+            </Alert>
+          </div>
+          <Input
+            placeholder="Search by User Task Name"
+            value={query.value}
+            onChange={(e) => handleQuery(e.target.value)}
+            className="w-[20rem] px-4 py-2"
           />
         </div>
-        {/* Columns */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+
+        <div className="flex items-center gap-2">
+          <div className="flex gap-2 items-center ml-auto">
+            <h3>Rows :</h3>
+            <input
+              type="number"
+              placeholder="Rows"
+              value={limit}
+              min={1}
+              // max={20}
+              onChange={(e) => handleRow(Number(e.target.value))}
+              className="w-14 border rounded p-2"
+            />
+          </div>
+          {/* Columns */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       {/* Table */}
       <div className="rounded-md border">
@@ -336,29 +318,6 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
                               header.column.columnDef.header,
                               header.getContext()
                             )}
-                        {/* Example: Checkbox for selecting all rows */}
-                        {/* {header.id === "select" && (
-                          <Checkbox
-                            checked={
-                              table.getIsAllPageRowsSelected() ||
-                              (table.getIsSomePageRowsSelected() &&
-                                "indeterminate")
-                            }
-                            onCheckedChange={(value) => {
-                              // Toggle all page rows selected
-                              table.toggleAllPageRowsSelected(!!value);
-                              setTimeout(() => {
-                                const selectedRows = table
-                                  .getSelectedRowModel()
-                                  .rows.map((row) => row.original);
-                                console.log(selectedRows);
-                                setSelectedUsers(selectedRows);
-                              }, 0);
-                            }}
-                            className="mr-1"
-                            aria-label="Select all"
-                          />
-                        )} */}
                       </TableHead>
                     );
                   })}
