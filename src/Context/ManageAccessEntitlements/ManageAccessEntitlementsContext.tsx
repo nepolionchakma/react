@@ -228,16 +228,12 @@ export const ManageAccessEntitlementsProvider = ({
             (data) => data.access_point_id
           );
 
-          console.log(accessPointsId);
-
           if (accessPointsId.length === 0) {
             setFilteredData([]);
           } else {
             const filterAccessPointsById = await api.get(
               `/def-access-point-elements/accesspoints-id/${page}/${limit}?accessPointsId=${accessPointsId}`
             );
-
-            console.log(filterAccessPointsById, "filter access points by id");
 
             const totalCount = response.data.length;
             const totalPages = Math.ceil(totalCount / limit);
@@ -262,8 +258,6 @@ export const ManageAccessEntitlementsProvider = ({
   );
   const fetchAccessPointsEntitlementForDelete = useCallback(
     async (fetchData: IManageAccessEntitlementsTypes) => {
-      setFilteredData([]);
-      // setIsLoading(true);
       try {
         if (fetchData) {
           const response = await api.get<
@@ -479,8 +473,9 @@ export const ManageAccessEntitlementsProvider = ({
       created_by,
       last_updated_by,
     } = postData;
-    setIsLoading(true);
+
     try {
+      setIsLoading(true);
       const res = await api.post(`/def-access-entitlements`, {
         entitlement_name,
         description,
@@ -505,6 +500,7 @@ export const ManageAccessEntitlementsProvider = ({
       if (error instanceof Error) {
         toast({
           title: error.message,
+          variant: "destructive",
         });
       }
     } finally {
@@ -516,7 +512,6 @@ export const ManageAccessEntitlementsProvider = ({
     id: number,
     putData: IManageAccessEntitlementsTypes
   ) => {
-    setIsLoading(true);
     const {
       def_entitlement_id,
       entitlement_name,
@@ -527,6 +522,7 @@ export const ManageAccessEntitlementsProvider = ({
       last_updated_by,
     } = putData;
     try {
+      setIsLoading(true);
       const res = await api.put(`/def-access-entitlements/${id}`, {
         def_entitlement_id,
         entitlement_name,
@@ -553,9 +549,9 @@ export const ManageAccessEntitlementsProvider = ({
       if (error instanceof Error) {
         toast({
           title: error.message,
+          variant: "destructive",
         });
       }
-      console.log(error);
     } finally {
       setSave((prevSave) => prevSave + 1);
       setIsLoading(false);

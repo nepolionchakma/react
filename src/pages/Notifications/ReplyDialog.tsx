@@ -140,7 +140,7 @@ const ReplyDialog = ({
 
   return (
     <Dialog>
-      <DialogTrigger className="p-1 rounded-md hover:bg-winter-100/50">
+      <DialogTrigger className="p-1 rounded-md">
         <MessageCircleReply size={20} />
       </DialogTrigger>
       <DialogContent>

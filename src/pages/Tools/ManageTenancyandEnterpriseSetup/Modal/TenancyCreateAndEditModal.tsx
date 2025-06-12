@@ -23,6 +23,7 @@ const TenancyCreateAndEditModal = ({
   setSelectedTenancyRows,
 }: ICustomModalTypes) => {
   const api = useAxiosPrivate();
+  console.log(tabName, "tabneame");
   const [tenantName, setTenantName] = useState<string>(
     selectedTenancyRows && action === "edit"
       ? selectedTenancyRows[0].tenant_name
@@ -35,7 +36,7 @@ const TenancyCreateAndEditModal = ({
     e.preventDefault();
     try {
       setIsLoading(true);
-      if (action === "create") {
+      if (action === "add") {
         const res = await api.post(
           `/tenants`,
           {

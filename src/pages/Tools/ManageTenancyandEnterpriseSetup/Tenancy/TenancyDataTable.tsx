@@ -150,7 +150,9 @@ export function TenancyDataTable({
         setData(res.data.items);
         setTotalPage(res.data.pages);
       } catch (error) {
-        console.log(error);
+        if (error instanceof Error) {
+          toast({ title: error.message, variant: "destructive" });
+        }
       } finally {
         setIsLoading(false);
       }
@@ -161,7 +163,7 @@ export function TenancyDataTable({
   return (
     <div className="w-full">
       <>
-        {tabName && tabName === "tenancy" && action && (
+        {tabName && tabName === "Tenancy" && action && (
           <TenancyCreateAndEditModal
             action={action}
             tabName={tabName}

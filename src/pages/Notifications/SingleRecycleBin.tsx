@@ -1,11 +1,6 @@
 import { ArrowLeft, Ellipsis, RotateCcw } from "lucide-react";
 import { Card } from "@/components/ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +17,7 @@ import Spinner from "@/components/Spinner/Spinner";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import Alert from "@/components/Alert/Alert";
+import CustomTooltip from "@/components/Tooltip/Tooltip";
 
 const SingleRecycleBin = () => {
   const api = useAxiosPrivate();
@@ -56,7 +52,9 @@ const SingleRecycleBin = () => {
         const result = response.data;
         setMessage(result);
       } catch (error) {
-        console.log(error);
+        if (error instanceof Error) {
+          toast({ title: error.message, variant: "destructive" });
+        }
       } finally {
         setIsLoading(false);
       }
@@ -78,9 +76,9 @@ const SingleRecycleBin = () => {
         });
       }
     } catch (error) {
-      toast({
-        title: "There is an error deleting message",
-      });
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     }
   };
 
@@ -101,9 +99,9 @@ const SingleRecycleBin = () => {
         navigate(-1);
       }
     } catch (error) {
-      toast({
-        title: "There is an error restoring message.",
-      });
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     }
   };
 
@@ -147,36 +145,20 @@ const SingleRecycleBin = () => {
       ) : (
         <Card className="flex flex-col gap-4 w-full p-4">
           <div className="flex items-center">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="p-1 rounded-md hover:bg-winter-100/50 h-7">
-                    <Link to="/notifications/recycle-bin">
-                      <ArrowLeft size={20} />
-                    </Link>
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Back</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            {/* Restore Tooltip */}
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span
-                    className="p-1 rounded-md hover:bg-winter-100/50 h-7"
-                    onClick={restoreMessage}
-                  >
-                    <RotateCcw size={18} className="cursor-pointer" />
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Restore</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <CustomTooltip tooltipTitle="Back">
+              <span className="p-1 rounded-md h-7">
+                <Link to="/notifications/recycle-bin">
+                  <ArrowLeft size={20} />
+                </Link>
+              </span>
+            </CustomTooltip>
+
+            <CustomTooltip tooltipTitle="Restore">
+              <span className="p-1 rounded-md h-7" onClick={restoreMessage}>
+                <RotateCcw size={18} className="cursor-pointer" />
+              </span>
+            </CustomTooltip>
+
             <p className="font-bold ml-4">{message.subject}</p>
           </div>
           <div className="flex flex-col gap-4 w-full ">
@@ -229,49 +211,12 @@ const SingleRecycleBin = () => {
                       {convertDate(message.date)}
                     </p>
                     <div className="flex items-center">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span>
-                              <Alert
-                                disabled={false}
-                                actionName="delete"
-                                onContinue={handleDelete}
-                              />
-                              {/* <AlertDialog>
-                                <AlertDialogTrigger>
-                                  <Trash2 size={20} />
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>
-                                      Are you absolutely sure?
-                                    </AlertDialogTitle>
-                                  </AlertDialogHeader>
-                                  <AlertDialogDescription>
-                                    This action cannot be undone. This will
-                                    permanently delete the message.
-                                  </AlertDialogDescription>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel className="bg-Red-200 text-white flex justify-center items-center">
-                                      <X />
-                                    </AlertDialogCancel>
-                                    <AlertDialogAction
-                                      className="bg-green-600 text-white flex justify-center items-center"
-                                      onClick={handleDelete}
-                                    >
-                                      <Check />
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog> */}
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Delete Permanently</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                      <Alert
+                        disabled={false}
+                        actionName="delete permanently"
+                        onContinue={handleDelete}
+                        tooltipTitle="Delete Permanently"
+                      />
                     </div>
                   </div>
                 </div>
