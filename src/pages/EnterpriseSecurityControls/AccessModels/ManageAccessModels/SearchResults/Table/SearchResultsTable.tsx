@@ -285,7 +285,7 @@ const SearchResultsTable = () => {
                   />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Create Access Model</p>
+                  <p>Add</p>
                 </TooltipContent>
               </Tooltip>
               <Tooltip>
@@ -303,7 +303,7 @@ const SearchResultsTable = () => {
                   />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Edit Access Model</p>
+                  <p>Edit</p>
                 </TooltipContent>
               </Tooltip>
 
@@ -312,7 +312,7 @@ const SearchResultsTable = () => {
                 disabled={selectedAccessModelItem.length === 0}
                 onContinue={handleDelete} // Main delete function
                 onClick={handleDeleteCalculate} // Delete calculate function
-                tooltipTitle="Delete Access Model"
+                tooltipTitle="Delete"
               >
                 <>
                   {selectedAccessModelItem.map((modelItem) => (
