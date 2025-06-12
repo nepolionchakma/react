@@ -1,52 +1,61 @@
-import {
-  AlertDialogAction,
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { toast } from "@/components/ui/use-toast";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { IEnterprisesTypes } from "@/types/interfaces/users.interface";
-import { FileEdit, Trash } from "lucide-react";
+import { FileEdit } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import Alert from "@/components/Alert/Alert";
 
 interface ActionItemsProps {
   selectedEnterpriseRows: IEnterprisesTypes[];
   setAction: React.Dispatch<React.SetStateAction<string>>;
   setStateChanged: React.Dispatch<React.SetStateAction<number>>;
+  setSelectedEnterpriseRows: React.Dispatch<
+    React.SetStateAction<IEnterprisesTypes[]>
+  >;
 }
 
 const ActionItems = ({
   selectedEnterpriseRows,
   setAction,
   setStateChanged,
+  setSelectedEnterpriseRows,
 }: ActionItemsProps) => {
   const api = useAxiosPrivate();
-  console.log(selectedEnterpriseRows.length);
+  const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
   const handleDelete = async () => {
-    try {
-      const res = await api.delete(
-        `/def-tenant-enterprise-setup/${selectedEnterpriseRows[0].tenant_id}`
-      );
-      if (res) {
-        toast({
-          description: `${res.data.message}`,
-        });
+    for (const enterprise of selectedEnterpriseRows) {
+      try {
+        const res = await api.delete(
+          `/delete_enterprise/${enterprise.tenant_id}`,
+          {
+            baseURL: flaskUrl,
+          }
+        );
+        if (res) {
+          toast({
+            description: `${res.data.message}`,
+          });
+          setSelectedEnterpriseRows([]);
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setStateChanged(Math.random() + 23 * 3000);
       }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setStateChanged(Math.random() + 23 * 3000);
+    }
+  };
+
+  const handleAction = () => {
+    console.log(selectedEnterpriseRows, "59");
+    if (selectedEnterpriseRows[0].enterprise_name === null) {
+      setAction("create");
+    } else {
+      setAction("edit");
     }
   };
   return (
@@ -69,7 +78,7 @@ const ActionItems = ({
                       ? "text-slate-200 cursor-not-allowed"
                       : "cursor-pointer"
                   }`}
-                  onClick={() => setAction("edit")}
+                  onClick={handleAction}
                 />
               </button>
             </TooltipTrigger>
@@ -83,7 +92,20 @@ const ActionItems = ({
           <Tooltip>
             <TooltipTrigger asChild>
               <span>
-                <AlertDialog>
+                <Alert
+                  actionName="delete"
+                  disabled={selectedEnterpriseRows.length === 0}
+                  onContinue={handleDelete}
+                >
+                  <div className="flex flex-col items-start">
+                    {selectedEnterpriseRows.map((item, index) => (
+                      <span key={item.tenant_id} className="text-black">
+                        {index + 1}. Enterprise Name : {item.enterprise_name}
+                      </span>
+                    ))}
+                  </div>
+                </Alert>
+                {/* <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <button disabled={selectedEnterpriseRows.length === 0}>
                       <Trash
@@ -124,7 +146,7 @@ const ActionItems = ({
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
-                </AlertDialog>
+                </AlertDialog> */}
               </span>
             </TooltipTrigger>
             <TooltipContent>

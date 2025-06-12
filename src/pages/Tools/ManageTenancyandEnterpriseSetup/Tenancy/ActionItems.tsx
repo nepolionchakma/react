@@ -14,27 +14,34 @@ interface ActionItemsProps {
   selectedTenancyRows: ITenantsTypes[];
   setAction: React.Dispatch<React.SetStateAction<string>>;
   setStateChanged: React.Dispatch<React.SetStateAction<number>>;
+  setSelectedTenancyRows: React.Dispatch<React.SetStateAction<ITenantsTypes[]>>;
 }
 
 const ActionItems = ({
   selectedTenancyRows,
   setAction,
   setStateChanged,
+  setSelectedTenancyRows,
 }: ActionItemsProps) => {
   const api = useAxiosPrivate();
-
+  const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
   const handleDelete = async () => {
     try {
-      const res = await api.delete(
-        `/def-tenants/${selectedTenancyRows[0].tenant_id}`
-      );
-      if (res) {
-        toast({
-          description: `${res.data.message}`,
+      for (const tenancy of selectedTenancyRows) {
+        const res = await api.delete(`/tenants/${tenancy.tenant_id}`, {
+          baseURL: flaskUrl,
         });
+        if (res) {
+          toast({
+            description: `${res.data.message}`,
+          });
+          setSelectedTenancyRows([]);
+        }
       }
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
       setStateChanged(Math.random() + 23 * 3000);
     }
@@ -91,56 +98,18 @@ const ActionItems = ({
                   disabled={selectedTenancyRows.length === 0}
                   children={
                     <>
-                      {selectedTenancyRows.map((item, index) => (
-                        <span key={item.tenant_id} className="block text-black">
-                          {index + 1}. Tenant Name : {item.tenant_name}
-                        </span>
-                      ))}
+                      <div className="flex flex-col items-start">
+                        {selectedTenancyRows.map((item, index) => (
+                          <span key={item.tenant_id} className="text-black ">
+                            {index + 1}. Tenant Name : {item.tenant_name}
+                          </span>
+                        ))}
+                      </div>
                     </>
                   }
                   actionName="delete"
                   onContinue={handleDelete}
                 ></Alert>
-                {/* <AlertDialog>
-                  <AlertDialogTrigger asChild>
-                    <button disabled={selectedTenancyRows.length === 0}>
-                      <Trash
-                        className={`${
-                          selectedTenancyRows.length === 0
-                            ? "cursor-not-allowed text-slate-200"
-                            : "cursor-pointer"
-                        }`}
-                      />
-                    </button>
-                  </AlertDialogTrigger>
-                  <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>
-                        Are you absolutely sure?
-                      </AlertDialogTitle>
-                      <AlertDialogDescription>
-                        {selectedTenancyRows.map((item, index) => (
-                          <span
-                            key={item.tenant_id}
-                            className="block text-black"
-                          >
-                            {index + 1}. Tenant Name : {item.tenant_name}
-                          </span>
-                        ))}
-                        <span className="mt-2 text-sm text-muted-foreground block">
-                          This action cannot be undone. This will permanently
-                          delete your data from our servers.
-                        </span>
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleDelete}>
-                        Continue
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
-                  </AlertDialogContent>
-                </AlertDialog> */}
               </span>
             </TooltipTrigger>
             <TooltipContent>

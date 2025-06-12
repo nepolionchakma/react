@@ -10,6 +10,7 @@ interface ICustomModalTypes {
   action: string;
   tabName: string;
   selectedTenancyRows?: ITenantsTypes[];
+  setSelectedTenancyRows: React.Dispatch<React.SetStateAction<ITenantsTypes[]>>;
   setStateChanged: React.Dispatch<React.SetStateAction<number>>;
   handleCloseModal: () => void;
 }
@@ -19,6 +20,7 @@ const TenancyCreateAndEditModal = ({
   selectedTenancyRows,
   setStateChanged,
   handleCloseModal,
+  setSelectedTenancyRows,
 }: ICustomModalTypes) => {
   const api = useAxiosPrivate();
   const [tenantName, setTenantName] = useState<string>(
@@ -27,27 +29,40 @@ const TenancyCreateAndEditModal = ({
       : ""
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       setIsLoading(true);
       if (action === "create") {
-        const res = await api.post(`/def-tenants`, { tenant_name: tenantName });
-        if (res) {
+        const res = await api.post(
+          `/tenants`,
+          {
+            tenant_name: tenantName,
+          },
+          {
+            baseURL: flaskUrl,
+          }
+        );
+        if (res.status === 201) {
           toast({
             description: `${res.data.message}`,
           });
         }
       } else {
         const res = await api.put(
-          `/def-tenants/${selectedTenancyRows?.[0].tenant_id}`,
-          { tenant_name: tenantName }
+          `/tenants/${selectedTenancyRows?.[0].tenant_id}`,
+          { tenant_name: tenantName },
+          {
+            baseURL: flaskUrl,
+          }
         );
-        if (res) {
+        if (res.status === 200) {
           toast({
             description: `${res.data.message}`,
           });
+          setSelectedTenancyRows([]);
         }
       }
     } catch (error) {

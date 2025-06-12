@@ -121,10 +121,7 @@ export function TenancyDataTable({
   };
 
   const handleCloseModal = () => {
-    setAction(""); // close modal
-    // setSelectedTenancyRows([]);
-    //table toggle false
-    // table.toggleAllRowsSelected(false);
+    setAction("");
   };
 
   const handleRow = (value: number) => {
@@ -169,6 +166,7 @@ export function TenancyDataTable({
             action={action}
             tabName={tabName}
             selectedTenancyRows={selectedTenancyRows}
+            setSelectedTenancyRows={setSelectedTenancyRows}
             setStateChanged={setStateChanged}
             handleCloseModal={handleCloseModal}
           />
@@ -180,6 +178,7 @@ export function TenancyDataTable({
           selectedTenancyRows={selectedTenancyRows}
           setAction={setAction}
           setStateChanged={setStateChanged}
+          setSelectedTenancyRows={setSelectedTenancyRows}
         />
         <div className="flex items-center gap-2">
           <div className="flex gap-2 items-center ml-auto">
