@@ -301,7 +301,7 @@ const SearchResultsTable = () => {
                 <TooltipTrigger asChild>
                   <Edit
                     onClick={() =>
-                      selectedAccessModelItem.length > 0 &&
+                      selectedAccessModelItem.length === 1 &&
                       setIsOpenEditModal(true)
                     }
                     className={`hover:scale-110 duration-300 ${
