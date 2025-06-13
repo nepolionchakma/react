@@ -237,7 +237,7 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
                 {isLoading ? (
                   <l-tailspin size="15" stroke="3" speed="0.9" color="white" />
                 ) : (
-                  <>{isOpenModal === "add_task_params" ? "Add" : "Edit"}</>
+                  "Submit"
                 )}
               </Button>
             </div>

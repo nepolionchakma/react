@@ -98,7 +98,7 @@ export const ControlsContextProvider = ({
     try {
       setIsLoading(true);
       const res = await axios.get(
-        `${FLASK_ENDPOINT_URL}/def_controls/search/${page}/${limit}?query=${query}`,
+        `${FLASK_ENDPOINT_URL}/def_controls/search/${page}/${limit}?control_name=${query}`,
         {
           headers: {
             Authorization: `Bearer ${token.access_token}`,

@@ -398,10 +398,10 @@ export function ManageExecutionMethodsTable() {
                         {index === 0 ? (
                           <Checkbox
                             className=""
-                            checked={selected.includes(row.original)}
-                            // onCheckedChange={(value) =>
-                            //   row.toggleSelected(!!value)
-                            // }
+                            checked={row.getIsSelected()}
+                            onCheckedChange={(value) =>
+                              row.toggleSelected(!!value)
+                            }
                             onClick={() => handleRowSelection(row.original)}
                           />
                         ) : (
@@ -429,8 +429,8 @@ export function ManageExecutionMethodsTable() {
         </div>
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
-            {selected.length} of {table.getFilteredRowModel().rows.length}{" "}
-            row(s) selected.
+            {table.getFilteredSelectedRowModel().rows.length} of of{" "}
+            {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
           <Pagination5
             currentPage={page}
