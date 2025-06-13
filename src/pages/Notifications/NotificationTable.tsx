@@ -198,7 +198,7 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
                       </TooltipProvider>
                       <Alert
                         disabled={false}
-                        actionName="move to reycle bin"
+                        actionName="move to Recycle Bin"
                         onContinue={() => handleDelete(msg.id)}
                         tooltipTitle="Move to Recycle Bin"
                       />

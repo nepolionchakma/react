@@ -31,7 +31,7 @@ const IconController = React.forwardRef<SVGSVGElement, IconControllerProps>(
           return (
             <Trash width={width} height={height} color={color} ref={ref} />
           );
-        case "move to reycle bin":
+        case "move to Recycle Bin":
           return (
             <Trash width={width} height={height} color={color} ref={ref} />
           );
