@@ -82,9 +82,13 @@ const AccessPointsEntitleTable = () => {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
-    state: { sorting, columnFilters, columnVisibility, rowSelection },
-    initialState: {
+    state: {
+      sorting,
+      columnFilters,
+      columnVisibility,
+      rowSelection,
       pagination: {
+        pageIndex: 0,
         pageSize: limit,
       },
     },
