@@ -10,7 +10,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronDown, Plus } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
+
 import { Button } from "@/components/ui/button";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import Spinner from "@/components/Spinner/Spinner";
@@ -29,7 +29,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useEffect, useState } from "react";
-import { ICreateAccessPointsElementTypes } from "@/types/interfaces/ManageAccessEntitlements.interface";
+
 import { useManageAccessEntitlementsContext } from "@/Context/ManageAccessEntitlements/ManageAccessEntitlementsContext";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useLocation } from "react-router-dom";
@@ -47,7 +47,7 @@ const AccessPointsEntitleTable = () => {
     fetchAccessPointsEntitlement,
     selectedAccessEntitlements,
     save2,
-    setSelectedAccessPoints,
+
     setAccessPointStatus,
     page,
     setPage,
@@ -85,21 +85,21 @@ const AccessPointsEntitleTable = () => {
     state: { sorting, columnFilters, columnVisibility, rowSelection },
     initialState: {
       pagination: {
-        pageSize: 20,
+        pageSize: limit,
       },
     },
   });
 
-  // Row selection handler
-  const handleRowSelected = (rowData: ICreateAccessPointsElementTypes) => {
-    setSelectedAccessPoints((prev) => {
-      if (prev.includes(rowData)) {
-        return prev.filter((item) => item !== rowData);
-      } else {
-        return [...prev, rowData];
-      }
-    });
-  };
+  // // Row selection handler
+  // const handleRowSelected = (rowData: ICreateAccessPointsElementTypes) => {
+  //   setSelectedAccessPoints((prev) => {
+  //     if (prev.includes(rowData)) {
+  //       return prev.filter((item) => item !== rowData);
+  //     } else {
+  //       return [...prev, rowData];
+  //     }
+  //   });
+  // };
 
   // Effect: Fetch Data when relevant parameters change
   useEffect(() => {
@@ -208,14 +208,14 @@ const AccessPointsEntitleTable = () => {
               value={limit}
               min={1}
               onChange={(e) => handleRow(Number(e.target.value))}
-              className="w-14 h-8 border rounded-lg p-2"
+              className="w-14 border rounded-md p-2"
             />
           </div>
 
           {/* Dropdown for Column Visibility */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto h-8">
+              <Button variant="outline" className="ml-auto">
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -258,7 +258,7 @@ const AccessPointsEntitleTable = () => {
                         )}
 
                     {/* Checkbox for selecting all rows */}
-                    {header.id === "select" && (
+                    {/* {header.id === "select" && (
                       <Checkbox
                         className="m-1"
                         checked={
@@ -276,7 +276,7 @@ const AccessPointsEntitleTable = () => {
                         }}
                         aria-label="Select all"
                       />
-                    )}
+                    )} */}
                   </TableHead>
                 ))}
               </TableRow>
@@ -302,9 +302,13 @@ const AccessPointsEntitleTable = () => {
                   key={row.id}
                   data-state={row.getIsSelected() ? "selected" : undefined}
                 >
-                  {row.getVisibleCells().map((cell, index) => (
+                  {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id} className="border py-0 px-1 h-7">
-                      {index === 0 ? (
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext()
+                      )}
+                      {/* {index === 0 ? (
                         <Checkbox
                           className="m-1"
                           checked={row.getIsSelected() || false}
@@ -318,7 +322,7 @@ const AccessPointsEntitleTable = () => {
                           cell.column.columnDef.cell,
                           cell.getContext()
                         )
-                      )}
+                      )} */}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -337,11 +341,11 @@ const AccessPointsEntitleTable = () => {
         </Table>
 
         {/* Pagination */}
-        <div className="flex justify-between p-1">
-          <div className="flex-1 text-sm text-gray-600">
+        <div className="flex justify-end p-1">
+          {/* <div className="flex-1 text-sm text-gray-600">
             {table.getFilteredSelectedRowModel().rows.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
-          </div>
+          </div> */}
           <Pagination5
             currentPage={page}
             setCurrentPage={setPage}

@@ -30,12 +30,6 @@ const Breadcrumb = () => {
             breadcrumbs.push({ name: item.name, path: item.path });
             found = true;
           }
-          // item.subItems?.forEach((sub) => {
-          //   if (sub.path === currentPath) {
-          //     breadcrumbs.push({ name: sub.name, path: sub.path });
-          //     found = true;
-          //   }
-          // });
         });
       });
       if (!found)

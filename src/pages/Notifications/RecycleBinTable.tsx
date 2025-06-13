@@ -333,22 +333,14 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
                       </TooltipProvider>
 
                       {/* Delete Tooltip */}
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span>
-                              <Alert
-                                disabled={false}
-                                actionName="delete permanently"
-                                onContinue={() => handleDelete(msg)}
-                              />
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Delete Permanently</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+
+                      <Alert
+                        disabled={false}
+                        actionName="delete permanently"
+                        onContinue={() => handleDelete(msg)}
+                        tooltipTitle="Delete Permanently"
+                        tooltipAdjustmentStyle="mr-14"
+                      />
                     </TableCell>
                   </>
                 </TableRow>

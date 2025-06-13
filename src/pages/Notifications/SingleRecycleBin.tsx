@@ -216,6 +216,7 @@ const SingleRecycleBin = () => {
                         actionName="delete permanently"
                         onContinue={handleDelete}
                         tooltipTitle="Delete Permanently"
+                        tooltipAdjustmentStyle="mr-6"
                       />
                     </div>
                   </div>
