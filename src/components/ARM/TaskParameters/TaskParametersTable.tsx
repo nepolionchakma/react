@@ -175,12 +175,11 @@ export function TaskParametersTable() {
     // table.toggleAllRowsSelected(false);
   };
 
-  const handleDeleteParameters = async (
-    task_name: string,
-    def_param_id: number
-  ) => {
+  const handleDeleteParameters = async () => {
     try {
-      await deleteTaskParameters(task_name, def_param_id);
+      for (const element of selectedTaskParameters) {
+        await deleteTaskParameters(element.task_name, element.def_param_id);
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -188,12 +187,6 @@ export function TaskParametersTable() {
       table.toggleAllRowsSelected(false);
     }
   };
-
-  // React.useEffect(() => {
-  //   //table toggle false
-  //   table.toggleAllRowsSelected(false);
-  //   setSelectedTaskParameters([]);
-  // }, [page, selectedTask?.def_task_id]);
 
   const handleRow = (value: number) => {
     if (value < 1) {
@@ -287,12 +280,7 @@ export function TaskParametersTable() {
               } // disable condition
               tooltipTitle="Delete" // tooltip title
               actionName="delete" // Cancel/Reschedule
-              onContinue={() =>
-                handleDeleteParameters(
-                  selectedTaskParameters[0].task_name,
-                  selectedTaskParameters[0].def_param_id
-                )
-              } // funtion
+              onContinue={handleDeleteParameters} // funtion
             >
               <span className="flex flex-col items-start gap-1 text-black">
                 <>Parameter Name :</>
