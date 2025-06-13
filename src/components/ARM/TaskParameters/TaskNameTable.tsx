@@ -70,6 +70,7 @@ export function TaskNameTable() {
     totalPage,
     isLoading,
     setIsLoading,
+    selectedTask,
     setSelectedTask,
     getAsyncTasksLazyLoading,
     setSelectedTaskParameters,
@@ -173,7 +174,7 @@ export function TaskNameTable() {
   const handleRow = (value: number) => {
     if (value < 1) {
       toast({
-        title: "The value must getter than 0",
+        title: "The value must be greater than 0",
         variant: "destructive",
       });
       return;
@@ -191,7 +192,7 @@ export function TaskNameTable() {
             placeholder="Search by User Task Name"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
-            className="w-[20rem] px-4 py-2"
+            className="w-[24rem] px-4 py-2"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -338,7 +339,7 @@ export function TaskNameTable() {
         </div>
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
+            {!selectedTask?.def_task_id ? 0 : 1} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
           <Pagination5

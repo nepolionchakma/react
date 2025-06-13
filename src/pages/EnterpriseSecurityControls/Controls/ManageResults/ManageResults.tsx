@@ -28,7 +28,7 @@ const ManageResults = () => {
       </div>
       <div className=" ">{isSearchModelsOpen && <SearchModels />}</div>
       <div className="my-4">
-        <h4 className="font-semibold ml-2">Manage Access Models</h4>
+        <h4 className="font-semibold ml-2">Manage Results</h4>
         <div className="p-2 border rounded-md bg-white  ">
           <div className="flex gap-2 items-center my-1 ">
             {/* bg-gradient-to-t from-slate-50 to-slate-400 */}

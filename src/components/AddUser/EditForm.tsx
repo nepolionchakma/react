@@ -213,7 +213,7 @@ const EditForm: FC<AddFormProps> = ({
                 color="white"
               ></l-tailspin>
             ) : (
-              "Edit"
+              "Submit"
             )}
           </Button>
         </div>

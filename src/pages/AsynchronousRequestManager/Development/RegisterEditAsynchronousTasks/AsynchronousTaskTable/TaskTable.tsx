@@ -136,7 +136,6 @@ export function TaskTable() {
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -199,7 +198,7 @@ export function TaskTable() {
   const handleRow = (value: number) => {
     if (value < 1) {
       toast({
-        title: "The value must getter than 0",
+        title: "The value must be greater than 0",
         variant: "destructive",
       });
       return;
@@ -287,7 +286,7 @@ export function TaskTable() {
             placeholder="Search by User Task Name"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
-            className="w-[20rem] px-4 py-2"
+            className="w-[24rem] px-4 py-2"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -337,7 +336,7 @@ export function TaskTable() {
       </div>
       {/* Table */}
       <div className="rounded-md border">
-        <div className="max-h-[68vh] overflow-auto">
+        <div className=" ">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -356,30 +355,6 @@ export function TaskTable() {
                               header.column.columnDef.header,
                               header.getContext()
                             )}
-                        {/* Example: Checkbox for selecting all rows */}
-                        {header.id === "select" && (
-                          <Checkbox
-                            disabled
-                            // checked={
-                            //   table.getIsAllPageRowsSelected() ||
-                            //   (table.getIsSomePageRowsSelected() &&
-                            //     "indeterminate")
-                            // }
-                            // onCheckedChange={(value) => {
-                            //   // Toggle all page rows selected
-                            //   table.toggleAllPageRowsSelected(!!value);
-                            //   setTimeout(() => {
-                            //     const selectedRows = table
-                            //       .getSelectedRowModel()
-                            //       .rows.map((row) => row.original);
-                            //     console.log(selectedRows);
-                            //     setSelected(selectedRows);
-                            //   }, 0);
-                            // }}
-                            className="mr-1"
-                            aria-label="Select all"
-                          />
-                        )}
                       </TableHead>
                     );
                   })}
@@ -411,7 +386,7 @@ export function TaskTable() {
                       <TableCell key={cell.id} className="border p-1 h-8">
                         {index === 0 ? (
                           <Checkbox
-                            className=""
+                            className="mr-1"
                             checked={
                               selected?.def_task_id === row.original.def_task_id
                             }
@@ -445,7 +420,7 @@ export function TaskTable() {
         </div>
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
+            {!selected?.def_task_id ? 0 : 1} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
           <Pagination5

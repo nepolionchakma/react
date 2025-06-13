@@ -240,7 +240,7 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
                 {isLoading ? (
                   <l-tailspin size="15" stroke="3" speed="0.9" color="white" />
                 ) : (
-                  <>{action}</>
+                  "Submit"
                 )}
               </Button>
             </div>

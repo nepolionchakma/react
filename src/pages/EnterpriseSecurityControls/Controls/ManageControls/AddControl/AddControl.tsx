@@ -8,7 +8,7 @@ import AddForm from "./AddForm";
 import { useControlsContext } from "@/Context/ManageAccessEntitlements/ManageControlsContext";
 
 const AddControl = () => {
-  const { isLoading, token } = useGlobalContext();
+  const { isLoading } = useGlobalContext();
   const { createControl } = useControlsContext();
   hourglass.register();
   const FormSchema = z.object({
@@ -57,7 +57,9 @@ const AddControl = () => {
   };
 
   const onSubmit = (data: z.infer<typeof FormSchema>) => {
-    const date = new Date().toLocaleDateString("en-US");
+    // const date = new Date().toString();
+    //date with time
+    const date = new Date().toISOString();
     const postData = {
       control_name: data.control_name,
       description: data.description,
@@ -70,7 +72,7 @@ const AddControl = () => {
       status: data.status,
       state: data.status,
       result_investigator: data.result_investigator,
-      authorized_data: token.user_name,
+      authorized_data: date,
       // revision: 0,
       // revision_date: date,
       // created_by: token.user_name,

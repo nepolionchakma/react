@@ -186,7 +186,7 @@ export function ManageExecutionMethodsTable() {
   const handleRow = (value: number) => {
     if (value < 1) {
       toast({
-        title: "The value must getter than 0",
+        title: "The value must be greater than 0",
         variant: "destructive",
       });
       return;
@@ -260,13 +260,9 @@ export function ManageExecutionMethodsTable() {
               onContinue={() => handleDelete(selected)}
             >
               <span className="flex flex-col items-start">
-                <span className="font-semibold block text-black">
-                  Selected Execution Method Name
-                  {selected.length > 1 ? "'s are" : " is"} :{" "}
-                </span>
                 {selected.map((row, i) => (
                   <span key={i} className="flex flex-col text-black">
-                    {i + 1}. {row.execution_method}
+                    {i + 1}. Method Name : {row.execution_method}
                   </span>
                 ))}
               </span>
@@ -276,7 +272,7 @@ export function ManageExecutionMethodsTable() {
             placeholder="Search by Internal Execution Method"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
-            className="w-[20rem] px-4 py-2"
+            className="w-[24rem] px-4 py-2"
           />
         </div>
 
@@ -433,8 +429,8 @@ export function ManageExecutionMethodsTable() {
         </div>
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            {selected.length} of {table.getFilteredRowModel().rows.length}{" "}
+            row(s) selected.
           </div>
           <Pagination5
             currentPage={page}
