@@ -61,6 +61,7 @@ export function EnterpriseDataTable({
   const [stateChanged, setStateChanged] = React.useState<number>(0);
   const [isSelectAll, setIsSelectAll] = React.useState(false);
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -69,16 +70,15 @@ export function EnterpriseDataTable({
   const [rowSelection, setRowSelection] = React.useState({});
 
   React.useEffect(() => {
-    if (selectedEnterpriseRows.length !== data.length) {
+    if (selectedEnterpriseRows.length !== data.length || data.length === 0) {
       setIsSelectAll(false);
     } else {
       setIsSelectAll(true);
     }
-  }, [selectedEnterpriseRows.length, data.length]);
 
-  const selectedEnterpriseRowsName = selectedEnterpriseRows.map(
-    (row) => row.tenant_id
-  );
+    const selected = selectedEnterpriseRows.map((sel) => sel.tenant_id);
+    setSelectedIds(selected);
+  }, [selectedEnterpriseRows.length, data.length]);
 
   const table = useReactTable({
     data,
@@ -93,7 +93,7 @@ export function EnterpriseDataTable({
     onRowSelectionChange: setRowSelection,
     initialState: {
       pagination: {
-        pageSize: 20,
+        pageSize: limit,
       },
     },
     state: {
@@ -105,13 +105,14 @@ export function EnterpriseDataTable({
   });
 
   const handleRowSelection = (rowSelection: IEnterprisesTypes) => {
-    setSelectedEnterpriseRows((prevSelected) => {
-      if (prevSelected.includes(rowSelection)) {
-        return prevSelected.filter((item) => item !== rowSelection);
-      } else {
-        return [...prevSelected, rowSelection];
-      }
-    });
+    if (selectedIds.includes(rowSelection.tenant_id)) {
+      const newSelected = selectedEnterpriseRows.filter(
+        (row) => row.tenant_id !== rowSelection.tenant_id
+      );
+      setSelectedEnterpriseRows(newSelected);
+    } else {
+      setSelectedEnterpriseRows((prev) => [...prev, rowSelection]);
+    }
   };
 
   const handleSelectAll = () => {
@@ -197,12 +198,12 @@ export function EnterpriseDataTable({
               value={limit}
               min={1}
               onChange={(e) => handleRow(Number(e.target.value))}
-              className="w-14 h-8 border rounded-lg p-2"
+              className="w-14 border rounded-md p-2"
             />
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto h-8">
+              <Button variant="outline" className="ml-auto">
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -291,9 +292,7 @@ export function EnterpriseDataTable({
                       {index === 0 ? (
                         <Checkbox
                           className=""
-                          checked={selectedEnterpriseRowsName.includes(
-                            row.original.tenant_id
-                          )}
+                          checked={selectedIds.includes(row.original.tenant_id)}
                           onClick={() => handleRowSelection(row.original)}
                         />
                       ) : (
@@ -320,7 +319,7 @@ export function EnterpriseDataTable({
         </Table>
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
+            {selectedEnterpriseRows.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
           <Pagination5

@@ -79,7 +79,7 @@ export interface ITenantsTypes {
   tenant_name: string;
 }
 export interface IEnterprisesTypes {
-  tenant_id: string;
+  tenant_id: number;
   tenant_name: string;
   enterprise_name: string;
   enterprise_type: string;

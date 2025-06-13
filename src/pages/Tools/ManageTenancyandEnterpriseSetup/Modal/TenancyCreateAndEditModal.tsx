@@ -104,7 +104,19 @@ const TenancyCreateAndEditModal = ({
             />
           </div>
           <div className="flex justify-end">
-            <Button type="submit">{isLoading ? "Saving..." : "Save"}</Button>
+            <Button type="submit">
+              {" "}
+              {isLoading ? (
+                <l-tailspin
+                  size="30"
+                  stroke="5"
+                  speed="0.9"
+                  color="white"
+                ></l-tailspin>
+              ) : (
+                "Submit"
+              )}
+            </Button>
           </div>
         </form>
       </div>

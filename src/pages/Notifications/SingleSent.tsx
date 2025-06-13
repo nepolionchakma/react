@@ -250,6 +250,7 @@ const SingleSent = () => {
                           actionName="move to Recycle Bin"
                           onContinue={() => handleDelete(msg.id)}
                           tooltipTitle="Move to Recycle Bin"
+                          tooltipAdjustmentStyle="mr-6"
                         />
                       </div>
                     </div>

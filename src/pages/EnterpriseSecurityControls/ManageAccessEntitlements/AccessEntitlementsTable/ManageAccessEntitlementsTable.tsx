@@ -182,7 +182,7 @@ const ManageAccessEntitlementsTable = () => {
     },
     initialState: {
       pagination: {
-        pageSize: 20,
+        pageSize: accessEntitlementsLimit,
       },
     },
   });
@@ -348,7 +348,7 @@ const ManageAccessEntitlementsTable = () => {
                   </span>
                 ) : (
                   <span className="flex flex-col items-start gap-1">
-                    <span className="font-bold">
+                    <span className="text-black">
                       Entitlement Name:
                       {` ${selectedAccessEntitlements.entitlement_name}`}
                     </span>
@@ -359,7 +359,7 @@ const ManageAccessEntitlementsTable = () => {
                           {deleteAccessPointsElements.map((item, index) => (
                             <span
                               key={item.def_access_point_id}
-                              className="flex gap-1"
+                              className="flex gap-1 text-black"
                             >
                               {index + 1}. {item.element_name}
                             </span>
@@ -385,14 +385,14 @@ const ManageAccessEntitlementsTable = () => {
               value={accessEntitlementsLimit}
               min={1}
               onChange={(e) => handleRow(Number(e.target.value))}
-              className="w-14 h-8 border rounded-lg p-2"
+              className="w-14 border rounded-md p-2"
             />
           </div>
 
           {/* Columns */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto h-8">
+              <Button variant="outline" className="ml-auto">
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -434,27 +434,6 @@ const ManageAccessEntitlementsTable = () => {
                           header.column.columnDef.header,
                           header.getContext()
                         )}
-
-                    {/* Checkbox for selecting all rows
-                    {header.id === "select" && (
-                      <Checkbox
-                        className="m-1"
-                        checked={
-                          table.getIsAllPageRowsSelected() ||
-                          (table.getIsSomePageRowsSelected() && "indeterminate")
-                        }
-                        onCheckedChange={(value) => {
-                          table.toggleAllPageRowsSelected(!!value);
-                          setTimeout(() => {
-                            const selectedRows = table
-                              .getSelectedRowModel()
-                              .rows.map((row) => row.original);
-                            setSelectedAccessEntitlements(selectedRows);
-                          }, 0);
-                        }}
-                        aria-label="Select all"
-                      />
-                    )} */}
                   </TableHead>
                 ))}
               </TableRow>
@@ -487,9 +466,6 @@ const ManageAccessEntitlementsTable = () => {
                             selectedAccessEntitlements.def_entitlement_id ===
                             row.original.def_entitlement_id
                           }
-                          // onCheckedChange={(value) =>
-                          //   row.toggleSelected(!!value)
-                          // }
                           onClick={() => handleRowSelection(row.original)}
                         />
                       ) : (
@@ -518,7 +494,7 @@ const ManageAccessEntitlementsTable = () => {
         {/* Pagination */}
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
+            {selectedAccessEntitlements.def_entitlement_id !== 0 ? 1 : 0} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
           <Pagination5
