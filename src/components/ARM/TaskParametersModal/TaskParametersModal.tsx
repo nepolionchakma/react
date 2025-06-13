@@ -16,8 +16,7 @@ import { X } from "lucide-react";
 import { FC, useState } from "react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { toast } from "@/components/ui/use-toast";
-import { AxiosError } from "axios";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+import axios, { AxiosError } from "axios";
 import { IARMTaskParametersTypes } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import {
@@ -38,7 +37,8 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
   selected,
   handleCloseModal,
 }) => {
-  const api = useAxiosPrivate();
+  // const api = useAxiosPrivate();
+  const FLASK_ENDPOINT_URL = import.meta.env.VITE_FLASK_ENDPOINT_URL;
   const { isOpenModal, token } = useGlobalContext();
   const { selectedTask, setChangeState } = useARMContext();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -86,42 +86,54 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
     const addTaskParams = async () => {
       try {
         setIsLoading(true);
-        const res = await api.post(
-          `/arm-tasks/add-task-params/${selectedTask?.task_name}`,
-          postData
+        const res = await axios.post(
+          `${FLASK_ENDPOINT_URL}/Add_TaskParams/${selectedTask?.task_name}`,
+          postData,
+          {
+            headers: {
+              Authorization: `Bearer ${token.access_token}`,
+            },
+          }
         );
-        console.log(res, "res");
+
         if (res.status === 201) {
           toast({
             description: `${res.data.message}`,
           });
+          reset();
           handleCloseModal();
         }
       } catch (error) {
+        console.log(error);
         if (error instanceof AxiosError) {
           toast({
-            description: `Error : ${error.message}`,
+            description: `Error : ${error.response?.data.error}`,
             variant: "destructive",
           });
         }
       } finally {
         setIsLoading(false);
-        reset();
         setChangeState(Math.random() + 23 * 3000);
       }
     };
     const updateParams = async () => {
       try {
         setIsLoading(true);
-        const res = await api.put(
-          `/arm-tasks/update-task-params/${selectedTask?.task_name}/${selected.def_param_id}`,
-          putData
+        const res = await axios.put(
+          `${FLASK_ENDPOINT_URL}/Update_TaskParams/${selectedTask?.task_name}/${selected.def_param_id}`,
+          putData,
+          {
+            headers: {
+              Authorization: `Bearer ${token.access_token}`,
+            },
+          }
         );
-        console.log(res, "res");
+
         if (res.status === 200) {
           toast({
             description: `${res.data.message}`,
           });
+          reset();
           handleCloseModal();
         }
       } catch (error) {
@@ -133,7 +145,6 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
         }
       } finally {
         setIsLoading(false);
-        reset();
         setChangeState(Math.random() + 23 * 3000);
       }
     };
@@ -183,27 +194,30 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
               <FormField
                 control={form.control}
                 name="data_type"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Data Type</FormLabel>
-                    <FormControl>
-                      <Select
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                      >
-                        <FormControl>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select Data Type" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="VARCHAR">VARCHAR</SelectItem>
-                          <SelectItem value="integer">Integer</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </FormControl>
-                  </FormItem>
-                )}
+                render={({ field }) => {
+                  console.log(field.value, "field");
+                  return (
+                    <FormItem>
+                      <FormLabel>Data Type</FormLabel>
+                      <FormControl>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Data Type" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="VARCHAR">VARCHAR</SelectItem>
+                            <SelectItem value="integer">Integer</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormControl>
+                    </FormItem>
+                  );
+                }}
               />
             </div>
             <FormField

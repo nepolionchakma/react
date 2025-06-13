@@ -11,6 +11,8 @@ import {
 } from "@/types/interfaces/ARM.interface";
 import React, { ReactNode, createContext, useContext, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
+import axios from "axios";
+import { useGlobalContext } from "../GlobalContext/GlobalContext";
 interface ARMContextProviderProps {
   children: ReactNode;
 }
@@ -108,6 +110,8 @@ export function useARMContext() {
 
 export function ARMContextProvider({ children }: ARMContextProviderProps) {
   const api = useAxiosPrivate();
+  const { token } = useGlobalContext();
+  const FLASK_ENDPOINT_URL = import.meta.env.VITE_FLASK_ENDPOINT_URL;
   const [changeState, setChangeState] = useState<number>(0);
   const [isLoading, setIsLoading] = React.useState(true);
   const [selectedTask, setSelectedTask] = useState<
@@ -309,11 +313,14 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     task_name: string,
     def_param_id: number
   ) => {
-    // console.log(task_name, def_param_id, "req.params");
-    // /Delete_TaskParams/<string:task_name>/<int:def_param_id>
     try {
-      const res = await api.delete(
-        `/arm-tasks/delete-task-params/${task_name}/${def_param_id}`
+      const res = await axios.delete(
+        `${FLASK_ENDPOINT_URL}/Delete_TaskParams/${task_name}/${def_param_id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token.access_token}`,
+          },
+        }
       );
       if (res.status === 200) {
         toast({
@@ -322,7 +329,9 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
         setChangeState(Math.random() + 23 * 3000);
       }
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     }
   };
 
