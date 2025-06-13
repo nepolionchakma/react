@@ -23,7 +23,7 @@ const IconController = React.forwardRef<SVGSVGElement, IconControllerProps>(
           return (
             <CircleOff width={width} height={height} color={color} ref={ref} />
           );
-        case "re shedule":
+        case "reschedule":
           return (
             <Circle width={width} height={height} color={color} ref={ref} />
           );

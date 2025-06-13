@@ -33,7 +33,7 @@ const ManageAccessModels = () => {
       </div>
       <div className=" ">{isSearchModelsOpen && <SearchModels />}</div>
       <div className="my-4">
-        <h4 className="font-semibold ml-2">Manage Models</h4>
+        <h4 className="font-semibold ml-2">Manage Access Models</h4>
         <div className="p-2 border rounded-md bg-white">
           <div className="flex gap-2 items-center my-1">
             {isSearchResultsOpen ? (

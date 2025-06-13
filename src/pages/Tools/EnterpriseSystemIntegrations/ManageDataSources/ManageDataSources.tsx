@@ -377,7 +377,7 @@ const ManageDataSources = () => {
                 <AlertDialogTrigger>
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Plus className="hover:scale-110 duration-300 cursor-pointer" />
+                      <Plus className="cursor-pointer" />
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>Add</p>
@@ -411,7 +411,7 @@ const ManageDataSources = () => {
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <FileEdit
-                        className={`hover:scale-110 duration-300${
+                        className={`${
                           selected.length === 1
                             ? "cursor-pointer"
                             : "cursor-not-allowed"
@@ -446,18 +446,16 @@ const ManageDataSources = () => {
                 tooltipTitle="Delete"
               >
                 <>
-                  This action cannot be undone. This will permanently delete
-                  your account and remove your data from our servers. You are
-                  selected {selected.length}{" "}
-                  {selected.length > 1 ? "rows" : "row"}. Data Source Name is :{" "}
-                  {selected.map((row, i) => (
-                    <span
-                      key={row.def_data_source_id}
-                      className="flex flex-col text-black"
-                    >
-                      {i + 1}. {row.datasource_name}
-                    </span>
-                  ))}
+                  <span className="flex flex-col items-start">
+                    {selected.map((row, i) => (
+                      <span
+                        key={row.def_data_source_id}
+                        className="flex flex-col text-black"
+                      >
+                        {i + 1}. Datasource Name: {row.datasource_name}
+                      </span>
+                    ))}
+                  </span>
                 </>
               </Alert>
             </TooltipProvider>

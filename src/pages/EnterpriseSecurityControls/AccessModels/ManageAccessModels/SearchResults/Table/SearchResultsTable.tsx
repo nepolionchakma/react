@@ -369,7 +369,7 @@ const SearchResultsTable = () => {
             placeholder="Search by Model Name"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
-            className="max-w-sm h-8"
+            className="w-[24rem] px-4 py-2 "
           />
         </div>
         {/* Rows and Column */}

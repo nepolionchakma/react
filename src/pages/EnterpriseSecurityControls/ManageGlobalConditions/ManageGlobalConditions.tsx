@@ -31,7 +31,7 @@ const ManageGlobalConditions = () => {
         {isOpenManageGlobalConditionModal && (
           <CustomModal3>
             <div className="flex justify-between p-2 bg-slate-300 rounded-t-lg">
-              <h2 className="font-bold">Manage Global Condition</h2>
+              <h2 className="font-bold">Add Global Condition</h2>
               <X
                 onClick={() =>
                   setIsOpenManageGlobalConditionModal(

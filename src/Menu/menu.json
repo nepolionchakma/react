@@ -217,7 +217,7 @@
         ],
         "subMenus": [
           {
-            "name": "Manage Data Sources",
+            "name": "Manage Datasources",
             "path": "/tools/enterprise-system-integrations/manage-data-sources"
           }
         ]
