@@ -68,6 +68,30 @@ export const columns = (
     },
   },
   {
+    accessorKey: "schedule_type",
+    header: () => {
+      return <div className="min-w-max">Schedule Type</div>;
+    },
+    cell: ({ row }) => {
+      const data: string = row.getValue("schedule_type");
+      return (
+        <div className="capitalize">
+          {data === "" ? "null" : data.toLowerCase()}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "schedule",
+    header: () => {
+      return <div className="min-w-max">Schedule</div>;
+    },
+    cell: ({ row }) => {
+      const data = row.getValue("schedule");
+      return <div className="min-w-max">{JSON.stringify(data)}</div>;
+    },
+  },
+  {
     accessorKey: "redbeat_schedule_name",
     header: () => {
       return <div className="min-w-max">Redbeat Schedule Name</div>;
@@ -118,30 +142,7 @@ export const columns = (
       );
     },
   },
-  {
-    accessorKey: "schedule_type",
-    header: () => {
-      return <div className="min-w-max">Schedule Type</div>;
-    },
-    cell: ({ row }) => {
-      const data: string = row.getValue("schedule_type");
-      return (
-        <div className="capitalize">
-          {data === "" ? "null" : data.toLowerCase()}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "schedule",
-    header: () => {
-      return <div className="min-w-max">Schedule</div>;
-    },
-    cell: ({ row }) => {
-      const data = row.getValue("schedule");
-      return <div className="min-w-max">{JSON.stringify(data)}</div>;
-    },
-  },
+
   {
     accessorKey: "args",
     header: () => {

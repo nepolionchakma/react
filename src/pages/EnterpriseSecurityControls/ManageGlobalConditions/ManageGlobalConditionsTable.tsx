@@ -392,11 +392,14 @@ const ManageGlobalConditionsTable = () => {
                 onClick={handleDeleteCalculate}
                 tooltipTitle="Delete"
               >
-                <>
+                <span className="flex flex-col items-start gap-1">
                   {selectedManageGlobalConditionItem.map((globalItem) => (
-                    <span key={globalItem.def_global_condition_id}>
-                      <span className="capitalize mt-3 font-medium block">
-                        NAME : {globalItem.name}
+                    <span
+                      className="flex flex-col items-start"
+                      key={globalItem.def_global_condition_id}
+                    >
+                      <span className="capitalize font-medium block">
+                        Name : {globalItem.name}
                       </span>
                       <span>
                         {isLoading ? (
@@ -430,7 +433,7 @@ const ManageGlobalConditionsTable = () => {
                       </span>
                     </span>
                   ))}
-                </>
+                </span>
               </Alert>
             </TooltipProvider>
           </div>

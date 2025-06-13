@@ -16,11 +16,9 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, FileEdit, Plus, Trash } from "lucide-react";
+import { ArrowUpDown, ChevronDown, FileEdit, Plus } from "lucide-react";
 import {
   AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
   AlertDialogFooter,
@@ -48,36 +46,29 @@ import DataSourceDataAdd from "@/components/DataSourceDataAdd/DataSourceDataAdd"
 import { IDataSourceTypes } from "@/types/interfaces/datasource.interface";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import Pagination5 from "@/components/Pagination/Pagination5";
+import { toast } from "@/components/ui/use-toast";
+import { TooltipProvider } from "@radix-ui/react-tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import Alert from "@/components/Alert/Alert";
 
 const ManageDataSources = () => {
-  const { fetchDataSources, deleteDataSource, getSearchDataSources } =
-    useGlobalContext();
+  const {
+    fetchDataSources,
+    totalPage,
+    deleteDataSource,
+    getSearchDataSources,
+  } = useGlobalContext();
   const [data, setData] = React.useState<IDataSourceTypes[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
   const [save, setSave] = React.useState<number>(0);
   const [page, setPage] = React.useState<number>(1);
   const [limit, setLimit] = React.useState<number>(8);
-  const [totalPage, setTotalPage] = React.useState<number | undefined>();
   // const [currentPage, setCurrentPage] = React.useState<number | undefined>();
-  // Fetch Data
-  // React.useEffect(() => {
-  //   const fetchData = async () => {
-  //     setIsLoading(true);
-  //     try {
-  //       const result = await fetchDataSources(page, limit);
-  //       setTotalPage(result?.totalPages);
-  //       // setCurrentPage(result?.currentPage);
-  //       setData(result?.results ?? []);
-  //     } catch (error) {
-  //       console.error("Error fetching data sources:", error);
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-
-  //   fetchData();
-  // }, [save, page, limit]);
   // loader
   tailspin.register();
   // Shadcn Form
@@ -119,8 +110,7 @@ const ManageDataSources = () => {
         } else {
           const res = await fetchDataSources(page, limit);
           if (res) {
-            setTotalPage(res?.totalPages);
-            setData(res.results);
+            setData(res);
           }
         }
       } catch (error) {
@@ -151,13 +141,17 @@ const ManageDataSources = () => {
     });
   };
 
-  // const handleInputChange = (id: number, field: string, value: string) => {
-  //   setData((prevData) =>
-  //     prevData.map((item) =>
-  //       item.data_source_id === id ? { ...item, [field]: value } : item
-  //     )
-  //   );
-  // };
+  const handleRow = (value: number) => {
+    if (value < 1) {
+      toast({
+        title: "The value must be greater than 0",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      setLimit(value);
+    }
+  };
 
   const columns: ColumnDef<IDataSourceTypes>[] = [
     {
@@ -243,14 +237,11 @@ const ManageDataSources = () => {
         );
       },
       cell: ({ row }) => {
-        const date = new Date(row.getValue("last_access_synchronization_date"));
-        const convertDate = (isoDateString: Date) => {
-          const date = new Date(isoDateString);
-          const formattedDate = date.toLocaleString();
-          return formattedDate;
-        };
+        const date = new Date(
+          row.getValue("last_access_synchronization_date")
+        ).toLocaleString();
 
-        return <div className="capitalize">{convertDate(date)}</div>;
+        return <div className="capitalize">{date}</div>;
       },
     },
     {
@@ -274,11 +265,11 @@ const ManageDataSources = () => {
         );
       },
       cell: ({ row }) => {
-        const sliceDate = String(
+        const date = new Date(
           row.getValue("last_transaction_synchronization_date")
-        ).toString();
+        ).toLocaleString();
 
-        return <div className="capitalize">{sliceDate}</div>;
+        return <div className="capitalize">{date}</div>;
       },
     },
     {
@@ -306,7 +297,7 @@ const ManageDataSources = () => {
       ),
     },
   ];
-  //
+
   const table = useReactTable({
     data,
     columns,
@@ -324,6 +315,11 @@ const ManageDataSources = () => {
       columnFilters,
       columnVisibility,
       rowSelection,
+    },
+    initialState: {
+      pagination: {
+        pageSize: limit,
+      },
     },
   });
 
@@ -376,115 +372,97 @@ const ManageDataSources = () => {
       <div className="flex gap-3 items-center py-2">
         <div className="flex gap-3">
           <div className="flex gap-3 px-4 py-2 border rounded">
-            <AlertDialog>
-              <AlertDialogTrigger>
-                <Plus className="cursor-pointer" />
-              </AlertDialogTrigger>
-              <AlertDialogContent className="bg-slate-300">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Create Datasource</AlertDialogTitle>
-                  <AlertDialogDescription></AlertDialogDescription>
-                </AlertDialogHeader>
-                <div>
-                  <DataSourceDataAdd
-                    props="add"
-                    maxID={maxID}
-                    setSave={setSave}
-                    selected={selected}
-                    setRowSelection={setRowSelection}
-                  />
-                </div>
-                <AlertDialogFooter></AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-
-            <AlertDialog>
-              <AlertDialogTrigger
-                disabled={selected.length !== 1}
-                className={`${
-                  selected.length !== 1 && "text-slate-200 cursor-not-allowed"
-                }`}
-              >
-                <FileEdit
+            <TooltipProvider>
+              <AlertDialog>
+                <AlertDialogTrigger>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Plus className="cursor-pointer" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Add</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="bg-slate-300">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Create Datasource</AlertDialogTitle>
+                    <AlertDialogDescription></AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <div>
+                    <DataSourceDataAdd
+                      props="add"
+                      maxID={maxID}
+                      setSave={setSave}
+                      selected={selected}
+                      setRowSelection={setRowSelection}
+                    />
+                  </div>
+                  <AlertDialogFooter></AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+              <AlertDialog>
+                <AlertDialogTrigger
+                  disabled={selected.length !== 1}
                   className={`${
-                    selected.length === 1
-                      ? "cursor-pointer "
-                      : "cursor-not-allowed"
+                    selected.length !== 1 && "text-slate-200 cursor-not-allowed"
                   }`}
-                />
-              </AlertDialogTrigger>
-              <AlertDialogContent className="bg-slate-300">
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Edit Datasource</AlertDialogTitle>
-                  <AlertDialogDescription></AlertDialogDescription>
-                </AlertDialogHeader>
-                <div>
-                  <DataSourceDataAdd
-                    props="update"
-                    selected={selected}
-                    editAble={true}
-                    setSave={setSave}
-                    setRowSelection={setRowSelection}
-                  />
-                </div>
-              </AlertDialogContent>
-            </AlertDialog>
-
-            <AlertDialog>
-              <AlertDialogTrigger
+                >
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <FileEdit
+                        className={`${
+                          selected.length === 1
+                            ? "cursor-pointer"
+                            : "cursor-not-allowed"
+                        }`}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Edit</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </AlertDialogTrigger>
+                <AlertDialogContent className="bg-slate-300">
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Edit Datasource</AlertDialogTitle>
+                    <AlertDialogDescription></AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <div>
+                    <DataSourceDataAdd
+                      props="update"
+                      selected={selected}
+                      editAble={true}
+                      setSave={setSave}
+                      setRowSelection={setRowSelection}
+                    />
+                  </div>
+                </AlertDialogContent>
+              </AlertDialog>
+              <Alert
+                actionName="delete"
                 disabled={selected.length < 1}
-                className={`${
-                  selected.length < 1 && "text-slate-200 cursor-not-allowed"
-                }`}
+                onContinue={handleDelete}
+                tooltipTitle="Delete"
               >
-                <Trash
-                  className={`${
-                    selected.length > 0
-                      ? "cursor-pointer"
-                      : "cursor-not-allowed"
-                  }`}
-                />
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    your account and remove your data from our servers. You are
-                    selected {selected.length}{" "}
-                    {selected.length > 1 ? "rows" : "row"}. Data Source Name is
-                    :{" "}
+                <>
+                  <span className="flex flex-col items-start">
                     {selected.map((row, i) => (
                       <span
                         key={row.def_data_source_id}
                         className="flex flex-col text-black"
                       >
-                        {i + 1}. {row.datasource_name}
+                        {i + 1}. Datasource Name: {row.datasource_name}
                       </span>
                     ))}
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  {isLoading ? (
-                    <l-tailspin
-                      size="40"
-                      stroke="5"
-                      speed="0.9"
-                      color="black"
-                    />
-                  ) : (
-                    <AlertDialogAction onClick={handleDelete}>
-                      Continue
-                    </AlertDialogAction>
-                  )}
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+                  </span>
+                </>
+              </Alert>
+            </TooltipProvider>
           </div>
         </div>
         <Input
-          placeholder="Filter by Datasource Name"
+          placeholder="Search by Datasource Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
           className="max-w-sm px-4 py-2"
@@ -496,38 +474,38 @@ const ManageDataSources = () => {
             placeholder="Rows"
             value={limit}
             min={1}
-            max={20}
-            onChange={(e) => setLimit(Number(e.target.value))}
+            onChange={(e) => handleRow(Number(e.target.value))}
             className="w-14 border rounded p-2"
           />
+
+          {/* Columns */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-        {/* Columns */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
       </div>
       {/* Table */}
       <div className="rounded-md border">

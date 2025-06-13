@@ -16,19 +16,8 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, Circle, CircleOff, FileEdit } from "lucide-react";
+import { ChevronDown, FileEdit } from "lucide-react";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -55,6 +44,7 @@ import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import ScheduleATaskComponent from "../TaskRequest/ScheduleATask";
 import CustomModal2 from "@/components/CustomModal/CustomModal2";
 import PopUp from "./PopUp/PopUp";
+import Alert from "@/components/Alert/Alert";
 
 export function ViewEditScheduledTasksTable() {
   const {
@@ -339,10 +329,36 @@ export function ViewEditScheduledTasksTable() {
                 </TooltipProvider>
               </button>
               {/* delete  */}
-              <AlertDialog>
+
+              <Alert
+                disabled={!selected}
+                actionName={
+                  selected?.cancelled_yn.toLowerCase() === "y"
+                    ? "reschedule"
+                    : "cancel"
+                }
+                tooltipTitle={
+                  selected?.cancelled_yn.toLowerCase() === "y"
+                    ? "Reschedule"
+                    : "Cancel"
+                }
+                onContinue={handleCancelOrRechedule}
+              >
+                {/* {selected && selected.cancelled_yn.toLowerCase() === "y"
+                  ? "Reschedule Task?"
+                  : "Cancel Scheduled Task?"} */}
+
+                <span className="flex flex-col items-start">
+                  <span className="block text-black">
+                    Schedule name : {selected?.user_schedule_name}
+                  </span>
+                </span>
+              </Alert>
+
+              {/* <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <button disabled={!selected}>
-                    {/* <button disabled={selected.length === 0}> */}
+                   
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -365,13 +381,6 @@ export function ViewEditScheduledTasksTable() {
                               }`}
                             />
                           )}
-                          {/* <CircleOff
-                            className={`${
-                              selected.length === 0
-                                ? "cursor-not-allowed text-slate-200"
-                                : "cursor-pointer"
-                            }`}
-                          /> */}
                         </TooltipTrigger>
                         <TooltipContent>
                           {selected?.cancelled_yn === "Y" ? (
@@ -379,7 +388,7 @@ export function ViewEditScheduledTasksTable() {
                           ) : (
                             <p>Cancel</p>
                           )}
-                          {/* <p>Cancel Schedule Task</p> */}
+                      
                         </TooltipContent>
                       </Tooltip>
                     </TooltipProvider>
@@ -399,26 +408,9 @@ export function ViewEditScheduledTasksTable() {
                       <span className="block text-black">
                         Schedule name : {selected?.user_schedule_name}
                       </span>
-                      {/* {selected
-                        .filter(
-                          (item) => item.cancelled_yn.toLowerCase() !== "y"
-                        )
-                        .map((item, index) => (
-                          <span
-                            key={item.def_task_sche_id}
-                            className="block text-black"
-                          >
-                            {index + 1}. Schedule name :{" "}
-                            {item.user_schedule_name}
-                          </span>
-                        ))} */}
+                
                       <br />
-                      {/* {selected && selected?.cancelled_yn === "N" && (
-                        <>
-                          This action cannot be undone. This will permanently
-                          cancel your scheduled task.
-                        </>
-                      )} */}
+                     
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -428,7 +420,7 @@ export function ViewEditScheduledTasksTable() {
                     </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
-              </AlertDialog>
+              </AlertDialog> */}
             </div>
           </div>
         </div>
@@ -500,7 +492,7 @@ export function ViewEditScheduledTasksTable() {
                               header.getContext()
                             )}
                         {/* Example: Checkbox for selecting all rows */}
-                        {header.id === "select" && (
+                        {/* {header.id === "select" && (
                           <Checkbox
                             disabled
                             // checked={
@@ -525,7 +517,7 @@ export function ViewEditScheduledTasksTable() {
                             // }}
                             aria-label="Select all"
                           />
-                        )}
+                        )} */}
                       </TableHead>
                     );
                   })}
