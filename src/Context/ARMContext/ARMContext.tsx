@@ -113,7 +113,8 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   const { token } = useGlobalContext();
   const FLASK_ENDPOINT_URL = import.meta.env.VITE_FLASK_ENDPOINT_URL;
   const [changeState, setChangeState] = useState<number>(0);
-  const [isLoading, setIsLoading] = React.useState(true);
+  const [isLoading, setIsLoading] = React.useState(false);
+  console.log(isLoading, "isLoading");
   const [selectedTask, setSelectedTask] = useState<
     IARMAsynchronousTasksTypes | undefined
   >(undefined);
@@ -134,14 +135,16 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       console.log(res);
       return res.data ?? [];
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
       setIsLoading(false);
     }
   };
   const getAsyncTasksLazyLoading = async (page: number, limit: number) => {
     try {
-      // setIsLoading(true);
+      setIsLoading(true);
       const resultLazyLoading = await api.get(
         `/arm-tasks/def_async_tasks/${page}/${limit}`
       );
@@ -149,7 +152,9 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       setTotalPage(resultLazyLoading.data.pages);
       return resultLazyLoading.data.items;
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -168,7 +173,9 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       setTotalPage(resultLazyLoading.data.pages);
       return resultLazyLoading.data.items;
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -184,7 +191,9 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
         setChangeState(Math.random() + 23 * 3000);
       }
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -193,13 +202,15 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   // Manage Execution Methods
   const getManageExecutionMethods = async () => {
     try {
-      setIsLoading(true);
+      // setIsLoading(true);
       const res = await api.get<IExecutionMethodsTypes[]>(
         `/arm-tasks/show-execution-methods`
       );
       return res.data ?? [];
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -224,7 +235,9 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       setTotalPage(res.data.pages);
       return res.data.items ?? [];
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -242,7 +255,9 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       setTotalPage(res.data.pages);
       return res.data.items ?? [];
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -260,7 +275,9 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
         setChangeState(Math.random() + 23 * 3000);
       }
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -368,7 +385,9 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       setTotalPage(resultLazyLoading.data.pages);
       return resultLazyLoading.data.items;
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     }
   };
   const cancelScheduledTask = async (
@@ -411,7 +430,9 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       //   });
       // });
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -434,7 +455,9 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
         setChangeState(Math.random() + 23 * 3000);
       }
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -450,7 +473,9 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       console.log(resultLazyLoading.data.items);
       return resultLazyLoading.data.items;
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
       setIsLoading(false);
     }
@@ -470,7 +495,9 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       setTotalPage(resultLazyLoading.data.pages);
       return resultLazyLoading.data.items;
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     } finally {
       setIsLoading(false);
     }

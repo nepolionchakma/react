@@ -70,7 +70,7 @@ export function TaskNameTable() {
     totalPage,
     isLoading,
     setIsLoading,
-    selectedTask,
+    // selectedTask,
     setSelectedTask,
     getAsyncTasksLazyLoading,
     setSelectedTaskParameters,
@@ -80,7 +80,7 @@ export function TaskNameTable() {
   const [data, setData] = React.useState<IARMAsynchronousTasksTypes[] | []>([]);
   const [page, setPage] = React.useState<number>(1);
   const [limit, setLimit] = React.useState<number>(3);
-  const [selectedRowId, setSelectedRowId] = React.useState<string>("");
+  // const [selectedRowId, setSelectedRowId] = React.useState<string>("");
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -133,13 +133,13 @@ export function TaskNameTable() {
             query.value
           );
           if (res) {
-            setSelectedRowId("");
+            // setSelectedRowId("");
             setData(res);
           }
         } else {
           const res = await getAsyncTasksLazyLoading(page, limit);
           if (res) {
-            setSelectedRowId("");
+            // setSelectedRowId("");
             setData(res);
           }
         }
@@ -299,18 +299,24 @@ export function TaskNameTable() {
                         {index === 0 ? (
                           <Checkbox
                             className=""
-                            checked={selectedRowId === row.id}
-                            // onCheckedChange={(value) =>
-                            //   row.toggleSelected(!!value)
-                            // }
+                            checked={row.getIsSelected()}
+                            onCheckedChange={(value) => {
+                              if (value) {
+                                // Select only the current row (deselect others)
+                                table.setRowSelection({ [row.id]: true });
+                              } else {
+                                // Deselect current row
+                                table.setRowSelection({});
+                              }
+                            }}
                             onClick={() => {
-                              setSelectedRowId((prev) => {
-                                if (prev === row.id) {
-                                  return "";
-                                } else {
-                                  return row.id;
-                                }
-                              });
+                              // setSelectedRowId((prev) => {
+                              //   if (prev === row.id) {
+                              //     return "";
+                              //   } else {
+                              //     return row.id;
+                              //   }
+                              // });
                               handleRowSelection(row.original);
                             }}
                           />
@@ -339,7 +345,7 @@ export function TaskNameTable() {
         </div>
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
-            {!selectedTask?.def_task_id ? 0 : 1} of{" "}
+            {table.getFilteredSelectedRowModel().rows.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
           <Pagination5

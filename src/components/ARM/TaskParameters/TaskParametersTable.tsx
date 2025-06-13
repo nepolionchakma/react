@@ -283,10 +283,9 @@ export function TaskParametersTable() {
               onContinue={handleDeleteParameters} // funtion
             >
               <span className="flex flex-col items-start gap-1 text-black">
-                <>Parameter Name :</>
                 {selectedTaskParameters.map((item, i) => (
                   <span key={item.def_param_id}>
-                    {i + 1}.{item.parameter_name}
+                    {i + 1}. Parameter Name : {item.parameter_name}
                   </span>
                 ))}
               </span>
@@ -397,7 +396,6 @@ export function TaskParametersTable() {
                             }
                             onCheckedChange={(value) => {
                               // Toggle all page rows selected
-
                               table.toggleAllPageRowsSelected(!!value);
                               const selectedRows = table
                                 .getSelectedRowModel()
@@ -442,17 +440,10 @@ export function TaskParametersTable() {
                         {index === 0 ? (
                           <Checkbox
                             className=""
-                            checked={selectedTaskParameters.includes(
-                              row.original
-                            )}
-                            // checked={selectedTaskParameters.some(
-                            //   (taskParameter) =>
-                            //     taskParameter.def_param_id ===
-                            //     row.original.def_param_id
-                            // )}
-                            // onCheckedChange={(value) =>
-                            //   row.toggleSelected(!!value)
-                            // }
+                            checked={row.getIsSelected()}
+                            onCheckedChange={(value) =>
+                              row.toggleSelected(!!value)
+                            }
                             onClick={() => handleRowSelection(row.original)}
                           />
                         ) : (
