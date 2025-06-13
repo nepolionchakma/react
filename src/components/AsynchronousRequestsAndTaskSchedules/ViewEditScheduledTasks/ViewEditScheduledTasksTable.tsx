@@ -303,12 +303,7 @@ export function ViewEditScheduledTasksTable() {
         <div className="flex gap-3">
           <div className="flex gap-3 items-center px-4 py-2 border rounded">
             <div className="flex gap-3">
-              <button
-                disabled={
-                  !selected
-                  // selected.length > 1 || selected.length === 0
-                }
-              >
+              <button disabled={!selected}>
                 <TooltipProvider>
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -344,83 +339,12 @@ export function ViewEditScheduledTasksTable() {
                 }
                 onContinue={handleCancelOrRechedule}
               >
-                {/* {selected && selected.cancelled_yn.toLowerCase() === "y"
-                  ? "Reschedule Task?"
-                  : "Cancel Scheduled Task?"} */}
-
                 <span className="flex flex-col items-start">
                   <span className="block text-black">
                     Schedule name : {selected?.user_schedule_name}
                   </span>
                 </span>
               </Alert>
-
-              {/* <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <button disabled={!selected}>
-                   
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          {selected?.cancelled_yn === "Y" ? (
-                            <Circle
-                              className={`${
-                                selected && selected.cancelled_yn === "Y"
-                                  ? // selected.length === 0
-                                    "cursor-pointer"
-                                  : "cursor-not-allowed text-slate-200"
-                              }`}
-                            />
-                          ) : (
-                            <CircleOff
-                              className={`${
-                                selected && selected.cancelled_yn === "N"
-                                  ? // selected.length === 0
-                                    "cursor-pointer"
-                                  : "cursor-not-allowed text-slate-200"
-                              }`}
-                            />
-                          )}
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          {selected?.cancelled_yn === "Y" ? (
-                            <p>Reschedule Task</p>
-                          ) : (
-                            <p>Cancel</p>
-                          )}
-                      
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      {selected && selected.cancelled_yn.toLowerCase() === "y"
-                        ? "Reschedule Task?"
-                        : "Cancel Scheduled Task?"}
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      <>Selected Schedule:</>
-                      <br />
-                      <br />
-                      <span className="block text-black">
-                        Schedule name : {selected?.user_schedule_name}
-                      </span>
-                
-                      <br />
-                     
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleCancelOrRechedule}>
-                      Continue
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog> */}
             </div>
           </div>
         </div>
@@ -428,7 +352,7 @@ export function ViewEditScheduledTasksTable() {
           placeholder="Search by Task Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
-          className="max-w-sm px-4 py-2"
+          className="w-[24rem] px-4 py-2"
         />
         <div className="flex gap-2 items-center ml-auto">
           <h3>Rows :</h3>
@@ -474,7 +398,7 @@ export function ViewEditScheduledTasksTable() {
       </div>
       {/* Table */}
       <div className="rounded-md border">
-        <div className="max-h-[68vh] overflow-auto">
+        <div className="max-h-[68vh]">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -491,33 +415,6 @@ export function ViewEditScheduledTasksTable() {
                               header.column.columnDef.header,
                               header.getContext()
                             )}
-                        {/* Example: Checkbox for selecting all rows */}
-                        {/* {header.id === "select" && (
-                          <Checkbox
-                            disabled
-                            // checked={
-                            //   table.getIsAllPageRowsSelected() ||
-                            //   (table.getIsSomePageRowsSelected() &&
-                            //     "indeterminate")
-                            // }
-                            // onCheckedChange={(value) => {
-                            //   // Toggle all page rows selected
-                            //   table.toggleAllPageRowsSelected(!!value);
-                            //   setTimeout(() => {
-                            //     const selectedRows = table
-                            //       .getSelectedRowModel()
-                            //       .rows.map((row) => row.original);
-                            //     setSelected(
-                            //       selectedRows.filter(
-                            //         (item) =>
-                            //           item.cancelled_yn.toLowerCase() !== "y"
-                            //       )
-                            //     );
-                            //   }, 0);
-                            // }}
-                            aria-label="Select all"
-                          />
-                        )} */}
                       </TableHead>
                     );
                   })}

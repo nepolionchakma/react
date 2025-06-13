@@ -442,7 +442,7 @@ const ManageGlobalConditionsTable = () => {
           placeholder="Search by Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
-          className="max-w-sm px-4 py-2"
+          className="w-[24rem] px-4 py-2"
         />
         <div className="flex gap-2 items-center ml-auto">
           <h3>Rows :</h3>

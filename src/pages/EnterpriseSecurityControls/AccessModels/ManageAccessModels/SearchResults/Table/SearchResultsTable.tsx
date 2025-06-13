@@ -283,8 +283,8 @@ const SearchResultsTable = () => {
 
       <div className="flex items-center justify-between py-4 ">
         {/* create, edit, delete and search by name  */}
-        <div className="flex items-center gap-2">
-          <div className="flex gap-2 items-center mx-2 border p-1 rounded-md">
+        <div className="flex gap-3">
+          <div className="flex gap-3 items-center px-4 py-2 border rounded">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -382,12 +382,12 @@ const SearchResultsTable = () => {
               value={limit}
               min={1}
               onChange={(e) => handleRow(Number(e.target.value))}
-              className="w-14 h-8 border rounded-lg p-2"
+              className="w-14 border rounded-md p-2"
             />
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto h-8">
+              <Button variant="outline" className="ml-auto">
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>

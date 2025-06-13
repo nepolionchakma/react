@@ -465,7 +465,7 @@ const ManageDataSources = () => {
           placeholder="Search by Datasource Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
-          className="max-w-sm px-4 py-2"
+          className="w-[24rem] px-4 py-2 "
         />
         <div className="flex gap-2 items-center ml-auto">
           <h3>Rows :</h3>
@@ -475,7 +475,7 @@ const ManageDataSources = () => {
             value={limit}
             min={1}
             onChange={(e) => handleRow(Number(e.target.value))}
-            className="w-14 border rounded p-2"
+            className="w-14 border rounded-md p-2"
           />
 
           {/* Columns */}
