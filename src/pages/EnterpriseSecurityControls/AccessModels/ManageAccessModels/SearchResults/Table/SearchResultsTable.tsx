@@ -152,13 +152,6 @@ const SearchResultsTable = () => {
   const handleSelectAll = () => {
     table.toggleAllRowsSelected(!table.getIsAllRowsSelected());
     setIsSelectAll(!isSelectAll);
-    // if (isSelectAll) {
-    //   setIsSelectAll(false);
-    //   setSelectedAccessModelItem([]);
-    // } else {
-    //   setIsSelectAll(true);
-    //   setSelectedAccessModelItem(data);
-    // }
   };
 
   const handleQuery = (e: string) => {
@@ -323,12 +316,13 @@ const SearchResultsTable = () => {
                 onClick={handleDeleteCalculate} // Delete calculate function
                 tooltipTitle="Delete"
               >
-                <>
+                <span className="flex flex-col items-start gap-1">
                   {selectedAccessModelItem.map((modelItem) => (
-                    <span key={modelItem.def_access_model_id}>
-                      <span className="capitalize mt-3 font-medium block">
-                        ACCESS_MODEL_NAME : {modelItem.model_name}
-                      </span>
+                    <span
+                      className="font-medium"
+                      key={modelItem.def_access_model_id}
+                    >
+                      Access Model Name : {modelItem.model_name}
                       <span>
                         {isLoading ? (
                           <span className="block">
@@ -340,7 +334,7 @@ const SearchResultsTable = () => {
                             ></l-tailspin>
                           </span>
                         ) : (
-                          <span>
+                          <span className="flex flex-col items-start">
                             {willBeDelete
                               .filter(
                                 (item) =>
@@ -348,10 +342,7 @@ const SearchResultsTable = () => {
                                   modelItem.def_access_model_id
                               )
                               .map((item, index) => (
-                                <span
-                                  key={index}
-                                  className="capitalize flex items-center text-black"
-                                >
+                                <span key={index} className=" text-black">
                                   {index + 1}. Object - {item.object}, Attribute
                                   - {item.attribute}
                                 </span>
@@ -361,7 +352,7 @@ const SearchResultsTable = () => {
                       </span>
                     </span>
                   ))}
-                </>
+                </span>
               </Alert>
             </TooltipProvider>
           </div>

@@ -259,7 +259,7 @@ export function GlobalContextProvider({
         job_title,
         password,
       });
-      // const res = await api.post(
+
       //   `/combined-user`,
       //   {
       //     user_type,
@@ -471,7 +471,6 @@ export function GlobalContextProvider({
       console.log(res.status);
       if (res.status === 201) {
         toast({
-          title: "Info !!!",
           description: `Data added successfully.`,
         });
       }
@@ -512,7 +511,6 @@ export function GlobalContextProvider({
       // for sync data call fetch data source
       if (res.status === 200) {
         toast({
-          title: "Info !!!",
           description: `Data updated successfully.`,
         });
       }
@@ -520,7 +518,6 @@ export function GlobalContextProvider({
       if (error instanceof AxiosError && error.response) {
         if (error.response.status == 408) {
           toast({
-            title: "Info !!!",
             description: `Can't change data already exist !.`,
           });
         }
@@ -535,7 +532,6 @@ export function GlobalContextProvider({
 
       if (res.status === 200) {
         toast({
-          title: "Info",
           description: "Deleted Succesfully",
         });
       }

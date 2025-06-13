@@ -146,7 +146,7 @@ const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
               type="submit"
               className="bg-slate-900 hover:bg-slate-800 hover:text-white text-white"
             >
-              Save
+              Submit
             </AlertDialogCancel>
             <AlertDialogCancel disabled={isLoading} onClick={handleCancel}>
               {isLoading ? "loading" : "Close"}
