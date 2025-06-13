@@ -179,9 +179,8 @@ const ManageAccessEntitlementsTable = () => {
       columnFilters,
       columnVisibility,
       rowSelection,
-    },
-    initialState: {
       pagination: {
+        pageIndex: 0,
         pageSize: accessEntitlementsLimit,
       },
     },
