@@ -80,7 +80,11 @@ const ManageDataSources = () => {
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  const [selected, setSelected] = React.useState<IDataSourceTypes[]>([]);
+  const [selectedDataSourceItems, setSelectedDataSourceItems] = React.useState<
+    IDataSourceTypes[]
+  >([]);
+  const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
+  const [isSelectAll, setIsSelectAll] = React.useState(false);
 
   const handleQuery = (e: string) => {
     if (e === "") {
@@ -128,17 +132,46 @@ const ManageDataSources = () => {
     return () => clearTimeout(delayDebounce); // Cleanup timeout
   }, [query, page, save, limit]);
 
+  React.useEffect(() => {
+    if (selectedDataSourceItems.length !== data.length || data.length === 0) {
+      setIsSelectAll(false);
+    } else {
+      setIsSelectAll(true);
+    }
+    const ids = selectedDataSourceItems.map((data) => data.def_data_source_id);
+    setSelectedIds(ids);
+  }, [selectedDataSourceItems.length, data.length]);
+
   // select row
+
+  const handleSelectAll = () => {
+    if (isSelectAll) {
+      setIsSelectAll(false);
+      setSelectedDataSourceItems([]);
+    } else {
+      setIsSelectAll(true);
+      setSelectedDataSourceItems(data);
+    }
+  };
+
   const handleRowSelection = (rowData: IDataSourceTypes) => {
-    setSelected((prevSelected) => {
-      if (prevSelected.includes(rowData)) {
-        // If the id is already selected, remove it
-        return prevSelected.filter((selectedId) => selectedId !== rowData);
-      } else {
-        // If the id is not selected, add it
-        return [...prevSelected, rowData];
-      }
-    });
+    // setSelected((prevSelected) => {
+    //   if (prevSelected.includes(rowData)) {
+    //     // If the id is already selected, remove it
+    //     return prevSelected.filter((selectedId) => selectedId !== rowData);
+    //   } else {
+    //     // If the id is not selected, add it
+    //     return [...prevSelected, rowData];
+    //   }
+    // });
+    if (selectedIds.includes(rowData.def_data_source_id)) {
+      const selectedData = selectedDataSourceItems.filter(
+        (data) => data.def_data_source_id !== rowData.def_data_source_id
+      );
+      setSelectedDataSourceItems(selectedData);
+    } else {
+      setSelectedDataSourceItems((prev) => [...prev, rowData]);
+    }
   };
 
   const handleRow = (value: number) => {
@@ -156,25 +189,9 @@ const ManageDataSources = () => {
   const columns: ColumnDef<IDataSourceTypes>[] = [
     {
       id: "select",
-      // header: ({ table }) => {
-      //   return (
-      //     <Checkbox
-      //       checked={
-      //         table.getIsAllPageRowsSelected() ||
-      //         (table.getIsSomePageRowsSelected() && "indeterminate")
-      //       }
-      //       onCheckedChange={(value) => {
-      //         table.toggleAllPageRowsSelected(!!value);
-      //         setIsChecked(!isChecked);
-      //       }}
-      //       aria-label="Select all"
-      //     />
-      //   );
-      // },
       cell: ({ row }) => (
         <Checkbox
           checked={row.getIsSelected()}
-          onClick={() => handleRowSelection(row.original)}
           onCheckedChange={(value) => row.toggleSelected(!!value)}
           aria-label="Select row"
         />
@@ -340,16 +357,16 @@ const ManageDataSources = () => {
   }, [table]);
 
   // Select for edit, delete
-  React.useEffect(() => {
-    setSelected(table.getSelectedRowModel().rows.map((row) => row.original));
-  }, [table.getSelectedRowModel().rows]);
+  // React.useEffect(() => {
+  //   setSelected(table.getSelectedRowModel().rows.map((row) => row.original));
+  // }, [table.getSelectedRowModel().rows]);
 
   const handleDelete = async () => {
     setIsLoading(true);
     try {
       setRowSelection({});
       // Iterate through the selected IDs and delete them one by one
-      for (const data of selected) {
+      for (const data of selectedDataSourceItems) {
         await deleteDataSource(data.def_data_source_id);
       }
       // Update the `save` state to trigger data re-fetching
@@ -386,7 +403,7 @@ const ManageDataSources = () => {
                 </AlertDialogTrigger>
                 <AlertDialogContent className="bg-slate-300">
                   <AlertDialogHeader>
-                    <AlertDialogTitle>Create Datasource</AlertDialogTitle>
+                    <AlertDialogTitle>Add Datasource</AlertDialogTitle>
                     <AlertDialogDescription></AlertDialogDescription>
                   </AlertDialogHeader>
                   <div>
@@ -394,7 +411,7 @@ const ManageDataSources = () => {
                       props="add"
                       maxID={maxID}
                       setSave={setSave}
-                      selected={selected}
+                      selected={selectedDataSourceItems}
                       setRowSelection={setRowSelection}
                     />
                   </div>
@@ -403,16 +420,17 @@ const ManageDataSources = () => {
               </AlertDialog>
               <AlertDialog>
                 <AlertDialogTrigger
-                  disabled={selected.length !== 1}
+                  disabled={selectedDataSourceItems.length !== 1}
                   className={`${
-                    selected.length !== 1 && "text-slate-200 cursor-not-allowed"
+                    selectedDataSourceItems.length !== 1 &&
+                    "text-slate-200 cursor-not-allowed"
                   }`}
                 >
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <FileEdit
                         className={`${
-                          selected.length === 1
+                          selectedDataSourceItems.length === 1
                             ? "cursor-pointer"
                             : "cursor-not-allowed"
                         }`}
@@ -431,7 +449,7 @@ const ManageDataSources = () => {
                   <div>
                     <DataSourceDataAdd
                       props="update"
-                      selected={selected}
+                      selected={selectedDataSourceItems}
                       editAble={true}
                       setSave={setSave}
                       setRowSelection={setRowSelection}
@@ -441,13 +459,13 @@ const ManageDataSources = () => {
               </AlertDialog>
               <Alert
                 actionName="delete"
-                disabled={selected.length < 1}
+                disabled={selectedDataSourceItems.length < 1}
                 onContinue={handleDelete}
                 tooltipTitle="Delete"
               >
                 <>
                   <span className="flex flex-col items-start">
-                    {selected.map((row, i) => (
+                    {selectedDataSourceItems.map((row, i) => (
                       <span
                         key={row.def_data_source_id}
                         className="flex flex-col text-black"
@@ -465,7 +483,7 @@ const ManageDataSources = () => {
           placeholder="Search by Datasource Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
-          className="max-w-sm px-4 py-2"
+          className="w-[24rem] px-4 py-2 "
         />
         <div className="flex gap-2 items-center ml-auto">
           <h3>Rows :</h3>
@@ -475,7 +493,7 @@ const ManageDataSources = () => {
             value={limit}
             min={1}
             onChange={(e) => handleRow(Number(e.target.value))}
-            className="w-14 border rounded p-2"
+            className="w-14 border rounded-md p-2"
           />
 
           {/* Columns */}
@@ -528,22 +546,8 @@ const ManageDataSources = () => {
                       {header.id === "select" && (
                         <Checkbox
                           className="m-1"
-                          checked={
-                            table.getIsAllPageRowsSelected() ||
-                            (table.getIsSomePageRowsSelected() &&
-                              "indeterminate")
-                          }
-                          onCheckedChange={(value) => {
-                            // Toggle all page rows selected
-                            table.toggleAllPageRowsSelected(!!value);
-                            setTimeout(() => {
-                              const selectedRows = table
-                                .getSelectedRowModel()
-                                .rows.map((row) => row.original);
-                              console.log(selectedRows);
-                              setSelected(selectedRows);
-                            }, 0);
-                          }}
+                          checked={isSelectAll}
+                          onClick={handleSelectAll}
                           aria-label="Select all"
                         />
                       )}
@@ -579,10 +583,9 @@ const ManageDataSources = () => {
                       {index === 0 ? (
                         <Checkbox
                           className="m-1"
-                          checked={row.getIsSelected()}
-                          onCheckedChange={(value) =>
-                            row.toggleSelected(!!value)
-                          }
+                          checked={selectedIds.includes(
+                            row.original.def_data_source_id
+                          )}
                           onClick={() => handleRowSelection(row.original)}
                         />
                       ) : (
@@ -624,8 +627,8 @@ const ManageDataSources = () => {
 
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            {selectedIds.length} of {table.getFilteredRowModel().rows.length}{" "}
+            row(s) selected.
           </div>
           <Pagination5
             currentPage={page}

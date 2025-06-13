@@ -237,6 +237,8 @@ export const ManageAccessEntitlementsProvider = ({
 
             const totalCount = response.data.length;
             const totalPages = Math.ceil(totalCount / limit);
+
+            console.log(filterAccessPointsById, "access point data");
             setTotalPage(totalPages);
             setCurrentPage(currentPage);
             setFilteredData(

@@ -196,7 +196,7 @@ export function ViewRequestTable() {
           placeholder="Search by Task Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
-          className="max-w-sm px-4 py-2"
+          className="w-[24rem] px-4 py-2"
         />
         <div className="flex gap-2 items-center ml-auto">
           <h3>Rows :</h3>
@@ -206,7 +206,7 @@ export function ViewRequestTable() {
             value={limit}
             min={1}
             onChange={(e) => handleRow(Number(e.target.value))}
-            className="w-14 border rounded p-2"
+            className="w-14 border rounded-md p-2"
           />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -240,7 +240,7 @@ export function ViewRequestTable() {
 
       {/* Table Section */}
       <div>
-        <div className="max-h-[68vh] overflow-auto">
+        <div className="max-h-[68vh]">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
@@ -256,20 +256,6 @@ export function ViewRequestTable() {
                             header.column.columnDef.header,
                             header.getContext()
                           )}
-                      {/* {header.id === "select" && (
-                        <Checkbox
-                          checked={
-                            table.getIsAllPageRowsSelected() ||
-                            (table.getIsSomePageRowsSelected() &&
-                              "indeterminate")
-                          }
-                          onCheckedChange={(value) =>
-                            table.toggleAllPageRowsSelected(!!value)
-                          }
-                          className="mr-1"
-                          aria-label="Select all"
-                        />
-                      )} */}
                     </TableHead>
                   ))}
                 </TableRow>

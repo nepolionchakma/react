@@ -32,6 +32,7 @@ const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
   const { fetchDataSource, createDataSource, updateDataSource, token } =
     useGlobalContext();
   const [open, setOpen] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     if (props === "update") {
@@ -90,6 +91,7 @@ const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
   function onSubmit(data: z.infer<typeof FormSchema>) {
     const date = new Date().toISOString();
     setRowSelection({});
+    setIsLoading(false);
     const postData: IDataSourcePostTypes = {
       datasource_name: data.datasource_name,
       description: data.description,
@@ -118,13 +120,15 @@ const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
           description: `Failed to ${props === "add" ? "add" : "update"} data.`,
         });
         console.error("Submit error:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
       });
   }
 
   const openProperties = () => {
     setOpen(!open);
   };
-  const [isLoading, setIsLoading] = useState(false);
   const handleCancel = () => {
     setIsLoading(true);
     setTimeout(() => {
@@ -146,7 +150,17 @@ const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
               type="submit"
               className="bg-slate-900 hover:bg-slate-800 hover:text-white text-white"
             >
-              Save
+              {isLoading ? (
+                <l-ring
+                  size="20"
+                  stroke="5"
+                  bg-opacity="0"
+                  speed="2"
+                  color="white"
+                ></l-ring>
+              ) : (
+                "Submit"
+              )}
             </AlertDialogCancel>
             <AlertDialogCancel disabled={isLoading} onClick={handleCancel}>
               {isLoading ? "loading" : "Close"}

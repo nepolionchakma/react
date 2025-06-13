@@ -152,13 +152,6 @@ const SearchResultsTable = () => {
   const handleSelectAll = () => {
     table.toggleAllRowsSelected(!table.getIsAllRowsSelected());
     setIsSelectAll(!isSelectAll);
-    // if (isSelectAll) {
-    //   setIsSelectAll(false);
-    //   setSelectedAccessModelItem([]);
-    // } else {
-    //   setIsSelectAll(true);
-    //   setSelectedAccessModelItem(data);
-    // }
   };
 
   const handleQuery = (e: string) => {
@@ -283,8 +276,8 @@ const SearchResultsTable = () => {
 
       <div className="flex items-center justify-between py-4 ">
         {/* create, edit, delete and search by name  */}
-        <div className="flex items-center gap-2">
-          <div className="flex gap-2 items-center mx-2 border p-1 rounded-md">
+        <div className="flex gap-3">
+          <div className="flex gap-3 items-center px-4 py-2 border rounded">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -323,12 +316,13 @@ const SearchResultsTable = () => {
                 onClick={handleDeleteCalculate} // Delete calculate function
                 tooltipTitle="Delete"
               >
-                <>
+                <span className="flex flex-col items-start gap-1">
                   {selectedAccessModelItem.map((modelItem) => (
-                    <span key={modelItem.def_access_model_id}>
-                      <span className="capitalize mt-3 font-medium block">
-                        ACCESS_MODEL_NAME : {modelItem.model_name}
-                      </span>
+                    <span
+                      className="font-medium"
+                      key={modelItem.def_access_model_id}
+                    >
+                      Access Model Name : {modelItem.model_name}
                       <span>
                         {isLoading ? (
                           <span className="block">
@@ -340,7 +334,7 @@ const SearchResultsTable = () => {
                             ></l-tailspin>
                           </span>
                         ) : (
-                          <span>
+                          <span className="flex flex-col items-start">
                             {willBeDelete
                               .filter(
                                 (item) =>
@@ -348,10 +342,7 @@ const SearchResultsTable = () => {
                                   modelItem.def_access_model_id
                               )
                               .map((item, index) => (
-                                <span
-                                  key={index}
-                                  className="capitalize flex items-center text-black"
-                                >
+                                <span key={index} className=" text-black">
                                   {index + 1}. Object - {item.object}, Attribute
                                   - {item.attribute}
                                 </span>
@@ -361,7 +352,7 @@ const SearchResultsTable = () => {
                       </span>
                     </span>
                   ))}
-                </>
+                </span>
               </Alert>
             </TooltipProvider>
           </div>
@@ -382,12 +373,12 @@ const SearchResultsTable = () => {
               value={limit}
               min={1}
               onChange={(e) => handleRow(Number(e.target.value))}
-              className="w-14 h-8 border rounded-lg p-2"
+              className="w-14 border rounded-md p-2"
             />
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto h-8">
+              <Button variant="outline" className="ml-auto">
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
