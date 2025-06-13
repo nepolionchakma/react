@@ -312,7 +312,7 @@ const SingleDraft = () => {
 
               <Alert
                 disabled={false}
-                actionName="move to reycle bin"
+                actionName="move to Recycle Bin"
                 onContinue={handleDelete}
                 tooltipTitle="Move to Recycle Bin"
               />
