@@ -29,20 +29,75 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
 import { ring } from "ldrs";
-import Pagination2 from "@/components/Pagination/Pagination2";
 import columns from "./Columns";
 import { useControlsContext } from "@/Context/ManageAccessEntitlements/ManageControlsContext";
 import { IControlsTypes } from "@/types/interfaces/manageControls.interface";
+import Pagination5 from "@/components/Pagination/Pagination5";
+import { toast } from "@/components/ui/use-toast";
 
 const SearchResults = () => {
   const {
     setSelectedControl,
     fetchControls,
-    controlsData: data,
+    // controlsData: data,
   } = useControlsContext();
-  const { isLoading, stateChange } = useAACContext();
+  // const { isLoading, stateChange } = useAACContext();
+  const {
+    getControls,
+    getSearchControls,
+    isLoading,
+    setIsLoading,
+    stateChange,
+    totalPages,
+  } = useControlsContext();
+  const [page, setPage] = React.useState(1);
+  const [limit, setLimit] = React.useState(8);
+  const [data, setData] = React.useState<IControlsTypes[]>([]);
+  const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
+  React.useEffect(() => {
+    const fetchData = async () => {
+      try {
+        if (!query.isEmpty) {
+          const res = await getSearchControls(page, limit, query.value);
+          if (res) {
+            setData(res);
+          }
+        } else {
+          const res = await getControls(page, limit);
+          if (res) {
+            setData(res);
+          }
+          // else {
+          //   setPage(page - 1);
+          // }
+        }
+      } catch (error) {
+        console.log(error);
+      } finally {
+        //table toggle false
+        table.toggleAllRowsSelected(false);
+        // setSelected([]);
+      }
+    };
+    setIsLoading(true);
+    const delayDebounce = setTimeout(() => {
+      fetchData();
+    }, 1000);
+
+    return () => clearTimeout(delayDebounce);
+  }, [page, limit, query]);
+  // console.log(data, "data");
+  const handleQuery = (e: string) => {
+    if (e === "") {
+      setQuery({ isEmpty: true, value: e });
+      setPage(1);
+    } else {
+      setQuery({ isEmpty: false, value: e });
+      setPage(1);
+    }
+  };
+
   React.useEffect(() => {
     fetchControls();
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
@@ -59,10 +114,6 @@ const SearchResults = () => {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0, //initial page index
-    pageSize: 5, //default page size
-  });
   const table = useReactTable({
     data,
     columns,
@@ -70,7 +121,6 @@ const SearchResults = () => {
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onPaginationChange: setPagination,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -80,7 +130,10 @@ const SearchResults = () => {
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination,
+      pagination: {
+        pageIndex: 0,
+        pageSize: limit,
+      },
     },
   });
   const handleRowSelection = (rowData: IControlsTypes) => {
@@ -94,46 +147,110 @@ const SearchResults = () => {
       }
     });
   };
+
+  // default hidden columns
+  const hiddenColumns = [
+    "pending_results_count",
+    "priority",
+    "datasources",
+    "control_last_run",
+    "control_last_updated",
+    "state",
+    "result_investigator",
+    "authorized_data",
+    "revision",
+    "revision_date",
+    "created_date",
+    "created_by",
+  ];
+  React.useEffect(() => {
+    table.getAllColumns().forEach((column) => {
+      if (hiddenColumns.includes(column.id)) {
+        column.toggleVisibility(false);
+      }
+    });
+  }, [table]);
+
+  const handleRow = (value: number) => {
+    if (value < 1) {
+      toast({
+        title: "The value must getter than 0",
+        variant: "destructive",
+      });
+      return;
+    } else {
+      setLimit(value);
+      setPage(1);
+    }
+  };
   return (
     <div className="w-full">
-      <div className="flex items-center py-4">
-        <Input
-          placeholder="Filter by Control name..."
-          value={
-            (table.getColumn("control_name")?.getFilterValue() as string) ?? ""
-          }
-          onChange={(event) =>
-            table.getColumn("control_name")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm h-8"
-        />
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto h-8">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
+      <div className="flex items-center justify-between py-2">
+        <div className="flex items-center gap-2">
+          {/* <Input
+            placeholder="Search by Control name"
+            value={
+              (table.getColumn("control_name")?.getFilterValue() as string) ??
+              ""
+            }
+            onChange={(event) =>
+              table
+                .getColumn("control_name")
+                ?.setFilterValue(event.target.value)
+            }
+            className="w-[20rem] h-8"
+          /> */}
+          <Input
+            placeholder="Search by Control name"
+            value={query.value}
+            onChange={(e) => handleQuery(e.target.value)}
+            className="w-[20rem] px-4 py-2"
+          />
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="flex gap-2 items-center ml-auto">
+            <h3>Rows :</h3>
+            <input
+              type="number"
+              placeholder="Rows"
+              value={limit}
+              min={1}
+              // max={20}
+              onChange={(e) => handleRow(Number(e.target.value))}
+              className="w-14 border rounded p-2"
+            />
+          </div>
+          {/* Columns */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="ml-auto">
+                Columns <ChevronDown className="ml-2 h-4 w-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent
+              align="end"
+              className="max-h-72 overflow-y-auto"
+            >
+              {table
+                .getAllColumns()
+                .filter((column) => column.getCanHide())
+                .map((column) => {
+                  return (
+                    <DropdownMenuCheckboxItem
+                      key={column.id}
+                      className="capitalize"
+                      checked={column.getIsVisible()}
+                      onCheckedChange={(value) =>
+                        column.toggleVisibility(!!value)
+                      }
+                    >
+                      {column.id}
+                    </DropdownMenuCheckboxItem>
+                  );
+                })}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       </div>
       <div className="rounded-md border">
         <Table>
@@ -144,7 +261,9 @@ const SearchResults = () => {
                   return (
                     <TableHead
                       key={header.id}
-                      className="border h-9 py-0 px-1 border-slate-400 bg-slate-200"
+                      className={`border h-9 py-0 px-1 border-slate-400 bg-slate-200 ${
+                        header.id === "select" && "w-6"
+                      }`}
                     >
                       {header.isPlaceholder
                         ? null
@@ -252,8 +371,16 @@ const SearchResults = () => {
         </Table>
       </div>
       {/* Start Pagination */}
-      <div className=" pt-2">
-        <Pagination2 table={table} />
+      <div className="flex justify-between p-1">
+        <div className="flex-1 text-sm text-gray-600">
+          {table.getFilteredSelectedRowModel().rows.length} of{" "}
+          {table.getFilteredRowModel().rows.length} row(s) selected.
+        </div>
+        <Pagination5
+          currentPage={page}
+          setCurrentPage={setPage}
+          totalPageNumbers={totalPages as number}
+        />
       </div>
     </div>
   );

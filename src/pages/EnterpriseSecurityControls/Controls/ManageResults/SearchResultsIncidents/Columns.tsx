@@ -21,7 +21,7 @@ const columns: ColumnDef<IControlsTypes>[] = [
     header: ({ column }) => {
       return (
         <div
-          className="flex items-center"
+          className="flex items-center w-[15rem]"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Control Name
@@ -30,26 +30,26 @@ const columns: ColumnDef<IControlsTypes>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("control_name")}</div>
+      <div className="capitalize w-[15rem]">{row.getValue("control_name")}</div>
     ),
   },
   {
     accessorKey: "description",
-    header: "Description",
+    header: () => <div className="w-[25rem]">Description</div>,
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("description")}</div>
+      <div className="capitalize w-[20rem]">{row.getValue("description")}</div>
     ),
   },
   {
     accessorKey: "pending_results_count",
-    header: "Pending Results Count",
+    header: () => <div className="min-w-max">Pending Results Count</div>,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("pending_results_count")}</div>
     ),
   },
   {
     accessorKey: "control_type",
-    header: "Control Type",
+    header: () => <div className="min-w-max">Control Type</div>,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("control_type")}</div>
     ),
@@ -63,23 +63,27 @@ const columns: ColumnDef<IControlsTypes>[] = [
   },
   {
     accessorKey: "datasources",
-    header: "Datasources",
+    header: () => <div className="w-[15rem]">Datasources</div>,
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("datasources")}</div>
     ),
   },
   {
     accessorKey: "control_last_run",
-    header: "Control Last Run",
+    header: () => <div className="min-w-max">Control Last Run</div>,
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("control_last_run")}</div>
+      <div className="capitalize min-w-max">
+        {row.getValue("control_last_run")}
+      </div>
     ),
   },
   {
     accessorKey: "control_last_updated",
-    header: "Control Last Updated",
+    header: () => <div className="min-w-max">Control Last Updated</div>,
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("control_last_updated")}</div>
+      <div className="capitalize min-w-max">
+        {row.getValue("control_last_updated")}
+      </div>
     ),
   },
   {
@@ -98,16 +102,20 @@ const columns: ColumnDef<IControlsTypes>[] = [
   },
   {
     accessorKey: "result_investigator",
-    header: "Result Investigator",
+    header: () => <div className="min-w-max">Result Investigator</div>,
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("control_last_updated")}</div>
+      <div className="capitalize min-w-max">
+        {row.getValue("control_last_updated")}
+      </div>
     ),
   },
   {
     accessorKey: "authorized_data",
-    header: "Authorized Data",
+    header: () => <div className="min-w-max">Authorized Data</div>,
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("control_last_updated")}</div>
+      <div className="capitalize min-w-max">
+        {row.getValue("control_last_updated")}
+      </div>
     ),
   },
   {
@@ -119,23 +127,29 @@ const columns: ColumnDef<IControlsTypes>[] = [
   },
   {
     accessorKey: "revision_date",
-    header: "Revision Date",
+    header: () => <div className="min-w-max">Revision Date</div>,
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("control_last_updated")}</div>
+      <div className="capitalize min-w-max">
+        {row.getValue("control_last_updated")}
+      </div>
     ),
   },
   {
     accessorKey: "created_date",
-    header: "Created Date",
+    header: () => <div className="min-w-max">Created Date</div>,
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("control_last_updated")}</div>
+      <div className="capitalize min-w-max">
+        {row.getValue("control_last_updated")}
+      </div>
     ),
   },
   {
     accessorKey: "created_by",
-    header: "Created By",
+    header: () => <div className="min-w-max">Created By</div>,
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("control_last_updated")}</div>
+      <div className="capitalize  min-w-max">
+        {row.getValue("control_last_updated")}
+      </div>
     ),
   },
 ];
