@@ -479,11 +479,11 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
               )}
             />
             <div className="flex justify-end">
-              <Button type="submit">
+              <Button type="submit" className=" mt-2">
                 {isLoading ? (
                   <l-tailspin size="15" stroke="3" speed="0.9" color="white" />
                 ) : (
-                  <>{task_name}</>
+                  "Submit"
                 )}
               </Button>
             </div>

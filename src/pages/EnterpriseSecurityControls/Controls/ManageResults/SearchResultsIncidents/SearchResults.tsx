@@ -174,7 +174,7 @@ const SearchResults = () => {
   const handleRow = (value: number) => {
     if (value < 1) {
       toast({
-        title: "The value must getter than 0",
+        title: "The value must be greater than 0",
         variant: "destructive",
       });
       return;
@@ -187,24 +187,11 @@ const SearchResults = () => {
     <div className="w-full">
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-2">
-          {/* <Input
-            placeholder="Search by Control name"
-            value={
-              (table.getColumn("control_name")?.getFilterValue() as string) ??
-              ""
-            }
-            onChange={(event) =>
-              table
-                .getColumn("control_name")
-                ?.setFilterValue(event.target.value)
-            }
-            className="w-[20rem] h-8"
-          /> */}
           <Input
-            placeholder="Search by Control name"
+            placeholder="Search by Control Name"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
-            className="w-[20rem] px-4 py-2"
+            className="w-[24rem] px-4 py-2"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -326,7 +313,7 @@ const SearchResults = () => {
                     <TableCell key={cell.id} className="border p-1 w-fit">
                       {index === 0 ? (
                         <Checkbox
-                          className="m-1"
+                          // className="m-1"
                           checked={row.getIsSelected()}
                           onCheckedChange={(value) =>
                             row.toggleSelected(!!value)

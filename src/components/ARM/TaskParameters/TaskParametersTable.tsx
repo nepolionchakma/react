@@ -191,7 +191,7 @@ export function TaskParametersTable() {
   const handleRow = (value: number) => {
     if (value < 1) {
       toast({
-        title: "The value must getter than 0",
+        title: "The value must be greater than 0",
         variant: "destructive",
       });
       return;
@@ -304,7 +304,7 @@ export function TaskParametersTable() {
                 .getColumn("parameter_name")
                 ?.setFilterValue(event.target.value)
             }
-            className="w-[20rem] px-4 py-2"
+            className="w-[24rem] px-4 py-2"
           />
         </div>
 

@@ -71,33 +71,35 @@ const columns: ColumnDef<IControlsTypes>[] = [
   {
     accessorKey: "control_last_run",
     header: () => <div className="min-w-max">Control Last Run</div>,
-    cell: ({ row }) => (
-      <div className="capitalize min-w-max">
-        {row.getValue("control_last_run")}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const data: Date = row.getValue("control_last_run");
+      const date = new Date(data);
+      const formattedDate = date.toLocaleString("en-US");
+      return <div className="capitalize min-w-max">{formattedDate}</div>;
+    },
   },
   {
     accessorKey: "control_last_updated",
     header: () => <div className="min-w-max">Control Last Updated</div>,
-    cell: ({ row }) => (
-      <div className="capitalize min-w-max">
-        {row.getValue("control_last_updated")}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const data: Date = row.getValue("control_last_updated");
+      const date = new Date(data);
+      const formattedDate = date.toLocaleString("en-US");
+      return <div className="capitalize min-w-max">{formattedDate}</div>;
+    },
   },
   {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("control_last_updated")}</div>
+      <div className="capitalize">{row.getValue("status")}</div>
     ),
   },
   {
     accessorKey: "state",
     header: "State",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("control_last_updated")}</div>
+      <div className="capitalize">{row.getValue("state")}</div>
     ),
   },
   {
@@ -105,51 +107,52 @@ const columns: ColumnDef<IControlsTypes>[] = [
     header: () => <div className="min-w-max">Result Investigator</div>,
     cell: ({ row }) => (
       <div className="capitalize min-w-max">
-        {row.getValue("control_last_updated")}
+        {row.getValue("result_investigator")}
       </div>
     ),
   },
   {
     accessorKey: "authorized_data",
     header: () => <div className="min-w-max">Authorized Data</div>,
-    cell: ({ row }) => (
-      <div className="capitalize min-w-max">
-        {row.getValue("control_last_updated")}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const data: Date = row.getValue("authorized_data");
+      const date = new Date(data);
+      const formattedDate = date.toLocaleString("en-US");
+      return <div className="capitalize min-w-max">{formattedDate}</div>;
+    },
   },
   {
     accessorKey: "revision",
     header: "Revision",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("control_last_updated")}</div>
+      <div className="capitalize">{row.getValue("revision")}</div>
     ),
   },
   {
     accessorKey: "revision_date",
     header: () => <div className="min-w-max">Revision Date</div>,
-    cell: ({ row }) => (
-      <div className="capitalize min-w-max">
-        {row.getValue("control_last_updated")}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const data: Date = row.getValue("revision_date");
+      const date = new Date(data);
+      const formattedDate = date.toLocaleString("en-US");
+      return <div className="capitalize min-w-max">{formattedDate}</div>;
+    },
   },
   {
     accessorKey: "created_date",
     header: () => <div className="min-w-max">Created Date</div>,
-    cell: ({ row }) => (
-      <div className="capitalize min-w-max">
-        {row.getValue("control_last_updated")}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const data: Date = row.getValue("created_date");
+      const date = new Date(data);
+      const formattedDate = date.toLocaleString("en-US");
+      return <div className="capitalize min-w-max">{formattedDate}</div>;
+    },
   },
   {
     accessorKey: "created_by",
     header: () => <div className="min-w-max">Created By</div>,
     cell: ({ row }) => (
-      <div className="capitalize  min-w-max">
-        {row.getValue("control_last_updated")}
-      </div>
+      <div className="capitalize  min-w-max">{row.getValue("created_by")}</div>
     ),
   },
 ];

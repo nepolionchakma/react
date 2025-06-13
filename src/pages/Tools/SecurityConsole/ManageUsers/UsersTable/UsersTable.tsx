@@ -173,7 +173,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
   const handleRow = (value: number) => {
     if (value < 1) {
       toast({
-        title: "The value must getter than 0",
+        title: "The value must be greater than 0",
         variant: "destructive",
       });
       return;
@@ -250,7 +250,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
             </Alert>
           </div>
           <Input
-            placeholder="Search by User Task Name"
+            placeholder="Search by Username"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
             className="w-[20rem] px-4 py-2"
@@ -386,7 +386,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
         </div>
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
+            {!selectedUser.user_id ? 0 : 1} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
           <Pagination5
