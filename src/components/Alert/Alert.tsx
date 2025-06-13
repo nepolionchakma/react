@@ -41,7 +41,9 @@ const Alert = ({
         <button
           onClick={onClick}
           disabled={disabled}
-          className={disabled ? "cursor-not-allowed" : "cursor-pointer"}
+          className={`hover:scale-110 duration-300 ${
+            disabled ? "cursor-not-allowed" : "cursor-pointer"
+          }`}
         >
           <TooltipProvider>
             <Tooltip>
