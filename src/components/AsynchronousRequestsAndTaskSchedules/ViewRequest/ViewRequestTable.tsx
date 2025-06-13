@@ -240,7 +240,7 @@ export function ViewRequestTable() {
 
       {/* Table Section */}
       <div>
-        <div className="max-h-[68vh]">
+        <div className="max-h-[68vh] overflow-auto">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (

@@ -398,7 +398,7 @@ export function ViewEditScheduledTasksTable() {
       </div>
       {/* Table */}
       <div className="rounded-md border">
-        <div className="max-h-[68vh]">
+        <div className="max-h-[68vh] overflow-auto">
           <Table>
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
