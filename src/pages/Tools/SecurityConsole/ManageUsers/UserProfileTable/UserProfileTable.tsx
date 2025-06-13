@@ -380,10 +380,10 @@ export function UserProfileTable({
                         {index === 0 ? (
                           <Checkbox
                             className=""
-                            checked={selectedProfile.includes(row.original)}
-                            // onCheckedChange={(value) =>
-                            //   row.toggleSelected(!!value)
-                            // }
+                            checked={row.getIsSelected()}
+                            onCheckedChange={(value) =>
+                              row.toggleSelected(!!value)
+                            }
                             onClick={() => handleRowSelection(row.original)}
                           />
                         ) : (

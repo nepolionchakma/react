@@ -353,12 +353,16 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
                         {index === 0 ? (
                           <Checkbox
                             className=""
-                            checked={
-                              row.original.user_id === selectedUser.user_id
-                            }
-                            // onCheckedChange={(value) => {
-                            //   row.toggleSelected(!!value);
-                            // }}
+                            checked={row.getIsSelected()}
+                            onCheckedChange={(value) => {
+                              if (value) {
+                                // Select only the current row (deselect others)
+                                table.setRowSelection({ [row.id]: true });
+                              } else {
+                                // Deselect current row
+                                table.setRowSelection({});
+                              }
+                            }}
                             onClick={() => handleRowSelection(row.original)}
                           />
                         ) : (
