@@ -188,6 +188,7 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
                         actionName="move to Recycle Bin"
                         onContinue={() => handleDelete(msg.id)}
                         tooltipTitle="Move to Recycle Bin"
+                        tooltipAdjustmentStyle="mr-14"
                       />
                     </TableCell>
                   </>

@@ -25,6 +25,7 @@ interface AlertProps {
   actionName: string;
   onContinue: () => void;
   onClick?: () => void;
+  tooltipAdjustmentStyle?: string | undefined;
 }
 
 const Alert = ({
@@ -34,6 +35,7 @@ const Alert = ({
   actionName,
   onContinue,
   onClick,
+  tooltipAdjustmentStyle,
 }: AlertProps) => {
   return (
     <AlertDialog>
@@ -41,9 +43,7 @@ const Alert = ({
         <button
           onClick={onClick}
           disabled={disabled}
-          className={`hover:scale-110 duration-300 ${
-            disabled ? "cursor-not-allowed" : "cursor-pointer"
-          }`}
+          className={`${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
         >
           <TooltipProvider>
             <Tooltip>
@@ -57,7 +57,7 @@ const Alert = ({
                   />
                 </div>
               </TooltipTrigger>
-              <TooltipContent>
+              <TooltipContent className={tooltipAdjustmentStyle}>
                 <p>{tooltipTitle}</p>
               </TooltipContent>
             </Tooltip>
@@ -76,7 +76,7 @@ const Alert = ({
               />
             </span>
           </AlertDialogTitle>
-          <AlertDialogDescription className="text-center flex flex-col items-center gap-5">
+          <AlertDialogDescription className="text-center flex flex-col items-center gap-5 max-h-[50vh] overflow-auto">
             <span className="block text-black font-bold">
               Are you sure you want to {actionName}?
             </span>
