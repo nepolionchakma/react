@@ -1,19 +1,25 @@
 export interface IControlsTypes {
-  control_id: number;
+  // control_id: number;
   control_name: string;
-  description: String;
+  description: string;
   pending_results_count: number;
-  control_type: String;
+  control_type: string;
   priority: number;
-  datasources: String;
-  control_last_run: String;
-  control_last_updated: String;
-  status: String;
-  state: String;
-  result_investigator: String;
-  authorized_data: String;
-  revision: number;
-  revision_date: String;
-  created_by: String;
-  created_date: String;
+  datasources: string;
+  control_last_run: string;
+  control_last_updated: string;
+  status: string;
+  state: string;
+  result_investigator: string;
+  authorized_data: string;
+  // revision: number;
+  // revision_date: String;
+  // created_by: String;
+  // created_date: String;
+}
+export interface IControlsGetTypes {
+  items: IControlsTypes[];
+  page: number;
+  pages: number;
+  total: number;
 }

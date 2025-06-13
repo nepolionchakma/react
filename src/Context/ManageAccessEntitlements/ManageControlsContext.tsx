@@ -1,8 +1,9 @@
 import { IControlsTypes } from "@/types/interfaces/manageControls.interface";
 import { createContext, useContext, useState } from "react";
-import { useAACContext } from "./AdvanceAccessControlsContext";
 import { toast } from "@/components/ui/use-toast";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+import axios from "axios";
+import { useGlobalContext } from "../GlobalContext/GlobalContext";
 interface IControlsProviderProps {
   children: React.ReactNode;
 }
@@ -10,9 +11,23 @@ interface IControlsContextTypes {
   selectedControl: IControlsTypes[];
   setSelectedControl: React.Dispatch<React.SetStateAction<IControlsTypes[]>>;
   fetchControls: () => Promise<IControlsTypes[] | undefined>;
+  getControls: (
+    page: number,
+    limit: number
+  ) => Promise<IControlsTypes[] | undefined>;
+  getSearchControls: (
+    page: number,
+    limit: number,
+    query: string
+  ) => Promise<IControlsTypes[] | undefined>;
   controlsData: IControlsTypes[];
   searchFilter: (data: ISearchTypes) => void;
   createControl: (data: IControlsTypes) => void;
+  isLoading: boolean;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  stateChange: number;
+  setStateChange: React.Dispatch<React.SetStateAction<number>>;
+  totalPages: number;
 }
 interface ISearchTypes {
   match: string;
@@ -33,9 +48,14 @@ export const ControlsContextProvider = ({
   children,
 }: IControlsProviderProps) => {
   const api = useAxiosPrivate();
-  const { setIsLoading } = useAACContext();
+  const { token } = useGlobalContext();
+  // const { setIsLoading } = useAACContext();
+  const FLASK_ENDPOINT_URL = import.meta.env.VITE_FLASK_ENDPOINT_URL;
   const [controlsData, setControlsData] = useState<IControlsTypes[]>([]);
   const [selectedControl, setSelectedControl] = useState<IControlsTypes[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [stateChange, setStateChange] = useState(0);
+  const [totalPages, setTotalPages] = useState(0);
 
   // Controls
   const fetchControls = async () => {
@@ -50,17 +70,66 @@ export const ControlsContextProvider = ({
       console.log(error);
     }
   };
+  // Controls
+  const getControls = async (page: number, limit: number) => {
+    try {
+      setIsLoading(true);
+      const res = await axios.get(
+        `${FLASK_ENDPOINT_URL}/def_controls/${page}/${limit}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token.access_token}`,
+          },
+        }
+      );
+      setTotalPages(res.data.pages);
+      return res.data.items ?? [];
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const getSearchControls = async (
+    page: number,
+    limit: number,
+    query: string
+  ) => {
+    try {
+      setIsLoading(true);
+      const res = await axios.get(
+        `${FLASK_ENDPOINT_URL}/def_controls/search/${page}/${limit}?query=${query}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token.access_token}`,
+          },
+        }
+      );
+      setTotalPages(res.data.pages);
+      return res.data.items ?? [];
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const createControl = async (data: IControlsTypes) => {
     try {
-      const res = await api.post(`/controls`, data);
+      const res = await axios.post(`${FLASK_ENDPOINT_URL}/def_controls`, data, {
+        headers: {
+          Authorization: `Bearer ${token.access_token}`,
+        },
+      });
       console.log(res, "res");
       if (res.status === 201) {
         toast({
-          description: `Added successfully.`,
+          description: `${res.data.message}`,
         });
       }
     } catch (error) {
-      console.log(error);
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     }
   };
 
@@ -105,9 +174,16 @@ export const ControlsContextProvider = ({
     selectedControl,
     setSelectedControl,
     fetchControls,
+    getControls,
+    getSearchControls,
     controlsData,
     searchFilter,
     createControl,
+    isLoading,
+    setIsLoading,
+    stateChange,
+    setStateChange,
+    totalPages,
   };
   return (
     <ControlsContext.Provider value={value}>
