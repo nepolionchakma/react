@@ -141,6 +141,14 @@ const SearchResultsTable = () => {
     }
   }, [selectedAccessModelItem.length, data.length]);
 
+  React.useEffect(() => {
+    if (debouncedQuery) {
+      getSearchAccessModels(page, limit, debouncedQuery);
+    } else {
+      lazyLoadingDefAccessModels(page, limit);
+    }
+  }, [page, limit, debouncedQuery, stateChange]);
+
   const handleSelectAll = () => {
     table.toggleAllRowsSelected(!table.getIsAllRowsSelected());
     setIsSelectAll(!isSelectAll);
@@ -169,14 +177,6 @@ const SearchResultsTable = () => {
       setPage(1);
     }
   }, [query, setPage]);
-
-  React.useEffect(() => {
-    if (debouncedQuery) {
-      getSearchAccessModels(page, limit, debouncedQuery);
-    } else {
-      lazyLoadingDefAccessModels(page, limit);
-    }
-  }, [page, limit, debouncedQuery, stateChange]);
 
   // React.useEffect(() => {
   //   fetchDefAccessModels();

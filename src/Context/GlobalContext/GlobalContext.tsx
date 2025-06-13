@@ -22,7 +22,6 @@ import {
 import {
   IDataSourcePostTypes,
   IDataSourceTypes,
-  IManageAccessEntitlementsPerPageTypes,
 } from "@/types/interfaces/datasource.interface";
 import { toast } from "@/components/ui/use-toast";
 import { Toaster } from "@/components/ui/toaster";
@@ -47,7 +46,7 @@ interface GlobalContex {
   fetchDataSources: (
     page: number,
     limit: number
-  ) => Promise<IManageAccessEntitlementsPerPageTypes | undefined>;
+  ) => Promise<IDataSourceTypes[] | undefined>;
   getSearchDataSources: (
     page: number,
     limit: number,
@@ -391,11 +390,14 @@ export function GlobalContextProvider({
   //Fetch DataSources
   const fetchDataSources = async (page: number, limit: number) => {
     try {
-      const response = await api.get<IManageAccessEntitlementsPerPageTypes>(
-        `/def-data-sources/${page}/${limit}`
-      );
-      const sortingData = response.data;
-      return sortingData ?? [];
+      const response = await api.get<{
+        items: IDataSourceTypes[];
+        pages: number;
+        page: number;
+      }>(`/def-data-sources/${page}/${limit}`);
+      setTotalPage(response.data.pages);
+      setCurrentPage(response.data.page);
+      return response.data.items;
     } catch (error) {
       console.log(error);
     }
@@ -412,7 +414,7 @@ export function GlobalContextProvider({
       );
 
       setTotalPage(resultLazyLoading.data.pages);
-
+      setCurrentPage(resultLazyLoading.data.page);
       return resultLazyLoading.data.items;
     } catch (error) {
       console.log(error);

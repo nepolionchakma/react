@@ -15,6 +15,7 @@ export interface IManageAccessEntitlementsPerPageTypes {
   totalPages: number;
   currentPage: number;
 }
+
 export interface IDataSourcePostTypes {
   def_data_source_id?: number;
   datasource_name: string;
