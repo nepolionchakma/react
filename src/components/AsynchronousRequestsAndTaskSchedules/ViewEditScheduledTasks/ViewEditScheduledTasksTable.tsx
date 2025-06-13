@@ -272,9 +272,9 @@ export function ViewEditScheduledTasksTable() {
   };
   const handleCloseModal = () => {
     setIsOpenModal(""); // close modal
-    setSelected(undefined);
-    //table toggle false
-    table.toggleAllRowsSelected(false);
+    // setSelected(undefined);
+    // table toggle false
+    // table.toggleAllRowsSelected(false);
   };
 
   const handleRow = (value: number) => {
@@ -658,8 +658,10 @@ export function ViewEditScheduledTasksTable() {
         </div>
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            {selected ? `1` : `0`} of {table.getFilteredRowModel().rows.length}{" "}
+            row(s) selected.
+            {/* {table.getFilteredSelectedRowModel().rows.length} of{" "}
+            {table.getFilteredRowModel().rows.length} row(s) selected. */}
           </div>
           <Pagination5
             currentPage={page}
