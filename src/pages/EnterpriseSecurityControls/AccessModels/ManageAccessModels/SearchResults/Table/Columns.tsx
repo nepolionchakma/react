@@ -78,18 +78,8 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
       );
     },
     cell: ({ row }) => {
-      const data: string = row.getValue("last_run_date");
-      // const [datePart, timePart] = data.split(" ");
-      // const [day, month, year] = datePart.split("-")
-      //   .map((part) => parseInt(part, 10));
-      // const [hour, minute, second] = timePart
-      //   .split(":")
-      //   .map((part) => parseInt(part, 10));
-      // const date = new Date(year, month - 1, day, hour, minute, second);
-      // const formatted = date.toLocaleString("en-US");
-      // const date = new Date(data).toLocaleString("en-US");
-      // console.log(date, "dfdsfsd", data);
-      return <div className="capitalize px-1">{data}</div>;
+      const date = new Date(row.getValue("last_run_date")).toLocaleString();
+      return <div className="capitalize px-1">{date}</div>;
     },
   },
   {
