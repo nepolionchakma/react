@@ -11,12 +11,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronDown, FileEdit, PlusIcon } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { tailspin } from "ldrs";
 tailspin.register();
 import { Button } from "@/components/ui/button";
@@ -44,6 +38,7 @@ import CustomModal4 from "@/components/CustomModal/CustomModal4";
 import { Input } from "@/components/ui/input";
 import Alert from "@/components/Alert/Alert";
 import { toast } from "@/components/ui/use-toast";
+import CustomTooltip from "@/components/Tooltip/Tooltip";
 interface Props {
   selectedUser: IUsersInfoTypes;
   setSelectedUser: React.Dispatch<React.SetStateAction<IUsersInfoTypes>>;
@@ -76,7 +71,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
-  const [limit, setLimit] = React.useState<number>(3);
+  const [limit, setLimit] = React.useState<number>(4);
 
   const handleQuery = (e: string) => {
     if (e === "") {
@@ -182,6 +177,14 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
       setPage(1);
     }
   };
+  const inputRef = React.useRef(null);
+
+  const handleClick = () => {
+    if (inputRef.current) {
+      (inputRef.current as HTMLInputElement).select();
+    }
+  };
+
   return (
     <div className="px-3">
       {isOpenModal === "add_user" ? (
@@ -205,36 +208,27 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-2">
           <div className="flex gap-2 items-center  border p-2 rounded-md">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <PlusIcon
-                    className="cursor-pointer"
-                    onClick={() => handleOpenModal("add_user")}
-                  />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Add</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger disabled={!selectedUser.user_id}>
-                  <FileEdit
-                    className={`${
-                      !selectedUser.user_id
-                        ? "text-slate-200 cursor-not-allowed"
-                        : "cursor-pointer"
-                    }`}
-                    onClick={() => handleOpenModal("edit_user")}
-                  />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Edit</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            {/* Add  */}
+            <CustomTooltip tooltipTitle="Add">
+              <PlusIcon
+                className="cursor-pointer"
+                onClick={() => handleOpenModal("add_user")}
+              />
+            </CustomTooltip>
+            {/* Edit  */}
+            <button disabled={!selectedUser.user_id}>
+              <CustomTooltip tooltipTitle="Edit">
+                <FileEdit
+                  className={`${
+                    !selectedUser.user_id
+                      ? "text-slate-200 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                  onClick={() => handleOpenModal("edit_user")}
+                />
+              </CustomTooltip>
+            </button>
+            {/* Delete  */}
             <Alert
               disabled={
                 !selectedUser.user_id ||
@@ -249,6 +243,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
               </span>
             </Alert>
           </div>
+          {/* Search  */}
           <Input
             placeholder="Search by Username"
             value={query.value}
@@ -266,6 +261,8 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
               value={limit}
               min={1}
               // max={20}
+              ref={inputRef}
+              onClick={handleClick}
               onChange={(e) => handleRow(Number(e.target.value))}
               className="w-14 border rounded p-2"
             />

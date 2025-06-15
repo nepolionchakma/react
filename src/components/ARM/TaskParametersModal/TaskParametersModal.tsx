@@ -95,7 +95,7 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
             },
           }
         );
-
+        console.log(res, "res");
         if (res.status === 201) {
           toast({
             description: `${res.data.message}`,
@@ -201,6 +201,7 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
                       <FormLabel>Data Type</FormLabel>
                       <FormControl>
                         <Select
+                          required
                           onValueChange={field.onChange}
                           defaultValue={field.value}
                         >

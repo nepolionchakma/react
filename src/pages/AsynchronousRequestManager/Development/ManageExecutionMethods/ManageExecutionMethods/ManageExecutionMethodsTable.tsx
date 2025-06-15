@@ -11,12 +11,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ChevronDown, FileEdit, PlusIcon } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -43,6 +37,7 @@ import ExecutionMethodEdit from "../ExecutionMethodEdit/ExecutionMethodEdit";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
 import { toast } from "@/components/ui/use-toast";
 import Alert from "@/components/Alert/Alert";
+import CustomTooltip from "@/components/Tooltip/Tooltip";
 
 export function ManageExecutionMethodsTable() {
   const {
@@ -195,6 +190,13 @@ export function ManageExecutionMethodsTable() {
       setPage(1);
     }
   };
+  const inputRef = React.useRef(null);
+
+  const handleClick = () => {
+    if (inputRef.current) {
+      (inputRef.current as HTMLInputElement).select();
+    }
+  };
 
   return (
     <div className="px-3">
@@ -221,38 +223,27 @@ export function ManageExecutionMethodsTable() {
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-2">
           <div className="flex gap-2 items-center border p-2 rounded-md">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <PlusIcon
-                    className="cursor-pointer"
-                    onClick={() => handleOpenModal("create_execution_methods")}
-                  />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Add</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            {/* Add  */}
+            <CustomTooltip tooltipTitle="Add">
+              <PlusIcon
+                className="cursor-pointer"
+                onClick={() => handleOpenModal("create_execution_methods")}
+              />
+            </CustomTooltip>
+            {/* Edit  */}
             <button disabled={selected.length > 1 || selected.length === 0}>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <FileEdit
-                      className={`${
-                        selected.length > 1 || selected.length === 0
-                          ? "text-slate-200 cursor-not-allowed"
-                          : "cursor-pointer"
-                      }`}
-                      onClick={() => handleOpenModal("edit_execution_methods")}
-                    />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Edit</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <CustomTooltip tooltipTitle="Edit">
+                <FileEdit
+                  className={`${
+                    selected.length > 1 || selected.length === 0
+                      ? "text-slate-200 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                  onClick={() => handleOpenModal("edit_execution_methods")}
+                />
+              </CustomTooltip>
             </button>
+            {/* Delete  */}
             <Alert
               disabled={selected.length === 0}
               tooltipTitle="Delete"
@@ -268,6 +259,7 @@ export function ManageExecutionMethodsTable() {
               </span>
             </Alert>
           </div>
+          {/* Search  */}
           <Input
             placeholder="Search by Internal Execution Method"
             value={query.value}
@@ -285,6 +277,8 @@ export function ManageExecutionMethodsTable() {
               value={limit}
               min={1}
               // max={20}
+              ref={inputRef}
+              onClick={handleClick}
               onChange={(e) => handleRow(Number(e.target.value))}
               className="w-14 border rounded p-2"
             />
