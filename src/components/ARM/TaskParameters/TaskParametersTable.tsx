@@ -37,11 +37,10 @@ import TaskParametersModal from "../TaskParametersModal/TaskParametersModal";
 import { Input } from "@/components/ui/input";
 import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
+import ActionButtons from "@/components/ActionButtons/ActionButtons";
 
 export function TaskParametersTable() {
   const {
-    // totalPage2,
-    setTotalPage2,
     selectedTask,
     selectedTaskParameters,
     setSelectedTaskParameters,
@@ -52,8 +51,6 @@ export function TaskParametersTable() {
   const [data, setData] = React.useState<IARMTaskParametersTypes[] | []>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const { isOpenModal, setIsOpenModal } = useGlobalContext();
-  const [page, setPage] = React.useState<number>(1);
-  // const [limit, setLimit] = React.useState<number>(4);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -89,8 +86,6 @@ export function TaskParametersTable() {
 
   React.useEffect(() => {
     if (!selectedTask || !selectedTask.task_name) {
-      setTotalPage2(1);
-      setPage(1);
       return setData([]);
     }
     const fetchData = async () => {
@@ -101,8 +96,6 @@ export function TaskParametersTable() {
         if (res) setData(res);
       } catch (error) {
         setData([]);
-        setTotalPage2(1);
-        setPage(1);
         console.log(error, "err");
       } finally {
         setIsLoading(false);
@@ -112,7 +105,7 @@ export function TaskParametersTable() {
       }
     };
     fetchData();
-  }, [selectedTask?.def_task_id, changeState, page]);
+  }, [selectedTask?.def_task_id, changeState]);
 
   const table = useReactTable({
     data,
@@ -202,7 +195,7 @@ export function TaskParametersTable() {
       {/* top icon and columns*/}
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-2">
-          <div className="flex gap-2 items-center border p-2 rounded-md">
+          <ActionButtons>
             <button disabled={!selectedTask?.def_task_id}>
               <CustomTooltip tooltipTitle="Add">
                 <PlusIcon
@@ -253,7 +246,7 @@ export function TaskParametersTable() {
                 ))}
               </span>
             </Alert>
-          </div>
+          </ActionButtons>
           <Input
             placeholder="Search by Parameter Name"
             value={
