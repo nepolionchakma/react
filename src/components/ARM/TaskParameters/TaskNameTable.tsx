@@ -79,7 +79,7 @@ export function TaskNameTable() {
 
   const [data, setData] = React.useState<IARMAsynchronousTasksTypes[] | []>([]);
   const [page, setPage] = React.useState<number>(1);
-  const [limit, setLimit] = React.useState<number>(3);
+  const [limit, setLimit] = React.useState<number>(4);
   // const [selectedRowId, setSelectedRowId] = React.useState<string>("");
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -183,6 +183,14 @@ export function TaskNameTable() {
       setPage(1);
     }
   };
+  const inputRef = React.useRef(null);
+
+  const handleClick = () => {
+    if (inputRef.current) {
+      (inputRef.current as HTMLInputElement).select();
+    }
+  };
+
   return (
     <div className="px-3">
       {/* top icon and columns*/}
@@ -191,6 +199,8 @@ export function TaskNameTable() {
           <Input
             placeholder="Search by User Task Name"
             value={query.value}
+            ref={inputRef}
+            onClick={handleClick}
             onChange={(e) => handleQuery(e.target.value)}
             className="w-[24rem] px-4 py-2"
           />
@@ -204,6 +214,8 @@ export function TaskNameTable() {
               value={limit}
               min={1}
               // max={20}
+              ref={inputRef}
+              onClick={handleClick}
               onChange={(e) => handleRow(Number(e.target.value))}
               className="w-14 border rounded p-2"
             />
@@ -278,7 +290,7 @@ export function TaskNameTable() {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-[3rem] text-center"
+                    className="h-[8rem] text-center"
                   >
                     <l-tailspin
                       size="40"
