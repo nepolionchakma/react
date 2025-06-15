@@ -41,6 +41,8 @@ import { useManageAccessEntitlementsContext } from "@/Context/ManageAccessEntitl
 import { toast } from "@/components/ui/use-toast";
 import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
+import Rows from "@/components/Rows/Rows";
+import ActionButtons from "@/components/ActionButtons/ActionButtons";
 
 // Main Component
 const ManageAccessEntitlementsTable = () => {
@@ -67,7 +69,7 @@ const ManageAccessEntitlementsTable = () => {
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [page, setPage] = React.useState<number>(1);
   const [accessEntitlementsLimit, setAceessEntitlementsLimit] =
-    React.useState(3);
+    React.useState(4);
   const [totalPage, setTotalPage] = React.useState<number | undefined>(1);
 
   // Shadcn Form State
@@ -233,18 +235,6 @@ const ManageAccessEntitlementsTable = () => {
     setDeleteAccessPointsElements([]);
   };
 
-  const handleRow = (value: number) => {
-    if (value < 1) {
-      toast({
-        title: "The value must be greater than 0",
-        variant: "destructive",
-      });
-      return;
-    } else {
-      setAceessEntitlementsLimit(value);
-    }
-  };
-
   // default hidden columns
   const hiddenColumns = [
     "comments",
@@ -271,7 +261,7 @@ const ManageAccessEntitlementsTable = () => {
       {/* Top Actions */}
       <div className="flex gap-3 justify-between items-center py-2">
         <div className="flex gap-3 items-center">
-          <div className="flex gap-3 items-center px-4 py-2 border rounded">
+          <ActionButtons>
             <CustomTooltip tooltipTitle="Add">
               <span>
                 <Plus
@@ -304,7 +294,6 @@ const ManageAccessEntitlementsTable = () => {
                 />
               </span>
             </CustomTooltip>
-
             {selectedAccessEntitlements.def_entitlement_id !== 0 ? (
               <CustomTooltip tooltipTitle="Edit">
                 <span>
@@ -371,22 +360,14 @@ const ManageAccessEntitlementsTable = () => {
                 {isLoading && <span>loading</span>}
               </span>
             </Alert>
-          </div>
+          </ActionButtons>
         </div>
 
         <div className="flex gap-2">
-          {/** Rows */}
-          <div className="flex gap-2 items-center ml-auto">
-            <h3>Rows :</h3>
-            <input
-              type="number"
-              placeholder="Rows"
-              value={accessEntitlementsLimit}
-              min={1}
-              onChange={(e) => handleRow(Number(e.target.value))}
-              className="w-14 border rounded-md p-2"
-            />
-          </div>
+          <Rows
+            limit={accessEntitlementsLimit}
+            setLimit={setAceessEntitlementsLimit}
+          />
 
           {/* Columns */}
           <DropdownMenu>

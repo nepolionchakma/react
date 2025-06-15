@@ -6,7 +6,6 @@ import {
   IARMViewRequestsTypes,
   IAsynchronousRequestsAndTaskSchedulesTypes,
   IExecutionMethodsTypes,
-  IGetResponseARMTaskParametersTypes,
   IGetResponseExecutionMethodsTypes,
 } from "@/types/interfaces/ARM.interface";
 import React, { ReactNode, createContext, useContext, useState } from "react";
@@ -59,9 +58,7 @@ interface ARMContext {
     React.SetStateAction<IARMTaskParametersTypes[]>
   >;
   getTaskParametersLazyLoading: (
-    task_name: string,
-    page: number,
-    limit: number
+    task_name: string
   ) => Promise<IARMTaskParametersTypes[] | undefined>;
   getTaskParametersByTaskName: (
     task_name: string
@@ -114,7 +111,6 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   const FLASK_ENDPOINT_URL = import.meta.env.VITE_FLASK_ENDPOINT_URL;
   const [changeState, setChangeState] = useState<number>(0);
   const [isLoading, setIsLoading] = React.useState(false);
-  console.log(isLoading, "isLoading");
   const [selectedTask, setSelectedTask] = useState<
     IARMAsynchronousTasksTypes | undefined
   >(undefined);
@@ -284,33 +280,20 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   };
 
   // Task Parameters
-  const getTaskParametersLazyLoading = async (
-    task_name: string,
-    page: number,
-    limit: number
-  ) => {
+  const getTaskParametersLazyLoading = async (task_name: string) => {
     try {
-      const response = await api.get<IGetResponseARMTaskParametersTypes>(
-        `/arm-tasks/task-params/${task_name}/${page}/${limit}`
+      const response = await axios.get<IARMTaskParametersTypes[]>(
+        `${FLASK_ENDPOINT_URL}/Show_TaskParams/${task_name}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token.access_token}`,
+          },
+        }
       );
-      // console.log(response);
-      // const [countTasksParameters, tasksParameters] = await Promise.all([
-      //   api.get<IARMTaskParametersTypes[]>(
-      //     `/arm-tasks/task-params/${task_name}`
-      //   ),
-      //   api.get<IARMTaskParametersTypes[]>(
-      //     `/arm-tasks/task-params/${task_name}/${page}/${limit}`
-      //   ),
-      // ]);
-
-      // const totalCount = countTasksParameters.data.length;
-      // const totalPages = Math.ceil(totalCount / limit);
-      // setTotalPage2(totalPages);
-      // return tasksParameters.data ?? [];
-      setTotalPage2(response.data.pages);
-      return response.data.items ?? [];
+      // setTotalPage2(response.data.pages);
+      return response.data ?? [];
     } catch (error) {
-      console.log("Task Parameters Item Not found");
+      console.log(error);
       return [];
     }
   };

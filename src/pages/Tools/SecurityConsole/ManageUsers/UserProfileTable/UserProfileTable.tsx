@@ -29,13 +29,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import columns from "./Columns";
 import {
   IProfilesType,
   IUsersInfoTypes,
 } from "@/types/interfaces/users.interface";
-import Pagination5 from "@/components/Pagination/Pagination5";
 import { toast } from "@/components/ui/use-toast";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import AddUserProfile from "./AddUserProfile/AddUserProfile";
@@ -70,11 +68,11 @@ export function UserProfileTable({
   setSelectedProfile,
 }: Props) {
   const api = useAxiosPrivate();
-  const {
-    // fetchCombinedUser, page,
-    setPage,
-    // totalPage
-  } = useGlobalContext();
+  // const {
+  //   // fetchCombinedUser, page,
+  //   setPage,
+  //   // totalPage
+  // } = useGlobalContext();
   const [openModalName, setOpenModalName] = React.useState("");
   const [isCreateNewProfile, setIsCreateNewProfile] = React.useState(false);
   const [isUpdateProfile, setIsUpdateProfile] = React.useState(false);
@@ -93,15 +91,6 @@ export function UserProfileTable({
       displayOrder.indexOf(a.profile_type) -
       displayOrder.indexOf(b.profile_type)
   );
-
-  // React.useEffect(() => {
-  //   fetchCombinedUser();
-  // }, []);
-  // React.useEffect(() => {
-  //   if (page > 1 || page < totalPage) {
-  //     fetchCombinedUser();
-  //   }
-  // }, [page, totalPage]);
 
   React.useEffect(() => {
     handleCloseModal();
@@ -254,11 +243,13 @@ export function UserProfileTable({
                 actionName="delete" // Cancel/Reschedule
                 onContinue={handleDelete} // funtion
               >
-                {selectedProfile.map((item, index) => (
-                  <span key={item.serial_number} className="block text-black">
-                    {index + 1}. {item.profile_type} : {item.profile_id}
-                  </span>
-                ))}
+                <span className="flex flex-col items-start">
+                  {selectedProfile.map((item, index) => (
+                    <span key={item.serial_number} className="block text-black">
+                      {index + 1}. {item.profile_type} : {item.profile_id}
+                    </span>
+                  ))}
+                </span>
               </Alert>
             </div>
           </div>
@@ -414,11 +405,11 @@ export function UserProfileTable({
             {table.getFilteredSelectedRowModel().rows.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
-          <Pagination5
+          {/* <Pagination5
             currentPage={1}
             setCurrentPage={setPage}
             totalPageNumbers={1}
-          />
+          /> */}
         </div>
       </div>
     </div>

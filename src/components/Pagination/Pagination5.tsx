@@ -62,6 +62,13 @@ const Pagination5 = ({
     setGoToPage(currentPage);
   }, [currentPage]);
 
+  const inputRef = React.useRef(null);
+
+  const handleClick = () => {
+    if (inputRef.current) {
+      (inputRef.current as HTMLInputElement).select();
+    }
+  };
   return (
     <div className="flex gap-4 items-center">
       <button
@@ -110,6 +117,8 @@ const Pagination5 = ({
             type="number"
             min={1}
             max={Math.max(totalPageNumbers > 0 ? totalPageNumbers : 0)}
+            ref={inputRef}
+            onClick={handleClick}
             className="border rounded-md px-2"
             onChange={handleChangeNumber}
           />

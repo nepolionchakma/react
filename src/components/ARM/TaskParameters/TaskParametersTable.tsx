@@ -1,11 +1,5 @@
 import * as React from "react";
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import {
   ColumnFiltersState,
   SortingState,
   VisibilityState,
@@ -37,17 +31,16 @@ import {
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import columns from "./Columns";
 import CustomModal3 from "@/components/CustomModal/CustomModal3";
-import Pagination5 from "@/components/Pagination/Pagination5";
 import { IARMTaskParametersTypes } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import TaskParametersModal from "../TaskParametersModal/TaskParametersModal";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/components/ui/use-toast";
 import Alert from "@/components/Alert/Alert";
+import CustomTooltip from "@/components/Tooltip/Tooltip";
 
 export function TaskParametersTable() {
   const {
-    totalPage2,
+    // totalPage2,
     setTotalPage2,
     selectedTask,
     selectedTaskParameters,
@@ -60,7 +53,7 @@ export function TaskParametersTable() {
   const [isLoading, setIsLoading] = React.useState(false);
   const { isOpenModal, setIsOpenModal } = useGlobalContext();
   const [page, setPage] = React.useState<number>(1);
-  const [limit, setLimit] = React.useState<number>(4);
+  // const [limit, setLimit] = React.useState<number>(4);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -103,11 +96,7 @@ export function TaskParametersTable() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const res = await getTaskParametersLazyLoading(
-          selectedTask.task_name,
-          page,
-          limit
-        );
+        const res = await getTaskParametersLazyLoading(selectedTask.task_name);
 
         if (res) setData(res);
       } catch (error) {
@@ -123,7 +112,7 @@ export function TaskParametersTable() {
       }
     };
     fetchData();
-  }, [selectedTask?.def_task_id, changeState, page, limit]);
+  }, [selectedTask?.def_task_id, changeState, page]);
 
   const table = useReactTable({
     data,
@@ -141,10 +130,10 @@ export function TaskParametersTable() {
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination: {
-        pageIndex: 0,
-        pageSize: limit,
-      },
+      // pagination: {
+      //   pageIndex: 0,
+      //   pageSize: limit,
+      // },
     },
   });
   // default hidden columns
@@ -188,19 +177,6 @@ export function TaskParametersTable() {
     }
   };
 
-  const handleRow = (value: number) => {
-    if (value < 1) {
-      toast({
-        title: "The value must be greater than 0",
-        variant: "destructive",
-      });
-      return;
-    } else {
-      setLimit(value);
-      setPage(1);
-    }
-  };
-
   return (
     <div className="px-3">
       {selectedTask?.user_task_name && isOpenModal === "add_task_params" ? (
@@ -228,23 +204,16 @@ export function TaskParametersTable() {
         <div className="flex items-center gap-2">
           <div className="flex gap-2 items-center border p-2 rounded-md">
             <button disabled={!selectedTask?.def_task_id}>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <PlusIcon
-                      className={`${
-                        !selectedTask?.def_task_id
-                          ? "text-slate-200 cursor-not-allowed"
-                          : "cursor-pointer"
-                      }`}
-                      onClick={() => handleOpenModal("add_task_params")}
-                    />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Add</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <CustomTooltip tooltipTitle="Add">
+                <PlusIcon
+                  className={`${
+                    !selectedTask?.def_task_id
+                      ? "text-slate-200 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                  onClick={() => handleOpenModal("add_task_params")}
+                />
+              </CustomTooltip>
             </button>
 
             <button
@@ -254,25 +223,19 @@ export function TaskParametersTable() {
                 !selectedTask?.def_task_id
               }
             >
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <FileEdit
-                      className={`${
-                        selectedTaskParameters.length > 1 ||
-                        selectedTaskParameters.length === 0
-                          ? "text-slate-200 cursor-not-allowed"
-                          : "cursor-pointer"
-                      }`}
-                      onClick={() => handleOpenModal("update_task_params")}
-                    />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Edit</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <CustomTooltip tooltipTitle="Edit">
+                <FileEdit
+                  className={`${
+                    selectedTaskParameters.length > 1 ||
+                    selectedTaskParameters.length === 0
+                      ? "text-slate-200 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                  onClick={() => handleOpenModal("update_task_params")}
+                />
+              </CustomTooltip>
             </button>
+
             <Alert
               disabled={
                 selectedTaskParameters.length === 0 ||
@@ -290,7 +253,6 @@ export function TaskParametersTable() {
                 ))}
               </span>
             </Alert>
-            {/* </div> */}
           </div>
           <Input
             placeholder="Search by Parameter Name"
@@ -319,7 +281,7 @@ export function TaskParametersTable() {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex gap-2 items-center ml-auto">
+          {/* <div className="flex gap-2 items-center ml-auto">
             <h3>Rows :</h3>
             <input
               type="number"
@@ -330,7 +292,7 @@ export function TaskParametersTable() {
               onChange={(e) => handleRow(Number(e.target.value))}
               className="w-14 border rounded p-2"
             />
-          </div>
+          </div> */}
           {/* Columns */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -474,11 +436,11 @@ export function TaskParametersTable() {
             {table.getFilteredSelectedRowModel().rows.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
-          <Pagination5
+          {/* <Pagination5
             currentPage={page}
             setCurrentPage={setPage}
             totalPageNumbers={totalPage2 as number}
-          />
+          /> */}
         </div>
       </div>
     </div>
