@@ -177,19 +177,6 @@ export function TaskParametersTable() {
     }
   };
 
-  // const handleRow = (value: number) => {
-  //   if (value < 1) {
-  //     toast({
-  //       title: "The value must be greater than 0",
-  //       variant: "destructive",
-  //     });
-  //     return;
-  //   } else {
-  //     // setLimit(value);
-  //     // setPage(1);
-  //   }
-  // };
-
   return (
     <div className="px-3">
       {selectedTask?.user_task_name && isOpenModal === "add_task_params" ? (

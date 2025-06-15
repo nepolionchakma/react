@@ -247,8 +247,6 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
           <Input
             placeholder="Search by Username"
             value={query.value}
-            ref={inputRef}
-            onClick={handleClick}
             onChange={(e) => handleQuery(e.target.value)}
             className="w-[20rem] px-4 py-2"
           />

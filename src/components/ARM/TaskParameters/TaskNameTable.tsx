@@ -199,8 +199,6 @@ export function TaskNameTable() {
           <Input
             placeholder="Search by User Task Name"
             value={query.value}
-            ref={inputRef}
-            onClick={handleClick}
             onChange={(e) => handleQuery(e.target.value)}
             className="w-[24rem] px-4 py-2"
           />
