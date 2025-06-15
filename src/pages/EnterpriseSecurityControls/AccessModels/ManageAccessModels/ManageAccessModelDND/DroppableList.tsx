@@ -186,6 +186,7 @@ export const DroppableItem: FC<DroppableItemProps> = ({
                 handleDelete(item.id, item.def_access_model_logic_id, item.id)
               }
               tooltipTitle="Delete"
+              iconColor="white"
             ></Alert>
             {/* <AlertDialog>
               <AlertDialogTrigger asChild>
