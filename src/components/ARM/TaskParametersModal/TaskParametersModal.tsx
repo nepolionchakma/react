@@ -95,7 +95,7 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
             },
           }
         );
-        console.log(res, "res");
+
         if (res.status === 201) {
           toast({
             description: `${res.data.message}`,
@@ -195,7 +195,6 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
                 control={form.control}
                 name="data_type"
                 render={({ field }) => {
-                  console.log(field.value, "field");
                   return (
                     <FormItem>
                       <FormLabel>Data Type</FormLabel>

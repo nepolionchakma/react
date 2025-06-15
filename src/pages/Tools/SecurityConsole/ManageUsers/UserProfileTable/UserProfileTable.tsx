@@ -37,14 +37,10 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import AddUserProfile from "./AddUserProfile/AddUserProfile";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import Alert from "@/components/Alert/Alert";
 import EditUserProfile from "./EditUserProfile/EditUserProfile";
+import CustomTooltip from "@/components/Tooltip/Tooltip";
+import ActionButtons from "@/components/ActionButtons/ActionButtons";
 interface Props {
   profileData: IProfilesType[];
   isUpdated: number;
@@ -193,66 +189,55 @@ export function UserProfileTable({
       {/* top icon and columns*/}
       <div className="flex gap-3 items-center py-2">
         <div className="flex gap-3">
-          <div className="flex gap-3 items-center px-4 py-2 border rounded">
-            <div className="flex gap-3">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger disabled={!selectedUser.user_id}>
-                    <PlusIcon
-                      className={`${
-                        !selectedUser.user_id
-                          ? "text-slate-200 cursor-not-allowed"
-                          : "cursor-pointer"
-                      }`}
-                      onClick={() => handleOpenModal("add_user_profile")}
-                    />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Add</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger
-                    disabled={
-                      selectedProfile.length > 1 ||
-                      selectedProfile.length === 0 ||
-                      !selectedUser.user_id
-                    }
-                  >
-                    <FileEdit
-                      className={`${
-                        selectedProfile.length > 1 ||
-                        selectedProfile.length === 0 ||
-                        !selectedUser.user_id
-                          ? "text-slate-200 cursor-not-allowed"
-                          : "cursor-pointer"
-                      }`}
-                      onClick={() => handleOpenModal("edit_user_profile")}
-                    />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Edit</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              <Alert
-                disabled={!selectedUser.user_id || selectedProfile.length === 0} // disable condition
-                tooltipTitle="Delete" // tooltip title
-                actionName="delete" // Cancel/Reschedule
-                onContinue={handleDelete} // funtion
-              >
-                <span className="flex flex-col items-start">
-                  {selectedProfile.map((item, index) => (
-                    <span key={item.serial_number} className="block text-black">
-                      {index + 1}. {item.profile_type} : {item.profile_id}
-                    </span>
-                  ))}
-                </span>
-              </Alert>
-            </div>
-          </div>
+          {" "}
+          <ActionButtons>
+            <button disabled={!selectedUser.user_id}>
+              <CustomTooltip tooltipTitle="Add">
+                <PlusIcon
+                  className={`${
+                    !selectedUser.user_id
+                      ? "text-slate-200 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                  onClick={() => handleOpenModal("add_user_profile")}
+                />
+              </CustomTooltip>
+            </button>
+            <button
+              disabled={
+                selectedProfile.length > 1 ||
+                selectedProfile.length === 0 ||
+                !selectedUser.user_id
+              }
+            >
+              <CustomTooltip tooltipTitle="Edit">
+                <FileEdit
+                  className={`${
+                    selectedProfile.length > 1 ||
+                    selectedProfile.length === 0 ||
+                    !selectedUser.user_id
+                      ? "text-slate-200 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                  onClick={() => handleOpenModal("edit_user_profile")}
+                />
+              </CustomTooltip>
+            </button>
+            <Alert
+              disabled={!selectedUser.user_id || selectedProfile.length === 0} // disable condition
+              tooltipTitle="Delete" // tooltip title
+              actionName="delete" // Cancel/Reschedule
+              onContinue={handleDelete} // funtion
+            >
+              <span className="flex flex-col items-start">
+                {selectedProfile.map((item, index) => (
+                  <span key={item.serial_number} className="block text-black">
+                    {index + 1}. {item.profile_type} : {item.profile_id}
+                  </span>
+                ))}
+              </span>
+            </Alert>
+          </ActionButtons>
         </div>
 
         {/* Middle Selected User */}

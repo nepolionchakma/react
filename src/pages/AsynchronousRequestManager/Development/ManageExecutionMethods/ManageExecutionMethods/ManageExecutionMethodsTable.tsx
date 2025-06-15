@@ -35,9 +35,10 @@ import { IExecutionMethodsTypes } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import ExecutionMethodEdit from "../ExecutionMethodEdit/ExecutionMethodEdit";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
-import { toast } from "@/components/ui/use-toast";
 import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
+import Rows from "@/components/Rows/Rows";
+import ActionButtons from "@/components/ActionButtons/ActionButtons";
 
 export function ManageExecutionMethodsTable() {
   const {
@@ -178,26 +179,6 @@ export function ManageExecutionMethodsTable() {
     });
   }, [table]);
 
-  const handleRow = (value: number) => {
-    if (value < 1) {
-      toast({
-        title: "The value must be greater than 0",
-        variant: "destructive",
-      });
-      return;
-    } else {
-      setLimit(value);
-      setPage(1);
-    }
-  };
-  const inputRef = React.useRef(null);
-
-  const handleClick = () => {
-    if (inputRef.current) {
-      (inputRef.current as HTMLInputElement).select();
-    }
-  };
-
   return (
     <div className="px-3">
       {isOpenModal === "create_execution_methods" ? (
@@ -222,7 +203,7 @@ export function ManageExecutionMethodsTable() {
       {/* top icon and columns*/}
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-2">
-          <div className="flex gap-2 items-center border p-2 rounded-md">
+          <ActionButtons>
             {/* Add  */}
             <CustomTooltip tooltipTitle="Add">
               <PlusIcon
@@ -258,7 +239,7 @@ export function ManageExecutionMethodsTable() {
                 ))}
               </span>
             </Alert>
-          </div>
+          </ActionButtons>
           {/* Search  */}
           <Input
             placeholder="Search by Internal Execution Method"
@@ -269,20 +250,7 @@ export function ManageExecutionMethodsTable() {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex gap-2 items-center ml-auto">
-            <h3>Rows :</h3>
-            <input
-              type="number"
-              placeholder="Rows"
-              value={limit}
-              min={1}
-              // max={20}
-              ref={inputRef}
-              onClick={handleClick}
-              onChange={(e) => handleRow(Number(e.target.value))}
-              className="w-14 border rounded p-2"
-            />
-          </div>
+          <Rows limit={limit} setLimit={setLimit} />
           {/* Columns */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

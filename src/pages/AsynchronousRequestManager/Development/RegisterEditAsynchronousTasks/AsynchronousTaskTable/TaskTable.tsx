@@ -39,6 +39,7 @@ import CustomModal4 from "@/components/CustomModal/CustomModal4";
 import { toast } from "@/components/ui/use-toast";
 import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
+import ActionButtons from "@/components/ActionButtons/ActionButtons";
 
 export function TaskTable() {
   const {
@@ -239,7 +240,7 @@ export function TaskTable() {
       {/* top icon and columns*/}
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-2">
-          <div className="flex gap-2 items-center border p-2 rounded-md">
+          <ActionButtons>
             {/* Add  */}
             <CustomTooltip tooltipTitle="Register">
               <PlusIcon
@@ -273,7 +274,7 @@ export function TaskTable() {
                 Task name - {selected?.task_name}
               </span>
             </Alert>
-          </div>
+          </ActionButtons>
           {/* Search  */}
           <Input
             placeholder="Search by User Task Name"
