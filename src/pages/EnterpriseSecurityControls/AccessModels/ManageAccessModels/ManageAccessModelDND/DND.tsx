@@ -5,9 +5,11 @@ import {
   DragOverEvent,
   DragOverlay,
   DragStartEvent,
+  UniqueIdentifier,
   PointerSensor,
   useSensor,
   useSensors,
+  pointerWithin,
 } from "@dnd-kit/core";
 import DraggableList from "./DraggableList";
 import DroppableList from "./DroppableList";
@@ -45,7 +47,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
 
   const [rightWidgets, setRightWidgets] = useState<Extend[]>([]);
   const [originalData, setOriginalData] = useState<Extend[]>([]);
-  const [activeId, setActiveId] = useState<number | null>(null);
+  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
 
   const iniLeftWidget = [
     {
@@ -82,7 +84,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     };
     fetchDataFunc();
   }, []);
-  // console.log(selectedItem[0], "selectedManageGlobalConditionItem[0]");
+
   //Top Form Start
   const FormSchema = z.object({
     model_name: z.string(),
@@ -100,7 +102,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     },
   });
 
-  //changed Access GlobalCondition Value
+  //watch access model change
   const changedAccessModel = form.watch();
   const isChangedAccessAccessModel = form.formState.isDirty;
 
@@ -153,8 +155,9 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
   );
   const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id as number);
+    setActiveId(event.active.id);
   };
+
   const findContainer = (id: string | number | undefined) => {
     if (leftWidgets.some((item) => item.def_access_model_logic_id === id)) {
       return "left";
@@ -173,8 +176,6 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     // Find containers for active and over items
     const activeContainer = findContainer(active.id);
     const overContainer = findContainer(over.id);
-
-    console.log(activeContainer, overContainer);
 
     if (
       !activeContainer ||
@@ -231,7 +232,9 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   };
 
   const handleDragEnd = (event: DragEndEvent) => {
+    setActiveId(null);
     const { active, over } = event;
+    if (!over) return;
     console.log(active.id, over?.id, "handleDragEnd");
     if (over) {
       const activeItemId = active.id;
@@ -402,7 +405,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       <div className="p-4">
         <DndContext
           sensors={sensors}
-          collisionDetection={closestCenter}
+          collisionDetection={pointerWithin}
           onDragStart={handleDragStart}
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}

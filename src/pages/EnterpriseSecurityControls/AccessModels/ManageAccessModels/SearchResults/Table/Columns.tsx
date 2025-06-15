@@ -129,7 +129,6 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
     cell: ({ row }) => {
       const data: string = row.getValue("last_updated_date");
       const date = new Date(data).toLocaleString();
-      console.log(date, "ddeeeeeeee");
       return <div className="capitalize px-1">{date}</div>;
     },
   },
