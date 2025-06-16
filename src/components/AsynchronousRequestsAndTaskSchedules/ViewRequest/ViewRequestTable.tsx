@@ -57,7 +57,6 @@ export function ViewRequestTable() {
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
-  // const [rowSelection, setRowSelection] = React.useState({});
 
   const handleQuery = (e: string) => {
     if (e === "") {

@@ -35,7 +35,13 @@ import { ARMContextProvider } from "../ARMContext/ARMContext";
 interface GlobalContextProviderProps {
   children: ReactNode;
 }
-
+interface lazyLoadingParams {
+  baseURL: string;
+  url: string;
+  page: number;
+  limit: number;
+  setLoading: Dispatch<SetStateAction<boolean>>;
+}
 interface GlobalContex {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -43,11 +49,7 @@ interface GlobalContex {
   user: string;
   setToken: React.Dispatch<React.SetStateAction<Token>>;
   users: Users[];
-  fetchLazyLoadingApi<T>(
-    url: string,
-    page: number,
-    limit: number
-  ): Promise<T[] | undefined>;
+  fetchLazyLoadingApi<T>(params: lazyLoadingParams): Promise<T | undefined>;
   fetchDataSources: (
     page: number,
     limit: number
@@ -393,18 +395,17 @@ export function GlobalContextProvider({
   };
 
   // custom Common fetch Api
-  async function fetchLazyLoadingApi<T>(
-    url: string,
-    page: number,
-    limit: number
-  ): Promise<T[] | undefined> {
+  async function fetchLazyLoadingApi(params: lazyLoadingParams) {
     try {
-      setIsLoading(true);
-      const res = await api.get(`${url}/${page}/${limit}`);
+      params.setLoading(true);
+      const res = await api.get(
+        `${params.url}/${params.page}/${params.limit}`,
+        {
+          baseURL: params.baseURL,
+        }
+      );
       if (res) {
-        setPage(res.data.page);
-        setTotalPage(res.data.pages);
-        return res.data.items as T[];
+        return res.data;
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -412,7 +413,7 @@ export function GlobalContextProvider({
       }
       return undefined;
     } finally {
-      setIsLoading(false);
+      params.setLoading(false);
     }
   }
 
