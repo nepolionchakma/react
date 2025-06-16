@@ -19,9 +19,14 @@ function Rows({ limit, setLimit }: RowsProps) {
     }
   };
 
-  const handleFocus = (e: React.FocusEvent<HTMLInputElement>) => {
-    e.target.select();
+  const inputRef = React.useRef(null);
+
+  const handleClick = () => {
+    if (inputRef.current) {
+      (inputRef.current as HTMLInputElement).select();
+    }
   };
+
   return (
     <div className="flex gap-2 items-center ml-auto">
       <h3>Rows :</h3>
@@ -30,9 +35,11 @@ function Rows({ limit, setLimit }: RowsProps) {
         placeholder="Rows"
         value={limit}
         min={1}
+        // max={20}
+        ref={inputRef}
+        onClick={handleClick}
         onChange={(e) => handleRow(Number(e.target.value))}
-        onFocus={handleFocus}
-        className="w-14 border rounded-md p-2"
+        className="w-14 border rounded p-2"
       />
     </div>
   );
