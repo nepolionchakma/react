@@ -35,7 +35,13 @@ import { ARMContextProvider } from "../ARMContext/ARMContext";
 interface GlobalContextProviderProps {
   children: ReactNode;
 }
-
+interface lazyLoadingParams {
+  baseURL: string;
+  url: string;
+  page: number;
+  limit: number;
+  setLoading: Dispatch<SetStateAction<boolean>>;
+}
 interface GlobalContex {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -43,6 +49,7 @@ interface GlobalContex {
   user: string;
   setToken: React.Dispatch<React.SetStateAction<Token>>;
   users: Users[];
+  fetchLazyLoadingApi<T>(params: lazyLoadingParams): Promise<T | undefined>;
   fetchDataSources: (
     page: number,
     limit: number
@@ -146,7 +153,7 @@ export function GlobalContextProvider({
   const user = token?.user_name || "";
 
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(3);
+  const [limit, setLimit] = useState<number>(8);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -387,7 +394,54 @@ export function GlobalContextProvider({
     }
   };
 
+  // custom Common fetch Api
+  async function fetchLazyLoadingApi(params: lazyLoadingParams) {
+    try {
+      params.setLoading(true);
+      const res = await api.get(
+        `${params.url}/${params.page}/${params.limit}`,
+        {
+          baseURL: params.baseURL,
+        }
+      );
+      if (res) {
+        return res.data;
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
+      return undefined;
+    } finally {
+      params.setLoading(false);
+    }
+  }
+
+  // const fetchLazyLoadingApi2 = async (url: string) => {
+  //   try {
+  //     setIsLoading(true);
+  //     const res = await api.get<{
+  //       items: unknown[];
+  //       pages: number;
+  //       page: number;
+  //     }>(url);
+  //     if (res) {
+  //       setIsLoading(false);
+  //       setCurrentPage(res.data.page);
+  //       setTotalPage(res.data.page);
+  //       return res.data.items;
+  //     }
+  //   } catch (error) {
+  //     if (error instanceof Error) {
+  //       toast({ title: error.message, variant: "destructive" });
+  //     }
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
+
   //Fetch DataSources
+
   const fetchDataSources = async (page: number, limit: number) => {
     try {
       const response = await api.get<{
@@ -569,6 +623,7 @@ export function GlobalContextProvider({
         user,
         setToken,
         users,
+        fetchLazyLoadingApi,
         fetchDataSources,
         getSearchDataSources,
         fetchDataSource,

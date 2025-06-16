@@ -84,7 +84,6 @@ const DragOverlayComponent: FC<DroppableItemProps> = ({
       );
       setItems(remainingUser);
       toast({
-        title: "Info !!!",
         description: "Delete data successfully.",
       });
     }
@@ -130,7 +129,6 @@ const DragOverlayComponent: FC<DroppableItemProps> = ({
                 className="p-1 cursor-pointer hover:text-slate-800"
               />
             )}
-
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <div className="hover:text-white rounded-md">

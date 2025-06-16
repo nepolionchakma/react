@@ -26,6 +26,7 @@ interface AlertProps {
   onContinue: () => void;
   onClick?: () => void;
   tooltipAdjustmentStyle?: string | undefined;
+  iconColor?: string;
 }
 
 const Alert = ({
@@ -36,6 +37,7 @@ const Alert = ({
   onContinue,
   onClick,
   tooltipAdjustmentStyle,
+  iconColor = "black",
 }: AlertProps) => {
   return (
     <AlertDialog>
@@ -53,7 +55,7 @@ const Alert = ({
                     name={actionName}
                     height={24}
                     width={24}
-                    color={disabled ? "#e5e5e5" : "black"}
+                    color={disabled ? "#e5e5e5" : iconColor}
                   />
                 </div>
               </TooltipTrigger>
