@@ -120,7 +120,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   // const [page, setPage] = useState<number>(1);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [totalPage2, setTotalPage2] = useState<number>(1);
-  const { fetchLazyLoadingApi } = useGlobalContext();
+  const { loadData } = useGlobalContext();
 
   // Asunchronous Tasks
   const getAsyncTasks = async () => {
@@ -449,33 +449,17 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   const getViewRequests = async (page: number, limit: number) => {
     const params = {
       baseURL: import.meta.env.VITE_FLASK_ENDPOINT_URL,
-      url: "/view_requests",
-      page,
-      limit,
+      url: `/view_requests/${page}/${limit}`,
       setLoading: setIsLoading,
     };
-    const result = await fetchLazyLoadingApi(params);
+    const result:
+      | { pages: number; items: IARMViewRequestsTypes[] }
+      | undefined = await loadData(params);
     if (result) {
       setTotalPage(result.pages);
       console.log(result);
       return result.items;
     }
-
-    // try {
-    //   setIsLoading(true);
-    //   const resultLazyLoading = await api.get(
-    //     `/asynchronous-requests-and-task-schedules/view_requests/${page}/${limit}`
-    //   );
-
-    //   setTotalPage(resultLazyLoading.data.pages);
-    //   return resultLazyLoading.data.items;
-    // } catch (error) {
-    //   if (error instanceof Error) {
-    //     toast({ title: error.message, variant: "destructive" });
-    //   }
-    // } finally {
-    //   setIsLoading(false);
-    // }
   };
 
   const getSearchViewRequests = async (

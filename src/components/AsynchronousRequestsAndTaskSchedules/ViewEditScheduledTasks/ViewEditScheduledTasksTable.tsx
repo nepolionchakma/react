@@ -63,7 +63,7 @@ export function ViewEditScheduledTasksTable() {
     totalPage,
     page,
     setPage,
-    fetchLazyLoadingApi,
+    loadData,
   } = useGlobalContext();
   const [data, setData] = React.useState<
     IAsynchronousRequestsAndTaskSchedulesTypes[] | []
@@ -119,12 +119,14 @@ export function ViewEditScheduledTasksTable() {
             setData(results);
           }
         } else {
-          const res =
-            await fetchLazyLoadingApi<IAsynchronousRequestsAndTaskSchedulesTypes>(
-              nodeApi.ViewEditScheduleTaskApi,
-              page,
-              limit
-            );
+          const params = {
+            baseURL: import.meta.env.VITE_NODE_ENDPOINT_URL,
+            url: nodeApi.ViewEditScheduleTaskApi,
+            setLoading: setIsLoading,
+          };
+          const res: IAsynchronousRequestsAndTaskSchedulesTypes[] | undefined =
+            await loadData(params);
+
           if (res) {
             setData(res);
           }
