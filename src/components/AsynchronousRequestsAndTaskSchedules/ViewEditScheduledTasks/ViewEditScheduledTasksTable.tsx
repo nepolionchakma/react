@@ -41,38 +41,28 @@ import Alert from "@/components/Alert/Alert";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import Rows from "@/components/Rows/Rows";
-import { nodeApi } from "@/Api/Api";
 
 export function ViewEditScheduledTasksTable() {
   const {
-    // totalPage,
-    // getAsynchronousRequestsAndTaskSchedules,
+    totalPage,
+    getAsynchronousRequestsAndTaskSchedules,
     getSearchAsynchronousRequestsAndTaskSchedules,
-    // isLoading,
-    // setIsLoading,
+    isLoading,
+    setIsLoading,
     cancelScheduledTask,
     rescheduleTask,
     changeState,
     setChangeState,
   } = useARMContext();
-  const {
-    isLoading,
-    setIsLoading,
-    limit,
-    setLimit,
-    totalPage,
-    page,
-    setPage,
-    loadData,
-  } = useGlobalContext();
+
   const [data, setData] = React.useState<
     IAsynchronousRequestsAndTaskSchedulesTypes[] | []
   >([]);
   const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
   const [viewParameters, setViewParameters] = React.useState("");
   const [clickedRowId, setClickedRowId] = React.useState("");
-  // const [limit, setLimit] = React.useState<number>(8);
-  // const [page, setPage] = React.useState<number>(1);
+  const [limit, setLimit] = React.useState<number>(8);
+  const [page, setPage] = React.useState<number>(1);
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
   const { isOpenModal, setIsOpenModal } = useGlobalContext();
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -92,7 +82,6 @@ export function ViewEditScheduledTasksTable() {
 
   const handleQuery = (e: string) => {
     if (e === "") {
-      console.log(e === "");
       setQuery({ isEmpty: true, value: e });
     } else {
       setQuery({ isEmpty: false, value: e });
@@ -119,13 +108,10 @@ export function ViewEditScheduledTasksTable() {
             setData(results);
           }
         } else {
-          const params = {
-            baseURL: import.meta.env.VITE_NODE_ENDPOINT_URL,
-            url: nodeApi.ViewEditScheduleTaskApi,
-            setLoading: setIsLoading,
-          };
-          const res: IAsynchronousRequestsAndTaskSchedulesTypes[] | undefined =
-            await loadData(params);
+          const res = await getAsynchronousRequestsAndTaskSchedules(
+            page,
+            limit
+          );
 
           if (res) {
             setData(res);
