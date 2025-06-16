@@ -33,7 +33,7 @@ import Pagination5 from "@/components/Pagination/Pagination5";
 import { IARMViewRequestsTypes } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import PopUp from "./PopUp/PopUp";
-import { toast } from "@/components/ui/use-toast";
+import Rows from "@/components/Rows/Rows";
 
 export function ViewRequestTable() {
   const {
@@ -167,18 +167,6 @@ export function ViewRequestTable() {
     });
   }, [table]);
 
-  const handleRow = (value: number) => {
-    if (value < 1) {
-      toast({
-        title: "The value must be greater than 0",
-        variant: "destructive",
-      });
-      return;
-    } else {
-      setLimit(value);
-    }
-  };
-
   return (
     <div className="px-3">
       {(viewParameters || viewResult) && (
@@ -190,23 +178,15 @@ export function ViewRequestTable() {
       )}
 
       {/* Filter + Column Controls */}
-      <div className="flex gap-3 items-center py-2">
+      <div className="flex gap-3 items-center justify-between py-2">
         <Input
           placeholder="Search by Task Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
           className="w-[24rem] px-4 py-2"
         />
-        <div className="flex gap-2 items-center ml-auto">
-          <h3>Rows :</h3>
-          <input
-            type="number"
-            placeholder="Rows"
-            value={limit}
-            min={1}
-            onChange={(e) => handleRow(Number(e.target.value))}
-            className="w-14 border rounded-md p-2"
-          />
+        <div className="flex gap-2">
+          <Rows limit={limit} setLimit={setLimit} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
@@ -239,130 +219,128 @@ export function ViewRequestTable() {
 
       {/* Table Section */}
       <div>
-        <div className="max-h-[68vh] overflow-auto">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => (
-                    <TableHead
-                      key={header.id}
-                      className="border border-slate-400 bg-slate-200 p-1 h-9"
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  ))}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={table.getVisibleFlatColumns().length}
-                    className="h-[25rem] text-center mx-auto"
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead
+                    key={header.id}
+                    className="border border-slate-400 bg-slate-200 p-1 h-9"
                   >
-                    <l-tailspin
-                      size="40"
-                      stroke="5"
-                      speed="0.9"
-                      color="black"
-                    ></l-tailspin>
-                  </TableCell>
-                </TableRow>
-              ) : table.getRowModel().rows.length ? (
-                table.getRowModel().rows.map((row) => {
-                  const isExpanded = expandedRow === row.id;
-                  // console.log(row.original, "row");
-                  return (
-                    <React.Fragment key={row.id}>
-                      <TableRow data-state={row.getIsSelected() && "selected"}>
-                        {row.getVisibleCells().map((cell) => (
-                          <TableCell key={cell.id} className="border p-1 h-8">
-                            {flexRender(
-                              cell.column.columnDef.cell,
-                              cell.getContext()
-                            )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={table.getVisibleFlatColumns().length}
+                  className="h-[25rem] text-center mx-auto"
+                >
+                  <l-tailspin
+                    size="40"
+                    stroke="5"
+                    speed="0.9"
+                    color="black"
+                  ></l-tailspin>
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows.length ? (
+              table.getRowModel().rows.map((row) => {
+                const isExpanded = expandedRow === row.id;
+                // console.log(row.original, "row");
+                return (
+                  <React.Fragment key={row.id}>
+                    <TableRow data-state={row.getIsSelected() && "selected"}>
+                      {row.getVisibleCells().map((cell) => (
+                        <TableCell key={cell.id} className="border p-1 h-8">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
 
-                      {isExpanded && (
-                        <TableRow className="bg-slate-100">
-                          <TableCell
-                            colSpan={row.getVisibleCells().length}
-                            className="p-1"
-                          >
-                            <div className="flex gap-10 justify-between p-3 text-sm text-gray-700 w-[20rem] mx-auto">
-                              {/* Schedule Type */}
-                              <div>
-                                <strong>Schedule Type:</strong>
-                                <div className="flex ">
-                                  {row.original.schedule_type ? (
-                                    <span className="capitalize">
-                                      {JSON.parse(
-                                        row.original.schedule_type
-                                      ).toLowerCase()}
-                                    </span>
-                                  ) : (
-                                    "Null"
-                                  )}
-                                </div>
-                              </div>
-                              {/* Schedule */}
-                              <div>
-                                <strong>Schedule:</strong>
-                                <div className="flex gap-1">
-                                  {row.original.schedule &&
-                                    Object.entries(row.original.schedule).map(
-                                      ([key, value]) => (
-                                        <span
-                                          className="capitalize flex flex-col"
-                                          key={key}
-                                        >
-                                          {typeof value !== "object" ? (
-                                            <span className="capitalize">
-                                              {typeof value === "string"
-                                                ? value.toLowerCase()
-                                                : value}
-                                            </span>
-                                          ) : (
-                                            value?.map((item: string) => (
-                                              <span key={item}>
-                                                {item.toLowerCase()}
-                                              </span>
-                                            ))
-                                          )}
-                                        </span>
-                                      )
-                                    )}
-                                </div>
+                    {isExpanded && (
+                      <TableRow className="bg-slate-100">
+                        <TableCell
+                          colSpan={row.getVisibleCells().length}
+                          className="p-1"
+                        >
+                          <div className="flex gap-10 justify-between p-3 text-sm text-gray-700 w-[20rem] mx-auto">
+                            {/* Schedule Type */}
+                            <div>
+                              <strong>Schedule Type:</strong>
+                              <div className="flex ">
+                                {row.original.schedule_type ? (
+                                  <span className="capitalize">
+                                    {JSON.parse(
+                                      row.original.schedule_type
+                                    ).toLowerCase()}
+                                  </span>
+                                ) : (
+                                  "Null"
+                                )}
                               </div>
                             </div>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </React.Fragment>
-                  );
-                })
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={getColumns.length}
-                    className="h-[25rem] text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                            {/* Schedule */}
+                            <div>
+                              <strong>Schedule:</strong>
+                              <div className="flex gap-1">
+                                {row.original.schedule &&
+                                  Object.entries(row.original.schedule).map(
+                                    ([key, value]) => (
+                                      <span
+                                        className="capitalize flex flex-col"
+                                        key={key}
+                                      >
+                                        {typeof value !== "object" ? (
+                                          <span className="capitalize">
+                                            {typeof value === "string"
+                                              ? value.toLowerCase()
+                                              : value}
+                                          </span>
+                                        ) : (
+                                          value?.map((item: string) => (
+                                            <span key={item}>
+                                              {item.toLowerCase()}
+                                            </span>
+                                          ))
+                                        )}
+                                      </span>
+                                    )
+                                  )}
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
+                );
+              })
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={getColumns.length}
+                  className="h-[25rem] text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
 
         {/* Pagination and Status */}
         <div className="flex justify-end p-1">
