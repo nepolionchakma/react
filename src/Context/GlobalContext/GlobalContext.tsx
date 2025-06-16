@@ -38,8 +38,7 @@ interface GlobalContextProviderProps {
 interface lazyLoadingParams {
   baseURL: string;
   url: string;
-  page: number;
-  limit: number;
+
   setLoading: Dispatch<SetStateAction<boolean>>;
 }
 interface GlobalContex {
@@ -49,7 +48,7 @@ interface GlobalContex {
   user: string;
   setToken: React.Dispatch<React.SetStateAction<Token>>;
   users: Users[];
-  fetchLazyLoadingApi<T>(params: lazyLoadingParams): Promise<T | undefined>;
+  loadData<T>(params: lazyLoadingParams): Promise<T | undefined>;
   fetchDataSources: (
     page: number,
     limit: number
@@ -267,24 +266,6 @@ export function GlobalContextProvider({
         password,
       });
 
-      //   `/combined-user`,
-      //   {
-      //     user_type,
-      //     user_name,
-      //     email_addresses,
-      //     created_by,
-      //     last_updated_by,
-      //     tenant_id,
-      //     first_name,
-      //     middle_name,
-      //     last_name,
-      //     job_title,
-      //     password,
-      //   },
-      //   {
-      //     baseURL: `${FLASK_ENDPOINT_URL}/users`,
-      //   }
-      // );
       console.log(res, "res");
       if (res.status === 201) {
         setIsLoading(false);
@@ -314,10 +295,7 @@ export function GlobalContextProvider({
         `${FLASK_ENDPOINT_URL}/users/${user_id}`,
         userInfo
       );
-      // const res = await api.put<IUpdateUserTypes>(
-      //   `/combined-user/${user_id}`,
-      //   userInfo
-      // );
+
       if (res.status === 200) {
         setIsLoading(false);
         setIsOpenModal("");
@@ -395,15 +373,12 @@ export function GlobalContextProvider({
   };
 
   // custom Common fetch Api
-  async function fetchLazyLoadingApi(params: lazyLoadingParams) {
+  async function loadData(params: lazyLoadingParams) {
     try {
       params.setLoading(true);
-      const res = await api.get(
-        `${params.url}/${params.page}/${params.limit}`,
-        {
-          baseURL: params.baseURL,
-        }
-      );
+      const res = await api.get(`${params.url}`, {
+        baseURL: params.baseURL,
+      });
       if (res) {
         return res.data;
       }
@@ -416,29 +391,6 @@ export function GlobalContextProvider({
       params.setLoading(false);
     }
   }
-
-  // const fetchLazyLoadingApi2 = async (url: string) => {
-  //   try {
-  //     setIsLoading(true);
-  //     const res = await api.get<{
-  //       items: unknown[];
-  //       pages: number;
-  //       page: number;
-  //     }>(url);
-  //     if (res) {
-  //       setIsLoading(false);
-  //       setCurrentPage(res.data.page);
-  //       setTotalPage(res.data.page);
-  //       return res.data.items;
-  //     }
-  //   } catch (error) {
-  //     if (error instanceof Error) {
-  //       toast({ title: error.message, variant: "destructive" });
-  //     }
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
 
   //Fetch DataSources
 
@@ -623,7 +575,7 @@ export function GlobalContextProvider({
         user,
         setToken,
         users,
-        fetchLazyLoadingApi,
+        loadData,
         fetchDataSources,
         getSearchDataSources,
         fetchDataSource,
