@@ -41,27 +41,38 @@ import Alert from "@/components/Alert/Alert";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import Rows from "@/components/Rows/Rows";
+import { nodeApi } from "@/Api/Api";
 
 export function ViewEditScheduledTasksTable() {
   const {
-    totalPage,
-    getAsynchronousRequestsAndTaskSchedules,
+    // totalPage,
+    // getAsynchronousRequestsAndTaskSchedules,
     getSearchAsynchronousRequestsAndTaskSchedules,
-    isLoading,
-    setIsLoading,
+    // isLoading,
+    // setIsLoading,
     cancelScheduledTask,
     rescheduleTask,
     changeState,
     setChangeState,
   } = useARMContext();
+  const {
+    isLoading,
+    setIsLoading,
+    limit,
+    setLimit,
+    totalPage,
+    page,
+    setPage,
+    fetchLazyLoadingApi,
+  } = useGlobalContext();
   const [data, setData] = React.useState<
     IAsynchronousRequestsAndTaskSchedulesTypes[] | []
   >([]);
   const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
   const [viewParameters, setViewParameters] = React.useState("");
   const [clickedRowId, setClickedRowId] = React.useState("");
-  const [limit, setLimit] = React.useState<number>(8);
-  const [page, setPage] = React.useState<number>(1);
+  // const [limit, setLimit] = React.useState<number>(8);
+  // const [page, setPage] = React.useState<number>(1);
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
   const { isOpenModal, setIsOpenModal } = useGlobalContext();
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -98,7 +109,6 @@ export function ViewEditScheduledTasksTable() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        setIsLoading(true);
         if (!query.isEmpty) {
           const results = await getSearchAsynchronousRequestsAndTaskSchedules(
             page,
@@ -109,23 +119,21 @@ export function ViewEditScheduledTasksTable() {
             setData(results);
           }
         } else {
-          const res = await getAsynchronousRequestsAndTaskSchedules(
-            page,
-            limit
-          );
+          const res =
+            await fetchLazyLoadingApi<IAsynchronousRequestsAndTaskSchedulesTypes>(
+              nodeApi.ViewEditScheduleTaskApi,
+              page,
+              limit
+            );
           if (res) {
             setData(res);
           }
         }
       } catch (error) {
         console.log(error);
-      } finally {
-        setIsLoading(false);
       }
     };
-
     setIsLoading(true);
-
     // Debounce only when query changes
     const delayDebounce = setTimeout(() => {
       fetchData();
@@ -133,25 +141,6 @@ export function ViewEditScheduledTasksTable() {
 
     return () => clearTimeout(delayDebounce); // Cleanup timeout
   }, [changeState, query, page, limit]);
-
-  // React.useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       setIsLoading(true);
-  //       const res = await getAsynchronousRequestsAndTaskSchedules(page, limit);
-
-  //       if (res) {
-  //         setData(res);
-  //         setExpandedRow(null);
-  //       }
-  //     } catch (error) {
-  //       console.log(error);
-  //     } finally {
-  //       setIsLoading(false);
-  //     }
-  //   };
-  //   fetchData();
-  // }, [changeState, page, limit]);
 
   const handleRowSelection = (
     rowSelection: IAsynchronousRequestsAndTaskSchedulesTypes
@@ -163,13 +152,6 @@ export function ViewEditScheduledTasksTable() {
         return rowSelection;
       }
     });
-    // setSelected((prevSelected) => {
-    //   if (prevSelected.includes(rowSelection)) {
-    //     return prevSelected.filter((item) => item !== rowSelection);
-    //   } else {
-    //     return [...prevSelected, rowSelection];
-    //   }
-    // });
   };
   const handleCancelOrRechedule = async () => {
     setIsLoading(true);
@@ -358,153 +340,151 @@ export function ViewEditScheduledTasksTable() {
       </div>
       {/* Table */}
       <div className="rounded-md border">
-        <div className="max-h-[68vh] overflow-auto">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead
-                        key={header.id}
-                        className={`border border-slate-400 bg-slate-200 p-1 h-9`}
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={getColumns.length}
-                    className="h-[25rem] text-center"
-                  >
-                    <l-tailspin
-                      size="40"
-                      stroke="5"
-                      speed="0.9"
-                      color="black"
-                    ></l-tailspin>
-                  </TableCell>
-                </TableRow>
-              ) : table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => {
-                  const isExpanded = expandedRow === row.id;
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
                   return (
-                    <React.Fragment key={row.id}>
-                      <TableRow
-                        data-state={row.getIsSelected() && "selected"}
-                        // aria-disabled={row.original.user_schedule_name === "ad-hoc"}
-                      >
-                        {row.getVisibleCells().map((cell, index) => (
-                          <TableCell key={cell.id} className={`border p-1 h-8`}>
-                            {index === 0 ? (
-                              <Checkbox
-                                // disabled={
-                                //   row.original.cancelled_yn.toLowerCase() ===
-                                //   "y"
-                                // }
-                                checked={
-                                  row.original.def_task_sche_id ===
-                                  selected?.def_task_sche_id
-                                }
-                                // onCheckedChange={(value) => {
-                                //   ro;
-                                //   // row.toggleSelected(!!value);
-                                // }}
-                                onClick={() => handleRowSelection(row.original)}
-                                className="mr-1"
-                              />
-                            ) : (
-                              flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext()
-                              )
-                            )}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                      {isExpanded && (
-                        <TableRow className="bg-slate-100">
-                          <TableCell
-                            colSpan={row.getVisibleCells().length}
-                            className="p-1"
-                          >
-                            <div className="flex gap-10 justify-between p-3 text-sm text-gray-700 w-[20rem] mx-auto">
-                              {/* Schedule Type */}
-                              <div>
-                                <strong>Schedule Type:</strong>
-                                <div className="">
-                                  {row.original.schedule_type &&
-                                    Object.entries(
-                                      row.original.schedule_type
-                                    ).map(([key, value]) => (
-                                      <span className="capitalize " key={key}>
-                                        {value.toLowerCase().replace(/_/g, " ")}
-                                      </span>
-                                    ))}
-                                </div>
-                              </div>
-                              {/* Schedule */}
-                              <div>
-                                <strong>Schedule:</strong>
-                                <div className="flex gap-1">
-                                  {row.original.schedule &&
-                                    Object.entries(row.original.schedule).map(
-                                      ([key, value]) => {
-                                        return (
-                                          <span
-                                            className="capitalize flex flex-col"
-                                            key={key}
-                                          >
-                                            {typeof value !== "object" ? (
-                                              <span className="capitalize">
-                                                {typeof value === "string"
-                                                  ? value.toLowerCase()
-                                                  : value}
-                                              </span>
-                                            ) : (
-                                              value?.map((item: string) => (
-                                                <span key={item}>
-                                                  {item.toLowerCase()}
-                                                </span>
-                                              ))
-                                            )}
-                                          </span>
-                                        );
-                                      }
-                                    )}
-                                </div>
+                    <TableHead
+                      key={header.id}
+                      className={`border border-slate-400 bg-slate-200 p-1 h-9`}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={getColumns.length}
+                  className="h-[25rem] text-center"
+                >
+                  <l-tailspin
+                    size="40"
+                    stroke="5"
+                    speed="0.9"
+                    color="black"
+                  ></l-tailspin>
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => {
+                const isExpanded = expandedRow === row.id;
+                return (
+                  <React.Fragment key={row.id}>
+                    <TableRow
+                      data-state={row.getIsSelected() && "selected"}
+                      // aria-disabled={row.original.user_schedule_name === "ad-hoc"}
+                    >
+                      {row.getVisibleCells().map((cell, index) => (
+                        <TableCell key={cell.id} className={`border p-1 h-8`}>
+                          {index === 0 ? (
+                            <Checkbox
+                              // disabled={
+                              //   row.original.cancelled_yn.toLowerCase() ===
+                              //   "y"
+                              // }
+                              checked={
+                                row.original.def_task_sche_id ===
+                                selected?.def_task_sche_id
+                              }
+                              // onCheckedChange={(value) => {
+                              //   ro;
+                              //   // row.toggleSelected(!!value);
+                              // }}
+                              onClick={() => handleRowSelection(row.original)}
+                              className="mr-1"
+                            />
+                          ) : (
+                            flexRender(
+                              cell.column.columnDef.cell,
+                              cell.getContext()
+                            )
+                          )}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                    {isExpanded && (
+                      <TableRow className="bg-slate-100">
+                        <TableCell
+                          colSpan={row.getVisibleCells().length}
+                          className="p-1"
+                        >
+                          <div className="flex gap-10 justify-between p-3 text-sm text-gray-700 w-[20rem] mx-auto">
+                            {/* Schedule Type */}
+                            <div>
+                              <strong>Schedule Type:</strong>
+                              <div className="">
+                                {row.original.schedule_type &&
+                                  Object.entries(
+                                    row.original.schedule_type
+                                  ).map(([key, value]) => (
+                                    <span className="capitalize " key={key}>
+                                      {value.toLowerCase().replace(/_/g, " ")}
+                                    </span>
+                                  ))}
                               </div>
                             </div>
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </React.Fragment>
-                  );
-                })
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={getColumns.length}
-                    className="h-[25rem] text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                            {/* Schedule */}
+                            <div>
+                              <strong>Schedule:</strong>
+                              <div className="flex gap-1">
+                                {row.original.schedule &&
+                                  Object.entries(row.original.schedule).map(
+                                    ([key, value]) => {
+                                      return (
+                                        <span
+                                          className="capitalize flex flex-col"
+                                          key={key}
+                                        >
+                                          {typeof value !== "object" ? (
+                                            <span className="capitalize">
+                                              {typeof value === "string"
+                                                ? value.toLowerCase()
+                                                : value}
+                                            </span>
+                                          ) : (
+                                            value?.map((item: string) => (
+                                              <span key={item}>
+                                                {item.toLowerCase()}
+                                              </span>
+                                            ))
+                                          )}
+                                        </span>
+                                      );
+                                    }
+                                  )}
+                              </div>
+                            </div>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </React.Fragment>
+                );
+              })
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={getColumns.length}
+                  className="h-[25rem] text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
             {selected ? `1` : `0`} of {table.getFilteredRowModel().rows.length}{" "}
