@@ -53,8 +53,6 @@ const Alert = ({
                 <div>
                   <IconController
                     name={actionName}
-                    height={24}
-                    width={24}
                     color={disabled ? "#e5e5e5" : iconColor}
                   />
                 </div>

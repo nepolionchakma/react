@@ -34,6 +34,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import Rows from "@/components/Rows/Rows";
 
 interface IEnterpriseDataProps {
   tabName: string;
@@ -129,18 +130,6 @@ export function EnterpriseDataTable({
     setAction("");
   };
 
-  const handleRow = (value: number) => {
-    if (value < 1) {
-      toast({
-        title: "The value must be greater than 0",
-        variant: "destructive",
-      });
-      return;
-    } else {
-      setLimit(value);
-    }
-  };
-
   React.useEffect(() => {
     handleCloseModal();
   }, [page, stateChanged, limit]);
@@ -190,17 +179,8 @@ export function EnterpriseDataTable({
           setSelectedEnterpriseRows={setSelectedEnterpriseRows}
         />
         <div className="flex items-center gap-2">
-          <div className="flex gap-2 items-center ml-auto">
-            <h3>Rows :</h3>
-            <input
-              type="number"
-              placeholder="Rows"
-              value={limit}
-              min={1}
-              onChange={(e) => handleRow(Number(e.target.value))}
-              className="w-14 border rounded-md p-2"
-            />
-          </div>
+          <Rows limit={limit} setLimit={setLimit} />
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
