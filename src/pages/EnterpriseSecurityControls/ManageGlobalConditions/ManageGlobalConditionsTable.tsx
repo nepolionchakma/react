@@ -48,14 +48,10 @@ import {
 import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
 import { useEffect, useState } from "react";
 import Pagination5 from "@/components/Pagination/Pagination5";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { toast } from "@/components/ui/use-toast";
 import Alert from "@/components/Alert/Alert";
+import ActionButtons from "@/components/ActionButtons/ActionButtons";
+import CustomTooltip from "@/components/Tooltip/Tooltip";
+import Rows from "@/components/Rows/Rows";
 
 const ManageGlobalConditionsTable = () => {
   const {
@@ -109,16 +105,6 @@ const ManageGlobalConditionsTable = () => {
       }
     }
   }, [selectedManageGlobalConditionItem.length, data.length]);
-
-  // const handleSelectAll = () => {
-  //   if (isSelectAll) {
-  //     setIsSelectAll(false);
-  //     setSelectedManageGlobalConditionItem([]);
-  //   } else {
-  //     setIsSelectAll(true);
-  //     setSelectedManageGlobalConditionItem(data);
-  //   }
-  // };
   const handleSelectAll = () => {
     // This now directly interacts with react-table's selection
     table.toggleAllRowsSelected(!table.getIsAllRowsSelected());
@@ -158,8 +144,6 @@ const ManageGlobalConditionsTable = () => {
     } else {
       getlazyLoadingGlobalConditions(page, limit);
     }
-    // table.getRowModel().rows.map((row) => row.toggleSelected(false));
-    // setSelectedManageGlobalConditionItem([]);
   }, [page, limit, debouncedQuery, stateChange]);
 
   // loader
@@ -247,36 +231,7 @@ const ManageGlobalConditionsTable = () => {
     },
   });
 
-  const handleRow = (value: number) => {
-    if (value < 1) {
-      toast({
-        title: "The value must be greater than 0",
-        variant: "destructive",
-      });
-      return;
-    } else {
-      setLimit(value);
-    }
-  };
-
-  // const handleRowSelection = (rowData: IManageGlobalConditionTypes) => {
-  //   setSelectedManageGlobalConditionItem((prevSelected) => {
-  //     if (prevSelected.includes(rowData)) {
-  //       // If the id is already selected, remove it
-  //       return prevSelected.filter(
-  //         (selectedId) =>
-  //           selectedId.def_global_condition_id !==
-  //           rowData.def_global_condition_id
-  //       );
-  //     } else {
-  //       // If the id is not selected, add it
-  //       return [...prevSelected, rowData];
-  //     }
-  //   });
-  // };
-
   // handle delete Calculate
-
   const handleDeleteCalculate = async () => {
     const results: IManageGlobalConditionLogicExtendTypes[] = [];
     try {
@@ -315,12 +270,6 @@ const ManageGlobalConditionsTable = () => {
         console.log(res, item);
       })
     );
-    // for (const item of willBeDelete) {
-    //   await deleteLogicAndAttributeData(
-    //     item.manage_global_condition_logic_id,
-    //     item.id
-    //   );
-    // }
     await deleteManageGlobalCondition(
       selectedManageGlobalConditionItem[0]?.def_global_condition_id
     );
@@ -337,96 +286,77 @@ const ManageGlobalConditionsTable = () => {
     setManageGlobalConditionTopicData(fetchData ?? []);
   };
 
-  console.log(selectedManageGlobalConditionItem, "selected Item");
-
   return (
     <div className="px-3">
       {/* top icon and columns*/}
       <div className="flex gap-3 items-center py-2">
-        <div className="flex gap-3">
-          <div className="flex gap-3 items-center px-4 py-2 border rounded">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Plus
-                    className="cursor-pointer"
-                    onClick={() => {
-                      setIsOpenManageGlobalConditionModal(true);
-                    }}
-                  />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Add</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  {selectedManageGlobalConditionItem.length === 1 ? (
-                    <FileEdit
-                      className="cursor-pointer"
-                      onClick={handleEditClick}
-                    />
-                  ) : (
-                    <FileEdit className="cursor-not-allowed text-slate-200" />
-                  )}
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Edit</p>
-                </TooltipContent>
-              </Tooltip>
-              <Alert
-                actionName="delete"
-                disabled={selectedManageGlobalConditionItem.length === 0}
-                onContinue={handleDelete}
-                onClick={handleDeleteCalculate}
-                tooltipTitle="Delete"
-              >
-                <span className="flex flex-col items-start gap-1">
-                  {selectedManageGlobalConditionItem.map((globalItem) => (
-                    <span
-                      className="flex flex-col items-start"
-                      key={globalItem.def_global_condition_id}
-                    >
-                      <span className="capitalize font-medium block">
-                        Name : {globalItem.name}
+        <ActionButtons>
+          <CustomTooltip tooltipTitle="Add">
+            <Plus
+              className="cursor-pointer"
+              onClick={() => {
+                setIsOpenManageGlobalConditionModal(true);
+              }}
+            />
+          </CustomTooltip>
+          <CustomTooltip tooltipTitle="Edit">
+            {selectedManageGlobalConditionItem.length === 1 ? (
+              <FileEdit className="cursor-pointer" onClick={handleEditClick} />
+            ) : (
+              <FileEdit className="cursor-not-allowed text-slate-200" />
+            )}
+          </CustomTooltip>
+          <Alert
+            actionName="delete"
+            disabled={selectedManageGlobalConditionItem.length === 0}
+            onContinue={handleDelete}
+            onClick={handleDeleteCalculate}
+            tooltipTitle="Delete"
+          >
+            <span className="flex flex-col items-start gap-1">
+              {selectedManageGlobalConditionItem.map((globalItem) => (
+                <span
+                  className="flex flex-col items-start"
+                  key={globalItem.def_global_condition_id}
+                >
+                  <span className="capitalize font-medium block">
+                    Name : {globalItem.name}
+                  </span>
+                  <span>
+                    {isLoading ? (
+                      <span className="block">
+                        <l-tailspin
+                          size="40"
+                          stroke="5"
+                          speed="0.9"
+                          color="black"
+                        ></l-tailspin>
                       </span>
+                    ) : (
                       <span>
-                        {isLoading ? (
-                          <span className="block">
-                            <l-tailspin
-                              size="40"
-                              stroke="5"
-                              speed="0.9"
-                              color="black"
-                            ></l-tailspin>
-                          </span>
-                        ) : (
-                          <span>
-                            {willBeDelete
-                              .filter(
-                                (wb) =>
-                                  wb.def_global_condition_id ===
-                                  globalItem.def_global_condition_id
-                              )
-                              .map((item, index) => (
-                                <span
-                                  key={index}
-                                  className="capitalize flex items-center text-black"
-                                >
-                                  {index + 1}. Object - {item.object}, Attribute
-                                  - {item.attribute}
-                                </span>
-                              ))}
-                          </span>
-                        )}
+                        {willBeDelete
+                          .filter(
+                            (wb) =>
+                              wb.def_global_condition_id ===
+                              globalItem.def_global_condition_id
+                          )
+                          .map((item, index) => (
+                            <span
+                              key={index}
+                              className="capitalize flex items-center text-black"
+                            >
+                              {index + 1}. Object - {item.object}, Attribute -{" "}
+                              {item.attribute}
+                            </span>
+                          ))}
                       </span>
-                    </span>
-                  ))}
+                    )}
+                  </span>
                 </span>
-              </Alert>
-            </TooltipProvider>
-          </div>
-        </div>
+              ))}
+            </span>
+          </Alert>
+        </ActionButtons>
         <Input
           placeholder="Search by Name"
           value={query.value}
@@ -434,15 +364,7 @@ const ManageGlobalConditionsTable = () => {
           className="w-[24rem] px-4 py-2"
         />
         <div className="flex gap-2 items-center ml-auto">
-          <h3>Rows :</h3>
-          <input
-            type="number"
-            placeholder="Rows"
-            value={limit}
-            min={1}
-            onChange={(e) => handleRow(Number(e.target.value))}
-            className="w-14 border rounded-md p-2"
-          />
+          <Rows limit={limit} setLimit={setLimit} />
           {/* Columns */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
