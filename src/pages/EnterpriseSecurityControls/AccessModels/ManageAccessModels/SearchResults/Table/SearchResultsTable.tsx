@@ -113,9 +113,8 @@ const SearchResultsTable = () => {
       columnFilters,
       columnVisibility,
       rowSelection,
-    },
-    initialState: {
       pagination: {
+        pageIndex: 0,
         pageSize: limit,
       },
     },
@@ -171,25 +170,7 @@ const SearchResultsTable = () => {
     }
   }, [query, setPage]);
 
-  // React.useEffect(() => {
-  //   fetchDefAccessModels();
-  //   table.getRowModel().rows.map((row) => row.toggleSelected(false));
-  //   setSelectedAccessModelItem([]);
-  // }, [stateChange]);
-  // const data = manageAccessModels ? [...manageAccessModels] : [];
   ring.register();
-
-  // const handleRowSelection = (rowData: IManageAccessModelsTypes) => {
-  //   setSelectedAccessModelItem((prevSelected) => {
-  //     if (prevSelected.includes(rowData)) {
-  //       // If the id is already selected, remove it
-  //       return prevSelected.filter((selectedId) => selectedId !== rowData);
-  //     } else {
-  //       // If the id is not selected, add it
-  //       return [...prevSelected, rowData];
-  //     }
-  //   });
-  // };
 
   const handleDeleteCalculate = async () => {
     const results: IManageAccessModelLogicExtendTypes[] = [];
@@ -259,6 +240,7 @@ const SearchResultsTable = () => {
       return;
     } else {
       setLimit(value);
+      setPage(1);
     }
   };
 

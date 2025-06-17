@@ -120,6 +120,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   // const [page, setPage] = useState<number>(1);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [totalPage2, setTotalPage2] = useState<number>(1);
+  const { loadData } = useGlobalContext();
 
   // Asunchronous Tasks
   const getAsyncTasks = async () => {
@@ -340,20 +341,18 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     page: number,
     limit: number
   ) => {
-    try {
-      const result = await api.get<{
-        pages: number;
-        items: IAsynchronousRequestsAndTaskSchedulesTypes[];
-      }>(
-        `/asynchronous-requests-and-task-schedules/task-schedules/${page}/${limit}`
-      );
-
-      const totalPages = result.data.pages;
-      setTotalPage(totalPages);
-      return result.data.items ?? [];
-    } catch (error) {
-      console.log("Task Parameters Item Not found");
-      return [];
+    const params = {
+      baseURL: import.meta.env.VITE_FLASK_ENDPOINT_URL,
+      url: `/def_async_task_schedules/${page}/${limit}`,
+      setLoading: setIsLoading,
+    };
+    const result = await loadData<{
+      pages: number;
+      items: IAsynchronousRequestsAndTaskSchedulesTypes[];
+    }>(params);
+    if (result) {
+      setTotalPage(result.pages);
+      return result.items;
     }
   };
   const getSearchAsynchronousRequestsAndTaskSchedules = async (
@@ -362,6 +361,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     task_name: string
   ) => {
     try {
+      setIsLoading(true);
       const resultLazyLoading = await api.get(
         `/asynchronous-requests-and-task-schedules/task-schedules/search/${page}/${limit}?task_name=${task_name}`
       );
@@ -371,6 +371,9 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       if (error instanceof Error) {
         toast({ title: error.message, variant: "destructive" });
       }
+      setIsLoading(false);
+    } finally {
+      setIsLoading(false);
     }
   };
   const cancelScheduledTask = async (
@@ -446,20 +449,18 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     }
   };
   const getViewRequests = async (page: number, limit: number) => {
-    try {
-      setIsLoading(true);
-      const resultLazyLoading = await api.get(
-        `/asynchronous-requests-and-task-schedules/view_requests/${page}/${limit}`
-      );
-
-      setTotalPage(resultLazyLoading.data.pages);
-      return resultLazyLoading.data.items;
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
-    } finally {
-      setIsLoading(false);
+    const params = {
+      baseURL: import.meta.env.VITE_FLASK_ENDPOINT_URL,
+      url: `/view_requests/${page}/${limit}`,
+      setLoading: setIsLoading,
+    };
+    const result:
+      | { pages: number; items: IARMViewRequestsTypes[] }
+      | undefined = await loadData(params);
+    if (result) {
+      setTotalPage(result.pages);
+      console.log(result);
+      return result.items;
     }
   };
 

@@ -5,18 +5,8 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { ArrowDown, Maximize, Minimize, Trash } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { ArrowDown, Maximize, Minimize } from "lucide-react";
+
 import { toast } from "@/components/ui/use-toast";
 export interface DroppableListProps {
   id: string;
@@ -26,8 +16,9 @@ export interface DroppableListProps {
 }
 import { FC } from "react";
 import { IManageAccessModelLogicExtendTypes } from "@/types/interfaces/ManageAccessEntitlements.interface";
-import { useDroppable } from "@dnd-kit/core";
+import { UniqueIdentifier, useDroppable } from "@dnd-kit/core";
 import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
+import Alert from "@/components/Alert/Alert";
 
 const DroppableList: FC<DroppableListProps> = ({
   id,
@@ -45,7 +36,8 @@ const DroppableList: FC<DroppableListProps> = ({
     >
       <div
         className="flex flex-col gap-2 p-4 "
-        ref={items.length === 0 ? setNodeRef : null}
+        // ref={items.length === 0 ? setNodeRef : null}
+        ref={setNodeRef}
       >
         {items.length === 0 && (
           <p className="text-center font-semibold text-winter-500 p-9">
@@ -56,7 +48,7 @@ const DroppableList: FC<DroppableListProps> = ({
           // <div key={item.def_access_model_logic_id}>
           <DroppableItem
             key={item.def_access_model_logic_id}
-            id={item.def_access_model_logic_id.toString()}
+            id={item.def_access_model_logic_id}
             item={item}
             items={items}
             originalData={originalData}
@@ -77,7 +69,7 @@ const DroppableList: FC<DroppableListProps> = ({
 };
 
 interface DroppableItemProps {
-  id: string;
+  id: UniqueIdentifier;
   item: IManageAccessModelLogicExtendTypes;
   items: IManageAccessModelLogicExtendTypes[];
   originalData: IManageAccessModelLogicExtendTypes[];
@@ -86,6 +78,7 @@ interface DroppableItemProps {
 }
 
 export const DroppableItem: FC<DroppableItemProps> = ({
+  id,
   item,
   items,
   originalData,
@@ -99,7 +92,7 @@ export const DroppableItem: FC<DroppableItemProps> = ({
     setNodeRef,
     transform,
     transition,
-  } = useSortable({ id: item.def_access_model_logic_id });
+  } = useSortable({ id });
 
   const { deleteLogicAndAttributeData, setDeleteAndSaveState } =
     useAACContext();
@@ -161,32 +154,41 @@ export const DroppableItem: FC<DroppableItemProps> = ({
     )
   );
   return (
-    <div>
+    <div ref={setNodeRef}>
       <div
         style={style}
         {...attributes}
         {...listeners}
-        ref={setNodeRef}
         className="bg-gray-300 shadow-lg border border-sky-500 rounded-lg cursor-pointer shadow-slate-400 hover:shadow-sky-500 hover:shadow-lg hover:duration-500"
       >
         <div className="flex justify-between bg-sky-500 rounded-t-lg px-2 text-white items-center">
           <span>{index}</span>
           <div className="flex text-xs duration-700">
-            {item.widget_state === 1 ? (
-              <Minimize
-                size={30}
-                onClick={() => handleChange(index, "widget_state", 0)}
-                className="p-1 cursor-pointer hover:text-slate-800"
-              />
-            ) : (
-              <Maximize
-                size={30}
-                onClick={() => handleChange(index, "widget_state", 1)}
-                className="p-1 cursor-pointer hover:text-slate-800"
-              />
-            )}
-
-            <AlertDialog>
+            <div>
+              {item.widget_state === 1 ? (
+                <Minimize
+                  size={30}
+                  onClick={() => handleChange(index, "widget_state", 0)}
+                  className="p-1 cursor-pointer hover:text-slate-800"
+                />
+              ) : (
+                <Maximize
+                  size={30}
+                  onClick={() => handleChange(index, "widget_state", 1)}
+                  className="p-1 cursor-pointer hover:text-slate-800"
+                />
+              )}
+            </div>
+            <Alert
+              actionName="delete"
+              disabled={false}
+              onContinue={() =>
+                handleDelete(item.id, item.def_access_model_logic_id, item.id)
+              }
+              tooltipTitle="Delete"
+              iconColor="white"
+            ></Alert>
+            {/* <AlertDialog>
               <AlertDialogTrigger asChild>
                 <div className="hover:text-white rounded-md">
                   <Trash size={30} className="p-1 cursor-pointer" />
@@ -215,11 +217,11 @@ export const DroppableItem: FC<DroppableItemProps> = ({
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
-            </AlertDialog>
+            </AlertDialog> */}
           </div>
         </div>
         <div className="p-3">
-          <div className="flex flex-col  ">
+          <div className="flex flex-col">
             <label htmlFor={`filter-${index}`}>Filter</label>
             <input
               className="px-2 rounded"

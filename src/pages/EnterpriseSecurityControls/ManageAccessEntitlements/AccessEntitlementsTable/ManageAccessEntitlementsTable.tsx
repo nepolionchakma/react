@@ -363,7 +363,7 @@ const ManageAccessEntitlementsTable = () => {
           </ActionButtons>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 items-center ml-auto">
           <Rows
             limit={accessEntitlementsLimit}
             setLimit={setAceessEntitlementsLimit}

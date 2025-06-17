@@ -35,7 +35,12 @@ import { ARMContextProvider } from "../ARMContext/ARMContext";
 interface GlobalContextProviderProps {
   children: ReactNode;
 }
+interface lazyLoadingParams {
+  baseURL: string;
+  url: string;
 
+  setLoading: Dispatch<SetStateAction<boolean>>;
+}
 interface GlobalContex {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -43,6 +48,7 @@ interface GlobalContex {
   user: string;
   setToken: React.Dispatch<React.SetStateAction<Token>>;
   users: Users[];
+  loadData<T>(params: lazyLoadingParams): Promise<T | undefined>;
   fetchDataSources: (
     page: number,
     limit: number
@@ -146,7 +152,7 @@ export function GlobalContextProvider({
   const user = token?.user_name || "";
 
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(3);
+  const [limit, setLimit] = useState<number>(8);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
 
@@ -260,24 +266,6 @@ export function GlobalContextProvider({
         password,
       });
 
-      //   `/combined-user`,
-      //   {
-      //     user_type,
-      //     user_name,
-      //     email_addresses,
-      //     created_by,
-      //     last_updated_by,
-      //     tenant_id,
-      //     first_name,
-      //     middle_name,
-      //     last_name,
-      //     job_title,
-      //     password,
-      //   },
-      //   {
-      //     baseURL: `${FLASK_ENDPOINT_URL}/users`,
-      //   }
-      // );
       console.log(res, "res");
       if (res.status === 201) {
         setIsLoading(false);
@@ -307,10 +295,7 @@ export function GlobalContextProvider({
         `${FLASK_ENDPOINT_URL}/users/${user_id}`,
         userInfo
       );
-      // const res = await api.put<IUpdateUserTypes>(
-      //   `/combined-user/${user_id}`,
-      //   userInfo
-      // );
+
       if (res.status === 200) {
         setIsLoading(false);
         setIsOpenModal("");
@@ -387,7 +372,28 @@ export function GlobalContextProvider({
     }
   };
 
+  // custom Common fetch Api
+  async function loadData(params: lazyLoadingParams) {
+    try {
+      params.setLoading(true);
+      const res = await api.get(`${params.url}`, {
+        baseURL: params.baseURL,
+      });
+      if (res) {
+        return res.data;
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
+      return undefined;
+    } finally {
+      params.setLoading(false);
+    }
+  }
+
   //Fetch DataSources
+
   const fetchDataSources = async (page: number, limit: number) => {
     try {
       const response = await api.get<{
@@ -569,6 +575,7 @@ export function GlobalContextProvider({
         user,
         setToken,
         users,
+        loadData,
         fetchDataSources,
         getSearchDataSources,
         fetchDataSource,
