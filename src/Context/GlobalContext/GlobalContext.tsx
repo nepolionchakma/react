@@ -38,7 +38,6 @@ interface GlobalContextProviderProps {
 interface lazyLoadingParams {
   baseURL: string;
   url: string;
-
   setLoading: Dispatch<SetStateAction<boolean>>;
 }
 interface GlobalContex {

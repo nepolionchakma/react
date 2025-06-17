@@ -298,7 +298,7 @@ const ManageAccessEntitlementsTable = () => {
               <CustomTooltip tooltipTitle="Edit">
                 <span>
                   <FileEdit
-                    className="cursor-pointer hover:scale-110 duration-300"
+                    className="cursor-pointer"
                     onClick={() => {
                       setEditManageAccessEntitlement(true);
                       setSelectedManageAccessEntitlements(
