@@ -333,7 +333,7 @@ export function ViewRequestTable() {
               <TableRow>
                 <TableCell
                   colSpan={getColumns.length}
-                  className="h-[25rem] text-center"
+                  className="h-24 text-center"
                 >
                   No results.
                 </TableCell>
