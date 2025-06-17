@@ -60,18 +60,18 @@ const AddUserProfile = ({
   };
 
   return (
-    <CustomModal4 className="h-[384px] w-[770px]">
+    <CustomModal4 className="w-[770px]">
       <div className="h-full">
-        <div className="flex justify-between bg-[#CEDEF2] p-5">
+        <div className="flex justify-between bg-[#CEDEF2] p-2">
           <h3 className="font-semibold">Add Profile</h3>
           <X
             onClick={() => setIsCreateNewProfile(false)}
             className="cursor-pointer"
           />
         </div>
-        <div className="p-8">
+        <div className="p-4">
           <form
-            className="flex flex-col justify-between gap-8 h-[253px]"
+            className="flex flex-col justify-between gap-4"
             onSubmit={handleSubmit}
           >
             <div className="flex gap-4">
@@ -118,7 +118,7 @@ const AddUserProfile = ({
               </div>
             </div>
             <div className="flex justify-end">
-              <Button type="submit" className="px-4 py-2">
+              <Button type="submit">
                 {isLoading ? <Spinner size="25" color="white" /> : "Submit"}
               </Button>
             </div>

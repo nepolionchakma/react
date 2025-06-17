@@ -465,7 +465,7 @@ export function ViewEditScheduledTasksTable() {
               <TableRow>
                 <TableCell
                   colSpan={getColumns.length}
-                  className="h-24 text-center"
+                  className="h-[16rem] text-center"
                 >
                   No results.
                 </TableCell>
