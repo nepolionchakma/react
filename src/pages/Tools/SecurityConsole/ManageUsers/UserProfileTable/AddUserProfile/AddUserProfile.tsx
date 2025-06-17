@@ -69,9 +69,9 @@ const AddUserProfile = ({
             className="cursor-pointer"
           />
         </div>
-        <div className="p-8">
+        <div className="p-4">
           <form
-            className="flex flex-col justify-between gap-8 h-[253px]"
+            className="flex flex-col justify-between gap-4"
             onSubmit={handleSubmit}
           >
             <div className="flex gap-4">
@@ -118,7 +118,7 @@ const AddUserProfile = ({
               </div>
             </div>
             <div className="flex justify-end">
-              <Button type="submit" className="px-4 py-2">
+              <Button type="submit">
                 {isLoading ? <Spinner size="25" color="white" /> : "Submit"}
               </Button>
             </div>

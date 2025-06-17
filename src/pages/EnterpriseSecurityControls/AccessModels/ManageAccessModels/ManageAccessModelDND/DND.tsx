@@ -9,7 +9,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  pointerWithin,
+  // pointerWithin,
 } from "@dnd-kit/core";
 import DraggableList from "./DraggableList";
 import DroppableList from "./DroppableList";
@@ -71,7 +71,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     const fetchDataFunc = async () => {
       try {
         const fetchData = await fetchDefAccessModelLogics(
-          selectedItem[0]?.def_access_model_id ?? 0
+          selectedItem[0].def_access_model_id ?? 0
         );
         const sortedData = fetchData?.sort(
           (a, b) => a.widget_position - b.widget_position
@@ -405,7 +405,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       <div className="p-4">
         <DndContext
           sensors={sensors}
-          collisionDetection={pointerWithin}
+          collisionDetection={closestCenter}
           onDragStart={handleDragStart}
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}

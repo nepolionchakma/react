@@ -46,7 +46,6 @@ import DataSourceDataAdd from "@/components/DataSourceDataAdd/DataSourceDataAdd"
 import { IDataSourceTypes } from "@/types/interfaces/datasource.interface";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import Pagination5 from "@/components/Pagination/Pagination5";
-import { toast } from "@/components/ui/use-toast";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import {
   Tooltip,
@@ -54,6 +53,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import Alert from "@/components/Alert/Alert";
+import Rows from "@/components/Rows/Rows";
 
 const ManageDataSources = () => {
   const {
@@ -121,6 +121,7 @@ const ManageDataSources = () => {
         console.log(error);
       } finally {
         setIsLoading(false);
+        setSelectedDataSourceItems([]);
       }
     };
     setIsLoading(true);
@@ -155,15 +156,6 @@ const ManageDataSources = () => {
   };
 
   const handleRowSelection = (rowData: IDataSourceTypes) => {
-    // setSelected((prevSelected) => {
-    //   if (prevSelected.includes(rowData)) {
-    //     // If the id is already selected, remove it
-    //     return prevSelected.filter((selectedId) => selectedId !== rowData);
-    //   } else {
-    //     // If the id is not selected, add it
-    //     return [...prevSelected, rowData];
-    //   }
-    // });
     if (selectedIds.includes(rowData.def_data_source_id)) {
       const selectedData = selectedDataSourceItems.filter(
         (data) => data.def_data_source_id !== rowData.def_data_source_id
@@ -171,18 +163,6 @@ const ManageDataSources = () => {
       setSelectedDataSourceItems(selectedData);
     } else {
       setSelectedDataSourceItems((prev) => [...prev, rowData]);
-    }
-  };
-
-  const handleRow = (value: number) => {
-    if (value < 1) {
-      toast({
-        title: "The value must be greater than 0",
-        variant: "destructive",
-      });
-      return;
-    } else {
-      setLimit(value);
     }
   };
 
@@ -356,11 +336,6 @@ const ManageDataSources = () => {
     });
   }, [table]);
 
-  // Select for edit, delete
-  // React.useEffect(() => {
-  //   setSelected(table.getSelectedRowModel().rows.map((row) => row.original));
-  // }, [table.getSelectedRowModel().rows]);
-
   const handleDelete = async () => {
     setIsLoading(true);
     try {
@@ -375,6 +350,7 @@ const ManageDataSources = () => {
       console.error("Error deleting data sources:", error);
     } finally {
       setIsLoading(false);
+      setSelectedDataSourceItems([]);
     }
   };
 
@@ -486,16 +462,7 @@ const ManageDataSources = () => {
           className="w-[24rem] px-4 py-2 "
         />
         <div className="flex gap-2 items-center ml-auto">
-          <h3>Rows :</h3>
-          <input
-            type="number"
-            placeholder="Rows"
-            value={limit}
-            min={1}
-            onChange={(e) => handleRow(Number(e.target.value))}
-            className="w-14 border rounded-md p-2"
-          />
-
+          <Rows limit={limit} setLimit={setLimit} />
           {/* Columns */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -562,7 +529,7 @@ const ManageDataSources = () => {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-[16rem] text-center"
                 >
                   <l-tailspin
                     size="40"
@@ -602,7 +569,7 @@ const ManageDataSources = () => {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-[16rem] text-center"
                 >
                   <l-tailspin
                     size="40"
@@ -616,7 +583,7 @@ const ManageDataSources = () => {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-[16rem] text-center"
                 >
                   No results.
                 </TableCell>

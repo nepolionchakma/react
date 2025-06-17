@@ -355,7 +355,7 @@ export function ViewEditScheduledTasksTable() {
               <TableRow>
                 <TableCell
                   colSpan={getColumns.length}
-                  className="h-[25rem] text-center"
+                  className="h-[16rem] text-center"
                 >
                   <l-tailspin
                     size="40"
@@ -465,7 +465,7 @@ export function ViewEditScheduledTasksTable() {
               <TableRow>
                 <TableCell
                   colSpan={getColumns.length}
-                  className="h-[25rem] text-center"
+                  className="h-[16rem] text-center"
                 >
                   No results.
                 </TableCell>
