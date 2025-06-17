@@ -278,21 +278,6 @@ const AccessPointsEntitleTable = () => {
                         cell.column.columnDef.cell,
                         cell.getContext()
                       )}
-                      {/* {index === 0 ? (
-                        <Checkbox
-                          className="m-1"
-                          checked={row.getIsSelected() || false}
-                          onCheckedChange={(value) =>
-                            row.toggleSelected(!!value)
-                          }
-                          onClick={() => handleRowSelected(row.original)}
-                        />
-                      ) : (
-                        flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )
-                      )} */}
                     </TableCell>
                   ))}
                 </TableRow>
