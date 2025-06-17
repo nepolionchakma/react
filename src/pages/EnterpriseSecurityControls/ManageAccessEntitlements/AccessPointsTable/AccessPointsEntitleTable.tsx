@@ -34,7 +34,8 @@ import { useManageAccessEntitlementsContext } from "@/Context/ManageAccessEntitl
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useLocation } from "react-router-dom";
 import columns from "./Columns";
-import { toast } from "@/components/ui/use-toast";
+
+import Rows from "@/components/Rows/Rows";
 
 const AccessPointsEntitleTable = () => {
   // Global Context and Location
@@ -141,18 +142,6 @@ const AccessPointsEntitleTable = () => {
     });
   }, [table]);
 
-  const handleRow = (value: number) => {
-    if (value < 1) {
-      toast({
-        title: "The value must be greater than 0",
-        variant: "destructive",
-      });
-      return;
-    } else {
-      setLimit(value);
-    }
-  };
-
   // Table Rendering
   return (
     <div className="px-3">
@@ -204,17 +193,7 @@ const AccessPointsEntitleTable = () => {
         </div>
         <div className="flex gap-2">
           {/**Rows */}
-          <div className="flex gap-2 items-center ml-auto">
-            <h3>Rows :</h3>
-            <input
-              type="number"
-              placeholder="Rows"
-              value={limit}
-              min={1}
-              onChange={(e) => handleRow(Number(e.target.value))}
-              className="w-14 border rounded-md p-2"
-            />
-          </div>
+          <Rows limit={limit} setLimit={setLimit} />
 
           {/* Dropdown for Column Visibility */}
           <DropdownMenu>
@@ -260,27 +239,6 @@ const AccessPointsEntitleTable = () => {
                           header.column.columnDef.header,
                           header.getContext()
                         )}
-
-                    {/* Checkbox for selecting all rows */}
-                    {/* {header.id === "select" && (
-                      <Checkbox
-                        className="m-1"
-                        checked={
-                          table.getIsAllPageRowsSelected() ||
-                          (table.getIsSomePageRowsSelected() && "indeterminate")
-                        }
-                        onCheckedChange={(value) => {
-                          table.toggleAllPageRowsSelected(!!value);
-                          setTimeout(() => {
-                            const selectedRows = table
-                              .getSelectedRowModel()
-                              .rows.map((row) => row.original);
-                            setSelectedAccessPoints(selectedRows);
-                          }, 0);
-                        }}
-                        aria-label="Select all"
-                      />
-                    )} */}
                   </TableHead>
                 ))}
               </TableRow>
