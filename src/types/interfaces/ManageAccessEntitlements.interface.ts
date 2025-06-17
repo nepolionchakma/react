@@ -108,6 +108,7 @@ export interface IManageAccessModelsTypes {
   last_run_date?: string;
   datasource_name?: string;
 }
+
 export interface IManageAccessModelLogicsTypes {
   def_access_model_logic_id: number;
   def_access_model_id: number;

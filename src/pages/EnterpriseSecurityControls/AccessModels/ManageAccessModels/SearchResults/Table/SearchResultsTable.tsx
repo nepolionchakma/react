@@ -80,7 +80,6 @@ const SearchResultsTable = () => {
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
   const [debouncedQuery, setDebouncedQuery] = React.useState("");
   const [isSelectAll, setIsSelectAll] = React.useState(false);
-  const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
   // const [pagination, setPagination] = React.useState({
   //   pageIndex: 0, //initial page index
   //   pageSize: 5, //default page size
@@ -146,19 +145,9 @@ const SearchResultsTable = () => {
   }, [page, limit, debouncedQuery, stateChange]);
 
   const handleSelectAll = () => {
-    if (isSelectAll) {
-      setIsSelectAll(false);
-    } else {
-      setIsSelectAll(true);
-      setSelectedAccessModelItem(data);
-    }
+    table.toggleAllRowsSelected(!table.getIsAllRowsSelected());
+    setIsSelectAll(!isSelectAll);
   };
-
-  // const handleRowSelection = (rowData:IManageAccessModelsTypes)=>{
-  //   if(selectedIds.includes(rowData.def_access_model_id)){
-
-  //   }
-  // }
 
   const handleQuery = (e: string) => {
     if (e === "") {
@@ -257,7 +246,7 @@ const SearchResultsTable = () => {
             <CustomTooltip tooltipTitle="Add">
               <Plus
                 onClick={() => setIsOpenAddModal(true)}
-                className="hover:scale-110 duration-300 cursor-pointer"
+                className=" cursor-pointer"
               />
             </CustomTooltip>
             <CustomTooltip tooltipTitle="Edit">
@@ -266,7 +255,7 @@ const SearchResultsTable = () => {
                   selectedAccessModelItem.length === 1 &&
                   setIsOpenEditModal(true)
                 }
-                className={`hover:scale-110 duration-300 ${
+                className={`${
                   selectedAccessModelItem.length === 1
                     ? "text-black cursor-pointer"
                     : "text-slate-200 cursor-not-allowed"
@@ -378,8 +367,8 @@ const SearchResultsTable = () => {
                       {/* Example: Checkbox for selecting all rows */}
                       {header.id === "select" && (
                         <Checkbox
-                          checked={isSelectAll}
-                          onCheckedChange={handleSelectAll}
+                          checked={table.getIsAllRowsSelected()}
+                          onCheckedChange={() => handleSelectAll()}
                           aria-label="Select all"
                         />
                       )}

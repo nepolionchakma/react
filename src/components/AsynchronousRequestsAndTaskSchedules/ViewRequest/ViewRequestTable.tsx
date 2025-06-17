@@ -244,7 +244,7 @@ export function ViewRequestTable() {
               <TableRow>
                 <TableCell
                   colSpan={table.getVisibleFlatColumns().length}
-                  className="h-[25rem] text-center mx-auto"
+                  className="h-[16rem] text-center mx-auto"
                 >
                   <l-tailspin
                     size="40"

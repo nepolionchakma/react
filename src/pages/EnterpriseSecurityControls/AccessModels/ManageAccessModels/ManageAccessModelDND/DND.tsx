@@ -71,7 +71,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     const fetchDataFunc = async () => {
       try {
         const fetchData = await fetchDefAccessModelLogics(
-          selectedItem[0]?.def_access_model_id ?? 0
+          selectedItem[0].def_access_model_id ?? 0
         );
         const sortedData = fetchData?.sort(
           (a, b) => a.widget_position - b.widget_position
