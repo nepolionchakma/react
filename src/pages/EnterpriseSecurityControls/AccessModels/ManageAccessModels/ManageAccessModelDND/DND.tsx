@@ -9,7 +9,7 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-  pointerWithin,
+  // pointerWithin,
 } from "@dnd-kit/core";
 import DraggableList from "./DraggableList";
 import DroppableList from "./DroppableList";
@@ -405,7 +405,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       <div className="p-4">
         <DndContext
           sensors={sensors}
-          collisionDetection={pointerWithin}
+          collisionDetection={closestCenter}
           onDragStart={handleDragStart}
           onDragOver={handleDragOver}
           onDragEnd={handleDragEnd}
