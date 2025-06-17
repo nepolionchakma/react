@@ -217,6 +217,7 @@ const ManageGlobalConditionsTable = () => {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    getRowId: (row) => String(row.def_global_condition_id),
     state: {
       sorting,
       columnFilters,
