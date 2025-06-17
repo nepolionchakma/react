@@ -60,9 +60,9 @@ const AddUserProfile = ({
   };
 
   return (
-    <CustomModal4 className="h-[384px] w-[770px]">
+    <CustomModal4 className="w-[770px]">
       <div className="h-full">
-        <div className="flex justify-between bg-[#CEDEF2] p-5">
+        <div className="flex justify-between bg-[#CEDEF2] p-2">
           <h3 className="font-semibold">Add Profile</h3>
           <X
             onClick={() => setIsCreateNewProfile(false)}

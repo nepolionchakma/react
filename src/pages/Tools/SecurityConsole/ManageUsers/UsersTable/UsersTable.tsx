@@ -37,9 +37,9 @@ import Pagination5 from "@/components/Pagination/Pagination5";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
 import { Input } from "@/components/ui/input";
 import Alert from "@/components/Alert/Alert";
-import { toast } from "@/components/ui/use-toast";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
+import Rows from "@/components/Rows/Rows";
 interface Props {
   selectedUser: IUsersInfoTypes;
   setSelectedUser: React.Dispatch<React.SetStateAction<IUsersInfoTypes>>;
@@ -166,26 +166,6 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
     setIsOpenModal(""); // close modal
   };
 
-  const handleRow = (value: number) => {
-    if (value < 1) {
-      toast({
-        title: "The value must be greater than 0",
-        variant: "destructive",
-      });
-      return;
-    } else {
-      setLimit(value);
-      setPage(1);
-    }
-  };
-  const inputRef = React.useRef(null);
-
-  const handleClick = () => {
-    if (inputRef.current) {
-      (inputRef.current as HTMLInputElement).select();
-    }
-  };
-
   return (
     <div className="px-3">
       {isOpenModal === "add_user" ? (
@@ -247,7 +227,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
 
           {/* Search  */}
           <Input
-            placeholder="Search by Username"
+            placeholder="Search Username"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
             className="w-[20rem] px-4 py-2"
@@ -255,20 +235,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="flex gap-2 items-center ml-auto">
-            <h3>Rows :</h3>
-            <input
-              type="number"
-              placeholder="Rows"
-              value={limit}
-              min={1}
-              // max={20}
-              ref={inputRef}
-              onClick={handleClick}
-              onChange={(e) => handleRow(Number(e.target.value))}
-              className="w-14 border rounded p-2"
-            />
-          </div>
+          <Rows limit={limit} setLimit={setLimit} />
           {/* Columns */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
