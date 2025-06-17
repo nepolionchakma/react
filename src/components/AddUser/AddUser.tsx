@@ -183,9 +183,9 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
   };
   return (
     <div className=" ">
-      <div className="px-6 py-2 bg-slate-300 rounded-t mx-auto text-center font-bold flex justify-between">
+      <div className="p-2 bg-slate-300 rounded-t mx-auto text-center font-bold flex justify-between">
         <h1>
-          {isOpenModal === "edit_user" ? "Edit An Account" : "Add An Account"}
+          {isOpenModal === "edit_user" ? "Edit an Account" : "Add an Account"}
         </h1>
 
         <X onClick={() => handleCloseModal()} className="cursor-pointer" />

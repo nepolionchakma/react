@@ -90,14 +90,14 @@ const AddForm: FC<AddFormProps> = ({
             name="user_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-normal">User Name</FormLabel>
+                <FormLabel className="font-normal">Username</FormLabel>
                 <FormControl>
                   <Input
                     {...field}
                     required
                     autoFocus
                     type="text"
-                    placeholder="User Name"
+                    placeholder="Username"
                   />
                 </FormControl>
               </FormItem>

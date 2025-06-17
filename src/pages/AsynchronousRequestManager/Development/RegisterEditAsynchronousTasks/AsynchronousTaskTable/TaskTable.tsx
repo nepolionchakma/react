@@ -36,10 +36,10 @@ import { IARMAsynchronousTasksTypes } from "@/types/interfaces/ARM.interface";
 import AsynchronousRegisterEditTaskModal from "../AsynchronousRegisterEditTaskModal/AsynchronousRegisterEditTaskModal";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
-import { toast } from "@/components/ui/use-toast";
 import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
+import Rows from "@/components/Rows/Rows";
 
 export function TaskTable() {
   const {
@@ -192,26 +192,6 @@ export function TaskTable() {
     }
   };
 
-  const handleRow = (value: number) => {
-    if (value < 1) {
-      toast({
-        title: "The value must be greater than 0",
-        variant: "destructive",
-      });
-      return;
-    } else {
-      setLimit(value);
-      setPage(1);
-    }
-  };
-  const inputRef = React.useRef(null);
-
-  const handleClick = () => {
-    if (inputRef.current) {
-      (inputRef.current as HTMLInputElement).select();
-    }
-  };
-
   return (
     <div className="px-3">
       {isOpenModal === "register_task" ? (
@@ -284,20 +264,7 @@ export function TaskTable() {
           />
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex gap-2 items-center ml-auto">
-            <h3>Rows :</h3>
-            <input
-              type="number"
-              placeholder="Rows"
-              value={limit}
-              min={1}
-              // max={20}
-              ref={inputRef}
-              onClick={handleClick}
-              onChange={(e) => handleRow(Number(e.target.value))}
-              className="w-14 border rounded p-2"
-            />
-          </div>
+          <Rows limit={limit} setLimit={setLimit} />
           {/* Columns */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

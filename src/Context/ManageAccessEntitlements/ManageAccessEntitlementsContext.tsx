@@ -108,7 +108,7 @@ interface IContextTypes {
   setTotalPage: Dispatch<SetStateAction<number>>;
   currentPage: number;
   limit: number;
-  setLimit: (number: number) => void;
+  setLimit: Dispatch<SetStateAction<number>>;
 }
 export const ManageAccessEntitlements = createContext<IContextTypes | null>(
   null

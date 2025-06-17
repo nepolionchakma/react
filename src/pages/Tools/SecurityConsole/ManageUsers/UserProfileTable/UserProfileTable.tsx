@@ -279,112 +279,111 @@ export function UserProfileTable({
       </div>
       {/* Table */}
       <div className="rounded-md border">
-        <div className="h-[10rem] overflow-y-auto ">
-          <Table>
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead
-                        key={header.id}
-                        className={`border border-slate-400 bg-slate-200 p-1 h-9 ${
-                          header.id === "select" ? "w-6" : ""
-                        }`}
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext()
-                            )}
-                        {/* Example: Checkbox for selecting all rows */}
-                        {header.id === "select" && (
-                          <Checkbox
-                            checked={
-                              table.getIsAllPageRowsSelected() ||
-                              (table.getIsSomePageRowsSelected() &&
-                                "indeterminate")
-                            }
-                            onCheckedChange={(value) => {
-                              // Toggle all page rows selected
-                              table.toggleAllPageRowsSelected(!!value);
-                              setTimeout(() => {
-                                const selectedRows = table
-                                  .getSelectedRowModel()
-                                  .rows.map((row) => row.original);
-                                // console.log(selectedRows);
-                                setSelectedProfile(selectedRows);
-                              }, 0);
-                            }}
-                            className="mr-1"
-                            aria-label="Select all"
-                          />
-                        )}
-                      </TableHead>
-                    );
-                  })}
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead
+                      key={header.id}
+                      className={`border border-slate-400 bg-slate-200 p-1 h-9 ${
+                        header.id === "select" ? "w-6" : ""
+                      }`}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                      {/* Example: Checkbox for selecting all rows */}
+                      {header.id === "select" && (
+                        <Checkbox
+                          checked={
+                            table.getIsAllPageRowsSelected() ||
+                            (table.getIsSomePageRowsSelected() &&
+                              "indeterminate")
+                          }
+                          onCheckedChange={(value) => {
+                            // Toggle all page rows selected
+                            table.toggleAllPageRowsSelected(!!value);
+                            setTimeout(() => {
+                              const selectedRows = table
+                                .getSelectedRowModel()
+                                .rows.map((row) => row.original);
+                              // console.log(selectedRows);
+                              setSelectedProfile(selectedRows);
+                            }, 0);
+                          }}
+                          className="mr-1"
+                          aria-label="Select all"
+                        />
+                      )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  <l-tailspin
+                    size="40"
+                    stroke="5"
+                    speed="0.9"
+                    color="black"
+                  ></l-tailspin>
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell, index) => (
+                    <TableCell
+                      key={cell.id}
+                      className={`border p-1 h-8 ${index === 0 && "w-3"}`}
+                    >
+                      {index === 0 ? (
+                        <Checkbox
+                          className=""
+                          checked={row.getIsSelected()}
+                          onCheckedChange={(value) =>
+                            row.toggleSelected(!!value)
+                          }
+                          onClick={() => handleRowSelection(row.original)}
+                        />
+                      ) : (
+                        flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )
+                      )}
+                    </TableCell>
+                  ))}
                 </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    <l-tailspin
-                      size="40"
-                      stroke="5"
-                      speed="0.9"
-                      color="black"
-                    ></l-tailspin>
-                  </TableCell>
-                </TableRow>
-              ) : table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell, index) => (
-                      <TableCell
-                        key={cell.id}
-                        className={`border p-1 h-8 ${index === 0 && "w-3"}`}
-                      >
-                        {index === 0 ? (
-                          <Checkbox
-                            className=""
-                            checked={row.getIsSelected()}
-                            onCheckedChange={(value) =>
-                              row.toggleSelected(!!value)
-                            }
-                            onClick={() => handleRowSelection(row.original)}
-                          />
-                        ) : (
-                          flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                          )
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
+              ))
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-24 text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
             {table.getFilteredSelectedRowModel().rows.length} of{" "}

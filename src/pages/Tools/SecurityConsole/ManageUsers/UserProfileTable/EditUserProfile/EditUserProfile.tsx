@@ -98,8 +98,8 @@ const EditUserProfile = ({
   };
   return (
     <>
-      <CustomModal4 className="h-[384px] w-[770px]">
-        <div className="flex justify-between bg-[#CEDEF2] p-5">
+      <CustomModal4 className="w-[770px]">
+        <div className="flex justify-between bg-[#CEDEF2] p-2">
           <h3 className="font-semibold">Edit Profile</h3>
           <X onClick={() => setIsOpenModal(false)} className="cursor-pointer" />
         </div>

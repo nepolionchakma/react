@@ -5,6 +5,7 @@ import { FileEdit, PlusIcon } from "lucide-react";
 
 import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
+import ActionButtons from "@/components/ActionButtons/ActionButtons";
 
 interface ActionItemsProps {
   selectedTenancyRows: ITenantsTypes[];
@@ -43,54 +44,52 @@ const ActionItems = ({
     }
   };
   return (
-    <div className="flex gap-3 items-center px-4 py-2 border rounded">
-      <div className="flex gap-3 items-center">
-        <CustomTooltip tooltipTitle="Add">
-          <button>
-            <PlusIcon onClick={() => setAction("add")} />
-          </button>
-        </CustomTooltip>
+    <ActionButtons>
+      <CustomTooltip tooltipTitle="Add">
+        <button>
+          <PlusIcon onClick={() => setAction("add")} />
+        </button>
+      </CustomTooltip>
 
-        <CustomTooltip tooltipTitle="Edit">
-          <span>
-            <button
-              disabled={
-                selectedTenancyRows.length > 1 ||
-                selectedTenancyRows.length === 0
-              }
-            >
-              <FileEdit
-                className={`${
-                  selectedTenancyRows.length > 1 ||
-                  selectedTenancyRows.length === 0
-                    ? "text-slate-200 cursor-not-allowed mt-2"
-                    : "cursor-pointer mt-2"
-                }`}
-                onClick={() => setAction("edit")}
-                size={22}
-              />
-            </button>
-          </span>
-        </CustomTooltip>
-
-        <Alert
-          disabled={selectedTenancyRows.length === 0}
-          actionName="delete"
-          onContinue={handleDelete}
-          tooltipTitle="Delete"
+      <CustomTooltip tooltipTitle="Edit">
+        <button
+          disabled={
+            selectedTenancyRows.length > 1 || selectedTenancyRows.length === 0
+          }
         >
-          <>
-            <span className="flex flex-col items-start">
-              {selectedTenancyRows.map((item, index) => (
-                <span key={item.tenant_id} className="text-black ">
-                  {index + 1}. Tenant Name : {item.tenant_name}
-                </span>
-              ))}
-            </span>
-          </>
-        </Alert>
-      </div>
-    </div>
+          <FileEdit
+            className={`${
+              selectedTenancyRows.length > 1 || selectedTenancyRows.length === 0
+                ? "text-slate-200 cursor-not-allowed"
+                : "cursor-pointer"
+            }`}
+            onClick={() => setAction("edit")}
+          />
+        </button>
+      </CustomTooltip>
+
+      <Alert
+        disabled={selectedTenancyRows.length === 0}
+        actionName="delete"
+        onContinue={handleDelete}
+        tooltipTitle="Delete"
+      >
+        <>
+          <span className="flex flex-col items-start">
+            {selectedTenancyRows.map((item, index) => (
+              <span key={item.tenant_id} className="text-black ">
+                {index + 1}. Tenant Name : {item.tenant_name}
+              </span>
+            ))}
+          </span>
+        </>
+      </Alert>
+    </ActionButtons>
+    // <div className="flex gap-3 items-center px-4 py-2 border rounded">
+    //   <div className="flex gap-3 items-center">
+
+    //   </div>
+    // </div>
   );
 };
 

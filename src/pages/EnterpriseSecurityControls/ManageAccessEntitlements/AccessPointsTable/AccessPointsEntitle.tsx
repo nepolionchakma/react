@@ -47,7 +47,7 @@ const AccessPointsEntitle = () => {
           {isOpenModal === "create_access_point" && (
             <CustomModal3>
               <div className="flex justify-between p-2 bg-slate-300 rounded-t-lg">
-                <h2 className="text-lg font-bold">Create Access Point</h2>
+                <h2 className="text-lg font-bold">Add Access Point</h2>
                 <X
                   onClick={() => {
                     setIsOpenModal("");

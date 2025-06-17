@@ -30,7 +30,6 @@ import {
 } from "@/components/ui/table";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import columns from "./Columns";
-import CustomModal3 from "@/components/CustomModal/CustomModal3";
 import { IARMTaskParametersTypes } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import TaskParametersModal from "../TaskParametersModal/TaskParametersModal";
@@ -38,6 +37,7 @@ import { Input } from "@/components/ui/input";
 import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
+import CustomModal4 from "@/components/CustomModal/CustomModal4";
 
 export function TaskParametersTable() {
   const {
@@ -173,23 +173,23 @@ export function TaskParametersTable() {
   return (
     <div className="px-3">
       {selectedTask?.user_task_name && isOpenModal === "add_task_params" ? (
-        <CustomModal3>
+        <CustomModal4 className="w-[770px]">
           <TaskParametersModal
             task_name="Add Parameter"
             selected={selectedTaskParameters[0]}
             handleCloseModal={handleCloseModal}
           />
-        </CustomModal3>
+        </CustomModal4>
       ) : (
         selectedTask?.user_task_name &&
         isOpenModal === "update_task_params" && (
-          <CustomModal3>
+          <CustomModal4 className="w-[770px]">
             <TaskParametersModal
               task_name="Edit Parameter"
               selected={selectedTaskParameters[0]}
               handleCloseModal={handleCloseModal}
             />
-          </CustomModal3>
+          </CustomModal4>
         )
       )}
       {/* top icon and columns*/}
