@@ -431,7 +431,7 @@ const ManageGlobalConditionsTable = () => {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-[16rem] text-center"
                 >
                   <l-tailspin
                     size="40"
@@ -476,7 +476,7 @@ const ManageGlobalConditionsTable = () => {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-[16rem] text-center"
                 >
                   <l-tailspin
                     size="40"
@@ -490,7 +490,7 @@ const ManageGlobalConditionsTable = () => {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-[16rem] text-center"
                 >
                   No results.
                 </TableCell>

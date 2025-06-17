@@ -255,7 +255,7 @@ const SearchResultsTable = () => {
                   selectedAccessModelItem.length === 1 &&
                   setIsOpenEditModal(true)
                 }
-                className={`${
+                className={`hover:scale-110 duration-300 ${
                   selectedAccessModelItem.length === 1
                     ? "text-black cursor-pointer"
                     : "text-slate-200 cursor-not-allowed"
