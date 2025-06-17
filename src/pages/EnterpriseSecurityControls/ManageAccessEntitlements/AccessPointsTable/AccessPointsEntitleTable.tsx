@@ -36,6 +36,8 @@ import { useLocation } from "react-router-dom";
 import columns from "./Columns";
 
 import Rows from "@/components/Rows/Rows";
+import CustomTooltip from "@/components/Tooltip/Tooltip";
+import ActionButtons from "@/components/ActionButtons/ActionButtons";
 
 const AccessPointsEntitleTable = () => {
   // Global Context and Location
@@ -149,37 +151,43 @@ const AccessPointsEntitleTable = () => {
       <div className="flex items-center justify-between py-2">
         <div className="flex gap-2">
           {/* Access Points Button */}
-          <Button
-            className="px-4 py-2 rounded hover:shadow bg-white border text-black hover:bg-white"
-            onClick={() => {
-              setIsOpenModal("access_points");
-              setPage(1);
-            }}
-            disabled={
-              !selectedManageAccessEntitlements?.def_entitlement_id ||
-              selectedAccessEntitlements?.def_entitlement_id !==
-                selectedManageAccessEntitlements?.def_entitlement_id ||
-              selectedAccessEntitlements.def_entitlement_id === 0
-            }
-          >
-            <h3>Access Points</h3>
-          </Button>
+          <ActionButtons>
+            <h3
+              className={
+                !selectedManageAccessEntitlements?.def_entitlement_id ||
+                selectedAccessEntitlements?.def_entitlement_id !==
+                  selectedManageAccessEntitlements?.def_entitlement_id ||
+                selectedAccessEntitlements.def_entitlement_id === 0
+                  ? "cursor-not-allowed text-slate-200"
+                  : "cursor-pointer text-black"
+              }
+              onClick={() => {
+                setIsOpenModal("access_points");
+                setPage(1);
+              }}
+            >
+              Access Points
+            </h3>
+          </ActionButtons>
 
           {/* Create Access Point Button */}
-          <Button
-            className="bg-white border text-black hover:bg-white hover:shadow"
-            onClick={() => {
-              setIsOpenModal("create_access_point");
-              setAccessPointStatus("create");
-            }}
-            disabled={
-              selectedManageAccessEntitlements?.def_entitlement_id !==
-                selectedAccessEntitlements.def_entitlement_id ||
-              selectedManageAccessEntitlements.def_entitlement_id === 0
-            }
-          >
-            <Plus />
-          </Button>
+          <ActionButtons>
+            <CustomTooltip tooltipTitle="Add">
+              <Plus
+                className={
+                  selectedManageAccessEntitlements?.def_entitlement_id !==
+                    selectedAccessEntitlements.def_entitlement_id ||
+                  selectedManageAccessEntitlements.def_entitlement_id === 0
+                    ? "cursor-not-allowed text-slate-200"
+                    : "cursor-pointer text-black"
+                }
+                onClick={() => {
+                  setIsOpenModal("create_access_point");
+                  setAccessPointStatus("create");
+                }}
+              />
+            </CustomTooltip>
+          </ActionButtons>
         </div>
 
         {/* Entitlement Name */}
@@ -270,21 +278,6 @@ const AccessPointsEntitleTable = () => {
                         cell.column.columnDef.cell,
                         cell.getContext()
                       )}
-                      {/* {index === 0 ? (
-                        <Checkbox
-                          className="m-1"
-                          checked={row.getIsSelected() || false}
-                          onCheckedChange={(value) =>
-                            row.toggleSelected(!!value)
-                          }
-                          onClick={() => handleRowSelected(row.original)}
-                        />
-                      ) : (
-                        flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )
-                      )} */}
                     </TableCell>
                   ))}
                 </TableRow>
