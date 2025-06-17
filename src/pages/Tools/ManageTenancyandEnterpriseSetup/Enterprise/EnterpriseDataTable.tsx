@@ -44,6 +44,8 @@ interface IEnterpriseDataProps {
   setSelectedEnterpriseRows: React.Dispatch<
     React.SetStateAction<IEnterprisesTypes[]>
   >;
+  enterpriseLimit: number;
+  setEnterpriseLimit: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export function EnterpriseDataTable({
@@ -52,13 +54,15 @@ export function EnterpriseDataTable({
   setAction,
   selectedEnterpriseRows,
   setSelectedEnterpriseRows,
+  enterpriseLimit,
+  setEnterpriseLimit,
 }: IEnterpriseDataProps) {
   const api = useAxiosPrivate();
   const [data, setData] = React.useState<IEnterprisesTypes[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [page, setPage] = React.useState<number>(1);
   const [totalPage, setTotalPage] = React.useState<number>(1);
-  const [limit, setLimit] = React.useState<number>(8);
+
   const [stateChanged, setStateChanged] = React.useState<number>(0);
   const [isSelectAll, setIsSelectAll] = React.useState(false);
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -100,7 +104,7 @@ export function EnterpriseDataTable({
       rowSelection,
       pagination: {
         pageIndex: 0,
-        pageSize: limit,
+        pageSize: enterpriseLimit,
       },
     },
   });
@@ -132,14 +136,14 @@ export function EnterpriseDataTable({
 
   React.useEffect(() => {
     handleCloseModal();
-  }, [page, stateChanged, limit]);
+  }, [page, stateChanged, enterpriseLimit]);
 
   React.useEffect(() => {
     const fetch = async () => {
       try {
         setIsLoading(true);
         const res = await api.get(
-          `/def-tenant-enterprise-setup/${page}/${limit}`
+          `/def-tenant-enterprise-setup/${page}/${enterpriseLimit}`
         );
         setData(res.data.items);
         setTotalPage(res.data.pages);
@@ -152,7 +156,7 @@ export function EnterpriseDataTable({
       }
     };
     fetch();
-  }, [api, page, stateChanged, limit]);
+  }, [api, page, stateChanged, enterpriseLimit]);
 
   console.log(tabName, "tabname", action);
 
@@ -179,7 +183,7 @@ export function EnterpriseDataTable({
           setSelectedEnterpriseRows={setSelectedEnterpriseRows}
         />
         <div className="flex items-center gap-2">
-          <Rows limit={limit} setLimit={setLimit} />
+          <Rows limit={enterpriseLimit} setLimit={setEnterpriseLimit} />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

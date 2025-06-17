@@ -10,6 +10,8 @@ import {
 const ManageTenancyandEnterpriseSetup = () => {
   // const api = useAxiosPrivate();
   const [tabName, setTabName] = useState<string>("Tenancy");
+  const [tenancyLimit, setTenancyLimit] = useState<number>(8);
+  const [enterpriseLimit, setEnterpriseLimit] = useState<number>(8);
   const [action, setAction] = useState("");
   const [selectedTenancyRows, setSelectedTenancyRows] = useState<
     ITenantsTypes[]
@@ -40,6 +42,8 @@ const ManageTenancyandEnterpriseSetup = () => {
             setAction={setAction}
             selectedTenancyRows={selectedTenancyRows}
             setSelectedTenancyRows={setSelectedTenancyRows}
+            tenancyLimit={tenancyLimit}
+            setTenancyLimit={setTenancyLimit}
           />
         </TabsContent>
 
@@ -50,6 +54,8 @@ const ManageTenancyandEnterpriseSetup = () => {
             setAction={setAction}
             selectedEnterpriseRows={selectedEnterpriseRows}
             setSelectedEnterpriseRows={setSelectedEnterpriseRows}
+            enterpriseLimit={enterpriseLimit}
+            setEnterpriseLimit={setEnterpriseLimit}
           />
         </TabsContent>
       </Tabs>

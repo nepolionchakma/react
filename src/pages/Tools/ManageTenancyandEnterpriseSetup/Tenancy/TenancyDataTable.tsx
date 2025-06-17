@@ -42,6 +42,8 @@ interface ITenantsDataProps {
   setAction: React.Dispatch<React.SetStateAction<string>>;
   selectedTenancyRows: ITenantsTypes[];
   setSelectedTenancyRows: React.Dispatch<React.SetStateAction<ITenantsTypes[]>>;
+  tenancyLimit: number;
+  setTenancyLimit: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export function TenancyDataTable({
@@ -50,13 +52,15 @@ export function TenancyDataTable({
   setAction,
   selectedTenancyRows,
   setSelectedTenancyRows,
+  tenancyLimit,
+  setTenancyLimit,
 }: ITenantsDataProps) {
   const api = useAxiosPrivate();
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [data, setData] = React.useState<ITenantsTypes[]>([]);
   const [page, setPage] = React.useState<number>(1);
   const [totalPage, setTotalPage] = React.useState<number>(1);
-  const [limit, setLimit] = React.useState<number>(8);
+
   const [stateChanged, setStateChanged] = React.useState<number>(0);
   const [isSelectAll, setIsSelectAll] = React.useState(false);
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -102,7 +106,7 @@ export function TenancyDataTable({
       rowSelection,
       pagination: {
         pageIndex: 0,
-        pageSize: limit,
+        pageSize: tenancyLimit,
       },
     },
   });
@@ -134,14 +138,13 @@ export function TenancyDataTable({
 
   React.useEffect(() => {
     handleCloseModal();
-  }, [page, stateChanged, limit]);
+  }, [page, stateChanged, tenancyLimit]);
 
   React.useEffect(() => {
     const fetch = async () => {
       try {
         setIsLoading(true);
-        console.log(`/def-tenants/${page}/${limit}`);
-        const res = await api.get(`/def-tenants/${page}/${limit}`);
+        const res = await api.get(`/def-tenants/${page}/${tenancyLimit}`);
 
         setData(res.data.items);
         setTotalPage(res.data.pages);
@@ -154,7 +157,7 @@ export function TenancyDataTable({
       }
     };
     fetch();
-  }, [api, page, stateChanged, limit]);
+  }, [api, page, stateChanged, tenancyLimit]);
 
   return (
     <div className="w-full">
@@ -179,7 +182,7 @@ export function TenancyDataTable({
           setSelectedTenancyRows={setSelectedTenancyRows}
         />
         <div className="flex items-center gap-2">
-          <Rows limit={limit} setLimit={setLimit} />
+          <Rows limit={tenancyLimit} setLimit={setTenancyLimit} />
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -210,7 +213,7 @@ export function TenancyDataTable({
         </div>
       </div>
       {/* Table  */}
-      <div className="rounded-md border max-h-[65vh] overflow-auto">
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

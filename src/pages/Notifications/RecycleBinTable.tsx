@@ -215,7 +215,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
 
   return (
     <>
-      <div className="ml-[11rem] border rounded-md shadow-sm p-4 mb-4 max-h-[80vh] overflow-auto">
+      <div className="ml-[11rem] border rounded-md shadow-sm p-4">
         <div className="flex justify-between">
           <h1 className="text-lg font-bold mb-6 ">{path} </h1>
           <div>
@@ -251,115 +251,118 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
             totalNumber={totalRecycleBinMsg}
           />
         </div>
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-slate-200 hover:bg-slate-200">
-              <TableHead className="w-[3rem] font-bold">Origin</TableHead>
-              <TableHead className="w-[7rem] font-bold">{person}</TableHead>
-              <TableHead className="font-bold">Subject</TableHead>
-              <TableHead className="w-[7rem] font-bold">Date</TableHead>
-              <TableHead className="w-[5rem] font-bold">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          {isLoading ? (
-            <TableBody className="w-full">
-              <TableRow>
-                <TableCell> </TableCell>
-                <TableCell> </TableCell>
-                <TableCell className="flex items-center justify-center  h-[12rem] py-32">
-                  <Spinner size="80" color="#000000" />
-                </TableCell>
-                <TableCell> </TableCell>
-                <TableCell> </TableCell>
+        <div className="max-h-[60vh] overflow-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-slate-200 hover:bg-slate-200">
+                <TableHead className="w-[3rem] font-bold">Origin</TableHead>
+                <TableHead className="w-[7rem] font-bold">{person}</TableHead>
+                <TableHead className="font-bold">Subject</TableHead>
+                <TableHead className="w-[7rem] font-bold">Date</TableHead>
+                <TableHead className="w-[5rem] font-bold">Action</TableHead>
               </TableRow>
-            </TableBody>
-          ) : recycleBinMsg.length !== 0 ? (
-            <TableBody>
-              {recycleBinMsg.map((msg) => (
-                <TableRow key={msg.id}>
-                  <>
-                    <TableCell className="py-2 font-bold">
-                      {findOrigin(msg)}
-                    </TableCell>
-                    <TableCell className="py-2">
-                      {msg.recivers.length === 0
-                        ? "(no user)"
-                        : msg.recivers.includes({
-                            name: user,
-                            profile_picture: token.profile_picture?.thumbnail,
-                          })
-                        ? msg.sender.name
-                        : msg.recivers[0].name}
-                      {msg.recivers.length > 1 && ", ..."}
-                    </TableCell>
-                    <TableCell className="py-2">
-                      <span className="font-medium mr-1">
-                        {msg.subject === "" ? "(no subject)" : msg.subject}
-                      </span>
-                    </TableCell>
-                    <TableCell className="w-[115px] py-2">
-                      {convertDate(msg.date)}
-                    </TableCell>
-                    <TableCell className="flex gap-2 py-auto">
-                      {/* View Tooltip */}
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span>
-                              <View
-                                onClick={() => handleNavigate(msg.id)}
-                                className="cursor-pointer"
-                              />
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>View</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-
-                      {/* Restore Tooltip */}
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <span onClick={() => restoreMessage(msg.id)}>
-                              <RotateCcw className="cursor-pointer" />
-                            </span>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>Restore</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-
-                      {/* Delete Tooltip */}
-
-                      <Alert
-                        disabled={false}
-                        actionName="delete permanently"
-                        onContinue={() => handleDelete(msg)}
-                        tooltipTitle="Delete Permanently"
-                        tooltipAdjustmentStyle="mr-14"
-                      />
-                    </TableCell>
-                  </>
+            </TableHeader>
+            {isLoading ? (
+              <TableBody className="w-full">
+                <TableRow>
+                  <TableCell> </TableCell>
+                  <TableCell> </TableCell>
+                  <TableCell className="flex items-center justify-center  h-[12rem] py-32">
+                    <Spinner size="80" color="#000000" />
+                  </TableCell>
+                  <TableCell> </TableCell>
+                  <TableCell> </TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          ) : (
-            <TableBody>
-              <TableRow>
-                <TableCell> </TableCell>
-                <TableCell> </TableCell>
-                <TableCell className="py-32 flex justify-center">
-                  No messages found in Recycle Bin Folder.
-                </TableCell>
-                <TableCell> </TableCell>
-                <TableCell> </TableCell>
-              </TableRow>
-            </TableBody>
-          )}
-        </Table>
+              </TableBody>
+            ) : recycleBinMsg.length !== 0 ? (
+              <TableBody>
+                {recycleBinMsg.map((msg) => (
+                  <TableRow key={msg.id}>
+                    <>
+                      <TableCell className="py-2 font-bold">
+                        {findOrigin(msg)}
+                      </TableCell>
+                      <TableCell className="py-2">
+                        {msg.recivers.length === 0
+                          ? "(no user)"
+                          : msg.recivers.includes({
+                              name: user,
+                              profile_picture: token.profile_picture?.thumbnail,
+                            })
+                          ? msg.sender.name
+                          : msg.recivers[0].name}
+                        {msg.recivers.length > 1 && ", ..."}
+                      </TableCell>
+                      <TableCell className="py-2">
+                        <span className="font-medium mr-1">
+                          {msg.subject === "" ? "(no subject)" : msg.subject}
+                        </span>
+                      </TableCell>
+                      <TableCell className="w-[115px] py-2">
+                        {convertDate(msg.date)}
+                      </TableCell>
+                      <TableCell className="flex gap-2 py-auto">
+                        {/* View Tooltip */}
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span>
+                                <View
+                                  onClick={() => handleNavigate(msg.id)}
+                                  className="cursor-pointer"
+                                />
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>View</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        {/* Restore Tooltip */}
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span onClick={() => restoreMessage(msg.id)}>
+                                <RotateCcw className="cursor-pointer" />
+                              </span>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Restore</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+
+                        {/* Delete Tooltip */}
+
+                        <Alert
+                          disabled={false}
+                          actionName="delete permanently"
+                          onContinue={() => handleDelete(msg)}
+                          tooltipTitle="Delete Permanently"
+                          tooltipAdjustmentStyle="mr-14"
+                        />
+                      </TableCell>
+                    </>
+                  </TableRow>
+                ))}
+              </TableBody>
+            ) : (
+              <TableBody>
+                <TableRow>
+                  <TableCell> </TableCell>
+                  <TableCell> </TableCell>
+                  <TableCell className="py-32 flex justify-center">
+                    No messages found in Recycle Bin Folder.
+                  </TableCell>
+                  <TableCell> </TableCell>
+                  <TableCell> </TableCell>
+                </TableRow>
+              </TableBody>
+            )}
+          </Table>
+        </div>
+
         <div className="flex w-full justify-end mt-4">
           <Pagination5
             currentPage={currentPage}
