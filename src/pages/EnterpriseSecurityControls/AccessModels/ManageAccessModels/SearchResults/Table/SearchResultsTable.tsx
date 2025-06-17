@@ -39,14 +39,10 @@ import AddModel from "../AddModel";
 import EditModel from "../EditModel";
 import columns from "./Columns";
 import Pagination5 from "@/components/Pagination/Pagination5";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { toast } from "@/components/ui/use-toast";
 import Alert from "@/components/Alert/Alert";
+import ActionButtons from "@/components/ActionButtons/ActionButtons";
+import CustomTooltip from "@/components/Tooltip/Tooltip";
+import Rows from "@/components/Rows/Rows";
 
 const SearchResultsTable = () => {
   const {
@@ -84,6 +80,7 @@ const SearchResultsTable = () => {
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
   const [debouncedQuery, setDebouncedQuery] = React.useState("");
   const [isSelectAll, setIsSelectAll] = React.useState(false);
+  const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
   // const [pagination, setPagination] = React.useState({
   //   pageIndex: 0, //initial page index
   //   pageSize: 5, //default page size
@@ -149,9 +146,19 @@ const SearchResultsTable = () => {
   }, [page, limit, debouncedQuery, stateChange]);
 
   const handleSelectAll = () => {
-    table.toggleAllRowsSelected(!table.getIsAllRowsSelected());
-    setIsSelectAll(!isSelectAll);
+    if (isSelectAll) {
+      setIsSelectAll(false);
+    } else {
+      setIsSelectAll(true);
+      setSelectedAccessModelItem(data);
+    }
   };
+
+  // const handleRowSelection = (rowData:IManageAccessModelsTypes)=>{
+  //   if(selectedIds.includes(rowData.def_access_model_id)){
+
+  //   }
+  // }
 
   const handleQuery = (e: string) => {
     if (e === "") {
@@ -231,19 +238,6 @@ const SearchResultsTable = () => {
     });
   }, [table]);
 
-  const handleRow = (value: number) => {
-    if (value < 1) {
-      toast({
-        title: "The value must be greater than 0",
-        variant: "destructive",
-      });
-      return;
-    } else {
-      setLimit(value);
-      setPage(1);
-    }
-  };
-
   return (
     <div className="w-full">
       {isOpenAddModal && (
@@ -259,85 +253,73 @@ const SearchResultsTable = () => {
       <div className="flex items-center justify-between py-4 ">
         {/* create, edit, delete and search by name  */}
         <div className="flex gap-3">
-          <div className="flex gap-3 items-center px-4 py-2 border rounded">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Plus
-                    onClick={() => setIsOpenAddModal(true)}
-                    className="hover:scale-110 duration-300 cursor-pointer"
-                  />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Add</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Edit
-                    onClick={() =>
-                      selectedAccessModelItem.length === 1 &&
-                      setIsOpenEditModal(true)
-                    }
-                    className={`hover:scale-110 duration-300 ${
-                      selectedAccessModelItem.length === 1
-                        ? "text-black cursor-pointer"
-                        : "text-slate-200 cursor-not-allowed"
-                    }`}
-                  />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Edit</p>
-                </TooltipContent>
-              </Tooltip>
-
-              <Alert
-                actionName="delete"
-                disabled={selectedAccessModelItem.length === 0}
-                onContinue={handleDelete} // Main delete function
-                onClick={handleDeleteCalculate} // Delete calculate function
-                tooltipTitle="Delete"
-              >
-                <span className="flex flex-col items-start gap-1">
-                  {selectedAccessModelItem.map((modelItem) => (
-                    <span
-                      className="font-medium"
-                      key={modelItem.def_access_model_id}
-                    >
-                      Access Model Name : {modelItem.model_name}
-                      <span>
-                        {isLoading ? (
-                          <span className="block">
-                            <l-tailspin
-                              size="40"
-                              stroke="5"
-                              speed="0.9"
-                              color="black"
-                            ></l-tailspin>
-                          </span>
-                        ) : (
-                          <span className="flex flex-col items-start">
-                            {willBeDelete
-                              .filter(
-                                (item) =>
-                                  item.def_access_model_id ===
-                                  modelItem.def_access_model_id
-                              )
-                              .map((item, index) => (
-                                <span key={index} className=" text-black">
-                                  {index + 1}. Object - {item.object}, Attribute
-                                  - {item.attribute}
-                                </span>
-                              ))}
-                          </span>
-                        )}
-                      </span>
+          <ActionButtons>
+            <CustomTooltip tooltipTitle="Add">
+              <Plus
+                onClick={() => setIsOpenAddModal(true)}
+                className="hover:scale-110 duration-300 cursor-pointer"
+              />
+            </CustomTooltip>
+            <CustomTooltip tooltipTitle="Edit">
+              <Edit
+                onClick={() =>
+                  selectedAccessModelItem.length === 1 &&
+                  setIsOpenEditModal(true)
+                }
+                className={`hover:scale-110 duration-300 ${
+                  selectedAccessModelItem.length === 1
+                    ? "text-black cursor-pointer"
+                    : "text-slate-200 cursor-not-allowed"
+                }`}
+              />
+            </CustomTooltip>
+            <Alert
+              actionName="delete"
+              disabled={selectedAccessModelItem.length === 0}
+              onContinue={handleDelete} // Main delete function
+              onClick={handleDeleteCalculate} // Delete calculate function
+              tooltipTitle="Delete"
+            >
+              <span className="flex flex-col items-start gap-1">
+                {selectedAccessModelItem.map((modelItem) => (
+                  <span
+                    className="font-medium"
+                    key={modelItem.def_access_model_id}
+                  >
+                    Access Model Name : {modelItem.model_name}
+                    <span>
+                      {isLoading ? (
+                        <span className="block">
+                          <l-tailspin
+                            size="40"
+                            stroke="5"
+                            speed="0.9"
+                            color="black"
+                          ></l-tailspin>
+                        </span>
+                      ) : (
+                        <span className="flex flex-col items-start">
+                          {willBeDelete
+                            .filter(
+                              (item) =>
+                                item.def_access_model_id ===
+                                modelItem.def_access_model_id
+                            )
+                            .map((item, index) => (
+                              <span key={index} className=" text-black">
+                                {index + 1}. Object - {item.object}, Attribute -{" "}
+                                {item.attribute}
+                              </span>
+                            ))}
+                        </span>
+                      )}
                     </span>
-                  ))}
-                </span>
-              </Alert>
-            </TooltipProvider>
-          </div>
+                  </span>
+                ))}
+              </span>
+            </Alert>
+          </ActionButtons>
+
           <Input
             placeholder="Search by Model Name"
             value={query.value}
@@ -347,17 +329,7 @@ const SearchResultsTable = () => {
         </div>
         {/* Rows and Column */}
         <div className="flex items-center gap-2">
-          <div className="flex gap-2 items-center ml-auto">
-            <h3>Rows :</h3>
-            <input
-              type="number"
-              placeholder="Rows"
-              value={limit}
-              min={1}
-              onChange={(e) => handleRow(Number(e.target.value))}
-              className="w-14 border rounded-md p-2"
-            />
-          </div>
+          <Rows limit={limit} setLimit={setLimit} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
@@ -406,8 +378,8 @@ const SearchResultsTable = () => {
                       {/* Example: Checkbox for selecting all rows */}
                       {header.id === "select" && (
                         <Checkbox
-                          checked={table.getIsAllRowsSelected()}
-                          onCheckedChange={() => handleSelectAll()}
+                          checked={isSelectAll}
+                          onCheckedChange={handleSelectAll}
                           aria-label="Select all"
                         />
                       )}
