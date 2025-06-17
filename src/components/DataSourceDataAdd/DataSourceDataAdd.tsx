@@ -21,6 +21,9 @@ interface IDataSourceAddDataTypes {
   editAble?: boolean;
   setSave: Dispatch<SetStateAction<number>>;
   setRowSelection: Dispatch<SetStateAction<Record<string, never>>>;
+  setSelectedDataSourceItems: React.Dispatch<
+    React.SetStateAction<IDataSourceTypes[]>
+  >;
 }
 const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
   props,
@@ -28,6 +31,7 @@ const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
   editAble,
   setSave,
   setRowSelection,
+  setSelectedDataSourceItems,
 }) => {
   const { fetchDataSource, createDataSource, updateDataSource, token } =
     useGlobalContext();
@@ -123,6 +127,7 @@ const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
       })
       .finally(() => {
         setIsLoading(false);
+        setSelectedDataSourceItems([]);
       });
   }
 
