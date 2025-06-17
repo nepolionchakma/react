@@ -10,7 +10,7 @@ const MainApp = () => {
 
   return (
     <>
-      <div className="font-workSans pb-4">
+      <div className="font-workSans">
         <Topbar />
         <div className="pt-[3rem]">
           <Sidbar />
