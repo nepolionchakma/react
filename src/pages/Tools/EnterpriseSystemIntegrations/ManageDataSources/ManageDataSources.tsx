@@ -121,6 +121,7 @@ const ManageDataSources = () => {
         console.log(error);
       } finally {
         setIsLoading(false);
+        setSelectedDataSourceItems([]);
       }
     };
     setIsLoading(true);
