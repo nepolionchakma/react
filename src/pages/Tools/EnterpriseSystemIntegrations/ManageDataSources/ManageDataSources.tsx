@@ -121,7 +121,6 @@ const ManageDataSources = () => {
         console.log(error);
       } finally {
         setIsLoading(false);
-        setSelectedDataSourceItems([]);
       }
     };
     setIsLoading(true);
@@ -340,6 +339,7 @@ const ManageDataSources = () => {
     setIsLoading(true);
     try {
       setRowSelection({});
+      setSelectedDataSourceItems([]);
       // Iterate through the selected IDs and delete them one by one
       for (const data of selectedDataSourceItems) {
         await deleteDataSource(data.def_data_source_id);
@@ -350,7 +350,6 @@ const ManageDataSources = () => {
       console.error("Error deleting data sources:", error);
     } finally {
       setIsLoading(false);
-      setSelectedDataSourceItems([]);
     }
   };
 
@@ -389,6 +388,7 @@ const ManageDataSources = () => {
                       setSave={setSave}
                       selected={selectedDataSourceItems}
                       setRowSelection={setRowSelection}
+                      setSelectedDataSourceItems={setSelectedDataSourceItems}
                     />
                   </div>
                   <AlertDialogFooter></AlertDialogFooter>
@@ -429,6 +429,7 @@ const ManageDataSources = () => {
                       editAble={true}
                       setSave={setSave}
                       setRowSelection={setRowSelection}
+                      setSelectedDataSourceItems={setSelectedDataSourceItems}
                     />
                   </div>
                 </AlertDialogContent>
