@@ -114,7 +114,7 @@ const SentTable = ({ path, person }: SentTableProps) => {
 
   return (
     <>
-      <div className="ml-[11rem] border rounded-md shadow-sm p-4 mb-4 max-h-[80vh] overflow-auto">
+      <div className="ml-[11rem] border rounded-md shadow-sm p-4 mb-4 ">
         <div className="flex justify-between">
           <h1 className="text-lg font-bold mb-6 ">{path}</h1>
           <TableRowCounter
@@ -123,81 +123,84 @@ const SentTable = ({ path, person }: SentTableProps) => {
             totalNumber={totalSentMessages}
           />
         </div>
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-slate-200 hover:bg-slate-200">
-              <TableHead className="w-[7rem] font-bold ">{person}</TableHead>
-              <TableHead className="font-bold">Subject</TableHead>
-              <TableHead className="w-[7rem] font-bold">Date</TableHead>
-              <TableHead className="w-[5rem] font-bold">Action</TableHead>
-            </TableRow>
-          </TableHeader>
-          {isLoading ? (
-            <TableBody className="w-full">
-              <TableRow>
-                <TableCell></TableCell>
-                <TableCell className="flex items-center justify-center h-[12rem] py-32">
-                  <Spinner size="80" color="#000000" />
-                </TableCell>
-                <TableCell></TableCell>
-                <TableCell></TableCell>
+        <div className="max-h-[60vh] overflow-auto">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-slate-200 hover:bg-slate-200">
+                <TableHead className="w-[7rem] font-bold ">{person}</TableHead>
+                <TableHead className="font-bold">Subject</TableHead>
+                <TableHead className="w-[7rem] font-bold">Date</TableHead>
+                <TableHead className="w-[5rem] font-bold">Action</TableHead>
               </TableRow>
-            </TableBody>
-          ) : sentMessages.length > 0 ? (
-            <TableBody>
-              {sentMessages.map((msg, i) => (
-                <TableRow key={i}>
-                  <TableCell className="py-2">
-                    {msg.recivers[0].name}
-                    {(msg.recivers || []).length > 1 && ", ..."}
+            </TableHeader>
+            {isLoading ? (
+              <TableBody className="w-full">
+                <TableRow>
+                  <TableCell></TableCell>
+                  <TableCell className="flex items-center justify-center h-[12rem] py-32">
+                    <Spinner size="80" color="#000000" />
                   </TableCell>
-
-                  <TableCell className="py-2">
-                    <span className="font-medium mr-1">{msg.subject}</span>
-                  </TableCell>
-                  <TableCell className="w-[115px] py-2">
-                    {convertDate(msg.date)}
-                  </TableCell>
-                  <TableCell className="flex gap-2 py-auto">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <span>
-                            <View
-                              onClick={() => handleNavigate(msg.parentid)}
-                              className="cursor-pointer"
-                            />
-                          </span>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>View</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                    <Alert
-                      disabled={false}
-                      actionName="move to Recycle Bin"
-                      onContinue={() => handleDelete(msg.id)}
-                      tooltipTitle="Move to Recycle Bin"
-                      tooltipAdjustmentStyle="mr-14"
-                    />
-                  </TableCell>
+                  <TableCell></TableCell>
+                  <TableCell></TableCell>
                 </TableRow>
-              ))}
-            </TableBody>
-          ) : (
-            <TableBody>
-              <TableRow>
-                <TableCell> </TableCell>
-                <TableCell className="py-32 flex justify-center">
-                  No messages found in Sent Folder.
-                </TableCell>
-                <TableCell> </TableCell>
-                <TableCell> </TableCell>
-              </TableRow>
-            </TableBody>
-          )}
-        </Table>
+              </TableBody>
+            ) : sentMessages.length > 0 ? (
+              <TableBody>
+                {sentMessages.map((msg, i) => (
+                  <TableRow key={i}>
+                    <TableCell className="py-2">
+                      {msg.recivers[0].name}
+                      {(msg.recivers || []).length > 1 && ", ..."}
+                    </TableCell>
+
+                    <TableCell className="py-2">
+                      <span className="font-medium mr-1">{msg.subject}</span>
+                    </TableCell>
+                    <TableCell className="w-[115px] py-2">
+                      {convertDate(msg.date)}
+                    </TableCell>
+                    <TableCell className="flex gap-2 py-auto">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span>
+                              <View
+                                onClick={() => handleNavigate(msg.parentid)}
+                                className="cursor-pointer"
+                              />
+                            </span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>View</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                      <Alert
+                        disabled={false}
+                        actionName="move to Recycle Bin"
+                        onContinue={() => handleDelete(msg.id)}
+                        tooltipTitle="Move to Recycle Bin"
+                        tooltipAdjustmentStyle="mr-14"
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            ) : (
+              <TableBody>
+                <TableRow>
+                  <TableCell> </TableCell>
+                  <TableCell className="py-32 flex justify-center">
+                    No messages found in Sent Folder.
+                  </TableCell>
+                  <TableCell> </TableCell>
+                  <TableCell> </TableCell>
+                </TableRow>
+              </TableBody>
+            )}
+          </Table>
+        </div>
+
         <div className="flex w-full justify-end mt-4">
           <Pagination5
             currentPage={currentPage}
