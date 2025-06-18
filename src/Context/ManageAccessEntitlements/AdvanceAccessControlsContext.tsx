@@ -3,6 +3,7 @@ import {
   IManageAccessModelLogicAttributesTypes,
   IManageAccessModelLogicExtendTypes,
   IManageAccessModelLogicsTypes,
+  IManageAccessModelPostType,
   IManageAccessModelSearchFilterTypes,
   IManageAccessModelsTypes,
   IManageGlobalConditionLogicAttributesTypes,
@@ -96,7 +97,7 @@ interface IAACContextTypes {
     SetStateAction<IManageAccessModelsTypes[]>
   >;
   createDefAccessModel: (
-    postData: IManageAccessModelsTypes
+    postData: IManageAccessModelPostType
   ) => Promise<boolean>;
   deleteDefAccessModel: (items: IManageAccessModelsTypes[]) => Promise<void>;
   fetchAccessModelLogics: () => Promise<void>;
@@ -501,7 +502,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   };
 
   // Create Acces Model
-  const createDefAccessModel = async (postData: IManageAccessModelsTypes) => {
+  const createDefAccessModel = async (postData: IManageAccessModelPostType) => {
     try {
       setIsLoading(true);
       const res = await api.post(`/def-access-models`, postData);
