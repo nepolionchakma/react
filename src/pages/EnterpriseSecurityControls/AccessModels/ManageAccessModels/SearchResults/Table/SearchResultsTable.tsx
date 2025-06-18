@@ -80,6 +80,7 @@ const SearchResultsTable = () => {
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
   const [debouncedQuery, setDebouncedQuery] = React.useState("");
   const [isSelectAll, setIsSelectAll] = React.useState(false);
+  const [selectedIds, setIsSelectedIds] = React.useState<number[]>([]);
   // const [pagination, setPagination] = React.useState({
   //   pageIndex: 0, //initial page index
   //   pageSize: 5, //default page size
@@ -134,6 +135,8 @@ const SearchResultsTable = () => {
         setIsSelectAll(true);
       }
     }
+    const ids = selectedAccessModelItem.map((item) => item.def_access_model_id);
+    setIsSelectedIds(ids);
   }, [selectedAccessModelItem.length, data.length]);
 
   React.useEffect(() => {
@@ -145,8 +148,24 @@ const SearchResultsTable = () => {
   }, [page, limit, debouncedQuery, stateChange]);
 
   const handleSelectAll = () => {
-    table.toggleAllRowsSelected(!table.getIsAllRowsSelected());
-    setIsSelectAll(!isSelectAll);
+    if (isSelectAll) {
+      setIsSelectAll(false);
+      setSelectedAccessModelItem([]);
+    } else {
+      setIsSelectAll(true);
+      setSelectedAccessModelItem(data);
+    }
+  };
+
+  const handleRowSelection = (rowData: IManageAccessModelsTypes) => {
+    if (selectedIds.includes(rowData.def_access_model_id)) {
+      const filterItem = selectedAccessModelItem.filter(
+        (item) => item.def_access_model_id !== rowData.def_access_model_id
+      );
+      setSelectedAccessModelItem(filterItem);
+    } else {
+      setSelectedAccessModelItem((prev) => [...prev, rowData]);
+    }
   };
 
   const handleQuery = (e: string) => {
@@ -255,7 +274,7 @@ const SearchResultsTable = () => {
                   selectedAccessModelItem.length === 1 &&
                   setIsOpenEditModal(true)
                 }
-                className={`hover:scale-110 duration-300 ${
+                className={`${
                   selectedAccessModelItem.length === 1
                     ? "text-black cursor-pointer"
                     : "text-slate-200 cursor-not-allowed"
@@ -308,7 +327,6 @@ const SearchResultsTable = () => {
               </span>
             </Alert>
           </ActionButtons>
-
           <Input
             placeholder="Search by Model Name"
             value={query.value}
@@ -367,8 +385,8 @@ const SearchResultsTable = () => {
                       {/* Example: Checkbox for selecting all rows */}
                       {header.id === "select" && (
                         <Checkbox
-                          checked={table.getIsAllRowsSelected()}
-                          onCheckedChange={() => handleSelectAll()}
+                          checked={isSelectAll}
+                          onCheckedChange={handleSelectAll}
                           aria-label="Select all"
                         />
                       )}
@@ -404,9 +422,11 @@ const SearchResultsTable = () => {
                       {index === 0 ? (
                         <Checkbox
                           className="m-1"
-                          checked={row.getIsSelected()}
-                          onCheckedChange={(value) =>
-                            row.toggleSelected(!!value)
+                          checked={selectedIds.includes(
+                            row.original.def_access_model_id
+                          )}
+                          onCheckedChange={() =>
+                            handleRowSelection(row.original)
                           }
                         />
                       ) : (
@@ -449,8 +469,8 @@ const SearchResultsTable = () => {
       {/* Pagination and Status */}
       <div className="flex justify-between p-1">
         <div className="flex-1 text-sm text-gray-600">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+          {selectedIds.length} of {table.getFilteredRowModel().rows.length}{" "}
+          row(s) selected.
         </div>
         <Pagination5
           currentPage={page}

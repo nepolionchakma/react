@@ -97,6 +97,18 @@ export interface IManageGlobalConditionLogicExtendTypes
   widget_state: number;
 }
 export interface IManageAccessModelsTypes {
+  def_access_model_id: number;
+  model_name: string;
+  description: string;
+  type: string;
+  run_status: string;
+  state: string;
+  created_by: string;
+  last_updated_by: string;
+  last_run_date?: string;
+  datasource_name?: string;
+}
+export interface IManageAccessModelPostType {
   def_access_model_id?: number;
   model_name: string;
   description: string;
