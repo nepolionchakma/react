@@ -1,11 +1,11 @@
 import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+// import {
+//   Select,
+//   SelectContent,
+//   SelectItem,
+//   SelectTrigger,
+//   SelectValue,
+// } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
 import { X } from "lucide-react";
@@ -17,6 +17,7 @@ import "react-phone-number-input/style.css";
 import { toast } from "@/components/ui/use-toast";
 import Spinner from "@/components/Spinner/Spinner";
 import { IUsersInfoTypes } from "@/types/interfaces/users.interface";
+import CustomDropDown from "@/components/CustomDropDown/CustomDropDown";
 
 interface ICreateAccessProfileTypes {
   setIsCreateNewProfile: React.Dispatch<React.SetStateAction<boolean>>;
@@ -77,7 +78,12 @@ const AddUserProfile = ({
             <div className="flex gap-4">
               <div className="flex flex-col gap-2 w-[300px]">
                 <label htmlFor="profile_type">Profile Type</label>
-                <Select
+                <CustomDropDown
+                  profileType={profileType}
+                  setProfileType={setProfileType}
+                  setProfileId={setProfileId}
+                />
+                {/* <Select
                   onValueChange={(e) => {
                     setProfileType(e);
                     setProfileId("");
@@ -92,7 +98,7 @@ const AddUserProfile = ({
                     <SelectItem value="Mobile Number">Mobile Number</SelectItem>
                     <SelectItem value="GUID">GUID</SelectItem>
                   </SelectContent>
-                </Select>
+                </Select> */}
               </div>
               <div className="flex flex-col gap-2 w-full">
                 <label htmlFor="profile_type">Profile ID</label>
