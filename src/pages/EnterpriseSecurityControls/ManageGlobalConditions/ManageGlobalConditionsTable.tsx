@@ -81,6 +81,7 @@ const ManageGlobalConditionsTable = () => {
   const [query, setQuery] = useState({ isEmpty: true, value: "" });
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isSelectAll, setIsSelectAll] = useState(false);
+  const [selectedIds, setIsSelectedIds] = useState<number[]>([]);
   const [pagination, setPagination] = useState({
     pageIndex: 0, //initial page index
     pageSize: 7, //default page size
@@ -104,11 +105,32 @@ const ManageGlobalConditionsTable = () => {
         setIsSelectAll(true);
       }
     }
+    const ids = selectedManageGlobalConditionItem.map(
+      (item) => item.def_global_condition_id
+    );
+    setIsSelectedIds(ids);
   }, [selectedManageGlobalConditionItem.length, data.length]);
+
   const handleSelectAll = () => {
-    // This now directly interacts with react-table's selection
-    table.toggleAllRowsSelected(!table.getIsAllRowsSelected());
-    setIsSelectAll(!isSelectAll);
+    if (isSelectAll) {
+      setIsSelectAll(false);
+      setSelectedManageGlobalConditionItem([]);
+    } else {
+      setIsSelectAll(true);
+      setSelectedManageGlobalConditionItem(data);
+    }
+  };
+
+  const handleRowSelection = (rowData: IManageGlobalConditionTypes) => {
+    if (selectedIds.includes(rowData.def_global_condition_id)) {
+      const filterItem = selectedManageGlobalConditionItem.filter(
+        (item) =>
+          item.def_global_condition_id !== rowData.def_global_condition_id
+      );
+      setSelectedManageGlobalConditionItem(filterItem);
+    } else {
+      setSelectedManageGlobalConditionItem((prev) => [...prev, rowData]);
+    }
   };
 
   const handleQuery = (e: string) => {
@@ -416,8 +438,8 @@ const ManageGlobalConditionsTable = () => {
                       {/* Example: Checkbox for selecting all rows */}
                       {header.id === "select" && (
                         <Checkbox
-                          checked={table.getIsAllRowsSelected()} // Use react-table's method
-                          onCheckedChange={() => handleSelectAll()}
+                          checked={isSelectAll} // Use react-table's method
+                          onCheckedChange={handleSelectAll}
                           aria-label="Select all"
                         />
                       )}
@@ -458,9 +480,11 @@ const ManageGlobalConditionsTable = () => {
                       {index === 0 ? (
                         <Checkbox
                           className="mr-1"
-                          checked={row.getIsSelected()} // Use react-table's selection state
-                          onCheckedChange={(value) =>
-                            row.toggleSelected(!!value)
+                          checked={selectedIds.includes(
+                            row.original.def_global_condition_id
+                          )} // Use react-table's selection state
+                          onCheckedChange={() =>
+                            handleRowSelection(row.original)
                           }
                         />
                       ) : (
@@ -502,8 +526,8 @@ const ManageGlobalConditionsTable = () => {
         {/* Pagination and Status */}
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            {selectedIds.length} of {table.getFilteredRowModel().rows.length}{" "}
+            row(s) selected.
           </div>
           <Pagination5
             currentPage={page}
