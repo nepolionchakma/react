@@ -98,7 +98,6 @@ const SearchResultsTable = () => {
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
