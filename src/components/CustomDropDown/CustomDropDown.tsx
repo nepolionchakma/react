@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
 
 interface IDropDownProps {
@@ -14,17 +14,30 @@ export default function CustomDropDown({
   setProfileType,
   setProfileId,
 }: IDropDownProps) {
-  const [isSelect, setIsSelect] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleSelect = () => {
-    setIsSelect((prev) => !prev);
+    setIsOpen((prev) => !prev);
   };
 
   const handleChange = (item: string) => {
     setProfileType(item);
     setProfileId("");
-    setIsSelect(false);
+    setIsOpen(false);
   };
   return (
     <div className="flex flex-col gap-1">
@@ -39,8 +52,11 @@ export default function CustomDropDown({
         <ChevronDown className="h-4 w-4 opacity-50" />
       </button>
 
-      {isSelect && (
-        <div className="flex flex-col items-start border rounded-md shadow-md p-1">
+      {isOpen && (
+        <div
+          ref={ref}
+          className="flex flex-col items-start border rounded-md shadow-md p-1"
+        >
           {profileTypes.map((name, i) => {
             return (
               <button
@@ -56,7 +72,6 @@ export default function CustomDropDown({
                 onClick={() => handleChange(name)}
                 onMouseEnter={() => {
                   setHovered(true);
-                  console.log("dd");
                 }}
                 onMouseLeave={() => {
                   setHovered(false);
