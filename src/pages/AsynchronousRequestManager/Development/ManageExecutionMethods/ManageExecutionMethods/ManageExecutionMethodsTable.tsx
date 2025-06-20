@@ -242,7 +242,7 @@ export function ManageExecutionMethodsTable() {
           </ActionButtons>
           {/* Search  */}
           <Input
-            placeholder="Search by Internal Execution Method"
+            placeholder="Search Internal Execution Method"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
             className="w-[24rem] px-4 py-2"

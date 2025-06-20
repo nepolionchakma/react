@@ -189,7 +189,7 @@ const SearchResults = () => {
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-2">
           <Input
-            placeholder="Search by Control Name"
+            placeholder="Search Control Name"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
             className="w-[24rem] px-4 py-2"

@@ -1,66 +1,67 @@
-import {
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-  ColumnDef,
-  // ColumnResizeMode,
-} from "@tanstack/react-table";
-// import { Checkbox } from "@/components/ui/checkbox";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableHead,
-  TableCell,
-} from "@/components/ui/table";
-import { useState } from "react";
+// import {
+//   flexRender,
+//   getCoreRowModel,
+//   useReactTable,
+//   ColumnDef,
+//   // ColumnResizeMode,
+// } from "@tanstack/react-table";
+// // import { Checkbox } from "@/components/ui/checkbox";
+// import {
+//   Table,
+//   TableHeader,
+//   TableBody,
+//   TableRow,
+//   TableHead,
+//   TableCell,
+// } from "@/components/ui/table";
+// import { useState } from "react";
 
-// Sample data
-type DataType = {
-  id: number;
-  name: string;
-  email: string;
-};
+// // Sample data
+// type DataType = {
+//   id: number;
+//   name: string;
+//   email: string;
+// };
 
-const defaultData: DataType[] = [
-  { id: 1, name: "John", email: "john@example.com" },
-  { id: 2, name: "Alice", email: "alice@example.com" },
-];
+// const defaultData: DataType[] = [
+//   { id: 1, name: "John", email: "john@example.com" },
+//   { id: 2, name: "Alice", email: "alice@example.com" },
+// ];
 
-// Column definitions
-const columns: ColumnDef<DataType>[] = [
-  {
-    accessorKey: "name",
-    header: "Name",
-    size: 200,
-    minSize: 100,
-    maxSize: 400,
-    enableResizing: true,
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-    size: 250,
-    minSize: 150,
-    maxSize: 500,
-    enableResizing: true,
-  },
-];
+// // Column definitions
+// const columns: ColumnDef<DataType>[] = [
+//   {
+//     accessorKey: "name",
+//     header: "Name",
+//     size: 200,
+//     minSize: 100,
+//     maxSize: 400,
+//     enableResizing: true,
+//   },
+//   {
+//     accessorKey: "email",
+//     header: "Email",
+//     size: 250,
+//     minSize: 150,
+//     maxSize: 500,
+//     enableResizing: true,
+//   },
+// ];
 
 const ActionItems = () => {
-  const [data] = useState<DataType[]>(defaultData);
+  // const [data] = useState<DataType[]>(defaultData);
 
-  const table = useReactTable({
-    data,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-    columnResizeMode: "onChange", // or "onEnd"
-  });
+  // const table = useReactTable({
+  //   data,
+  //   columns,
+  //   getCoreRowModel: getCoreRowModel(),
+  //   columnResizeMode: "onChange", // or "onEnd"
+  // });
 
   return (
-    <div className="overflow-auto">
-      <Table className="w-full">
+    <div>
+      Action Items
+      {/* <Table className="w-full">
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
             <TableRow key={headerGroup.id}>
@@ -105,7 +106,7 @@ const ActionItems = () => {
             </TableRow>
           ))}
         </TableBody>
-      </Table>
+      </Table> */}
     </div>
   );
 };

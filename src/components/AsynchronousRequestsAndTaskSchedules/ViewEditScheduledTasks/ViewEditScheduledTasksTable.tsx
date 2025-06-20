@@ -284,7 +284,7 @@ export function ViewEditScheduledTasksTable() {
             </Alert>
           </ActionButtons>
           <Input
-            placeholder="Search by Task Name"
+            placeholder="Search Task Name"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
             className="w-[24rem] px-4 py-2"
