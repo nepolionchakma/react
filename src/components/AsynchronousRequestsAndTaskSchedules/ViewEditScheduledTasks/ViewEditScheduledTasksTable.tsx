@@ -279,9 +279,7 @@ export function ViewEditScheduledTasksTable() {
               onContinue={handleCancelOrRechedule}
             >
               <span className="flex flex-col items-start">
-                <span className="block text-black">
-                  Schedule name : {selected?.user_schedule_name}
-                </span>
+                Schedule name : {selected?.user_schedule_name}
               </span>
             </Alert>
           </ActionButtons>

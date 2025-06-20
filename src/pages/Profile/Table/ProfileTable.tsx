@@ -18,6 +18,7 @@ import { toast } from "@/components/ui/use-toast";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { Checkbox } from "@/components/ui/checkbox";
 import { IProfilesType } from "@/types/interfaces/users.interface";
+
 tailspin.register();
 
 export interface IProfilesType1 {

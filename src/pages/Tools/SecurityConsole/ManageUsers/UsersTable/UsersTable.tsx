@@ -219,9 +219,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
               actionName="delete" // Cancel/Reschedule
               onContinue={handleDelete} // function
             >
-              <span className="block text-black">
-                Username : {selectedUser.user_name}
-              </span>
+              <span>Username : {selectedUser.user_name}</span>
             </Alert>
           </ActionButtons>
 

@@ -336,7 +336,7 @@ const ManageAccessEntitlementsTable = () => {
                   </span>
                 ) : (
                   <span className="flex flex-col items-start gap-1">
-                    <span className="text-black">
+                    <span>
                       Entitlement Name:
                       {` ${selectedAccessEntitlements.entitlement_name}`}
                     </span>
@@ -347,7 +347,7 @@ const ManageAccessEntitlementsTable = () => {
                           {deleteAccessPointsElements.map((item, index) => (
                             <span
                               key={item.def_access_point_id}
-                              className="flex gap-1 text-black"
+                              className="flex gap-1"
                             >
                               {index + 1}. {item.element_name}
                             </span>

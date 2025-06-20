@@ -271,10 +271,7 @@ const SearchResultsTable = () => {
             >
               <span className="flex flex-col items-start gap-1">
                 {selectedAccessModelItem.map((modelItem) => (
-                  <span
-                    className="font-medium"
-                    key={modelItem.def_access_model_id}
-                  >
+                  <span key={modelItem.def_access_model_id}>
                     Access Model Name : {modelItem.model_name}
                     <span>
                       {isLoading ? (
@@ -295,7 +292,7 @@ const SearchResultsTable = () => {
                                 modelItem.def_access_model_id
                             )
                             .map((item, index) => (
-                              <span key={index} className=" text-black">
+                              <span key={index}>
                                 {index + 1}. Object - {item.object}, Attribute -{" "}
                                 {item.attribute}
                               </span>

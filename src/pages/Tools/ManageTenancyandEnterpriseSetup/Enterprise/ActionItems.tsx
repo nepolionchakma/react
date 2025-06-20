@@ -87,7 +87,7 @@ const ActionItems = ({
       >
         <div className="flex flex-col items-start">
           {selectedEnterpriseRows.map((item, index) => (
-            <span key={item.tenant_id} className="text-black">
+            <span key={item.tenant_id}>
               {index + 1}. Enterprise Name : {item.enterprise_name}
             </span>
           ))}

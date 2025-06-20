@@ -233,7 +233,7 @@ export function ManageExecutionMethodsTable() {
             >
               <span className="flex flex-col items-start">
                 {selected.map((row, i) => (
-                  <span key={i} className="flex flex-col text-black">
+                  <span key={i} className="flex flex-col">
                     {i + 1}. Method Name : {row.execution_method}
                   </span>
                 ))}
