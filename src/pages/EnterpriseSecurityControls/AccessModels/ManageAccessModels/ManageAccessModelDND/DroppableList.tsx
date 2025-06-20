@@ -188,36 +188,6 @@ export const DroppableItem: FC<DroppableItemProps> = ({
               tooltipTitle="Delete"
               iconColor="white"
             ></Alert>
-            {/* <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <div className="hover:text-white rounded-md">
-                  <Trash size={30} className="p-1 cursor-pointer" />
-                </div>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Really Want To Delete ?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    from database and remove your data from our servers.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    onClick={() =>
-                      handleDelete(
-                        item.id,
-                        item.def_access_model_logic_id,
-                        item.id
-                      )
-                    }
-                  >
-                    Confirm
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog> */}
           </div>
         </div>
         <div className="p-3">

@@ -231,7 +231,7 @@ export function UserProfileTable({
             >
               <span className="flex flex-col items-start">
                 {selectedProfile.map((item, index) => (
-                  <span key={item.serial_number} className="block text-black">
+                  <span key={item.serial_number}>
                     {index + 1}. {item.profile_type} : {item.profile_id}
                   </span>
                 ))}
@@ -244,7 +244,6 @@ export function UserProfileTable({
         <div className="mx-auto">
           {selectedUser.user_id && (
             <h3>
-              Selected Username:{" "}
               <span className="font-semibold">{selectedUser.user_name}</span>
             </h3>
           )}

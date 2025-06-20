@@ -279,14 +279,12 @@ export function ViewEditScheduledTasksTable() {
               onContinue={handleCancelOrRechedule}
             >
               <span className="flex flex-col items-start">
-                <span className="block text-black">
-                  Schedule name : {selected?.user_schedule_name}
-                </span>
+                Schedule name : {selected?.user_schedule_name}
               </span>
             </Alert>
           </ActionButtons>
           <Input
-            placeholder="Search by Task Name"
+            placeholder="Search Task Name"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
             className="w-[24rem] px-4 py-2"

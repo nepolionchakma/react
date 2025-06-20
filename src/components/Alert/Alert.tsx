@@ -66,27 +66,24 @@ const Alert = ({
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle className="text-center flex flex-col items-center">
-            <span className="block rounded-full bg-red-500 p-2 w-10">
-              <IconController
-                name={actionName}
-                height={24}
-                width={24}
-                color="white"
-              />
-            </span>
-          </AlertDialogTitle>
-          <AlertDialogDescription className="text-center flex flex-col items-center gap-5 max-h-[50vh] overflow-auto">
-            <span className="block text-black font-bold">
+          <AlertDialogTitle className="pb-2 border-b">
+            <span className="text-black text-[16px]">
               Are you sure you want to {actionName}?
             </span>
+          </AlertDialogTitle>
+          <AlertDialogDescription className="max-h-[50vh] overflow-auto mt-2 text-gray-700">
             {children}
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <span className="flex justify-between gap-9 w-full">
-            <AlertDialogCancel className="w-1/2">Cancel</AlertDialogCancel>
-            <AlertDialogAction className="w-1/2" onClick={onContinue}>
+          <span className="flex justify-end gap-6 w-full">
+            <AlertDialogCancel className="w-[140px] h-[40px]">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction
+              className="w-[140px] h-[40px]"
+              onClick={onContinue}
+            >
               Continue
             </AlertDialogAction>
           </span>

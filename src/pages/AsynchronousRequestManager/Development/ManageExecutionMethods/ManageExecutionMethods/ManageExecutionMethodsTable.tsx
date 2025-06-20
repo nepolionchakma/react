@@ -233,7 +233,7 @@ export function ManageExecutionMethodsTable() {
             >
               <span className="flex flex-col items-start">
                 {selected.map((row, i) => (
-                  <span key={i} className="flex flex-col text-black">
+                  <span key={i} className="flex flex-col">
                     {i + 1}. Method Name : {row.execution_method}
                   </span>
                 ))}
@@ -242,7 +242,7 @@ export function ManageExecutionMethodsTable() {
           </ActionButtons>
           {/* Search  */}
           <Input
-            placeholder="Search by Internal Execution Method"
+            placeholder="Search Internal Execution Method"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
             className="w-[24rem] px-4 py-2"

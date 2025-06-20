@@ -238,7 +238,7 @@ export function TaskParametersTable() {
               actionName="delete" // Cancel/Reschedule
               onContinue={handleDeleteParameters} // funtion
             >
-              <span className="flex flex-col items-start gap-1 text-black">
+              <span className="flex flex-col items-start gap-1">
                 {selectedTaskParameters.map((item, i) => (
                   <span key={item.def_param_id}>
                     {i + 1}. Parameter Name : {item.parameter_name}

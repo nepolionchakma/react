@@ -77,7 +77,7 @@ const ActionItems = ({
         <>
           <span className="flex flex-col items-start">
             {selectedTenancyRows.map((item, index) => (
-              <span key={item.tenant_id} className="text-black ">
+              <span key={item.tenant_id}>
                 {index + 1}. Tenant Name : {item.tenant_name}
               </span>
             ))}
@@ -85,11 +85,6 @@ const ActionItems = ({
         </>
       </Alert>
     </ActionButtons>
-    // <div className="flex gap-3 items-center px-4 py-2 border rounded">
-    //   <div className="flex gap-3 items-center">
-
-    //   </div>
-    // </div>
   );
 };
 

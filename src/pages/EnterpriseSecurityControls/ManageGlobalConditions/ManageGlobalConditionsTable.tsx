@@ -342,9 +342,7 @@ const ManageGlobalConditionsTable = () => {
                   className="flex flex-col items-start"
                   key={globalItem.def_global_condition_id}
                 >
-                  <span className="capitalize font-medium block">
-                    Name : {globalItem.name}
-                  </span>
+                  <span className="font-medium">Name : {globalItem.name}</span>
                   <span>
                     {isLoading ? (
                       <span className="block">
@@ -364,10 +362,7 @@ const ManageGlobalConditionsTable = () => {
                               globalItem.def_global_condition_id
                           )
                           .map((item, index) => (
-                            <span
-                              key={index}
-                              className="capitalize flex items-center text-black"
-                            >
+                            <span key={index} className="flex items-center">
                               {index + 1}. Object - {item.object}, Attribute -{" "}
                               {item.attribute}
                             </span>
@@ -381,7 +376,7 @@ const ManageGlobalConditionsTable = () => {
           </Alert>
         </ActionButtons>
         <Input
-          placeholder="Search by Name"
+          placeholder="Search Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
           className="w-[24rem] px-4 py-2"

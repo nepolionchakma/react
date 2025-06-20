@@ -250,9 +250,7 @@ export function TaskTable() {
               actionName="cancel"
               onContinue={() => handleCancel(selected!)}
             >
-              <span className="block text-center text-black">
-                Task name - {selected?.task_name}
-              </span>
+              <span>Task name: {selected?.task_name}</span>
             </Alert>
           </ActionButtons>
           {/* Search  */}

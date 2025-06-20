@@ -78,6 +78,7 @@ const ManageDataSources = () => {
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
+
   const [rowSelection, setRowSelection] = React.useState({});
 
   const [selectedDataSourceItems, setSelectedDataSourceItems] = React.useState<
@@ -199,6 +200,7 @@ const ManageDataSources = () => {
     {
       accessorKey: "description",
       header: "Description",
+      enableResizing: true,
       cell: ({ row }) => (
         <div className="capitalize min-w-[20rem]">
           {row.getValue("description")}
@@ -207,6 +209,7 @@ const ManageDataSources = () => {
     },
     {
       accessorKey: "application_type",
+      enableResizing: true,
       header: () => {
         return <div className="min-w-max">Application Type</div>;
       },
@@ -299,21 +302,22 @@ const ManageDataSources = () => {
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    columnResizeMode: "onChange",
+
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
-    },
-    initialState: {
+
       pagination: {
+        pageIndex: 0,
         pageSize: limit,
       },
     },
@@ -511,6 +515,13 @@ const ManageDataSources = () => {
                             header.column.columnDef.header,
                             header.getContext()
                           )}
+                      {header.column.getCanResize() && (
+                        <div
+                          onMouseDown={header.getResizeHandler()}
+                          onTouchStart={header.getResizeHandler()}
+                          className="absolute right-0 top-0 h-full w-1 cursor-col-resize select-none bg-blue-300 opacity-0 hover:opacity-100"
+                        />
+                      )}
                       {header.id === "select" && (
                         <Checkbox
                           className="m-1"
