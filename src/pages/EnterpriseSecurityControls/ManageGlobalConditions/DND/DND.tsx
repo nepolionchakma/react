@@ -33,6 +33,7 @@ const DND: FC = () => {
     isEditModalOpen,
     setIsEditModalOpen,
     selectedManageGlobalConditionItem: selectedItem,
+    setSelectedManageGlobalConditionItem,
     fetchManageGlobalConditionLogics,
     attrMaxId,
     isActionLoading,
@@ -224,7 +225,6 @@ const DND: FC = () => {
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    // console.log(active, over, "handleDragEnd");
     if (over) {
       const activeItemId = active.id;
       const overItemId = over.id;
@@ -263,6 +263,7 @@ const DND: FC = () => {
   );
 
   const handleSave = async () => {
+    setSelectedManageGlobalConditionItem([]);
     const upsertLogics = items.map((item) => ({
       def_global_condition_logic_id: item.def_global_condition_logic_id,
       def_global_condition_id: item.def_global_condition_id,
@@ -301,6 +302,7 @@ const DND: FC = () => {
           .finally(() => {
             setIsActionLoading(false);
             setStateChange((prev) => prev + 1);
+            setIsEditModalOpen(false);
           });
       }
       if (items.length > 0) {
@@ -326,6 +328,7 @@ const DND: FC = () => {
 
           setOriginalData([...rightWidgets]);
           setIsActionLoading(false);
+          setIsEditModalOpen(false);
         }
       }
     } catch (error) {

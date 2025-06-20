@@ -324,6 +324,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
           .finally(() => {
             setIsActionLoading(false);
             setStateChange((prev) => prev + 1);
+            setOpenEditModal(false);
           });
       }
       if (items.length > 0) {
@@ -351,6 +352,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
           .finally(() => {
             setIsActionLoading(false);
             setStateChange((prev) => prev + 1);
+            setOpenEditModal(false);
           });
       }
     } catch (error) {
