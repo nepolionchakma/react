@@ -25,6 +25,8 @@ interface ICreateAccessProfileTypes {
   selectedUser: IUsersInfoTypes;
 }
 
+const profileTypes: string[] = ["Email", "Mobile Number", "GUID"];
+
 const AddUserProfile = ({
   setIsCreateNewProfile,
   setIsUpdated,
@@ -79,9 +81,9 @@ const AddUserProfile = ({
               <div className="flex flex-col gap-2 w-[300px]">
                 <label htmlFor="profile_type">Profile Type</label>
                 <CustomDropDown
-                  profileType={profileType}
-                  setProfileType={setProfileType}
-                  setProfileId={setProfileId}
+                  data={profileTypes}
+                  option={profileType}
+                  setOption={setProfileType}
                 />
                 {/* <Select
                   onValueChange={(e) => {

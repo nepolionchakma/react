@@ -1,30 +1,41 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown } from "lucide-react";
 
 interface IDropDownProps {
-  profileType: string;
-  setProfileId: React.Dispatch<React.SetStateAction<string>>;
-  setProfileType: React.Dispatch<React.SetStateAction<string>>;
+  data: string[];
+  option: string;
+  setOption: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const profileTypes = ["Email", "Mobile Number", "GUID"];
-
 export default function CustomDropDown({
-  profileType,
-  setProfileType,
-  setProfileId,
+  data,
+  option,
+  setOption,
 }: IDropDownProps) {
-  const [isSelect, setIsSelect] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
   const [hovered, setHovered] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   const handleSelect = () => {
-    setIsSelect((prev) => !prev);
+    setIsOpen((prev) => !prev);
   };
 
   const handleChange = (item: string) => {
-    setProfileType(item);
-    setProfileId("");
-    setIsSelect(false);
+    setOption(item);
+    // setProfileId("");
+    setIsOpen(false);
   };
   return (
     <div className="flex flex-col gap-1">
@@ -34,36 +45,36 @@ export default function CustomDropDown({
         className="flex justify-between items-center h-10 py-2 px-3 border rounded-md w-full text-left"
       >
         <span className="text-sm">
-          {profileType ? profileType : "Select Profile Type"}
+          {option ? option : "Select Profile Type"}
         </span>
         <ChevronDown className="h-4 w-4 opacity-50" />
       </button>
 
-      {isSelect && (
-        <div className="flex flex-col items-start border rounded-md shadow-md p-1">
-          {profileTypes.map((name, i) => {
+      {isOpen && (
+        <div
+          ref={ref}
+          className="flex flex-col items-start border rounded-md shadow-md p-1"
+        >
+          {data.map((name, i) => {
             return (
               <button
                 type="button"
                 className={`flex items-center  py-2 px-2 w-full text-left text-sm rounded-md ${
-                  name === profileType && !hovered
+                  name === option && !hovered
                     ? "bg-slate-100"
                     : "hover:bg-slate-100"
-                } ${
-                  name !== profileType && hovered ? "hover:bg-slate-100" : ""
-                }`}
+                } ${name !== option && hovered ? "hover:bg-slate-100" : ""}`}
                 key={i}
                 onClick={() => handleChange(name)}
                 onMouseEnter={() => {
                   setHovered(true);
-                  console.log("dd");
                 }}
                 onMouseLeave={() => {
                   setHovered(false);
                 }}
               >
                 <span className="w-4">
-                  {name == profileType && <Check size={16} />}
+                  {name == option && <Check size={16} />}
                 </span>
                 <span className="ml-2">{name}</span>
               </button>

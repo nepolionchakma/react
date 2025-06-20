@@ -103,9 +103,9 @@ const EditUserProfile = ({
           <h3 className="font-semibold">Edit Profile</h3>
           <X onClick={() => setIsOpenModal(false)} className="cursor-pointer" />
         </div>
-        <div className="p-8">
+        <div className="p-4">
           <form
-            className="flex flex-col justify-between gap-8 h-[253px]"
+            className="flex flex-col justify-between gap-4"
             onSubmit={handleSubmit}
           >
             <div className="flex gap-4">
