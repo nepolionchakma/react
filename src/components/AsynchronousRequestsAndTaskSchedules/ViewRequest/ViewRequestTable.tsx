@@ -180,7 +180,7 @@ export function ViewRequestTable() {
       {/* Filter + Column Controls */}
       <div className="flex gap-3 items-center justify-between py-2">
         <Input
-          placeholder="Search by Task Name"
+          placeholder="Search Task Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
           className="w-[24rem] px-4 py-2"

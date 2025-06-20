@@ -255,7 +255,7 @@ export function TaskTable() {
           </ActionButtons>
           {/* Search  */}
           <Input
-            placeholder="Search by User Task Name"
+            placeholder="Search User Task Name"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
             className="w-[24rem] px-4 py-2"

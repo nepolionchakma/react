@@ -248,7 +248,7 @@ export function TaskParametersTable() {
             </Alert>
           </ActionButtons>
           <Input
-            placeholder="Search by Parameter Name"
+            placeholder="Search Parameter Name"
             value={
               (table.getColumn("parameter_name")?.getFilterValue() as string) ??
               ""
