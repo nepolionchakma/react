@@ -2,7 +2,6 @@ import * as React from "react";
 import { tailspin } from "ldrs";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 import {
   ColumnDef,
@@ -54,6 +53,7 @@ import {
 } from "@/components/ui/tooltip";
 import Alert from "@/components/Alert/Alert";
 import Rows from "@/components/Rows/Rows";
+import SearchInput from "@/components/SearchInput/SearchInput";
 
 const ManageDataSources = () => {
   const {
@@ -68,7 +68,6 @@ const ManageDataSources = () => {
   const [save, setSave] = React.useState<number>(0);
   const [page, setPage] = React.useState<number>(1);
   const [limit, setLimit] = React.useState<number>(8);
-  // const [currentPage, setCurrentPage] = React.useState<number | undefined>();
   // loader
   tailspin.register();
   // Shadcn Form
@@ -86,15 +85,6 @@ const ManageDataSources = () => {
   >([]);
   const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
   const [isSelectAll, setIsSelectAll] = React.useState(false);
-
-  const handleQuery = (e: string) => {
-    if (e === "") {
-      console.log(e === "");
-      setQuery({ isEmpty: true, value: e });
-    } else {
-      setQuery({ isEmpty: false, value: e });
-    }
-  };
 
   // When query changes, reset page to 1
   React.useEffect(() => {
@@ -460,12 +450,17 @@ const ManageDataSources = () => {
             </TooltipProvider>
           </div>
         </div>
-        <Input
+        <SearchInput
+          placeholder="Search by Datasource Name"
+          query={query}
+          setQuery={setQuery}
+        />
+        {/* <Input
           placeholder="Search Datasource Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
-          className="w-[24rem] px-4 py-2 "
-        />
+          className="w-[24rem] px-4 py-2"
+        /> */}
         <div className="flex gap-2 items-center ml-auto">
           <Rows limit={limit} setLimit={setLimit} />
           {/* Columns */}
