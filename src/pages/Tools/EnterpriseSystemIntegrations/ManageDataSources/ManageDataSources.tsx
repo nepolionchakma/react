@@ -166,8 +166,12 @@ const ManageDataSources = () => {
           aria-label="Select row"
         />
       ),
+      size: 24,
+      minSize: 24,
+      maxSize: 24,
       enableSorting: false,
       enableHiding: false,
+      enableResizing: false,
     },
     {
       accessorKey: "datasource_name",
@@ -494,7 +498,13 @@ const ManageDataSources = () => {
       </div>
       {/* Table */}
       <div className="rounded-md border">
-        <Table>
+        <Table
+          style={{
+            width: table.getTotalSize(),
+            minWidth: "100%",
+            // tableLayout: "fixed",
+          }}
+        >
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -502,7 +512,10 @@ const ManageDataSources = () => {
                   return (
                     <TableHead
                       key={header.id}
-                      className="border h-9 py-0 px-1 border-slate-400 bg-slate-200"
+                      className="relative border h-9 py-0 px-1 border-slate-400 bg-slate-200"
+                      style={{
+                        width: `${header.getSize()}px`,
+                      }}
                     >
                       {header.isPlaceholder
                         ? null
@@ -510,13 +523,6 @@ const ManageDataSources = () => {
                             header.column.columnDef.header,
                             header.getContext()
                           )}
-                      {header.column.getCanResize() && (
-                        <div
-                          onMouseDown={header.getResizeHandler()}
-                          onTouchStart={header.getResizeHandler()}
-                          className="absolute right-0 top-0 h-full w-1 cursor-col-resize select-none bg-blue-300 opacity-0 hover:opacity-100"
-                        />
-                      )}
                       {header.id === "select" && (
                         <Checkbox
                           className="m-1"
@@ -525,6 +531,18 @@ const ManageDataSources = () => {
                           aria-label="Select all"
                         />
                       )}
+                      <div
+                        {...{
+                          onDoubleClick: () => header.column.resetSize(),
+                          onMouseDown: header.getResizeHandler(),
+                          onTouchStart: header.getResizeHandler(),
+                          className: `absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2`,
+                          style: {
+                            userSelect: "none",
+                            touchAction: "none",
+                          },
+                        }}
+                      />
                     </TableHead>
                   );
                 })}
@@ -553,7 +571,14 @@ const ManageDataSources = () => {
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell, index) => (
-                    <TableCell key={cell.id} className="border py-0 px-1">
+                    <TableCell
+                      key={cell.id}
+                      className="border py-0 px-1"
+                      style={{
+                        width: cell.column.getSize(),
+                        minWidth: cell.column.columnDef.minSize,
+                      }}
+                    >
                       {index === 0 ? (
                         <Checkbox
                           className="m-1"
