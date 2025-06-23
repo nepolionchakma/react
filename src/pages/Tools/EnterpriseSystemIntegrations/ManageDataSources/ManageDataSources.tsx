@@ -175,6 +175,13 @@ const ManageDataSources = () => {
     },
     {
       accessorKey: "datasource_name",
+      enableResizing: true,
+      sortingFn: (rowA, rowB, columnId) => {
+        const a = rowA.getValue(columnId) as string;
+        const b = rowB.getValue(columnId) as string;
+
+        return a.localeCompare(b, undefined, { sensitivity: "base" });
+      },
       header: ({ column }) => {
         return (
           <div
@@ -213,6 +220,7 @@ const ManageDataSources = () => {
     },
     {
       accessorKey: "application_type_version",
+      enableResizing: true,
       header: () => {
         return <div className="min-w-max">Application Type Version</div>;
       },
@@ -224,6 +232,7 @@ const ManageDataSources = () => {
     },
     {
       accessorKey: "last_access_synchronization_date",
+      enableResizing: true,
       header: () => {
         return (
           <div className="min-w-max">Last Access Synchronization Date</div>
@@ -239,6 +248,7 @@ const ManageDataSources = () => {
     },
     {
       accessorKey: "last_access_synchronization_status",
+      enableResizing: true,
       header: () => {
         return (
           <div className="min-w-max">Last Access Synchronization Status</div>
@@ -252,6 +262,7 @@ const ManageDataSources = () => {
     },
     {
       accessorKey: "last_transaction_synchronization_date",
+      enableResizing: true,
       header: () => {
         return (
           <div className="min-w-max">Last Transaction Synchronization Date</div>
@@ -267,6 +278,7 @@ const ManageDataSources = () => {
     },
     {
       accessorKey: "last_transaction_synchronization_status",
+      enableResizing: true,
       header: () => {
         return (
           <div className="min-w-max">
@@ -282,6 +294,7 @@ const ManageDataSources = () => {
     },
     {
       accessorKey: "default_datasource",
+      enableResizing: true,
       header: () => {
         return <div className="min-w-max">Default Datasource</div>;
       },
