@@ -2,7 +2,6 @@ import * as React from "react";
 import { tailspin } from "ldrs";
 
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
 import {
   ColumnDef,
@@ -54,6 +53,7 @@ import {
 } from "@/components/ui/tooltip";
 import Alert from "@/components/Alert/Alert";
 import Rows from "@/components/Rows/Rows";
+import SearchInput from "@/components/SearchInput/SearchInput";
 
 const ManageDataSources = () => {
   const {
@@ -68,7 +68,6 @@ const ManageDataSources = () => {
   const [save, setSave] = React.useState<number>(0);
   const [page, setPage] = React.useState<number>(1);
   const [limit, setLimit] = React.useState<number>(8);
-  // const [currentPage, setCurrentPage] = React.useState<number | undefined>();
   // loader
   tailspin.register();
   // Shadcn Form
@@ -86,15 +85,6 @@ const ManageDataSources = () => {
   >([]);
   const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
   const [isSelectAll, setIsSelectAll] = React.useState(false);
-
-  const handleQuery = (e: string) => {
-    if (e === "") {
-      console.log(e === "");
-      setQuery({ isEmpty: true, value: e });
-    } else {
-      setQuery({ isEmpty: false, value: e });
-    }
-  };
 
   // When query changes, reset page to 1
   React.useEffect(() => {
@@ -176,8 +166,12 @@ const ManageDataSources = () => {
           aria-label="Select row"
         />
       ),
+      size: 24,
+      minSize: 24,
+      maxSize: 24,
       enableSorting: false,
       enableHiding: false,
+      enableResizing: false,
     },
     {
       accessorKey: "datasource_name",
@@ -460,12 +454,17 @@ const ManageDataSources = () => {
             </TooltipProvider>
           </div>
         </div>
-        <Input
+        <SearchInput
+          placeholder="Search by Datasource Name"
+          query={query}
+          setQuery={setQuery}
+        />
+        {/* <Input
           placeholder="Search Datasource Name"
           value={query.value}
           onChange={(e) => handleQuery(e.target.value)}
-          className="w-[24rem] px-4 py-2 "
-        />
+          className="w-[24rem] px-4 py-2"
+        /> */}
         <div className="flex gap-2 items-center ml-auto">
           <Rows limit={limit} setLimit={setLimit} />
           {/* Columns */}
@@ -499,7 +498,13 @@ const ManageDataSources = () => {
       </div>
       {/* Table */}
       <div className="rounded-md border">
-        <Table>
+        <Table
+          style={{
+            width: table.getTotalSize(),
+            minWidth: "100%",
+            // tableLayout: "fixed",
+          }}
+        >
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -507,7 +512,10 @@ const ManageDataSources = () => {
                   return (
                     <TableHead
                       key={header.id}
-                      className="border h-9 py-0 px-1 border-slate-400 bg-slate-200"
+                      className="relative border h-9 py-0 px-1 border-slate-400 bg-slate-200"
+                      style={{
+                        width: `${header.getSize()}px`,
+                      }}
                     >
                       {header.isPlaceholder
                         ? null
@@ -515,13 +523,6 @@ const ManageDataSources = () => {
                             header.column.columnDef.header,
                             header.getContext()
                           )}
-                      {header.column.getCanResize() && (
-                        <div
-                          onMouseDown={header.getResizeHandler()}
-                          onTouchStart={header.getResizeHandler()}
-                          className="absolute right-0 top-0 h-full w-1 cursor-col-resize select-none bg-blue-300 opacity-0 hover:opacity-100"
-                        />
-                      )}
                       {header.id === "select" && (
                         <Checkbox
                           className="m-1"
@@ -530,6 +531,18 @@ const ManageDataSources = () => {
                           aria-label="Select all"
                         />
                       )}
+                      <div
+                        {...{
+                          onDoubleClick: () => header.column.resetSize(),
+                          onMouseDown: header.getResizeHandler(),
+                          onTouchStart: header.getResizeHandler(),
+                          className: `absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2`,
+                          style: {
+                            userSelect: "none",
+                            touchAction: "none",
+                          },
+                        }}
+                      />
                     </TableHead>
                   );
                 })}
@@ -558,7 +571,14 @@ const ManageDataSources = () => {
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell, index) => (
-                    <TableCell key={cell.id} className="border py-0 px-1">
+                    <TableCell
+                      key={cell.id}
+                      className="border py-0 px-1"
+                      style={{
+                        width: cell.column.getSize(),
+                        minWidth: cell.column.columnDef.minSize,
+                      }}
+                    >
                       {index === 0 ? (
                         <Checkbox
                           className="m-1"
