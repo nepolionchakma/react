@@ -159,13 +159,6 @@ const ManageDataSources = () => {
   const columns: ColumnDef<IDataSourceTypes>[] = [
     {
       id: "select",
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
       size: 24,
       minSize: 24,
       maxSize: 24,
@@ -193,7 +186,7 @@ const ManageDataSources = () => {
           </div>
         );
       },
-      // header: "Datasource Name",
+
       cell: ({ row }) => (
         <div className="capitalize">{row.getValue("datasource_name")}</div>
       ),
@@ -468,16 +461,11 @@ const ManageDataSources = () => {
           </div>
         </div>
         <SearchInput
-          placeholder="Search by Datasource Name"
+          placeholder="Search Datasource Name"
           query={query}
           setQuery={setQuery}
         />
-        {/* <Input
-          placeholder="Search Datasource Name"
-          value={query.value}
-          onChange={(e) => handleQuery(e.target.value)}
-          className="w-[24rem] px-4 py-2"
-        /> */}
+
         <div className="flex gap-2 items-center ml-auto">
           <Rows limit={limit} setLimit={setLimit} />
           {/* Columns */}

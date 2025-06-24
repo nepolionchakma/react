@@ -5,21 +5,15 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Check, X } from "lucide-react";
 
 const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
-  // {
-  //   id: "select",
-  //   cell: ({ row }) => (
-  //     <Checkbox
-  //       checked={row.getIsSelected()}
-  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
-  //       aria-label="Select row"
-  //     />
-  //   ),
-  //   enableSorting: false,
-  //   enableHiding: false,
-  // },
-
   {
     accessorKey: "element_name",
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
     header: ({ column }) => {
       return (
         <div
@@ -27,7 +21,7 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Element Name
-          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
         </div>
       );
     },
@@ -41,18 +35,18 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
   },
   {
     accessorKey: "description",
-    header: () => {
-      return <div className="capitalize min-w-[30rem]">Description</div>;
-    },
+    enableResizing: true,
+    header: "Description",
     cell: ({ row }) => (
-      <div className="capitalize ">{row.getValue("description")}</div>
+      <div className="capitalize min-w-[20rem]">
+        {row.getValue("description")}
+      </div>
     ),
   },
   {
     accessorKey: "dataSource",
-    header: () => {
-      return <div className="capitalize min-w-max">Data Source</div>;
-    },
+    enableResizing: true,
+    header: "Data Source",
     cell: ({ row }) => {
       const dataSource: IDataSourceTypes = row.getValue("dataSource");
       return (
@@ -64,27 +58,23 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
   },
   {
     accessorKey: "platform",
-    header: () => {
-      return <div className="capitalize min-w-max">Platform</div>;
-    },
+    enableResizing: true,
+    header: "Platform",
     cell: ({ row }) => (
       <div className="capitalize min-w-max">{row.getValue("platform")}</div>
     ),
   },
   {
     accessorKey: "element_type",
-    header: () => {
-      return <div className="capitalize min-w-max">Element Type</div>;
-    },
+    enableResizing: true,
+    header: "Element Type",
     cell: ({ row }) => (
       <div className="capitalize min-w-max">{row.getValue("element_type")}</div>
     ),
   },
   {
     accessorKey: "access_control",
-    header: () => {
-      return <div className="capitalize min-w-max">Access Control</div>;
-    },
+    header: "Access Control",
     cell: ({ row }) => (
       <div className="capitalize min-w-max">
         {row.getValue("access_control") === "true" ? <Check /> : <X />}
@@ -93,9 +83,7 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
   },
   {
     accessorKey: "change_control",
-    header: () => {
-      return <div className="capitalize min-w-max">Change Control</div>;
-    },
+    header: "Change Control",
     cell: ({ row }) => (
       <div className="capitalize min-w-max">
         {row.getValue("change_control")}
@@ -104,9 +92,7 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
   },
   {
     accessorKey: "audit",
-    header: () => {
-      return <div className="capitalize min-w-max">Audit</div>;
-    },
+    header: "Audit",
     cell: ({ row }) => (
       <div className="capitalize min-w-max">{row.getValue("audit")}</div>
     ),

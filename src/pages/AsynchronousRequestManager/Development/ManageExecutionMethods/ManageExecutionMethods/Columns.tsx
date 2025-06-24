@@ -1,23 +1,36 @@
 import { IExecutionMethodsTypes } from "@/types/interfaces/ARM.interface";
-import { Checkbox } from "@radix-ui/react-checkbox";
+
 import { ColumnDef } from "@tanstack/react-table";
+import { ArrowUpDown } from "lucide-react";
 export const columns: ColumnDef<IExecutionMethodsTypes>[] = [
   {
     id: "select",
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
+    size: 24,
+    minSize: 24,
+    maxSize: 24,
     enableSorting: false,
     enableHiding: false,
+    enableResizing: false,
   },
   {
     accessorKey: "execution_method",
-    header: () => {
-      return <div className="min-w-max">Execution Method</div>;
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          className="min-w-max my-1"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Execution Method{" "}
+          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
+        </div>
+      );
     },
     cell: ({ row }) => (
       <div className="min-w-max">{row.getValue("execution_method")}</div>
@@ -25,24 +38,29 @@ export const columns: ColumnDef<IExecutionMethodsTypes>[] = [
   },
   {
     accessorKey: "internal_execution_method",
-    header: () => {
-      return <div className="min-w-max">Internal Execution Method</div>;
-    },
-    cell: ({ row }) => <div>{row.getValue("internal_execution_method")}</div>,
+    enableResizing: true,
+    header: "Internal Execution Method",
+    cell: ({ row }) => (
+      <div className="min-w-max my-1">
+        {row.getValue("internal_execution_method")}
+      </div>
+    ),
   },
   {
     accessorKey: "executor",
-    header: () => {
-      return <div className="min-w-max">Executor</div>;
-    },
-    cell: ({ row }) => <div className="">{row.getValue("executor")}</div>,
+    enableResizing: true,
+    header: "Executor",
+    cell: ({ row }) => (
+      <div className="min-w-max">{row.getValue("executor")}</div>
+    ),
   },
   {
     accessorKey: "description",
-    header: () => {
-      return <div className="w-[15rem]">Description</div>;
-    },
-    cell: ({ row }) => <div className="">{row.getValue("description")}</div>,
+    enableResizing: true,
+    header: "Description",
+    cell: ({ row }) => (
+      <div className="min-w-[15rem]">{row.getValue("description")}</div>
+    ),
   },
 ];
 export default columns;

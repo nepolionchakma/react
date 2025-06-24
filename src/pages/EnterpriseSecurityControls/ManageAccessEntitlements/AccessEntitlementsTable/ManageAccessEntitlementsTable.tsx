@@ -30,7 +30,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-import Spinner from "@/components/Spinner/Spinner";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import columns from "./Columns";
 import {
@@ -176,6 +175,7 @@ const ManageAccessEntitlementsTable = () => {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    columnResizeMode: "onChange",
     state: {
       sorting,
       columnFilters,
@@ -399,46 +399,87 @@ const ManageAccessEntitlementsTable = () => {
 
       {/* Table Section */}
       <div className="rounded-md border">
-        <Table>
+        <Table
+          style={{
+            width: table.getTotalSize(),
+            minWidth: "100%",
+            // tableLayout: "fixed",
+          }}
+        >
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead
-                    key={header.id}
-                    className="border h-9 py-0 px-1 border-slate-400 bg-slate-200"
-                  >
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                  </TableHead>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead
+                      key={header.id}
+                      className="relative border h-9 py-0 px-1 border-slate-400 bg-slate-200"
+                      style={{
+                        width: `${header.getSize()}px`,
+                      }}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                      {/* {header.id === "select" && (
+                               <Checkbox
+                                 className="m-1"
+                                 checked={isSelectAll}
+                                 onClick={handleSelectAll}
+                                 aria-label="Select all"
+                               />
+                             )} */}
+                      <div
+                        {...{
+                          onDoubleClick: () => header.column.resetSize(),
+                          onMouseDown: header.getResizeHandler(),
+                          onTouchStart: header.getResizeHandler(),
+                          className: `absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2`,
+                          style: {
+                            userSelect: "none",
+                            touchAction: "none",
+                          },
+                        }}
+                      />
+                    </TableHead>
+                  );
+                })}
               </TableRow>
             ))}
           </TableHeader>
-
-          {/* Table Body */}
           <TableBody>
             {isLoading ? (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-[20vh] text-center"
+                  className="h-[16rem] text-center"
                 >
-                  <Spinner color="black" size="40" />
+                  <l-tailspin
+                    size="40"
+                    stroke="5"
+                    speed="0.9"
+                    color="black"
+                  ></l-tailspin>
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() ? "selected" : undefined}
+                  data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell, index) => (
-                    <TableCell key={cell.id} className="border py-0 px-1 h-7">
+                    <TableCell
+                      key={cell.id}
+                      className="border py-0 px-1"
+                      style={{
+                        width: cell.column.getSize(),
+                        minWidth: cell.column.columnDef.minSize,
+                      }}
+                    >
                       {index === 0 ? (
                         <Checkbox
                           className="m-1"
@@ -458,13 +499,27 @@ const ManageAccessEntitlementsTable = () => {
                   ))}
                 </TableRow>
               ))
+            ) : isLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-[16rem] text-center"
+                >
+                  <l-tailspin
+                    size="40"
+                    stroke="5"
+                    speed="0.9"
+                    color="black"
+                  ></l-tailspin>
+                </TableCell>
+              </TableRow>
             ) : (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-[8.7rem] text-center"
+                  className="h-[16rem] text-center"
                 >
-                  No results found. Select Entitlement ID and filter.
+                  No results.
                 </TableCell>
               </TableRow>
             )}

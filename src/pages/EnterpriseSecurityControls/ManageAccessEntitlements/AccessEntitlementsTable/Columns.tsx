@@ -1,6 +1,6 @@
-import { Checkbox } from "@/components/ui/checkbox";
 import { IManageAccessEntitlementsTypes } from "@/types/interfaces/ManageAccessEntitlements.interface";
 import { ColumnDef } from "@tanstack/react-table";
+import { ArrowUpDown } from "lucide-react";
 
 const convertDate = (isoDateString: Date) => {
   const date = new Date(isoDateString);
@@ -11,29 +11,17 @@ const convertDate = (isoDateString: Date) => {
 const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
   {
     id: "select",
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
+    size: 24,
+    minSize: 24,
+    maxSize: 24,
     enableSorting: false,
     enableHiding: false,
+    enableResizing: false,
   },
   {
     accessorKey: "def_entitlement_id",
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Entitlement ID
-        </div>
-      );
-    },
-
+    enableResizing: true,
+    header: " Entitlement ID",
     cell: ({ row }) => (
       <div className="capitalize min-w-max">
         {row.getValue("def_entitlement_id")}
@@ -42,17 +30,24 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
   },
   {
     accessorKey: "entitlement_name",
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
     header: ({ column }) => {
       return (
         <div
           className="min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          * Entitlement Name
+          Entitlement Name{""}
+          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
         </div>
       );
     },
-    // header: "Datasource Name",
     cell: ({ row }) => (
       <div className="capitalize min-w-max">
         {row.getValue("entitlement_name")}
@@ -61,33 +56,18 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
   },
   {
     accessorKey: "description",
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-[30rem]"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Description
-        </div>
-      );
-    },
-    // header: "Datasource Name",
+    enableResizing: true,
+    header: "Description",
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">{row.getValue("description")}</div>
+      <div className="capitalize min-w-[20rem]">
+        {row.getValue("description")}
+      </div>
     ),
   },
   {
     accessorKey: "comments",
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Comments
-        </div>
-      );
-    },
+    enableResizing: true,
+    header: "Comments",
     // header: "Datasource Name",
     cell: ({ row }) => (
       <div className="capitalize min-w-max">{row.getValue("comments")}</div>
@@ -95,33 +75,16 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
   },
   {
     accessorKey: "status",
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Status
-        </div>
-      );
-    },
-    // header: "Datasource Name",
+    enableResizing: true,
+    header: "Status",
     cell: ({ row }) => (
       <div className="capitalize min-w-max">{row.getValue("status")}</div>
     ),
   },
   {
     accessorKey: "effective_date",
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Effective Date
-        </div>
-      );
-    },
+    enableResizing: true,
+    header: "Effective Date",
     cell: ({ row }) => {
       const sliceDate = convertDate(row.getValue("effective_date"));
       return <div className="capitalize min-w-max">{sliceDate}</div>;
@@ -129,32 +92,16 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
   },
   {
     accessorKey: "revison",
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Revison
-        </div>
-      );
-    },
+    enableResizing: true,
+    header: "Revison",
     cell: ({ row }) => (
       <div className="capitalize min-w-max">{row.getValue("revison")}</div>
     ),
   },
   {
     accessorKey: "revision_date",
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Revision Date
-        </div>
-      );
-    },
+    enableResizing: true,
+    header: "Revision Date",
     cell: ({ row }) => {
       const sliceDate = convertDate(row.getValue("revision_date"));
       return <div className="capitalize min-w-max">{sliceDate}</div>;
@@ -162,16 +109,8 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
   },
   {
     accessorKey: "created_on",
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Created On
-        </div>
-      );
-    },
+    enableResizing: true,
+    header: "Created On",
     cell: ({ row }) => {
       const sliceDate = convertDate(row.getValue("created_on"));
       return <div className="capitalize min-w-max">{sliceDate}</div>;
@@ -179,32 +118,16 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
   },
   {
     accessorKey: "created_by",
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Created By
-        </div>
-      );
-    },
+    enableResizing: true,
+    header: "Created By",
     cell: ({ row }) => (
       <div className="capitalize min-w-max">{row.getValue("created_by")}</div>
     ),
   },
   {
     accessorKey: "last_updated_on",
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Last Updated On
-        </div>
-      );
-    },
+    enableResizing: true,
+    header: "Last Updated On",
     cell: ({ row }) => {
       const sliceDate = convertDate(row.getValue("last_updated_on"));
       return <div className="capitalize min-w-max">{sliceDate}</div>;
@@ -212,16 +135,8 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
   },
   {
     accessorKey: "last_updated_by",
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Last Updated By
-        </div>
-      );
-    },
+    enableResizing: true,
+    header: "Last Updated By",
     cell: ({ row }) => (
       <div className="capitalize min-w-max">
         {row.getValue("last_updated_by")}

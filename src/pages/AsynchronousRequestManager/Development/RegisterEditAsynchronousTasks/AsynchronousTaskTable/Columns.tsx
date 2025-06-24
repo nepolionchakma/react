@@ -1,74 +1,87 @@
 import { IARMAsynchronousTasksTypes } from "@/types/interfaces/ARM.interface";
-import { Checkbox } from "@radix-ui/react-checkbox";
+
 import { ColumnDef } from "@tanstack/react-table";
+import { ArrowUpDown } from "lucide-react";
 export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
   {
     id: "select",
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
+    size: 24,
+    minSize: 24,
+    maxSize: 24,
     enableSorting: false,
     enableHiding: false,
+    enableResizing: false,
   },
   {
     accessorKey: "user_task_name",
-    header: () => {
-      return <div className="min-w-max">User Task Name</div>;
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          className="min-w-[15rem]"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          User Task Name{" "}
+          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
+        </div>
+      );
     },
     cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("user_task_name")}</div>
+      <div className="capitalize m-1">{row.getValue("user_task_name")}</div>
     ),
   },
   {
     accessorKey: "task_name",
-    header: () => {
-      return <div className="min-w-max">Task Name</div>;
-    },
-    cell: ({ row }) => <div>{row.getValue("task_name")}</div>,
+    enableResizing: true,
+    header: "Task Name",
+    cell: ({ row }) => (
+      <div className="min-w-max">{row.getValue("task_name")}</div>
+    ),
   },
   {
     accessorKey: "execution_method",
-    header: () => {
-      return <div className="min-w-max">Execution Method</div>;
-    },
+    enableResizing: true,
+    header: "Execution Method",
     cell: ({ row }) => (
-      <div className="">{row.getValue("execution_method")}</div>
+      <div className="min-w-max">{row.getValue("execution_method")}</div>
     ),
   },
   {
     accessorKey: "internal_execution_method",
-    header: () => {
-      return <div className="min-w-max">Internal Execution Method</div>;
-    },
+    enableResizing: true,
+    header: "Internal Execution Method",
     cell: ({ row }) => (
-      <div className="">{row.getValue("internal_execution_method")}</div>
+      <div className="min-w-max">
+        {row.getValue("internal_execution_method")}
+      </div>
     ),
   },
   {
     accessorKey: "script_name",
-    header: () => {
-      return <div className="w-[15rem]">Script Name</div>;
-    },
-    cell: ({ row }) => <div className="">{row.getValue("script_name")}</div>,
+    enableResizing: true,
+    header: "Script Name",
+    cell: ({ row }) => (
+      <div className="min-w-[15rem]">{row.getValue("script_name")}</div>
+    ),
   },
   {
     accessorKey: "description",
-    header: () => {
-      return <div className="min-w-max">Description</div>;
-    },
+    enableResizing: true,
+    header: "Description",
     cell: ({ row }) => (
-      <div className="w-[25rem]">{row.getValue("description")}</div>
+      <div className="min-w-[25rem]">{row.getValue("description")}</div>
     ),
   },
   {
     accessorKey: "srs",
-    header: () => {
-      return <div className="">SRS</div>;
-    },
+    enableResizing: true,
+    header: "SRS",
     cell: ({ row }) => {
       const data: string = row.getValue("srs");
       return (
@@ -87,9 +100,8 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
   },
   {
     accessorKey: "sf",
-    header: () => {
-      return <div className="">SF</div>;
-    },
+    enableResizing: true,
+    header: "SF",
     cell: ({ row }) => {
       const data: string = row.getValue("sf");
       return (
@@ -108,32 +120,26 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
   },
   {
     accessorKey: "created_by",
-    header: () => {
-      return <div className="min-w-max">Created By</div>;
-    },
-    cell: ({ row }) => <div className="">{row.getValue("created_by")}</div>,
+    enableResizing: true,
+    header: "Created By",
+    cell: ({ row }) => (
+      <div className="min-w-max">{row.getValue("created_by")}</div>
+    ),
   },
   {
     accessorKey: "last_updated_by",
-    header: () => {
-      return <div className="min-w-max">Last Updated By</div>;
-    },
+    enableResizing: true,
+    header: "Last Updated By",
     cell: ({ row }) => {
       const data: string = row.getValue("last_updated_by");
-      return <div className="">{data ? data : "null"}</div>;
+      return <div className="min-w-max">{data ? data : "null"}</div>;
     },
   },
   {
     accessorKey: "creation_date",
-    header: () => {
-      return <div className="min-w-max">Creation Date</div>;
-    },
+    enableResizing: true,
+    header: "Creation Date",
     cell: ({ row }) => {
-      // const convertDate = (isoDateString: Date) => {
-      //   const date = new Date(isoDateString);
-      //   const formattedDate = date.toLocaleString();
-      //   return formattedDate;
-      // };
       const data: Date = row.getValue("creation_date");
       const date = new Date(data);
       const formattedDate = date.toLocaleString("en-US");
@@ -142,15 +148,9 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
   },
   {
     accessorKey: "last_update_date",
-    header: () => {
-      return <div className="min-w-max">Last Updated Date</div>;
-    },
+    enableResizing: true,
+    header: "Last Updated Date",
     cell: ({ row }) => {
-      // const convertDate = (isoDateString: Date) => {
-      //   const date = new Date(isoDateString);
-      //   const formattedDate = date.toLocaleString();
-      //   return formattedDate;
-      // };
       const data: Date = row.getValue("last_update_date");
       const date = new Date(data);
       const formattedDate = date.toLocaleString("en-US");
@@ -159,6 +159,7 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
   },
   {
     accessorKey: "cancelled_yn",
+    enableResizing: true,
     header: "Cancelled",
     cell: ({ row }) => {
       const data: string = row.getValue("cancelled_yn");
