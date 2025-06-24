@@ -139,6 +139,7 @@ export function TaskTable() {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    columnResizeMode: "onChange",
     state: {
       sorting,
       columnFilters,
@@ -297,8 +298,14 @@ export function TaskTable() {
       </div>
       {/* Table */}
       <div className="rounded-md border">
-        <div className=" ">
-          <Table>
+        <div>
+          <Table
+            style={{
+              width: table.getTotalSize(),
+              minWidth: "100%",
+              // tableLayout: "fixed",
+            }}
+          >
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
@@ -306,9 +313,10 @@ export function TaskTable() {
                     return (
                       <TableHead
                         key={header.id}
-                        className={`border border-slate-400 bg-slate-200 p-1 h-9 items-center ${
-                          header.id === "select" && "w-6"
-                        }`}
+                        className="relative border h-9 py-0 px-1 border-slate-400 bg-slate-200"
+                        style={{
+                          width: `${header.getSize()}px`,
+                        }}
                       >
                         {header.isPlaceholder
                           ? null
@@ -316,6 +324,19 @@ export function TaskTable() {
                               header.column.columnDef.header,
                               header.getContext()
                             )}
+
+                        <div
+                          {...{
+                            onDoubleClick: () => header.column.resetSize(),
+                            onMouseDown: header.getResizeHandler(),
+                            onTouchStart: header.getResizeHandler(),
+                            className: `absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2`,
+                            style: {
+                              userSelect: "none",
+                              touchAction: "none",
+                            },
+                          }}
+                        />
                       </TableHead>
                     );
                   })}
@@ -344,7 +365,14 @@ export function TaskTable() {
                     data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell, index) => (
-                      <TableCell key={cell.id} className="border p-1 h-8">
+                      <TableCell
+                        key={cell.id}
+                        className="border py-0 px-1"
+                        style={{
+                          width: cell.column.getSize(),
+                          minWidth: cell.column.columnDef.minSize,
+                        }}
+                      >
                         {index === 0 ? (
                           <Checkbox
                             className="mr-1"
@@ -370,11 +398,25 @@ export function TaskTable() {
                     ))}
                   </TableRow>
                 ))
+              ) : isLoading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-[16rem] text-center"
+                  >
+                    <l-tailspin
+                      size="40"
+                      stroke="5"
+                      speed="0.9"
+                      color="black"
+                    ></l-tailspin>
+                  </TableCell>
+                </TableRow>
               ) : (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-[16rem] text-center"
                   >
                     No results.
                   </TableCell>

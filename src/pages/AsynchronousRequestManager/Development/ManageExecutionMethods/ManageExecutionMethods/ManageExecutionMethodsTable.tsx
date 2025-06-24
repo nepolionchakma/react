@@ -132,6 +132,7 @@ export function ManageExecutionMethodsTable() {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    columnResizeMode: "onChange",
     state: {
       sorting,
       columnFilters,
@@ -288,7 +289,13 @@ export function ManageExecutionMethodsTable() {
         <div
         // className="h-[23rem]"
         >
-          <Table>
+          <Table
+            style={{
+              width: table.getTotalSize(),
+              minWidth: "100%",
+              // tableLayout: "fixed",
+            }}
+          >
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
@@ -296,9 +303,10 @@ export function ManageExecutionMethodsTable() {
                     return (
                       <TableHead
                         key={header.id}
-                        className={`border border-slate-400 bg-slate-200 p-1 h-9 ${
-                          header.id === "select" ? "w-6" : ""
-                        }`}
+                        className="relative border h-9 py-0 px-1 border-slate-400 bg-slate-200"
+                        style={{
+                          width: `${header.getSize()}px`,
+                        }}
                       >
                         {header.isPlaceholder
                           ? null
@@ -306,7 +314,6 @@ export function ManageExecutionMethodsTable() {
                               header.column.columnDef.header,
                               header.getContext()
                             )}
-                        {/* Example: Checkbox for selecting all rows */}
                         {header.id === "select" && (
                           <Checkbox
                             checked={
@@ -328,6 +335,18 @@ export function ManageExecutionMethodsTable() {
                             aria-label="Select all"
                           />
                         )}
+                        <div
+                          {...{
+                            onDoubleClick: () => header.column.resetSize(),
+                            onMouseDown: header.getResizeHandler(),
+                            onTouchStart: header.getResizeHandler(),
+                            className: `absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2`,
+                            style: {
+                              userSelect: "none",
+                              touchAction: "none",
+                            },
+                          }}
+                        />
                       </TableHead>
                     );
                   })}
@@ -356,7 +375,14 @@ export function ManageExecutionMethodsTable() {
                     data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell, index) => (
-                      <TableCell key={cell.id} className="border p-1 h-8">
+                      <TableCell
+                        key={cell.id}
+                        className="border py-0 px-1"
+                        style={{
+                          width: cell.column.getSize(),
+                          minWidth: cell.column.columnDef.minSize,
+                        }}
+                      >
                         {index === 0 ? (
                           <Checkbox
                             className=""
@@ -376,11 +402,25 @@ export function ManageExecutionMethodsTable() {
                     ))}
                   </TableRow>
                 ))
+              ) : isLoading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-[16rem] text-center"
+                  >
+                    <l-tailspin
+                      size="40"
+                      stroke="5"
+                      speed="0.9"
+                      color="black"
+                    ></l-tailspin>
+                  </TableCell>
+                </TableRow>
               ) : (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-[16rem] text-center"
                   >
                     No results.
                   </TableCell>
