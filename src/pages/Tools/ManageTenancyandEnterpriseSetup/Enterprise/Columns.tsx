@@ -23,11 +23,22 @@ export const columns: ColumnDef<IEnterprisesTypes>[] = [
         aria-label="Select row"
       />
     ),
+    size: 24,
+    minSize: 24,
+    maxSize: 24,
     enableSorting: false,
     enableHiding: false,
+    enableResizing: false,
   },
   {
     accessorKey: "tenant_name",
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
     header: ({ column }) => {
       return (
         <div
@@ -35,7 +46,7 @@ export const columns: ColumnDef<IEnterprisesTypes>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Tenancy Name
-          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer" />
+          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
         </div>
       );
     },
@@ -45,17 +56,7 @@ export const columns: ColumnDef<IEnterprisesTypes>[] = [
   },
   {
     accessorKey: "enterprise_name",
-    header: ({ column }) => {
-      return (
-        <div
-          className="flex items-center"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Enterprise Name
-          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer" />
-        </div>
-      );
-    },
+    header: "Enterprise Name",
     cell: ({ row }) => (
       <div className="capitalize">{row.getValue("enterprise_name")}</div>
     ),
