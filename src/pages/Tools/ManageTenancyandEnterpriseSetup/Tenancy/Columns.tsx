@@ -1,12 +1,10 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "@/components/ui/checkbox";
 import { ITenantsTypes } from "@/types/interfaces/users.interface";
 import { ArrowUpDown } from "lucide-react";
 
 export const columns: ColumnDef<ITenantsTypes>[] = [
   {
     id: "select",
-
     size: 24,
     minSize: 24,
     maxSize: 24,
