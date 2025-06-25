@@ -113,7 +113,6 @@ const ManageAccessModelUpdate: FC<IManageGlobalConditionProps> = ({ form }) => {
             )}
           />
         </div>
-        "data sources if resume clear this field (work only data fetching)"
       </form>
     </Form>
   );

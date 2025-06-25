@@ -51,21 +51,29 @@ export const columns: ColumnDef<IEnterprisesTypes>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("tenant_name")}</div>
+      <div className="capitalize min-w-[10rem]">
+        {row.getValue("tenant_name")}
+      </div>
     ),
   },
   {
     accessorKey: "enterprise_name",
+    enableResizing: true,
     header: "Enterprise Name",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("enterprise_name")}</div>
+      <div className="capitalize min-w-[10rem]">
+        {row.getValue("enterprise_name")}
+      </div>
     ),
   },
   {
     accessorKey: "enterprise_type",
+    enableResizing: true,
     header: "Enterprise Type",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("enterprise_type")}</div>
+      <div className="capitalize min-w-[10rem]">
+        {row.getValue("enterprise_type")}
+      </div>
     ),
   },
 ];
