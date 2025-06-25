@@ -31,37 +31,49 @@ import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { ArrowUpDown, ChevronDown } from "lucide-react";
 import Rows from "@/components/Rows/Rows";
 
 export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
   {
     id: "select",
-    // cell: ({ row }) => (
-    //   <Checkbox
-    //     // disabled
-    //     checked={row.getIsSelected()}
-    //     onCheckedChange={(value) => row.toggleSelected(!!value)}
-    //     aria-label="Select row"
-    //     className="w-9"
-    //   />
-    // ),
+    size: 24,
+    minSize: 24,
+    maxSize: 24,
     enableSorting: false,
     enableHiding: false,
+    enableResizing: false,
   },
   {
     accessorKey: "user_task_name",
-    header: () => {
-      return <div className="min-w-max">User Task Name</div>;
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
     },
-    cell: ({ row }) => <div>{row.getValue("user_task_name")}</div>,
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          User Task Name{" "}
+          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
+        </div>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="min-w-max">{row.getValue("user_task_name")}</div>
+    ),
   },
   {
     accessorKey: "task_name",
-    header: () => {
-      return <div className="min-w-max">Task Name</div>;
-    },
-    cell: ({ row }) => <div>{row.getValue("task_name")}</div>,
+    enableResizing: true,
+    header: "Task Name",
+    cell: ({ row }) => (
+      <div className="min-w-max">{row.getValue("task_name")}</div>
+    ),
   },
 ];
 
@@ -100,6 +112,7 @@ export function TaskNameTable() {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    columnResizeMode: "onChange",
     state: {
       sorting,
       columnFilters,
@@ -219,10 +232,13 @@ export function TaskNameTable() {
       </div>
       {/* Table */}
       <div className="rounded-md border">
-        <div
-        // className="h-[23rem]"
-        >
-          <Table>
+        <div>
+          <Table
+            style={{
+              width: table.getTotalSize(),
+              minWidth: "100%",
+            }}
+          >
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
@@ -230,9 +246,10 @@ export function TaskNameTable() {
                     return (
                       <TableHead
                         key={header.id}
-                        className={`border border-slate-400 bg-slate-200 p-1 h-9 ${
-                          header.id === "select" && "w-6"
-                        }`}
+                        className="relative border h-9 py-0 px-1 border-slate-400 bg-slate-200"
+                        style={{
+                          width: `${header.getSize()}px`,
+                        }}
                       >
                         {header.isPlaceholder
                           ? null
@@ -240,10 +257,21 @@ export function TaskNameTable() {
                               header.column.columnDef.header,
                               header.getContext()
                             )}
-                        {/* Example: Checkbox for selecting all rows */}
-                        {/* {header.id === "select" && (
-                          <Checkbox disabled className="mr-1" />
-                        )} */}
+
+                        {header.id !== "select" && (
+                          <div
+                            {...{
+                              onDoubleClick: () => header.column.resetSize(),
+                              onMouseDown: header.getResizeHandler(),
+                              onTouchStart: header.getResizeHandler(),
+                              className: `absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2`,
+                              style: {
+                                userSelect: "none",
+                                touchAction: "none",
+                              },
+                            }}
+                          />
+                        )}
                       </TableHead>
                     );
                   })}
@@ -255,7 +283,7 @@ export function TaskNameTable() {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-[8rem] text-center"
+                    className="h-[16rem] text-center"
                   >
                     <l-tailspin
                       size="40"
@@ -272,10 +300,17 @@ export function TaskNameTable() {
                     data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell, index) => (
-                      <TableCell key={cell.id} className="border p-1 h-8 ">
+                      <TableCell
+                        key={cell.id}
+                        className="border py-0 px-1"
+                        style={{
+                          width: cell.column.getSize(),
+                          minWidth: cell.column.columnDef.minSize,
+                        }}
+                      >
                         {index === 0 ? (
                           <Checkbox
-                            className=""
+                            className="m-1"
                             checked={row.getIsSelected()}
                             onCheckedChange={(value) => {
                               if (value) {
@@ -287,13 +322,6 @@ export function TaskNameTable() {
                               }
                             }}
                             onClick={() => {
-                              // setSelectedRowId((prev) => {
-                              //   if (prev === row.id) {
-                              //     return "";
-                              //   } else {
-                              //     return row.id;
-                              //   }
-                              // });
                               handleRowSelection(row.original);
                             }}
                           />
@@ -307,11 +335,25 @@ export function TaskNameTable() {
                     ))}
                   </TableRow>
                 ))
+              ) : isLoading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-[16rem] text-center"
+                  >
+                    <l-tailspin
+                      size="40"
+                      stroke="5"
+                      speed="0.9"
+                      color="black"
+                    ></l-tailspin>
+                  </TableCell>
+                </TableRow>
               ) : (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-[16rem] text-center"
                   >
                     No results.
                   </TableCell>

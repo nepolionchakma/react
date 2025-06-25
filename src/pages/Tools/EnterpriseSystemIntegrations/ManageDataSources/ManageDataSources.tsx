@@ -532,18 +532,20 @@ const ManageDataSources = () => {
                           aria-label="Select all"
                         />
                       )}
-                      <div
-                        {...{
-                          onDoubleClick: () => header.column.resetSize(),
-                          onMouseDown: header.getResizeHandler(),
-                          onTouchStart: header.getResizeHandler(),
-                          className: `absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2`,
-                          style: {
-                            userSelect: "none",
-                            touchAction: "none",
-                          },
-                        }}
-                      />
+                      {header.id !== "select" && (
+                        <div
+                          {...{
+                            onDoubleClick: () => header.column.resetSize(),
+                            onMouseDown: header.getResizeHandler(),
+                            onTouchStart: header.getResizeHandler(),
+                            className: `absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2`,
+                            style: {
+                              userSelect: "none",
+                              touchAction: "none",
+                            },
+                          }}
+                        />
+                      )}
                     </TableHead>
                   );
                 })}
