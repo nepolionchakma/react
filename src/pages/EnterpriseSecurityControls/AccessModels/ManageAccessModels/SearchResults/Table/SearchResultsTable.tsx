@@ -81,10 +81,6 @@ const SearchResultsTable = () => {
   const [debouncedQuery, setDebouncedQuery] = React.useState("");
   const [isSelectAll, setIsSelectAll] = React.useState(false);
   const [selectedIds, setIsSelectedIds] = React.useState<number[]>([]);
-  // const [pagination, setPagination] = React.useState({
-  //   pageIndex: 0, //initial page index
-  //   pageSize: 5, //default page size
-  // });
 
   React.useEffect(() => {
     const selectedRow = table
@@ -104,6 +100,7 @@ const SearchResultsTable = () => {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    columnResizeMode: "onChange",
     state: {
       sorting,
       columnFilters,
@@ -362,7 +359,13 @@ const SearchResultsTable = () => {
         </div>
       </div>
       <div className="rounded-md border">
-        <Table>
+        <Table
+          style={{
+            width: table.getTotalSize(),
+            minWidth: "100%",
+            // tableLayout: "fixed",
+          }}
+        >
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -370,7 +373,10 @@ const SearchResultsTable = () => {
                   return (
                     <TableHead
                       key={header.id}
-                      className="border h-9 py-0 px-1 border-slate-400 bg-slate-200"
+                      className="relative border h-9 py-0 px-1 border-slate-400 bg-slate-200"
+                      style={{
+                        width: `${header.getSize()}px`,
+                      }}
                     >
                       {header.isPlaceholder
                         ? null
@@ -378,14 +384,26 @@ const SearchResultsTable = () => {
                             header.column.columnDef.header,
                             header.getContext()
                           )}
-                      {/* Example: Checkbox for selecting all rows */}
                       {header.id === "select" && (
                         <Checkbox
+                          className="m-1"
                           checked={isSelectAll}
-                          onCheckedChange={handleSelectAll}
+                          onClick={handleSelectAll}
                           aria-label="Select all"
                         />
                       )}
+                      <div
+                        {...{
+                          onDoubleClick: () => header.column.resetSize(),
+                          onMouseDown: header.getResizeHandler(),
+                          onTouchStart: header.getResizeHandler(),
+                          className: `absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2`,
+                          style: {
+                            userSelect: "none",
+                            touchAction: "none",
+                          },
+                        }}
+                      />
                     </TableHead>
                   );
                 })}
@@ -397,7 +415,7 @@ const SearchResultsTable = () => {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-[16rem] text-center"
                 >
                   <l-tailspin
                     size="40"
@@ -414,16 +432,21 @@ const SearchResultsTable = () => {
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell, index) => (
-                    <TableCell key={cell.id} className="border p-0 w-fit h-9">
+                    <TableCell
+                      key={cell.id}
+                      className="border py-0 px-1"
+                      style={{
+                        width: cell.column.getSize(),
+                        minWidth: cell.column.columnDef.minSize,
+                      }}
+                    >
                       {index === 0 ? (
                         <Checkbox
                           className="m-1"
                           checked={selectedIds.includes(
                             row.original.def_access_model_id
                           )}
-                          onCheckedChange={() =>
-                            handleRowSelection(row.original)
-                          }
+                          onClick={() => handleRowSelection(row.original)}
                         />
                       ) : (
                         flexRender(
@@ -439,7 +462,7 @@ const SearchResultsTable = () => {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-[16rem] text-center"
                 >
                   <l-tailspin
                     size="40"
@@ -453,7 +476,7 @@ const SearchResultsTable = () => {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-[16rem] text-center"
                 >
                   No results.
                 </TableCell>

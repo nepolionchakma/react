@@ -174,21 +174,22 @@ const ManageGlobalConditionsTable = () => {
   const columns: ColumnDef<IManageGlobalConditionTypes>[] = [
     {
       id: "select",
-      cell: ({ row }) => {
-        return (
-          <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            aria-label="Select all"
-            // className="pl-1 m-1"
-          />
-        );
-      },
+      size: 24,
+      minSize: 24,
+      maxSize: 24,
       enableSorting: false,
       enableHiding: false,
+      enableResizing: false,
     },
     {
       accessorKey: "name",
+      enableResizing: true,
+      sortingFn: (rowA, rowB, columnId) => {
+        const a = rowA.getValue(columnId) as string;
+        const b = rowB.getValue(columnId) as string;
+
+        return a.localeCompare(b, undefined, { sensitivity: "base" });
+      },
       header: ({ column }) => {
         return (
           <div
@@ -205,13 +206,17 @@ const ManageGlobalConditionsTable = () => {
     },
     {
       accessorKey: "description",
+      enableResizing: true,
       header: "Description",
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("description")}</div>
+        <div className="capitalize min-w-[20rem]">
+          {row.getValue("description")}
+        </div>
       ),
     },
     {
       accessorKey: "datasource",
+      enableResizing: true,
       header: "Datasource",
       cell: ({ row }) => (
         <div className="capitalize">{row.getValue("datasource")}</div>
@@ -219,7 +224,8 @@ const ManageGlobalConditionsTable = () => {
     },
     {
       accessorKey: "status",
-      header: "*Status",
+      enableResizing: true,
+      header: "Status",
       cell: ({ row }) => (
         <div className="capitalize">{row.getValue("status")}</div>
       ),
@@ -231,7 +237,7 @@ const ManageGlobalConditionsTable = () => {
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-
+    columnResizeMode: "onChange",
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     onPaginationChange: setPagination,
@@ -414,7 +420,13 @@ const ManageGlobalConditionsTable = () => {
       </div>
       {/* Table */}
       <div className="rounded-md border">
-        <Table>
+        <Table
+          style={{
+            width: table.getTotalSize(),
+            minWidth: "100%",
+            // tableLayout: "fixed",
+          }}
+        >
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -422,7 +434,10 @@ const ManageGlobalConditionsTable = () => {
                   return (
                     <TableHead
                       key={header.id}
-                      className="border h-9 py-0 px-1 border-slate-400 bg-slate-200"
+                      className="relative border h-9 py-0 px-1 border-slate-400 bg-slate-200"
+                      style={{
+                        width: `${header.getSize()}px`,
+                      }}
                     >
                       {header.isPlaceholder
                         ? null
@@ -430,14 +445,26 @@ const ManageGlobalConditionsTable = () => {
                             header.column.columnDef.header,
                             header.getContext()
                           )}
-                      {/* Example: Checkbox for selecting all rows */}
                       {header.id === "select" && (
                         <Checkbox
-                          checked={isSelectAll} // Use react-table's method
-                          onCheckedChange={handleSelectAll}
+                          className="m-1"
+                          checked={isSelectAll}
+                          onClick={handleSelectAll}
                           aria-label="Select all"
                         />
                       )}
+                      <div
+                        {...{
+                          onDoubleClick: () => header.column.resetSize(),
+                          onMouseDown: header.getResizeHandler(),
+                          onTouchStart: header.getResizeHandler(),
+                          className: `absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2`,
+                          style: {
+                            userSelect: "none",
+                            touchAction: "none",
+                          },
+                        }}
+                      />
                     </TableHead>
                   );
                 })}
@@ -468,13 +495,15 @@ const ManageGlobalConditionsTable = () => {
                   {row.getVisibleCells().map((cell, index) => (
                     <TableCell
                       key={cell.id}
-                      className={`border p-1 h-8 ${
-                        index === 0 ? "w-3" : "w-fit"
-                      }`}
+                      className="border py-0 px-1"
+                      style={{
+                        width: cell.column.getSize(),
+                        minWidth: cell.column.columnDef.minSize,
+                      }}
                     >
                       {index === 0 ? (
                         <Checkbox
-                          className="mr-1"
+                          className="m-1"
                           checked={selectedIds.includes(
                             row.original.def_global_condition_id
                           )} // Use react-table's selection state
@@ -518,6 +547,7 @@ const ManageGlobalConditionsTable = () => {
             )}
           </TableBody>
         </Table>
+
         {/* Pagination and Status */}
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">

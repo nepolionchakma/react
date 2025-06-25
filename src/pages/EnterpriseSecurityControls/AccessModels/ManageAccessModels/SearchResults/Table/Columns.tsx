@@ -5,7 +5,6 @@ import { ArrowUpDown } from "lucide-react";
 const columns: ColumnDef<IManageAccessModelsTypes>[] = [
   {
     id: "select",
-
     cell: ({ row }) => (
       <Checkbox
         checked={row.getIsSelected()}
@@ -13,19 +12,30 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
         aria-label="Select row"
       />
     ),
+    size: 24,
+    minSize: 24,
+    maxSize: 24,
     enableSorting: false,
     enableHiding: false,
+    enableResizing: false,
   },
   {
     accessorKey: "model_name",
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
     header: ({ column }) => {
       return (
         <div
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 flex gap-1 min-w-max items-center cursor-pointer"
+          className="min-w-max cursor-pointer"
         >
           Model Name
-          <ArrowUpDown className=" h-4 w-4" />
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
         </div>
       );
     },
@@ -36,14 +46,16 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
   {
     accessorKey: "description",
     header: "Description",
+    enableResizing: true,
     cell: ({ row }) => (
-      <div className="capitalize w-[15rem] px-1">
+      <div className="capitalize min-w-[20rem] px-1">
         {row.getValue("description")}
       </div>
     ),
   },
   {
     accessorKey: "type",
+    enableResizing: true,
     header: "Type",
     cell: ({ row }) => (
       <div className="capitalize px-1">{row.getValue("type")}</div>
@@ -51,32 +63,16 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
   },
   {
     accessorKey: "run_status",
-    header: ({ column }) => {
-      return (
-        <div
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 flex min-w-max items-center cursor-pointer"
-        >
-          Status
-        </div>
-      );
-    },
+    enableResizing: true,
+    header: "Status",
     cell: ({ row }) => (
-      <div className="p-1 capitalize">{row.getValue("run_status")}</div>
+      <div className="px-1 capitalize">{row.getValue("run_status")}</div>
     ),
   },
   {
     accessorKey: "last_run_date",
-    header: ({ column }) => {
-      return (
-        <div
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 flex min-w-max items-center cursor-pointer"
-        >
-          Last Run Date
-        </div>
-      );
-    },
+    enableResizing: true,
+    header: "Last Run Date",
     cell: ({ row }) => {
       const date = new Date(row.getValue("last_run_date")).toLocaleString();
       return <div className="capitalize px-1">{date}</div>;
@@ -84,48 +80,24 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
   },
   {
     accessorKey: "created_by",
-    header: ({ column }) => {
-      return (
-        <div
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 flex min-w-max items-center cursor-pointer"
-        >
-          Created By
-        </div>
-      );
-    },
+    enableResizing: true,
+    header: " Created By",
     cell: ({ row }) => (
       <div className="capitalize px-1">{row.getValue("created_by")}</div>
     ),
   },
   {
     accessorKey: "last_updated_by",
-    header: ({ column }) => {
-      return (
-        <div
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 flex min-w-max items-center cursor-pointer"
-        >
-          Last Updated By
-        </div>
-      );
-    },
+    enableResizing: true,
+    header: "Last Updated By",
     cell: ({ row }) => (
       <div className="capitalize px-1">{row.getValue("last_updated_by")}</div>
     ),
   },
   {
     accessorKey: "last_updated_date",
-    header: ({ column }) => {
-      return (
-        <div
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 flex min-w-max items-center cursor-pointer"
-        >
-          Last Updated Date
-        </div>
-      );
-    },
+    enableResizing: true,
+    header: "Last Updated Date",
     cell: ({ row }) => {
       const data: string = row.getValue("last_updated_date");
       const date = new Date(data).toLocaleString();
@@ -134,6 +106,7 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
   },
   {
     accessorKey: "revision",
+    enableResizing: true,
     header: "Revision",
     cell: ({ row }) => (
       <div className="capitalize px-1">{row.getValue("revision")}</div>
@@ -141,16 +114,8 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
   },
   {
     accessorKey: "revision_date",
-    header: ({ column }) => {
-      return (
-        <div
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="p-0 flex min-w-max items-center cursor-pointer"
-        >
-          Revision Date
-        </div>
-      );
-    },
+    enableResizing: true,
+    header: "Revision Date",
     cell: ({ row }) => {
       const data: string = row.getValue("revision_date");
       const date = new Date(data).toLocaleString();

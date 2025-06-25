@@ -126,6 +126,7 @@ const SearchResults = () => {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    columnResizeMode: "onChange",
     state: {
       sorting,
       columnFilters,
@@ -241,7 +242,13 @@ const SearchResults = () => {
         </div>
       </div>
       <div className="rounded-md border">
-        <Table>
+        <Table
+          style={{
+            width: table.getTotalSize(),
+            minWidth: "100%",
+            // tableLayout: "fixed",
+          }}
+        >
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -249,9 +256,10 @@ const SearchResults = () => {
                   return (
                     <TableHead
                       key={header.id}
-                      className={`border h-9 py-0 px-1 border-slate-400 bg-slate-200 ${
-                        header.id === "select" && "w-6"
-                      }`}
+                      className="relative border h-9 py-0 px-1 border-slate-400 bg-slate-200"
+                      style={{
+                        width: `${header.getSize()}px`,
+                      }}
                     >
                       {header.isPlaceholder
                         ? null
@@ -259,7 +267,6 @@ const SearchResults = () => {
                             header.column.columnDef.header,
                             header.getContext()
                           )}
-                      {/* Example: Checkbox for selecting all rows */}
                       {header.id === "select" && (
                         <Checkbox
                           checked={
@@ -283,6 +290,18 @@ const SearchResults = () => {
                           aria-label="Select all"
                         />
                       )}
+                      <div
+                        {...{
+                          onDoubleClick: () => header.column.resetSize(),
+                          onMouseDown: header.getResizeHandler(),
+                          onTouchStart: header.getResizeHandler(),
+                          className: `absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2`,
+                          style: {
+                            userSelect: "none",
+                            touchAction: "none",
+                          },
+                        }}
+                      />
                     </TableHead>
                   );
                 })}
@@ -294,7 +313,7 @@ const SearchResults = () => {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-[16rem] text-center"
                 >
                   <l-tailspin
                     size="40"
@@ -311,7 +330,14 @@ const SearchResults = () => {
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell, index) => (
-                    <TableCell key={cell.id} className="border p-1 w-fit">
+                    <TableCell
+                      key={cell.id}
+                      className="border py-0 p-1"
+                      style={{
+                        width: cell.column.getSize(),
+                        minWidth: cell.column.columnDef.minSize,
+                      }}
+                    >
                       {index === 0 ? (
                         <Checkbox
                           // className="m-1"
@@ -335,7 +361,7 @@ const SearchResults = () => {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-[16rem] text-center"
                 >
                   <l-tailspin
                     size="40"
@@ -349,7 +375,7 @@ const SearchResults = () => {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-24 text-center"
+                  className="h-[16rem] text-center"
                 >
                   No results.
                 </TableCell>

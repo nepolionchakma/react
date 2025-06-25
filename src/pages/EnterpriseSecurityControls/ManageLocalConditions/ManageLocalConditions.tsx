@@ -59,6 +59,7 @@ export const columns: ColumnDef<IManageLocalConditonsType>[] = [
     id: "select",
     header: ({ table }) => (
       <Checkbox
+        className="m-1"
         checked={
           table.getIsAllPageRowsSelected() ||
           (table.getIsSomePageRowsSelected() && "indeterminate")
@@ -69,74 +70,87 @@ export const columns: ColumnDef<IManageLocalConditonsType>[] = [
     ),
     cell: ({ row }) => (
       <Checkbox
+        className="m-1"
         checked={row.getIsSelected()}
         onCheckedChange={(value) => row.toggleSelected(!!value)}
         aria-label="Select row"
       />
     ),
+    size: 24,
+    minSize: 24,
+    maxSize: 24,
     enableSorting: false,
     enableHiding: false,
+    enableResizing: false,
   },
   {
     accessorKey: "instance",
+    enableResizing: true,
     header: "Instance",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("instance")}</div>
+      <div className="capitalize min-w-max">{row.getValue("instance")}</div>
     ),
   },
   {
     accessorKey: "action",
+    enableResizing: true,
     header: "Action",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("action")}</div>
+      <div className="capitalize min-w-max">{row.getValue("action")}</div>
     ),
   },
   {
     accessorKey: "access_point_type",
-    header: () => {
-      return <div className="min-w-max">Access Point Type</div>;
-    },
+    enableResizing: true,
+    header: "Access Point Type",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("access_point_type")}</div>
+      <div className="capitalize min-w-max">
+        {row.getValue("access_point_type")}
+      </div>
     ),
   },
   {
     accessorKey: "access_point",
+    enableResizing: true,
     header: "Access Point",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("access_point")}</div>
+      <div className="capitalize min-w-max">{row.getValue("access_point")}</div>
     ),
   },
   {
     accessorKey: "from_access_point_type",
-    header: () => {
-      return <div className="min-w-max">From Access Point Type</div>;
-    },
+    enableResizing: true,
+    header: "From Access Point Type",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("from_access_point_type")}</div>
+      <div className="capitalize min-w-max">
+        {row.getValue("from_access_point_type")}
+      </div>
     ),
   },
   {
     accessorKey: "from_access_point",
-    header: () => {
-      return <div className="min-w-max">From Access Point</div>;
-    },
+    enableResizing: true,
+    header: "From Access Point",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("from_access_point")}</div>
+      <div className="capitalize min-w-max">
+        {row.getValue("from_access_point")}
+      </div>
     ),
   },
   {
     accessorKey: "status",
+    enableResizing: true,
     header: "Status",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("status")}</div>
+      <div className="capitalize min-w-max">{row.getValue("status")}</div>
     ),
   },
   {
     accessorKey: "comments",
+    enableResizing: true,
     header: "Comments",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("comments")}</div>
+      <div className="capitalize min-w-max">{row.getValue("comments")}</div>
     ),
   },
 ];
@@ -161,6 +175,7 @@ export function ManageLocalConditions() {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    columnResizeMode: "onChange",
     state: {
       sorting,
       columnFilters,
@@ -238,7 +253,13 @@ export function ManageLocalConditions() {
         </DropdownMenu>
       </div>
       <div className="rounded-md border">
-        <Table>
+        <Table
+          style={{
+            width: table.getTotalSize(),
+            minWidth: "100%",
+            // tableLayout: "fixed",
+          }}
+        >
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -246,7 +267,10 @@ export function ManageLocalConditions() {
                   return (
                     <TableHead
                       key={header.id}
-                      className="border h-9 py-0 px-1 border-slate-400 bg-slate-200"
+                      className="relative border h-9 py-0 px-1 border-slate-400 bg-slate-200"
+                      style={{
+                        width: `${header.getSize()}px`,
+                      }}
                     >
                       {header.isPlaceholder
                         ? null
@@ -254,6 +278,18 @@ export function ManageLocalConditions() {
                             header.column.columnDef.header,
                             header.getContext()
                           )}
+                      <div
+                        {...{
+                          onDoubleClick: () => header.column.resetSize(),
+                          onMouseDown: header.getResizeHandler(),
+                          onTouchStart: header.getResizeHandler(),
+                          className: `absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2`,
+                          style: {
+                            userSelect: "none",
+                            touchAction: "none",
+                          },
+                        }}
+                      />
                     </TableHead>
                   );
                 })}
