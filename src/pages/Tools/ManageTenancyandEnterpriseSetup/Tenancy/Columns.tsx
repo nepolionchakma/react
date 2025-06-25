@@ -7,39 +7,44 @@ export const columns: ColumnDef<ITenantsTypes>[] = [
   {
     id: "select",
 
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
+    size: 24,
+    minSize: 24,
+    maxSize: 24,
     enableSorting: false,
     enableHiding: false,
+    enableResizing: false,
   },
   {
     accessorKey: "tenant_id",
+    enableResizing: true,
     // header: "Tenant Id",
+    header: "Tenant Id",
+    cell: ({ row }) => (
+      <div className="capitalize min-w-max">{row.getValue("tenant_id")}</div>
+    ),
+  },
+  {
+    accessorKey: "tenant_name",
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
     header: ({ column }) => {
       return (
         <div
           className="flex items-center"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Tenant Id
-          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer" />
+          Tenant Name
+          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
         </div>
       );
     },
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("tenant_id")}</div>
-    ),
-  },
-  {
-    accessorKey: "tenant_name",
-    header: "Tenant Name",
-    cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("tenant_name")}</div>
+      <div className="capitalize min-w-max">{row.getValue("tenant_name")}</div>
     ),
   },
 ];
