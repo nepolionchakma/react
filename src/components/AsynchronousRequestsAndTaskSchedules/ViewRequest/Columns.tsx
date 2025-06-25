@@ -2,6 +2,7 @@ import { IARMViewRequestsTypes } from "@/types/interfaces/ARM.interface";
 // import { Checkbox } from "@radix-ui/react-checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import {
+  ArrowUpDown,
   CircleChevronDown,
   CircleChevronRight,
   Eye,
@@ -59,7 +60,23 @@ export const columns = (
   {
     accessorKey: "user_task_name",
     enableResizing: true,
-    header: "User Task Name",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          className="min-w-[20rem]"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          User Task Name
+          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
+        </div>
+      );
+    },
     cell: ({ row }) => (
       <div className="min-w-[20rem]">{row.getValue("user_task_name")}</div>
     ),
