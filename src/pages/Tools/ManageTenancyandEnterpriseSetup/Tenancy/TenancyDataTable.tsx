@@ -98,6 +98,7 @@ export function TenancyDataTable({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    columnResizeMode: "onChange",
 
     state: {
       sorting,
@@ -214,17 +215,157 @@ export function TenancyDataTable({
       </div>
       {/* Table  */}
       <div className="rounded-md border">
-        <Table>
+        <Table
+          style={{
+            width: table.getTotalSize(),
+            minWidth: "100%",
+            // tableLayout: "fixed",
+          }}
+        >
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header, index) => {
+                {headerGroup.headers.map((header) => {
                   return (
                     <TableHead
                       key={header.id}
-                      className={`border border-slate-400 bg-slate-200 p-1 h-9 ${
-                        index === 0 ? "w-7" : index === 1 && "w-40"
-                      }`}
+                      className={`relative border h-9 py-0 px-1 border-slate-400 bg-slate-200`}
+                      style={{
+                        width: `${header.getSize()}px`,
+                      }}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                      {header.id === "select" && (
+                        <Checkbox
+                          className="m-1"
+                          checked={isSelectAll}
+                          onClick={handleSelectAll}
+                          aria-label="Select all"
+                        />
+                      )}
+                      {header.id !== "select" && (
+                        <div
+                          {...{
+                            onDoubleClick: () => header.column.resetSize(),
+                            onMouseDown: header.getResizeHandler(),
+                            onTouchStart: header.getResizeHandler(),
+                            className: `absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2`,
+                            style: {
+                              userSelect: "none",
+                              touchAction: "none",
+                            },
+                          }}
+                        />
+                      )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-[16rem] text-center"
+                >
+                  <l-tailspin
+                    size="40"
+                    stroke="5"
+                    speed="0.9"
+                    color="black"
+                  ></l-tailspin>
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell, index) => (
+                    <TableCell
+                      key={cell.id}
+                      className={`border py-0 px-1 ${index === 0 && "w-7"}`}
+                      style={{
+                        width: cell.column.getSize(),
+                        minWidth: cell.column.columnDef.minSize,
+                      }}
+                    >
+                      {index === 0 ? (
+                        <Checkbox
+                          className="m-1"
+                          checked={selectedIds.includes(row.original.tenant_id)}
+                          onClick={() => handleRowSelection(row.original)}
+                        />
+                      ) : (
+                        flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext()
+                        )
+                      )}
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : isLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-[16rem] text-center"
+                >
+                  <l-tailspin
+                    size="40"
+                    stroke="5"
+                    speed="0.9"
+                    color="black"
+                  ></l-tailspin>
+                </TableCell>
+              </TableRow>
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-[16rem] text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+
+        {/* <Table
+          style={{
+            width: table.getTotalSize(),
+            // width: table.getTotalSize(),
+            minWidth: "100%",
+            // tableLayout: "fixed",
+          }}
+        >
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  if (header.index === 0) {
+                    console.log(header.getSize(), "tenancy");
+                    console.log(table.getTotalSize(), "tenancy2");
+                  }
+                  return (
+                    <TableHead
+                      key={header.id}
+                      style={{
+                        // width: header.index === 0 ? 24 : "auto",
+                        width: `${header.getSize()}px`,
+                      }}
+                      className={`relative border border-slate-400 bg-slate-200 p-1 h-9 
+                      `}
                     >
                       {header.isPlaceholder
                         ? null
@@ -237,6 +378,18 @@ export function TenancyDataTable({
                           checked={isSelectAll}
                           onClick={handleSelectAll}
                           aria-label="Select all"
+                        />
+                      )}
+                      {header.column.getCanResize() && (
+                        <div
+                          onDoubleClick={() => header.column.resetSize()}
+                          onMouseDown={header.getResizeHandler()}
+                          onTouchStart={header.getResizeHandler()}
+                          className="absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2"
+                          style={{
+                            userSelect: "none",
+                            touchAction: "none",
+                          }}
                         />
                       )}
                     </TableHead>
@@ -266,9 +419,17 @@ export function TenancyDataTable({
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
-                  {row.getVisibleCells().map((cell, index) => (
-                    <TableCell key={cell.id} className={`border p-1 h-8`}>
-                      {index === 0 ? (
+                  {row.getVisibleCells().map((cell) => (
+                    <TableCell
+                      key={cell.id}
+                      className={`border p-1 h-8`}
+                      style={{
+                        // width: index === 0 ? 24 : cell.column.getSize(),
+                        width: cell.column.getSize(),
+                        minWidth: cell.column.columnDef.minSize,
+                      }}
+                    >
+                      {cell.column.id === "select" ? (
                         <Checkbox
                           className=""
                           checked={selectedIds.includes(row.original.tenant_id)}
@@ -295,7 +456,7 @@ export function TenancyDataTable({
               </TableRow>
             )}
           </TableBody>
-        </Table>
+        </Table> */}
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
             {selectedTenancyRows.length} of{" "}

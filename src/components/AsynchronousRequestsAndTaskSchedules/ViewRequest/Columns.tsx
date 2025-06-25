@@ -2,6 +2,7 @@ import { IARMViewRequestsTypes } from "@/types/interfaces/ARM.interface";
 // import { Checkbox } from "@radix-ui/react-checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import {
+  ArrowUpDown,
   CircleChevronDown,
   CircleChevronRight,
   Eye,
@@ -31,6 +32,7 @@ export const columns = (
   // },
   {
     accessorKey: "request_id",
+    enableResizing: true,
     header: () => {
       return <div className="min-w-max">Request Id</div>;
     },
@@ -38,15 +40,15 @@ export const columns = (
   },
   {
     accessorKey: "task_id",
-    header: () => {
-      return <div className="w-[20rem]">Task Id</div>;
-    },
+    enableResizing: true,
+    header: "Task Id",
     cell: ({ row }) => (
-      <div className="w-[20rem]">{row.getValue("task_id")}</div>
+      <div className="min-w-[20rem]">{row.getValue("task_id")}</div>
     ),
   },
   {
     accessorKey: "status",
+    enableResizing: true,
     header: () => {
       return <div>Status</div>;
     },
@@ -57,41 +59,53 @@ export const columns = (
   },
   {
     accessorKey: "user_task_name",
-    header: () => {
-      return <div className="min-w-max">User Task Name</div>;
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          className="min-w-[20rem]"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          User Task Name
+          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
+        </div>
+      );
     },
     cell: ({ row }) => (
-      <div className="w-[20rem]">{row.getValue("user_task_name")}</div>
+      <div className="min-w-[20rem]">{row.getValue("user_task_name")}</div>
     ),
   },
   {
     accessorKey: "task_name",
-    header: () => {
-      return <div className="min-w-max">Task Name</div>;
-    },
+    enableResizing: true,
+    header: "Task Name",
     cell: ({ row }) => (
-      <div className="w-[10rem]">{row.getValue("task_name")}</div>
+      <div className="min-w-[10rem]">{row.getValue("task_name")}</div>
     ),
   },
   {
     accessorKey: "executor",
-    header: () => {
-      return <div className="min-w-max">Executor</div>;
-    },
+    enableResizing: true,
+    header: "Executor",
     cell: ({ row }) => (
       <div className="min-w-max">{row.getValue("executor")}</div>
     ),
   },
   {
     accessorKey: "user_schedule_name",
-    header: () => {
-      return <div className="min-w-max">User Schedule Name</div>;
-    },
+    enableResizing: true,
+    header: "User Schedule Name",
     cell: ({ row }) => {
       const isExpanded = expandedRow === row.id;
       const user_schedule_name: string = row.getValue("user_schedule_name");
       return (
-        <div className="flex items-center gap-2 w-[25rem]">
+        <div className="flex items-center gap-2 min-w-[25rem]">
           <button
             disabled={
               !user_schedule_name || user_schedule_name === "" ? true : false
@@ -114,57 +128,30 @@ export const columns = (
   },
   {
     accessorKey: "redbeat_schedule_name",
-    header: () => {
-      return <div className="w-[20rem]">Redbeat Schedule Name</div>;
-    },
+    header: "Redbeat Schedule Name",
     cell: ({ row }) => (
-      <div className="w-[20rem]">{row.getValue("redbeat_schedule_name")}</div>
+      <div className="min-w-[20rem]">
+        {row.getValue("redbeat_schedule_name")}
+      </div>
     ),
   },
-  // {
-  //   accessorKey: "schedule",
-  //   header: () => {
-  //     return <div className="min-w-max">Schedule</div>;
-  //   },
-  //   cell: ({ row }) => {
-  //     return (
-  //       <div className="min-w-max">
-  //         {JSON.stringify(row.getValue("schedule"))}
-  //       </div>
-  //     );
-  //   },
-  // },
-  // {
-  //   accessorKey: "schedule_type",
-  //   header: () => {
-  //     return <div className="min-w-max">Schedule Type</div>;
-  //   },
-  //   cell: ({ row }) => {
-  //     const schedule_type = row.getValue("schedule_type");
-  //     const result =
-  //       schedule_type === null ? "null" : JSON.parse(schedule_type as string);
-  //     return (
-  //       <div className="min-w-max capitalize">{result?.toLowerCase()}</div>
-  //     );
-  //   },
-  // },
+
   {
     accessorKey: "args",
-    header: () => {
-      return <div className="w-[30rem]">Args</div>;
-    },
+    enableResizing: true,
+    header: "Args",
 
     cell: ({ row }) => {
       return (
-        <div className="w-[30rem]">{JSON.stringify(row.getValue("args"))}</div>
+        <div className="min-w-[30rem]">
+          {JSON.stringify(row.getValue("args"))}
+        </div>
       );
     },
   },
   {
     accessorKey: "kwargs",
-    header: () => {
-      return <div className="min-w-max">Kwargs</div>;
-    },
+    header: "Kwargs",
     cell: ({ row }) => {
       return (
         <div className="min-w-max">
@@ -175,6 +162,7 @@ export const columns = (
   },
   {
     accessorKey: "parameters",
+    enableResizing: true,
     header: () => {
       return <div className="min-w-max text-center">Parameters</div>;
     },
@@ -202,6 +190,7 @@ export const columns = (
   },
   {
     accessorKey: "result",
+    enableResizing: true,
     header: () => {
       return <div className="min-w-max text-center">Result</div>;
     },
@@ -230,6 +219,7 @@ export const columns = (
 
   {
     accessorKey: "timestamp",
+    enableResizing: true,
     header: () => {
       return <div className="min-w-max">Timestamp</div>;
     },

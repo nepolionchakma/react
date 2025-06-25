@@ -14,7 +14,7 @@ const AccessModels = () => {
                 return (
                   <div key={menu.name}>
                     {/* Change menu name here */}
-                    {menu.name === "Access Models" && menu.subMenus && (
+                    {menu.name === "Manage Access Models" && menu.subMenus && (
                       <SubSubMenuItem {...menu} />
                     )}
                   </div>
