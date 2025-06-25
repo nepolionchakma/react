@@ -118,15 +118,12 @@ export function TaskParametersTable() {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    columnResizeMode: "onChange",
     state: {
       sorting,
       columnFilters,
       columnVisibility,
       rowSelection,
-      // pagination: {
-      //   pageIndex: 0,
-      //   pageSize: limit,
-      // },
     },
   });
   // default hidden columns
@@ -152,9 +149,6 @@ export function TaskParametersTable() {
 
   const handleCloseModal = () => {
     setIsOpenModal(""); // close modal
-    // setSelectedTaskParameters([]);
-    //table toggle false
-    // table.toggleAllRowsSelected(false);
   };
 
   const handleDeleteParameters = async () => {
@@ -265,7 +259,6 @@ export function TaskParametersTable() {
         <div className="mx-auto">
           {selectedTask?.def_task_id && (
             <h3>
-              Selected:{" "}
               <span className="font-semibold">
                 {selectedTask?.user_task_name}
               </span>
@@ -274,18 +267,6 @@ export function TaskParametersTable() {
         </div>
 
         <div className="flex items-center gap-2">
-          {/* <div className="flex gap-2 items-center ml-auto">
-            <h3>Rows :</h3>
-            <input
-              type="number"
-              placeholder="Rows"
-              value={limit}
-              min={1}
-              // max={20}
-              onChange={(e) => handleRow(Number(e.target.value))}
-              className="w-14 border rounded p-2"
-            />
-          </div> */}
           {/* Columns */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -320,10 +301,14 @@ export function TaskParametersTable() {
       </div>
       {/* Table */}
       <div className="rounded-md border">
-        <div
-        // className="h-[23rem]"
-        >
-          <Table>
+        <div>
+          <Table
+            style={{
+              width: table.getTotalSize(),
+              minWidth: "100%",
+              // tableLayout: "fixed",
+            }}
+          >
             <TableHeader>
               {table.getHeaderGroups().map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
@@ -331,9 +316,10 @@ export function TaskParametersTable() {
                     return (
                       <TableHead
                         key={header.id}
-                        className={`border border-slate-400 bg-slate-200 p-1 h-9 ${
-                          header.id === "select" && "w-3"
-                        }`}
+                        className="relative border h-9 py-0 px-1 border-slate-400 bg-slate-200"
+                        style={{
+                          width: `${header.getSize()}px`,
+                        }}
                       >
                         {header.isPlaceholder
                           ? null
@@ -341,7 +327,6 @@ export function TaskParametersTable() {
                               header.column.columnDef.header,
                               header.getContext()
                             )}
-                        {/* Example: Checkbox for selecting all rows */}
                         {header.id === "select" && (
                           <Checkbox
                             checked={
@@ -350,17 +335,29 @@ export function TaskParametersTable() {
                                 "indeterminate")
                             }
                             onCheckedChange={(value) => {
-                              // Toggle all page rows selected
                               table.toggleAllPageRowsSelected(!!value);
                               const selectedRows = table
                                 .getSelectedRowModel()
                                 .rows.map((row) => row.original);
                               console.log(selectedRows, "aaaaaaaa");
                               handleRowsSelection(data);
-                              // setSelected(selectedRows);
                             }}
-                            className="mr-1 mt-1"
+                            className="m-1"
                             aria-label="Select all"
+                          />
+                        )}
+                        {header.id !== "select" && (
+                          <div
+                            {...{
+                              onDoubleClick: () => header.column.resetSize(),
+                              onMouseDown: header.getResizeHandler(),
+                              onTouchStart: header.getResizeHandler(),
+                              className: `absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2`,
+                              style: {
+                                userSelect: "none",
+                                touchAction: "none",
+                              },
+                            }}
                           />
                         )}
                       </TableHead>
@@ -374,7 +371,7 @@ export function TaskParametersTable() {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-[7rem] text-center"
+                    className="h-[16rem] text-center"
                   >
                     <l-tailspin
                       size="40"
@@ -391,10 +388,17 @@ export function TaskParametersTable() {
                     data-state={row.getIsSelected() && "selected"}
                   >
                     {row.getVisibleCells().map((cell, index) => (
-                      <TableCell key={cell.id} className="border p-1 h-8">
+                      <TableCell
+                        key={cell.id}
+                        className="border py-0 px-1"
+                        style={{
+                          width: cell.column.getSize(),
+                          minWidth: cell.column.columnDef.minSize,
+                        }}
+                      >
                         {index === 0 ? (
                           <Checkbox
-                            className=""
+                            className="m-1"
                             checked={row.getIsSelected()}
                             onCheckedChange={(value) =>
                               row.toggleSelected(!!value)
@@ -411,11 +415,25 @@ export function TaskParametersTable() {
                     ))}
                   </TableRow>
                 ))
+              ) : isLoading ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-[16rem] text-center"
+                  >
+                    <l-tailspin
+                      size="40"
+                      stroke="5"
+                      speed="0.9"
+                      color="black"
+                    ></l-tailspin>
+                  </TableCell>
+                </TableRow>
               ) : (
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-24 text-center"
+                    className="h-[16rem] text-center"
                   >
                     No results.
                   </TableCell>
@@ -429,11 +447,6 @@ export function TaskParametersTable() {
             {table.getFilteredSelectedRowModel().rows.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
-          {/* <Pagination5
-            currentPage={page}
-            setCurrentPage={setPage}
-            totalPageNumbers={totalPage2 as number}
-          /> */}
         </div>
       </div>
     </div>
