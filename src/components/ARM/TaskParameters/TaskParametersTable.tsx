@@ -342,7 +342,6 @@ export function TaskParametersTable() {
                               console.log(selectedRows, "aaaaaaaa");
                               handleRowsSelection(data);
                             }}
-                            className="m-1"
                             aria-label="Select all"
                           />
                         )}
@@ -398,7 +397,7 @@ export function TaskParametersTable() {
                       >
                         {index === 0 ? (
                           <Checkbox
-                            className="m-1"
+                            className="mt-1"
                             checked={row.getIsSelected()}
                             onCheckedChange={(value) =>
                               row.toggleSelected(!!value)
