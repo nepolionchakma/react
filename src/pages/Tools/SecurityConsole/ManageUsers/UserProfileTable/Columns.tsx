@@ -1,31 +1,33 @@
 import { IProfilesType } from "@/types/interfaces/users.interface";
-import { Checkbox } from "@radix-ui/react-checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 export const columns: ColumnDef<IProfilesType>[] = [
   {
     id: "select",
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
+    size: 24,
+    minSize: 24,
+    maxSize: 24,
+    enableSorting: false,
+    enableHiding: false,
+    enableResizing: false,
   },
   {
     accessorKey: "profile_type",
     header: "Profile Type",
-    cell: ({ row }) => <div>{row.getValue("profile_type")}</div>,
+    cell: ({ row }) => (
+      <div className="min-w-[20rem]">{row.getValue("profile_type")}</div>
+    ),
   },
   {
     accessorKey: "profile_id",
     header: "Profile Id",
-    cell: ({ row }) => <div>{row.getValue("profile_id")}</div>,
+    cell: ({ row }) => (
+      <div className="min-w-[35rem]">{row.getValue("profile_id")}</div>
+    ),
   },
   {
     accessorKey: "primary_yn",
     header: () => {
-      return <div className="w-5 text-center">Primary</div>;
+      return <div className="text-center min-w-[10rem]">Primary</div>;
     },
     cell: ({ row }) => {
       const primary: string = row.getValue("primary_yn");

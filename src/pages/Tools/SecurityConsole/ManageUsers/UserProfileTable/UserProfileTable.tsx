@@ -133,13 +133,13 @@ export function UserProfileTable({
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    columnResizeMode: "onChange",
     initialState: {
       pagination: {
         pageSize: 20,
@@ -278,7 +278,13 @@ export function UserProfileTable({
       </div>
       {/* Table */}
       <div className="rounded-md border">
-        <Table>
+        <Table
+          style={{
+            width: table.getTotalSize(),
+            minWidth: "100%",
+            // tableLayout: "fixed",
+          }}
+        >
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
@@ -286,9 +292,10 @@ export function UserProfileTable({
                   return (
                     <TableHead
                       key={header.id}
-                      className={`border border-slate-400 bg-slate-200 p-1 h-9 ${
-                        header.id === "select" ? "w-6" : ""
-                      }`}
+                      style={{
+                        width: `${header.getSize()}px`,
+                      }}
+                      className={`relative border border-slate-400 bg-slate-200 p-1 h-9`}
                     >
                       {header.isPlaceholder
                         ? null
@@ -317,6 +324,20 @@ export function UserProfileTable({
                           }}
                           className="mr-1"
                           aria-label="Select all"
+                        />
+                      )}
+                      {header.id !== "select" && (
+                        <div
+                          {...{
+                            onDoubleClick: () => header.column.resetSize(),
+                            onMouseDown: header.getResizeHandler(),
+                            onTouchStart: header.getResizeHandler(),
+                            className: `absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2`,
+                            style: {
+                              userSelect: "none",
+                              touchAction: "none",
+                            },
+                          }}
                         />
                       )}
                     </TableHead>
@@ -349,6 +370,10 @@ export function UserProfileTable({
                   {row.getVisibleCells().map((cell, index) => (
                     <TableCell
                       key={cell.id}
+                      style={{
+                        width: cell.column.getSize(),
+                        minWidth: cell.column.columnDef.minSize,
+                      }}
                       className={`border p-1 h-8 ${index === 0 && "w-3"}`}
                     >
                       {index === 0 ? (
