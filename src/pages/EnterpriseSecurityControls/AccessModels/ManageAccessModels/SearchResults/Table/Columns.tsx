@@ -40,7 +40,9 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="capitalize px-1">{row.getValue("model_name")}</div>
+      <div className="capitalize px-1 min-w-max">
+        {row.getValue("model_name")}
+      </div>
     ),
   },
   {
@@ -58,7 +60,7 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
     enableResizing: true,
     header: "Type",
     cell: ({ row }) => (
-      <div className="capitalize px-1">{row.getValue("type")}</div>
+      <div className="capitalize px-1 min-w-max">{row.getValue("type")}</div>
     ),
   },
   {
@@ -66,7 +68,9 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
     enableResizing: true,
     header: "Status",
     cell: ({ row }) => (
-      <div className="px-1 capitalize">{row.getValue("run_status")}</div>
+      <div className="px-1 capitalize min-w-max">
+        {row.getValue("run_status")}
+      </div>
     ),
   },
   {
@@ -75,23 +79,29 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
     header: "Last Run Date",
     cell: ({ row }) => {
       const date = new Date(row.getValue("last_run_date")).toLocaleString();
-      return <div className="capitalize px-1">{date}</div>;
+      return <div className="capitalize px-1 min-w-max">{date}</div>;
     },
   },
   {
     accessorKey: "created_by",
     enableResizing: true,
+    minSize: 100,
     header: " Created By",
     cell: ({ row }) => (
-      <div className="capitalize px-1">{row.getValue("created_by")}</div>
+      <div className="capitalize px-1 min-w-max">
+        {row.getValue("created_by")}
+      </div>
     ),
   },
   {
     accessorKey: "last_updated_by",
     enableResizing: true,
+    minSize: 140,
     header: "Last Updated By",
     cell: ({ row }) => (
-      <div className="capitalize px-1">{row.getValue("last_updated_by")}</div>
+      <div className="capitalize px-1 min-w-max">
+        {row.getValue("last_updated_by")}
+      </div>
     ),
   },
   {
@@ -101,7 +111,7 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
     cell: ({ row }) => {
       const data: string = row.getValue("last_updated_date");
       const date = new Date(data).toLocaleString();
-      return <div className="capitalize px-1">{date}</div>;
+      return <div className="capitalize px-1 min-w-max">{date}</div>;
     },
   },
   {
@@ -109,7 +119,9 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
     enableResizing: true,
     header: "Revision",
     cell: ({ row }) => (
-      <div className="capitalize px-1">{row.getValue("revision")}</div>
+      <div className="capitalize px-1 min-w-max">
+        {row.getValue("revision")}
+      </div>
     ),
   },
   {
@@ -119,7 +131,7 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
     cell: ({ row }) => {
       const data: string = row.getValue("revision_date");
       const date = new Date(data).toLocaleString();
-      return <div className="capitalize px-1">{date}</div>;
+      return <div className="capitalize px-1 min-w-max">{date}</div>;
     },
   },
 ];
