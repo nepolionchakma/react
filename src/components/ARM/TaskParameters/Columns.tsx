@@ -40,9 +40,33 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
     accessorKey: "data_type",
     enableResizing: true,
     header: "Data Type",
-    cell: ({ row }) => (
-      <div className="capitalize min-w-[5rem]">{row.getValue("data_type")}</div>
-    ),
+
+    cell: ({ row }) => {
+      // const value = ;
+      const convertString = (value: string) => {
+        switch (value.toLowerCase()) {
+          case "integer":
+            return "Number";
+          case "string":
+            return "Text";
+          case "varchar":
+            return "Text";
+          case "boolean":
+            return "Boolean";
+          case "datetime":
+            return "Date and Time";
+          case "interval":
+            return "Interval";
+        }
+      };
+
+      return (
+        <div className=" min-w-max capitalize">
+          {convertString(row.getValue("data_type"))}{" "}
+        </div>
+      );
+    },
+
   },
   {
     accessorKey: "created_by",

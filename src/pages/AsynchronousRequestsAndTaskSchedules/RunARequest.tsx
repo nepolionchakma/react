@@ -1,7 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -11,7 +10,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
 import {
   Form,
   FormControl,
@@ -31,7 +29,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
-import { IARMAsynchronousTasksTypes } from "@/types/interfaces/ARM.interface";
+import {
+  IARMAsynchronousTasksParametersTypes,
+  IARMAsynchronousTasksTypes,
+} from "@/types/interfaces/ARM.interface";
+import { ChevronDownIcon } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 const RunARequest = () => {
   const api = useAxiosPrivate();
@@ -41,9 +49,16 @@ const RunARequest = () => {
   const [asyncTaskNames, setAsyncTaskNames] = useState<
     IARMAsynchronousTasksTypes[] | undefined
   >(undefined);
-  const [parameters, setParameters] = useState<Record<string, string | number>>(
-    {}
-  );
+  const [parameters, setParameters] = useState<
+    Record<string, string | number | boolean>
+  >({});
+  const [parameterArray, setParameterArray] = useState<
+    IARMAsynchronousTasksParametersTypes[] | undefined
+  >([]);
+  const [open, setOpen] = useState(false);
+  const [date, setDate] = useState<Date | undefined>(undefined);
+
+  console.log(parameters, parameterArray);
 
   useEffect(() => {
     const fetchAsyncTasks = async () => {
@@ -72,7 +87,7 @@ const RunARequest = () => {
 
   const FormSchema = z.object({
     task_name: z.string(),
-    parameters: z.record(z.union([z.string(), z.number()])),
+    parameters: z.record(z.union([z.string(), z.number(), z.boolean()])),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -121,6 +136,7 @@ const RunARequest = () => {
       const updatedParameters: Record<string, string | number> = {};
 
       if (results) {
+        setParameterArray(results);
         results.forEach((item) => {
           updatedParameters[item.parameter_name] =
             item.data_type.toLowerCase() === "integer" ? 0 : "";
@@ -213,38 +229,117 @@ const RunARequest = () => {
                   </TableCell>
                 </TableRow>
               ) : (
-                Object.entries(form.watch("parameters") || {}).map(
-                  ([key, value]) => (
-                    <TableRow key={key}>
-                      {!key.trim() ? (
-                        <TableCell className="border border-winter-400">
-                          Select a Task
-                        </TableCell>
-                      ) : (
-                        <>
-                          <TableCell className="border border-winter-100 p-2">
-                            {key}
-                          </TableCell>
-                          <TableCell className="border border-winter-100 p-2">
-                            <Input
-                              type="text"
-                              value={value}
-                              onChange={(e) =>
-                                form.setValue(
-                                  `parameters.${key}`,
-                                  typeof value === "number"
-                                    ? Number(e.target.value)
-                                    : e.target.value
-                                )
-                              }
-                              className="h-8"
-                            />
-                          </TableCell>
-                        </>
-                      )}
+                <>
+                  {parameterArray?.map((pm) => (
+                    <TableRow key={pm.parameter_name}>
+                      <TableCell className="border border-winter-100 p-2">
+                        {pm.parameter_name}
+                      </TableCell>
+                      <TableCell className="border border-winter-100 p-2">
+                        {(pm.data_type.toLowerCase() === "string" ||
+                          pm.data_type.toLowerCase() === "varchar" ||
+                          pm.data_type.toLowerCase() === "interval") && (
+                          <Input
+                            type="text"
+                            value={String(parameters[pm.parameter_name])}
+                            onChange={(e) =>
+                              setParameters((prev) => ({
+                                ...prev,
+                                [pm.parameter_name]: e.target.value,
+                              }))
+                            }
+                            className="h-8"
+                          />
+                        )}
+                        {pm.data_type.toLowerCase() === "integer" && (
+                          <Input
+                            type="number"
+                            value={Number(parameters[pm.parameter_name])}
+                            onChange={(e) =>
+                              setParameters((prev) => ({
+                                ...prev,
+                                [pm.parameter_name]: Number(e.target.value),
+                              }))
+                            }
+                            className="h-8"
+                          />
+                        )}
+                        {pm.data_type.toLowerCase() === "boolean" && (
+                          <Select
+                            value={String(parameters[pm.parameter_name])}
+                            onValueChange={(val) => {
+                              setParameters((prev) => ({
+                                ...prev,
+                                [pm.parameter_name]:
+                                  val === "true"
+                                    ? true
+                                    : val === "false"
+                                    ? false
+                                    : val,
+                              }));
+                            }}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a value" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="true">True</SelectItem>
+                              <SelectItem value="false">False</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        )}
+
+                        {pm.data_type.toLowerCase() === "datetime" && (
+                          <div className="flex gap-4">
+                            <div className="flex flex-col gap-3">
+                              <Popover open={open} onOpenChange={setOpen}>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    id="date-picker"
+                                    className="w-32 justify-between font-normal"
+                                  >
+                                    {date
+                                      ? date.toLocaleDateString()
+                                      : "Select date"}
+                                    <ChevronDownIcon />
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverContent
+                                  className="w-auto overflow-hidden p-0"
+                                  align="start"
+                                >
+                                  <Calendar
+                                    mode="single"
+                                    selected={date}
+                                    captionLayout="dropdown"
+                                    onSelect={(date) => {
+                                      setDate(date);
+                                      setOpen(false);
+                                      setParameters((prev) => ({
+                                        ...prev,
+                                        [pm.parameter_name]: String(date),
+                                      }));
+                                    }}
+                                  />
+                                </PopoverContent>
+                              </Popover>
+                            </div>
+                            <div className="flex flex-col gap-3">
+                              <Input
+                                type="time"
+                                id="time-picker"
+                                step="1"
+                                defaultValue="00:00:00"
+                                className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </TableCell>
                     </TableRow>
-                  )
-                )
+                  ))}
+                </>
               )}
             </TableBody>
           </Table>
