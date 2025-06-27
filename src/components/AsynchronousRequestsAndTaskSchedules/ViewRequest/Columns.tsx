@@ -18,18 +18,6 @@ export const columns = (
   clickedRowId: string,
   setClickedRowId: (row: string) => void
 ): ColumnDef<IARMViewRequestsTypes>[] => [
-  // {
-  //   id: "select",
-  //   cell: ({ row }) => (
-  //     <Checkbox
-  //       checked={row.getIsSelected()}
-  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
-  //       aria-label="Select row"
-  //     />
-  //   ),
-  //   enableSorting: false,
-  //   enableHiding: false,
-  // },
   {
     accessorKey: "request_id",
     enableResizing: true,
@@ -50,7 +38,7 @@ export const columns = (
     accessorKey: "status",
     enableResizing: true,
     header: () => {
-      return <div>Status</div>;
+      return <div className="min-w-max">Status</div>;
     },
     cell: ({ row }) => {
       const data: string = row.getValue("status");
@@ -69,7 +57,7 @@ export const columns = (
     header: ({ column }) => {
       return (
         <div
-          className="min-w-[20rem]"
+          className="min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           User Task Name
@@ -78,7 +66,7 @@ export const columns = (
       );
     },
     cell: ({ row }) => (
-      <div className="min-w-[20rem]">{row.getValue("user_task_name")}</div>
+      <div className="min-w-max">{row.getValue("user_task_name")}</div>
     ),
   },
   {
@@ -105,7 +93,7 @@ export const columns = (
       const isExpanded = expandedRow === row.id;
       const user_schedule_name: string = row.getValue("user_schedule_name");
       return (
-        <div className="flex items-center gap-2 min-w-[25rem]">
+        <div className="flex items-center gap-2 min-w-max">
           <button
             disabled={
               !user_schedule_name || user_schedule_name === "" ? true : false
