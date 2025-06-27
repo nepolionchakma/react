@@ -243,7 +243,6 @@ export function EnterpriseDataTable({
                           )}
                       {header.id === "select" && (
                         <Checkbox
-                          className="m-1"
                           checked={isSelectAll}
                           onClick={handleSelectAll}
                           aria-label="Select all"
@@ -301,7 +300,7 @@ export function EnterpriseDataTable({
                     >
                       {index === 0 ? (
                         <Checkbox
-                          className="m-1"
+                          className="mt-1"
                           checked={selectedIds.includes(row.original.tenant_id)}
                           onClick={() => handleRowSelection(row.original)}
                         />
