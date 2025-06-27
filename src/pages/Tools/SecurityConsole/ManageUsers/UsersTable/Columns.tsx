@@ -1,37 +1,46 @@
 import { IUsersInfoTypes } from "@/types/interfaces/users.interface";
-import { Checkbox } from "@radix-ui/react-checkbox";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 export const columns: ColumnDef<IUsersInfoTypes>[] = [
   {
     id: "select",
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
+    size: 24,
+    minSize: 24,
+    maxSize: 24,
     enableSorting: false,
     enableHiding: false,
+    enableResizing: false,
   },
   {
     accessorKey: "user_name",
-    header: "Username",
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    // header: "Username",
+    header: ({ column }) => {
+      return (
+        <div
+          className="min-w-max"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Username
+          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
+        </div>
+      );
+    },
+
     cell: ({ row }) => <div>{row.getValue("user_name")}</div>,
   },
 
   {
     accessorKey: "email_addresses",
-    header: ({ column }) => {
+    header: () => {
       return (
-        <div
-          className="flex items-center"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Email Addresses
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </div>
+        <div className="flex items-center min-w-[20rem]">Email Addresses</div>
       );
     },
     cell: ({ row }) => {
@@ -44,33 +53,27 @@ export const columns: ColumnDef<IUsersInfoTypes>[] = [
   },
   {
     accessorKey: "first_name",
-    header: ({ column }) => {
-      return (
-        <div
-          className="flex items-center"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          First Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </div>
-      );
+    header: () => {
+      return <div className="flex items-center min-w-max">First Name</div>;
     },
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("first_name")}</div>
+      <div className="capitalize min-w-max">{row.getValue("first_name")}</div>
     ),
   },
   {
     accessorKey: "last_name",
     header: "Last Name",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("last_name")}</div>
+      <div className="capitalize min-w-[5rem]">{row.getValue("last_name")}</div>
     ),
   },
   {
     accessorKey: "job_title",
     header: "Job Title",
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("job_title")}</div>
+      <div className="capitalize min-w-[18rem]">
+        {row.getValue("job_title")}
+      </div>
     ),
   },
 ];

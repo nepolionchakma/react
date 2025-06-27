@@ -526,7 +526,6 @@ const ManageDataSources = () => {
                           )}
                       {header.id === "select" && (
                         <Checkbox
-                          className="m-1"
                           checked={isSelectAll}
                           onClick={handleSelectAll}
                           aria-label="Select all"
@@ -584,7 +583,7 @@ const ManageDataSources = () => {
                     >
                       {index === 0 ? (
                         <Checkbox
-                          className="m-1"
+                          className="mt-1"
                           checked={selectedIds.includes(
                             row.original.def_data_source_id
                           )}

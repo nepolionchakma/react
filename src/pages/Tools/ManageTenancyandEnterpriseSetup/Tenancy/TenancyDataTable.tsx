@@ -1,6 +1,7 @@
 import * as React from "react";
 import {
   ColumnFiltersState,
+  ColumnSizingState,
   SortingState,
   VisibilityState,
   flexRender,
@@ -71,6 +72,7 @@ export function TenancyDataTable({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [colSizing, setColSizing] = React.useState<ColumnSizingState>({});
 
   React.useEffect(() => {
     if (selectedTenancyRows.length !== data.length || data.length === 0) {
@@ -98,10 +100,12 @@ export function TenancyDataTable({
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    onColumnSizingChange: setColSizing,
     columnResizeMode: "onChange",
 
     state: {
       sorting,
+      columnSizing: colSizing,
       columnFilters,
       columnVisibility,
       rowSelection,
@@ -242,7 +246,6 @@ export function TenancyDataTable({
                           )}
                       {header.id === "select" && (
                         <Checkbox
-                          className="m-1"
                           checked={isSelectAll}
                           onClick={handleSelectAll}
                           aria-label="Select all"
@@ -300,7 +303,7 @@ export function TenancyDataTable({
                     >
                       {index === 0 ? (
                         <Checkbox
-                          className="m-1"
+                          className="mt-1"
                           checked={selectedIds.includes(row.original.tenant_id)}
                           onClick={() => handleRowSelection(row.original)}
                         />
