@@ -23,7 +23,6 @@ import { useManageAccessEntitlementsContext } from "@/Context/ManageAccessEntitl
 import columns from "./Columns";
 import RelationAccessPoint from "./RelationAccessPoint";
 import Spinner from "@/components/Spinner/Spinner";
-import Pagination5 from "@/components/Pagination/Pagination5";
 
 const AccessPointsEditModal = () => {
   const {
@@ -33,9 +32,6 @@ const AccessPointsEditModal = () => {
     isLoadingAccessPoints,
     isLoading,
     setSelectedAccessEntitlementElements,
-    page,
-    setPage,
-    totalPage,
   } = useManageAccessEntitlementsContext();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -45,17 +41,11 @@ const AccessPointsEditModal = () => {
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  // React.useEffect(() => {
-  //   fetchAccessPointsEntitlement(selected[0]);
-  //   // setLimit(10);
-  // }, [page, limit]);
-
   const table = useReactTable({
     data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
-
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -67,6 +57,10 @@ const AccessPointsEditModal = () => {
       columnFilters,
       columnVisibility,
       rowSelection,
+      pagination: {
+        pageIndex: 0,
+        pageSize: data.length,
+      },
     },
   });
   const handleSelectItem = (accessPointIds: number) => {
@@ -89,7 +83,7 @@ const AccessPointsEditModal = () => {
     table.toggleAllRowsSelected(false);
     //set number of selected rows
     setSelectedAccessEntitlementElements([]);
-  }, [page, totalPage, isLoadingAccessPoints, data.length]);
+  }, [isLoadingAccessPoints, data.length]);
 
   return (
     <div className="">
@@ -97,8 +91,8 @@ const AccessPointsEditModal = () => {
         <div className="mb-4">
           <RelationAccessPoint tableRow={tableRow} />
         </div>
-        <div className="rounded-md border">
-          <div className="h-[13rem]">
+        <div className="rounded-md">
+          <div className="max-h-[13rem] overflow-auto">
             <Table>
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
@@ -207,16 +201,9 @@ const AccessPointsEditModal = () => {
               </TableBody>
             </Table>
           </div>
-          <div className="flex justify-between p-1">
-            <div className="flex-1 text-sm text-gray-600">
-              {table.getFilteredSelectedRowModel().rows.length} of{" "}
-              {table.getFilteredRowModel().rows.length} row(s) selected.
-            </div>
-            <Pagination5
-              currentPage={page}
-              setCurrentPage={setPage}
-              totalPageNumbers={totalPage as number}
-            />
+          <div className="flex-1 text-sm text-gray-600 mt-4">
+            {table.getFilteredSelectedRowModel().rows.length} of{" "}
+            {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
         </div>
       </div>

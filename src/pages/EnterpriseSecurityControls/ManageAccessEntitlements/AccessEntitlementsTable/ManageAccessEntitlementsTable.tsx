@@ -49,7 +49,7 @@ const ManageAccessEntitlementsTable = () => {
   const {
     save,
     setTable,
-    setLimit,
+
     selectedAccessEntitlements,
     setSelectedAccessEntitlements,
     setFilteredData,
@@ -131,7 +131,6 @@ const ManageAccessEntitlementsTable = () => {
     if (selectedAccessEntitlements.def_entitlement_id !== 0) {
       fetchAccessPointsEntitlement(selectedAccessEntitlements);
       setSelectedManageAccessEntitlements(selectedAccessEntitlements);
-      setLimit(5);
     } else {
       setSelectedManageAccessEntitlements({} as IManageAccessEntitlementsTypes);
       fetchAccessPointsEntitlement({} as IManageAccessEntitlementsTypes);

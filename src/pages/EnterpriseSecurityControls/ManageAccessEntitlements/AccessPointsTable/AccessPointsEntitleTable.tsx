@@ -12,7 +12,7 @@ import {
 import { ChevronDown, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import Pagination5 from "@/components/Pagination/Pagination5";
+// import Pagination5 from "@/components/Pagination/Pagination5";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -34,43 +34,41 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useLocation } from "react-router-dom";
 import columns from "./Columns";
 
-import Rows from "@/components/Rows/Rows";
+// import Rows from "@/components/Rows/Rows";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
+import { api } from "@/Api/Api";
+import {
+  IFetchAccessEntitlementElementsTypes,
+  IFetchAccessPointsElementTypes,
+  IFetchCombinedAccessPointsElementAndDatasourceTypes,
+} from "@/types/interfaces/ManageAccessEntitlements.interface";
 
 const AccessPointsEntitleTable = () => {
   // Global Context and Location
   const location = useLocation();
   const { setIsOpenModal } = useGlobalContext();
   const {
-    filteredData: data,
     isLoadingAccessPoints,
     selectedManageAccessEntitlements,
     fetchAccessPointsEntitlement,
     selectedAccessEntitlements,
     save2,
-
     setAccessPointStatus,
     page,
     setPage,
     totalPage,
-    limit,
-    isLoading,
-    setLimit,
   } = useManageAccessEntitlementsContext();
-  console.log(data, "data");
+
   // State Hooks
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
+  const [data, setData] = useState<IFetchAccessPointsElementTypes[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  console.log(
-    selectedManageAccessEntitlements,
-    "manageaccess",
-    selectedAccessEntitlements,
-    "access"
-  );
+  console.log(data);
 
   // Table Initialization
   const table = useReactTable({
@@ -92,23 +90,61 @@ const AccessPointsEntitleTable = () => {
       rowSelection,
       pagination: {
         pageIndex: 0,
-        pageSize: limit,
+        pageSize: data.length,
       },
     },
   });
+  console.log(selectedAccessEntitlements);
 
   // Effect: Fetch Data when relevant parameters change
   useEffect(() => {
-    if (selectedAccessEntitlements.def_entitlement_id !== 0) {
-      fetchAccessPointsEntitlement(selectedAccessEntitlements);
+    if (selectedAccessEntitlements.def_entitlement_id === 0) {
+      setData([]);
+    } else {
+      const fetchAcessPointsData = async () => {
+        try {
+          setIsLoading(true);
+          if (selectedAccessEntitlements.def_entitlement_id) {
+            const response = await api.get<
+              IFetchAccessEntitlementElementsTypes[]
+            >(
+              `/access-entitlement-elements/${selectedAccessEntitlements.def_entitlement_id}`
+            );
+
+            const accessPointsId = response.data.map(
+              (data) => data.access_point_id
+            );
+
+            if (accessPointsId.length === 0) {
+              setData([]);
+            } else {
+              const filterAccessPointsById = await api.get(
+                `/def-access-point-elements/accesspoints?accessPointsId=${accessPointsId}`
+              );
+
+              console.log(filterAccessPointsById, "access point data");
+
+              setData(
+                filterAccessPointsById.data as IFetchCombinedAccessPointsElementAndDatasourceTypes[]
+              );
+            }
+          } else {
+            setData([]);
+          }
+        } catch (error) {
+          console.log(error);
+        } finally {
+          setIsLoading(false);
+        }
+      };
+
+      fetchAcessPointsData();
     }
   }, [
     location,
     save2,
-    page,
-    limit,
     isLoadingAccessPoints,
-    selectedAccessEntitlements,
+    selectedAccessEntitlements.def_entitlement_id,
     fetchAccessPointsEntitlement,
   ]);
 
@@ -135,7 +171,7 @@ const AccessPointsEntitleTable = () => {
 
   // Table Rendering
   return (
-    <div className="px-3">
+    <div className="px-3 ">
       {/* Header Section */}
       <div className="flex items-center justify-between py-2">
         <div className="flex gap-2">
@@ -190,7 +226,7 @@ const AccessPointsEntitleTable = () => {
         </div>
         <div className="flex gap-2">
           {/**Rows */}
-          <Rows limit={limit} setLimit={setLimit} />
+          {/* <Rows limit={limit} setLimit={setLimit} /> */}
 
           {/* Dropdown for Column Visibility */}
           <DropdownMenu>
@@ -331,11 +367,11 @@ const AccessPointsEntitleTable = () => {
             {table.getFilteredSelectedRowModel().rows.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div> */}
-          <Pagination5
+          {/* <Pagination5
             currentPage={page}
             setCurrentPage={setPage}
             totalPageNumbers={totalPage as number}
-          />
+          /> */}
         </div>
       </div>
     </div>

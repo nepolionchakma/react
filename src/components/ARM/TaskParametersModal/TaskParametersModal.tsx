@@ -43,6 +43,7 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
   const { selectedTask, setChangeState } = useARMContext();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
+  console.log(selected);
   const FormSchema = z.object({
     parameter_name: z.string(),
     data_type: z.string(),
@@ -65,6 +66,8 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
           },
   });
   const { reset } = form;
+
+  console.log(selected);
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     const postData = {
@@ -202,16 +205,22 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
                         <Select
                           required
                           onValueChange={field.onChange}
-                          defaultValue={field.value}
+                          value={field.value.toLowerCase()}
                         >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select Data Type" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
-                            <SelectItem value="VARCHAR">VARCHAR</SelectItem>
-                            <SelectItem value="integer">Integer</SelectItem>
+                          <SelectContent className="max-h-[10rem] overflow-auto">
+                            <SelectItem value="varchar">Text</SelectItem>
+                            <SelectItem value="string">{`Text (String)`}</SelectItem>
+                            <SelectItem value="integer">Number</SelectItem>
+                            <SelectItem value="boolean">Boolean</SelectItem>
+                            <SelectItem value="datetime">
+                              Date and Time
+                            </SelectItem>
+                            <SelectItem value="interval">Interval</SelectItem>
                           </SelectContent>
                         </Select>
                       </FormControl>
