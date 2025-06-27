@@ -15,18 +15,16 @@ export const columns: ColumnDef<ITenantsTypes>[] = [
   {
     accessorKey: "tenant_id",
     enableResizing: true,
-    size: 300,
-    minSize: 40,
     header: "Tenant Id",
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">{row.getValue("tenant_id")}</div>
+      <div className="capitalize min-w-[25rem]">
+        {row.getValue("tenant_id")}
+      </div>
     ),
   },
   {
     accessorKey: "tenant_name",
     enableResizing: true,
-    size: 800,
-    minSize: 400,
     sortingFn: (rowA, rowB, columnId) => {
       const a = rowA.getValue(columnId) as string;
       const b = rowB.getValue(columnId) as string;
@@ -45,7 +43,9 @@ export const columns: ColumnDef<ITenantsTypes>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">{row.getValue("tenant_name")}</div>
+      <div className="capitalize min-w-[40rem]">
+        {row.getValue("tenant_name")}
+      </div>
     ),
   },
 ];

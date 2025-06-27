@@ -294,6 +294,7 @@ export function UserProfileTable({
                       key={header.id}
                       style={{
                         width: `${header.getSize()}px`,
+                        maxWidth: header.id === "select" ? "10px" : "",
                       }}
                       className={`relative border border-slate-400 bg-slate-200 p-1 h-9`}
                     >

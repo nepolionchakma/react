@@ -1,28 +1,10 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "@/components/ui/checkbox";
 import { IEnterprisesTypes } from "@/types/interfaces/users.interface";
 import { ArrowUpDown } from "lucide-react";
 
 export const columns: ColumnDef<IEnterprisesTypes>[] = [
   {
     id: "select",
-    // header: ({ table }) => (
-    //   <Checkbox
-    //     checked={
-    //       table.getIsAllPageRowsSelected() ||
-    //       (table.getIsSomePageRowsSelected() && "indeterminate")
-    //     }
-    //     onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-    //     aria-label="Select all"
-    //   />
-    // ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
     size: 24,
     minSize: 24,
     maxSize: 24,
@@ -42,7 +24,7 @@ export const columns: ColumnDef<IEnterprisesTypes>[] = [
     header: ({ column }) => {
       return (
         <div
-          className="flex items-center"
+          className="min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Tenancy Name
@@ -51,9 +33,7 @@ export const columns: ColumnDef<IEnterprisesTypes>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="capitalize min-w-[10rem]">
-        {row.getValue("tenant_name")}
-      </div>
+      <div className="capitalize min-w-max">{row.getValue("tenant_name")}</div>
     ),
   },
   {
@@ -61,7 +41,7 @@ export const columns: ColumnDef<IEnterprisesTypes>[] = [
     enableResizing: true,
     header: "Enterprise Name",
     cell: ({ row }) => (
-      <div className="capitalize min-w-[10rem]">
+      <div className="capitalize min-w-[25rem]">
         {row.getValue("enterprise_name")}
       </div>
     ),
@@ -71,7 +51,7 @@ export const columns: ColumnDef<IEnterprisesTypes>[] = [
     enableResizing: true,
     header: "Enterprise Type",
     cell: ({ row }) => (
-      <div className="capitalize min-w-[10rem]">
+      <div className="capitalize min-w-[35rem]">
         {row.getValue("enterprise_type")}
       </div>
     ),
