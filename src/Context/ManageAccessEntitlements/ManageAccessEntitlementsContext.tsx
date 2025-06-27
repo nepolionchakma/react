@@ -232,7 +232,7 @@ export const ManageAccessEntitlementsProvider = ({
             setFilteredData([]);
           } else {
             const filterAccessPointsById = await api.get(
-              `/def-access-point-elements/accesspoints-id/${page}/${limit}?accessPointsId=${accessPointsId}`
+              `/def-access-point-elements/accesspoints?accessPointsId=${accessPointsId}`
             );
 
             const totalCount = response.data.length;
