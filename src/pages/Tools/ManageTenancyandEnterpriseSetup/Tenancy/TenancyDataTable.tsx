@@ -236,6 +236,7 @@ export function TenancyDataTable({
                       className={`relative border h-9 py-0 px-1 border-slate-400 bg-slate-200`}
                       style={{
                         width: `${header.getSize()}px`,
+                        maxWidth: header.id === "select" ? "10px" : undefined,
                       }}
                     >
                       {header.isPlaceholder
