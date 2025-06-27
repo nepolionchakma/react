@@ -23,7 +23,7 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
     enableResizing: true,
     header: " Entitlement ID",
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">
+      <div className="capitalize min-w-[7rem]">
         {row.getValue("def_entitlement_id")}
       </div>
     ),
@@ -57,6 +57,7 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
   {
     accessorKey: "description",
     enableResizing: true,
+    size: 600,
     header: "Description",
     cell: ({ row }) => (
       <div className="capitalize min-w-[20rem]">
@@ -121,7 +122,9 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
     enableResizing: true,
     header: "Created By",
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">{row.getValue("created_by")}</div>
+      <div className="capitalize min-w-[6rem]">
+        {row.getValue("created_by")}
+      </div>
     ),
   },
   {
@@ -138,7 +141,7 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
     enableResizing: true,
     header: "Last Updated By",
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">
+      <div className="capitalize min-w-[8rem]">
         {row.getValue("last_updated_by")}
       </div>
     ),

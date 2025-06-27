@@ -39,7 +39,7 @@ export const columns: ColumnDef<IExecutionMethodsTypes>[] = [
   {
     accessorKey: "internal_execution_method",
     enableResizing: true,
-    header: "Internal Execution Method",
+    header: () => <div className="min-w-max">Internal Execution Method</div>,
     cell: ({ row }) => (
       <div className="min-w-max my-1">
         {row.getValue("internal_execution_method")}
@@ -59,7 +59,7 @@ export const columns: ColumnDef<IExecutionMethodsTypes>[] = [
     enableResizing: true,
     header: "Description",
     cell: ({ row }) => (
-      <div className="min-w-[15rem]">{row.getValue("description")}</div>
+      <div className="min-w-[28rem]">{row.getValue("description")}</div>
     ),
   },
 ];

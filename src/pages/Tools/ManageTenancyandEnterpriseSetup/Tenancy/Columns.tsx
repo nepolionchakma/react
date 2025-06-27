@@ -15,7 +15,8 @@ export const columns: ColumnDef<ITenantsTypes>[] = [
   {
     accessorKey: "tenant_id",
     enableResizing: true,
-    // header: "Tenant Id",
+    size: 300,
+    minSize: 40,
     header: "Tenant Id",
     cell: ({ row }) => (
       <div className="capitalize min-w-max">{row.getValue("tenant_id")}</div>
@@ -24,6 +25,8 @@ export const columns: ColumnDef<ITenantsTypes>[] = [
   {
     accessorKey: "tenant_name",
     enableResizing: true,
+    size: 800,
+    minSize: 400,
     sortingFn: (rowA, rowB, columnId) => {
       const a = rowA.getValue(columnId) as string;
       const b = rowB.getValue(columnId) as string;
@@ -33,7 +36,7 @@ export const columns: ColumnDef<ITenantsTypes>[] = [
     header: ({ column }) => {
       return (
         <div
-          className="flex items-center"
+          className="flex items-center min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Tenant Name

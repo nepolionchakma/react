@@ -172,7 +172,7 @@ export const columns = (
     accessorKey: "created_by",
     header: "Created By",
     cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("created_by")}</div>
+      <div className="min-w-[5rem]">{row.getValue("created_by")}</div>
     ),
   },
   {
@@ -211,16 +211,6 @@ export const columns = (
       return <div className=" min-w-max">{date} </div>;
     },
   },
-  // {
-  //   accessorKey: "ready_for_redbeat",
-  //   header: () => {
-  //     return <div className="min-w-max">Ready for Redbeat</div>;
-  //   },
-  //   cell: ({ row }) => {
-  //     const data: string = row.getValue("ready_for_redbeat");
-  //     return <div className=" min-w-max">{data} </div>;
-  //   },
-  // },
   {
     accessorKey: "cancelled_yn",
     enableResizing: true,

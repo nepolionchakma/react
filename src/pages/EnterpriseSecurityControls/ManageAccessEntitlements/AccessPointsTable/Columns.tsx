@@ -46,7 +46,7 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
   {
     accessorKey: "dataSource",
     enableResizing: true,
-    header: "Data Source",
+    header: "Datasource",
     cell: ({ row }) => {
       const dataSource: IDataSourceTypes = row.getValue("dataSource");
       return (
@@ -69,14 +69,16 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
     enableResizing: true,
     header: "Element Type",
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">{row.getValue("element_type")}</div>
+      <div className="capitalize min-w-[8rem]">
+        {row.getValue("element_type")}
+      </div>
     ),
   },
   {
     accessorKey: "access_control",
     header: "Access Control",
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">
+      <div className="capitalize min-w-[8rem]">
         {row.getValue("access_control") === "true" ? <Check /> : <X />}
       </div>
     ),
@@ -85,7 +87,7 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
     accessorKey: "change_control",
     header: "Change Control",
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">
+      <div className="capitalize min-w-[8rem]">
         {row.getValue("change_control")}
       </div>
     ),
