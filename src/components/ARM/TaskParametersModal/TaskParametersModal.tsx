@@ -214,7 +214,7 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
                           </FormControl>
                           <SelectContent className="max-h-[10rem] overflow-auto">
                             <SelectItem value="varchar">Text</SelectItem>
-                            <SelectItem value="string">{`Text (String)`}</SelectItem>
+                            {/* <SelectItem value="string">{`Text (String)`}</SelectItem> */}
                             <SelectItem value="integer">Number</SelectItem>
                             <SelectItem value="boolean">Boolean</SelectItem>
                             <SelectItem value="datetime">
