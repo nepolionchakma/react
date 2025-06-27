@@ -15,7 +15,7 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
     enableResizing: true,
     header: "Parameter Name",
     cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("parameter_name")}</div>
+      <div className="min-w-[15rem]">{row.getValue("parameter_name")}</div>
     ),
   },
   {
@@ -31,7 +31,7 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
     enableResizing: true,
     header: "Description",
     cell: ({ row }) => (
-      <div className="min-w-[25rem] capitalize">
+      <div className="min-w-[40rem] capitalize">
         {row.getValue("description")}
       </div>
     ),
@@ -40,6 +40,7 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
     accessorKey: "data_type",
     enableResizing: true,
     header: "Data Type",
+
     cell: ({ row }) => {
       // const value = ;
       const convertString = (value: string) => {
@@ -65,13 +66,14 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
         </div>
       );
     },
+
   },
   {
     accessorKey: "created_by",
     enableResizing: true,
     header: "Created By",
     cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("created_by")}</div>
+      <div className="min-w-[5rem]">{row.getValue("created_by")}</div>
     ),
   },
   {
@@ -79,7 +81,7 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
     enableResizing: true,
     header: "Last Updated By",
     cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("last_updated_by")}</div>
+      <div className="min-w-[8rem]">{row.getValue("last_updated_by")}</div>
     ),
   },
   {

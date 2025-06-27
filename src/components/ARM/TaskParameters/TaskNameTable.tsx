@@ -64,15 +64,16 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("user_task_name")}</div>
+      <div className="min-w-[30rem]">{row.getValue("user_task_name")}</div>
     ),
   },
   {
     accessorKey: "task_name",
     enableResizing: true,
+    size: 400,
     header: "Task Name",
     cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("task_name")}</div>
+      <div className="min-w-[35rem]">{row.getValue("task_name")}</div>
     ),
   },
 ];
@@ -310,7 +311,7 @@ export function TaskNameTable() {
                       >
                         {index === 0 ? (
                           <Checkbox
-                            className="m-1"
+                            className="mt-1"
                             checked={row.getIsSelected()}
                             onCheckedChange={(value) => {
                               if (value) {

@@ -49,7 +49,7 @@ const columns: ColumnDef<IControlsTypes>[] = [
     enableResizing: true,
     header: "Description",
     cell: ({ row }) => (
-      <div className="capitalize w-[20rem]">{row.getValue("description")}</div>
+      <div className="capitalize w-[30rem]">{row.getValue("description")}</div>
     ),
   },
   {

@@ -15,10 +15,11 @@ export const columns: ColumnDef<ITenantsTypes>[] = [
   {
     accessorKey: "tenant_id",
     enableResizing: true,
-    // header: "Tenant Id",
     header: "Tenant Id",
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">{row.getValue("tenant_id")}</div>
+      <div className="capitalize min-w-[25rem]">
+        {row.getValue("tenant_id")}
+      </div>
     ),
   },
   {
@@ -33,7 +34,7 @@ export const columns: ColumnDef<ITenantsTypes>[] = [
     header: ({ column }) => {
       return (
         <div
-          className="flex items-center"
+          className="flex items-center min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Tenant Name
@@ -42,7 +43,9 @@ export const columns: ColumnDef<ITenantsTypes>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">{row.getValue("tenant_name")}</div>
+      <div className="capitalize min-w-[40rem]">
+        {row.getValue("tenant_name")}
+      </div>
     ),
   },
 ];

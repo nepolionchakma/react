@@ -316,9 +316,12 @@ export function TaskParametersTable() {
                     return (
                       <TableHead
                         key={header.id}
-                        className="relative border h-9 py-0 px-1 border-slate-400 bg-slate-200"
+                        className={`relative border h-9 py-0 px-1 border-slate-400 bg-slate-200 ${
+                          header.id === "select" ? "w-2" : ""
+                        }`}
                         style={{
                           width: `${header.getSize()}px`,
+                          maxWidth: header.id === "select" ? "10px" : "",
                         }}
                       >
                         {header.isPlaceholder
@@ -342,7 +345,6 @@ export function TaskParametersTable() {
                               console.log(selectedRows, "aaaaaaaa");
                               handleRowsSelection(data);
                             }}
-                            className="m-1"
                             aria-label="Select all"
                           />
                         )}
@@ -398,7 +400,7 @@ export function TaskParametersTable() {
                       >
                         {index === 0 ? (
                           <Checkbox
-                            className="m-1"
+                            className="mt-1"
                             checked={row.getIsSelected()}
                             onCheckedChange={(value) =>
                               row.toggleSelected(!!value)

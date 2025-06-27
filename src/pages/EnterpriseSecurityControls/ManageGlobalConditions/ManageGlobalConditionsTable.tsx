@@ -193,6 +193,7 @@ const ManageGlobalConditionsTable = () => {
       header: ({ column }) => {
         return (
           <div
+            className="flex items-center min-w-max"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
             Name{" "}
@@ -201,7 +202,7 @@ const ManageGlobalConditionsTable = () => {
         );
       },
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("name")}</div>
+        <div className="capitalize min-w-max">{row.getValue("name")}</div>
       ),
     },
     {
@@ -209,7 +210,7 @@ const ManageGlobalConditionsTable = () => {
       enableResizing: true,
       header: "Description",
       cell: ({ row }) => (
-        <div className="capitalize min-w-[20rem]">
+        <div className="capitalize min-w-[35rem]">
           {row.getValue("description")}
         </div>
       ),
@@ -219,7 +220,7 @@ const ManageGlobalConditionsTable = () => {
       enableResizing: true,
       header: "Datasource",
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("datasource")}</div>
+        <div className="capitalize min-w-max">{row.getValue("datasource")}</div>
       ),
     },
     {
@@ -227,7 +228,7 @@ const ManageGlobalConditionsTable = () => {
       enableResizing: true,
       header: "Status",
       cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("status")}</div>
+        <div className="capitalize min-w-max">{row.getValue("status")}</div>
       ),
     },
   ];
@@ -447,7 +448,6 @@ const ManageGlobalConditionsTable = () => {
                           )}
                       {header.id === "select" && (
                         <Checkbox
-                          className="m-1"
                           checked={isSelectAll}
                           onClick={handleSelectAll}
                           aria-label="Select all"
@@ -505,7 +505,7 @@ const ManageGlobalConditionsTable = () => {
                     >
                       {index === 0 ? (
                         <Checkbox
-                          className="m-1"
+                          className="mt-1"
                           checked={selectedIds.includes(
                             row.original.def_global_condition_id
                           )} // Use react-table's selection state

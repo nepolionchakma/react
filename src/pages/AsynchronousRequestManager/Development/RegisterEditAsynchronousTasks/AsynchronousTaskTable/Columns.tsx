@@ -49,7 +49,7 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
     enableResizing: true,
     header: "Execution Method",
     cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("execution_method")}</div>
+      <div className="min-w-[8rem]">{row.getValue("execution_method")}</div>
     ),
   },
   {
@@ -57,7 +57,7 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
     enableResizing: true,
     header: "Internal Execution Method",
     cell: ({ row }) => (
-      <div className="min-w-max">
+      <div className="min-w-[12rem]">
         {row.getValue("internal_execution_method")}
       </div>
     ),
@@ -123,7 +123,7 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
     enableResizing: true,
     header: "Created By",
     cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("created_by")}</div>
+      <div className="min-w-[5rem]">{row.getValue("created_by")}</div>
     ),
   },
   {
@@ -132,7 +132,7 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
     header: "Last Updated By",
     cell: ({ row }) => {
       const data: string = row.getValue("last_updated_by");
-      return <div className="min-w-max">{data ? data : "null"}</div>;
+      return <div className="min-w-[8rem]">{data ? data : "null"}</div>;
     },
   },
   {
