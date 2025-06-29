@@ -51,7 +51,7 @@ export async function postData(params: postDataParams) {
     });
     if (res.status === 201) {
       toast({ title: res.data.message });
-      return res.data;
+      return res;
     }
   } catch (error) {
     if (error instanceof Error) {
@@ -71,7 +71,7 @@ export async function putData(params: putDataParams) {
     });
     if (res.status === 200) {
       toast({ title: res.data.message });
-      return res.data;
+      return res;
     }
   } catch (error) {
     if (error instanceof Error) {

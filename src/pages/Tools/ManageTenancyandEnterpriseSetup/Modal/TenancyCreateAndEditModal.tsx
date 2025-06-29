@@ -1,11 +1,10 @@
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/components/ui/use-toast";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { ITenantsTypes } from "@/types/interfaces/users.interface";
 import { X } from "lucide-react";
 import React, { useState } from "react";
+import { postData, putData } from "@/Utility/funtion";
 interface ICustomModalTypes {
   action: string;
   tabName: string;
@@ -22,7 +21,6 @@ const TenancyCreateAndEditModal = ({
   handleCloseModal,
   setSelectedTenancyRows,
 }: ICustomModalTypes) => {
-  const api = useAxiosPrivate();
   console.log(tabName, "tabneame");
   const [tenantName, setTenantName] = useState<string>(
     selectedTenancyRows && action === "edit"
@@ -37,41 +35,33 @@ const TenancyCreateAndEditModal = ({
     try {
       setIsLoading(true);
       if (action === "add") {
-        const res = await api.post(
-          `/tenants`,
-          {
+        const postParams = {
+          baseURL: flaskUrl,
+          url: "/tenants",
+          setLoading: setIsLoading,
+          payload: {
             tenant_name: tenantName,
           },
-          {
-            baseURL: flaskUrl,
-          }
-        );
-        if (res.status === 201) {
-          toast({
-            description: `${res.data.message}`,
-          });
-        }
+          isConsole: true,
+        };
+
+        await postData(postParams);
       } else {
-        const res = await api.put(
-          `/tenants/${selectedTenancyRows?.[0].tenant_id}`,
-          { tenant_name: tenantName },
-          {
-            baseURL: flaskUrl,
-          }
-        );
-        if (res.status === 200) {
-          toast({
-            description: `${res.data.message}`,
-          });
+        const putParams = {
+          baseURL: flaskUrl,
+          url: `/tenants/${selectedTenancyRows?.[0].tenant_id}`,
+          setLoading: setIsLoading,
+          payload: { tenant_name: tenantName },
+          isConsole: true,
+        };
+        const res = await putData(putParams);
+        if (res) {
           setSelectedTenancyRows([]);
         }
       }
     } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
+      console.log(error);
     } finally {
-      setIsLoading(false);
       handleClose();
       setStateChanged(Math.random() + 23 * 3000);
     }
@@ -108,7 +98,7 @@ const TenancyCreateAndEditModal = ({
               {" "}
               {isLoading ? (
                 <l-tailspin
-                  size="30"
+                  size="24"
                   stroke="5"
                   speed="0.9"
                   color="white"
