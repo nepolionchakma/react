@@ -193,7 +193,24 @@ const ManageDataSources = () => {
     },
     {
       accessorKey: "description",
-      header: "Description",
+      sortingFn: (rowA, rowB, columnId) => {
+        const a = rowA.getValue(columnId) as string;
+        const b = rowB.getValue(columnId) as string;
+
+        return a.localeCompare(b, undefined, { sensitivity: "base" });
+      },
+      header: ({ column }) => {
+        return (
+          <div
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="min-w-[20rem] cursor-pointer"
+          >
+            Description
+            <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+          </div>
+        );
+      },
+
       enableResizing: true,
       cell: ({ row }) => (
         <div className="capitalize min-w-[20rem]">
@@ -204,9 +221,24 @@ const ManageDataSources = () => {
     {
       accessorKey: "application_type",
       enableResizing: true,
-      header: () => {
-        return <div className="min-w-max">Application Type</div>;
+      sortingFn: (rowA, rowB, columnId) => {
+        const a = rowA.getValue(columnId) as string;
+        const b = rowB.getValue(columnId) as string;
+
+        return a.localeCompare(b, undefined, { sensitivity: "base" });
       },
+      header: ({ column }) => {
+        return (
+          <div
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="min-w-max cursor-pointer"
+          >
+            Application Type
+            <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+          </div>
+        );
+      },
+
       cell: ({ row }) => (
         <div className="capitalize">{row.getValue("application_type")}</div>
       ),
@@ -214,8 +246,22 @@ const ManageDataSources = () => {
     {
       accessorKey: "application_type_version",
       enableResizing: true,
-      header: () => {
-        return <div className="min-w-max">Application Type Version</div>;
+      sortingFn: (rowA, rowB, columnId) => {
+        const a = rowA.getValue(columnId) as string;
+        const b = rowB.getValue(columnId) as string;
+
+        return a.localeCompare(b, undefined, { sensitivity: "base" });
+      },
+      header: ({ column }) => {
+        return (
+          <div
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="min-w-max cursor-pointer"
+          >
+            Application Type Version
+            <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+          </div>
+        );
       },
       cell: ({ row }) => (
         <div className="capitalize">
@@ -226,9 +272,20 @@ const ManageDataSources = () => {
     {
       accessorKey: "last_access_synchronization_date",
       enableResizing: true,
-      header: () => {
+      sortingFn: (rowA, rowB, columnId) => {
+        const a = new Date(rowA.getValue(columnId));
+        const b = new Date(rowB.getValue(columnId));
+        return a.getTime() - b.getTime();
+      },
+      header: ({ column }) => {
         return (
-          <div className="min-w-max">Last Access Synchronization Date</div>
+          <div
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="min-w-max cursor-pointer"
+          >
+            Last Access Synchronization Date
+            <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+          </div>
         );
       },
       cell: ({ row }) => {
@@ -242,9 +299,21 @@ const ManageDataSources = () => {
     {
       accessorKey: "last_access_synchronization_status",
       enableResizing: true,
-      header: () => {
+      sortingFn: (rowA, rowB, columnId) => {
+        const a = rowA.getValue(columnId) as string;
+        const b = rowB.getValue(columnId) as string;
+
+        return a.localeCompare(b, undefined, { sensitivity: "base" });
+      },
+      header: ({ column }) => {
         return (
-          <div className="min-w-max">Last Access Synchronization Status</div>
+          <div
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="min-w-max cursor-pointer"
+          >
+            Last Access Synchronization Status
+            <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+          </div>
         );
       },
       cell: ({ row }) => (
@@ -256,9 +325,20 @@ const ManageDataSources = () => {
     {
       accessorKey: "last_transaction_synchronization_date",
       enableResizing: true,
-      header: () => {
+      sortingFn: (rowA, rowB, columnId) => {
+        const a = new Date(rowA.getValue(columnId));
+        const b = new Date(rowB.getValue(columnId));
+        return a.getTime() - b.getTime();
+      },
+      header: ({ column }) => {
         return (
-          <div className="min-w-max">Last Transaction Synchronization Date</div>
+          <div
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="min-w-max cursor-pointer"
+          >
+            Last Transaction Synchronization Date
+            <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+          </div>
         );
       },
       cell: ({ row }) => {
@@ -272,10 +352,20 @@ const ManageDataSources = () => {
     {
       accessorKey: "last_transaction_synchronization_status",
       enableResizing: true,
-      header: () => {
+      sortingFn: (rowA, rowB, columnId) => {
+        const a = rowA.getValue(columnId) as string;
+        const b = rowB.getValue(columnId) as string;
+
+        return a.localeCompare(b, undefined, { sensitivity: "base" });
+      },
+      header: ({ column }) => {
         return (
-          <div className="min-w-max">
+          <div
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="min-w-max cursor-pointer"
+          >
             Last Transaction Synchronization Status
+            <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
           </div>
         );
       },
@@ -288,8 +378,22 @@ const ManageDataSources = () => {
     {
       accessorKey: "default_datasource",
       enableResizing: true,
-      header: () => {
-        return <div className="min-w-max">Default Datasource</div>;
+      sortingFn: (rowA, rowB, columnId) => {
+        const a = rowA.getValue(columnId) as string;
+        const b = rowB.getValue(columnId) as string;
+
+        return a.localeCompare(b, undefined, { sensitivity: "base" });
+      },
+      header: ({ column }) => {
+        return (
+          <div
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="min-w-max cursor-pointer"
+          >
+            Default Datasource
+            <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+          </div>
+        );
       },
       cell: ({ row }) => (
         <div className="capitalize">{row.getValue("default_datasource")}</div>
