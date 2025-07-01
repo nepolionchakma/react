@@ -60,7 +60,7 @@ const AddForm: FC<IManageAccessEntitlementsProps> = ({
       type: data.type,
       state: data.state,
       run_status: "Running",
-      created_by: token?.user_name,
+      created_by: token?.user_id,
       last_updated_by: token?.user_name,
     };
 
