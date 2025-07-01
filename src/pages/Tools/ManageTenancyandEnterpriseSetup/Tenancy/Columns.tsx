@@ -33,9 +33,7 @@ export const columns: ColumnDef<ITenantsTypes>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="capitalize min-w-[25rem]">
-        {row.getValue("tenant_id")}
-      </div>
+      <div className="capitalize min-w-max">{row.getValue("tenant_id")}</div>
     ),
   },
   {
@@ -59,7 +57,7 @@ export const columns: ColumnDef<ITenantsTypes>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="capitalize min-w-[40rem]">
+      <div className="capitalize min-w-[60rem]">
         {row.getValue("tenant_name")}
       </div>
     ),
