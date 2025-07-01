@@ -208,7 +208,24 @@ const ManageGlobalConditionsTable = () => {
     {
       accessorKey: "description",
       enableResizing: true,
-      header: "Description",
+      sortingFn: (rowA, rowB, columnId) => {
+        const a = rowA.getValue(columnId) as string;
+        const b = rowB.getValue(columnId) as string;
+
+        return a.localeCompare(b, undefined, { sensitivity: "base" });
+      },
+      header: ({ column }) => {
+        return (
+          <div
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="min-w-[35rem] cursor-pointer"
+          >
+            Description
+            <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+          </div>
+        );
+      },
+
       cell: ({ row }) => (
         <div className="capitalize min-w-[35rem]">
           {row.getValue("description")}
@@ -218,7 +235,24 @@ const ManageGlobalConditionsTable = () => {
     {
       accessorKey: "datasource",
       enableResizing: true,
-      header: "Datasource",
+      sortingFn: (rowA, rowB, columnId) => {
+        const a = rowA.getValue(columnId) as string;
+        const b = rowB.getValue(columnId) as string;
+
+        return a.localeCompare(b, undefined, { sensitivity: "base" });
+      },
+      header: ({ column }) => {
+        return (
+          <div
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="min-w-max cursor-pointer"
+          >
+            Datasource
+            <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+          </div>
+        );
+      },
+
       cell: ({ row }) => (
         <div className="capitalize min-w-max">{row.getValue("datasource")}</div>
       ),
@@ -226,7 +260,24 @@ const ManageGlobalConditionsTable = () => {
     {
       accessorKey: "status",
       enableResizing: true,
-      header: "Status",
+      sortingFn: (rowA, rowB, columnId) => {
+        const a = rowA.getValue(columnId) as string;
+        const b = rowB.getValue(columnId) as string;
+
+        return a.localeCompare(b, undefined, { sensitivity: "base" });
+      },
+      header: ({ column }) => {
+        return (
+          <div
+            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+            className="min-w-max cursor-pointer"
+          >
+            Status
+            <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+          </div>
+        );
+      },
+
       cell: ({ row }) => (
         <div className="capitalize min-w-max">{row.getValue("status")}</div>
       ),

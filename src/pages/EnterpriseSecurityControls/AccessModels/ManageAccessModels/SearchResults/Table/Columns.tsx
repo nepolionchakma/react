@@ -110,7 +110,7 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="min-w-max cursor-pointer"
         >
-          Satus
+          Status
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
         </div>
       );
@@ -124,7 +124,6 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
   {
     accessorKey: "last_run_date",
     enableResizing: true,
-
     sortingFn: (rowA, rowB, columnId) => {
       const a = new Date(rowA.getValue(columnId));
       const b = new Date(rowB.getValue(columnId));

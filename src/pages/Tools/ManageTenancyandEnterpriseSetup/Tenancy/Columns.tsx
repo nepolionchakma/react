@@ -15,7 +15,23 @@ export const columns: ColumnDef<ITenantsTypes>[] = [
   {
     accessorKey: "tenant_id",
     enableResizing: true,
-    header: "Tenant Id",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as number;
+      const b = rowB.getValue(columnId) as number;
+
+      return a - b;
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Tenant Id
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
     cell: ({ row }) => (
       <div className="capitalize min-w-[25rem]">
         {row.getValue("tenant_id")}

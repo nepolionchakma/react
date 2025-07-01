@@ -1,5 +1,6 @@
 import { IARMTaskParametersTypes } from "@/types/interfaces/ARM.interface";
 import { ColumnDef } from "@tanstack/react-table";
+import { ArrowUpDown } from "lucide-react";
 export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
   {
     id: "select",
@@ -13,7 +14,22 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
   {
     accessorKey: "parameter_name",
     enableResizing: true,
-    header: "Parameter Name",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-[15rem] cursor-pointer"
+        >
+          Parameter Name
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
     cell: ({ row }) => (
       <div className="min-w-[15rem]">{row.getValue("parameter_name")}</div>
     ),
@@ -21,7 +37,23 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
   {
     accessorKey: "task_name",
     enableResizing: true,
-    header: "Task Name",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-[11rem] cursor-pointer"
+        >
+          Task Name
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
     cell: ({ row }) => (
       <div className="min-w-[11rem]">{row.getValue("task_name")}</div>
     ),
@@ -29,7 +61,23 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
   {
     accessorKey: "description",
     enableResizing: true,
-    header: "Description",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-[40rem] cursor-pointer"
+        >
+          Description
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
     cell: ({ row }) => (
       <div className="min-w-[40rem] capitalize">
         {row.getValue("description")}
@@ -39,7 +87,23 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
   {
     accessorKey: "data_type",
     enableResizing: true,
-    header: "Data Type",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Data Type
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
 
     cell: ({ row }) => {
       // const value = ;
@@ -66,12 +130,27 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
         </div>
       );
     },
-
   },
   {
     accessorKey: "created_by",
     enableResizing: true,
-    header: "Created By",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Created By
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
     cell: ({ row }) => (
       <div className="min-w-[5rem]">{row.getValue("created_by")}</div>
     ),
@@ -79,7 +158,23 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
   {
     accessorKey: "last_updated_by",
     enableResizing: true,
-    header: "Last Updated By",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Last Updated By
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
     cell: ({ row }) => (
       <div className="min-w-[8rem]">{row.getValue("last_updated_by")}</div>
     ),
@@ -87,7 +182,22 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
   {
     accessorKey: "creation_date",
     enableResizing: true,
-    header: "Creation Date",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = new Date(rowA.getValue(columnId));
+      const b = new Date(rowB.getValue(columnId));
+      return a.getTime() - b.getTime();
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Creation Date
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
     cell: ({ row }) => {
       const data: Date = row.getValue("creation_date");
       const date = new Date(data);
@@ -98,7 +208,22 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
   {
     accessorKey: "last_update_date",
     enableResizing: true,
-    header: "Last Updated Date",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = new Date(rowA.getValue(columnId));
+      const b = new Date(rowB.getValue(columnId));
+      return a.getTime() - b.getTime();
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Last Updated Date
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
     cell: ({ row }) => {
       const data: Date = row.getValue("last_update_date");
       const date = new Date(data);

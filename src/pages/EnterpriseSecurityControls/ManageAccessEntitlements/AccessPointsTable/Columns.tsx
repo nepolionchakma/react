@@ -36,7 +36,24 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
   {
     accessorKey: "description",
     enableResizing: true,
-    header: "Description",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-[20rem] cursor-pointer"
+        >
+          Description
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
+
     cell: ({ row }) => (
       <div className="capitalize min-w-[20rem]">
         {row.getValue("description")}
@@ -46,7 +63,24 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
   {
     accessorKey: "dataSource",
     enableResizing: true,
-    header: "Datasource",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Datasource
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
+
     cell: ({ row }) => {
       const dataSource: IDataSourceTypes = row.getValue("dataSource");
       return (
@@ -59,7 +93,23 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
   {
     accessorKey: "platform",
     enableResizing: true,
-    header: "Platform",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Platform
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
     cell: ({ row }) => (
       <div className="capitalize min-w-max">{row.getValue("platform")}</div>
     ),
@@ -67,7 +117,24 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
   {
     accessorKey: "element_type",
     enableResizing: true,
-    header: "Element Type",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-[8rem] cursor-pointer"
+        >
+          Element Type
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
+
     cell: ({ row }) => (
       <div className="capitalize min-w-[8rem]">
         {row.getValue("element_type")}
@@ -76,7 +143,24 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
   },
   {
     accessorKey: "access_control",
-    header: "Access Control",
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Access Control
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
     cell: ({ row }) => (
       <div className="capitalize min-w-[8rem]">
         {row.getValue("access_control") === "true" ? <Check /> : <X />}
@@ -85,7 +169,24 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
   },
   {
     accessorKey: "change_control",
-    header: "Change Control",
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Change Control
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
     cell: ({ row }) => (
       <div className="capitalize min-w-[8rem]">
         {row.getValue("change_control")}
@@ -94,7 +195,24 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
   },
   {
     accessorKey: "audit",
-    header: "Audit",
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Audit
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
     cell: ({ row }) => (
       <div className="capitalize min-w-max">{row.getValue("audit")}</div>
     ),
