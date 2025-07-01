@@ -19,20 +19,32 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { IManageGlobalConditionTypes } from "@/types/interfaces/ManageAccessEntitlements.interface";
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 import { ring } from "ldrs";
 import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
+import CustomDropDown from "@/components/CustomDropDown/CustomDropDown";
 interface IManageGlobalConditionProps {
   selectedItem?: IManageGlobalConditionTypes;
 }
 const ManageGlobalConditionsModal: FC<IManageGlobalConditionProps> = () => {
   // const { updateManageAccessEntitlements, isLoading, setSelected, table } =
   //   useManageAccessEntitlementsContext();
-  const { createManageGlobalCondition, manageGlobalConditions, isLoading } =
-    useAACContext();
+  const {
+    createManageGlobalCondition,
+    manageGlobalConditions,
+    isLoading,
+    dataSources,
+  } = useAACContext();
+  const [datasourceOption, setDatasourceOption] = useState("Select an option");
+  const [datasourceNames, setDatasourceNames] = useState<string[]>([]);
   const maxId = Math.max(
     ...manageGlobalConditions.map((item) => item.def_global_condition_id)
   );
+
+  useEffect(() => {
+    setDatasourceNames(dataSources.map((item) => item.datasource_name));
+  }, [dataSources]);
+
   const FormSchema = z.object({
     name: z.string(),
     description: z.string(),
@@ -56,15 +68,13 @@ const ManageGlobalConditionsModal: FC<IManageGlobalConditionProps> = () => {
       def_global_condition_id: maxId,
       name: data.name,
       description: data.description,
-      datasource: data.datasource,
+      datasource: datasourceOption,
       status: data.status,
     };
     const res = await createManageGlobalCondition(postData);
     if (res) {
       form.reset();
     }
-
-    // table.getRowModel().rows.map((row: any) => row.toggleSelected(false));
   }
 
   ring.register();
@@ -105,13 +115,14 @@ const ManageGlobalConditionsModal: FC<IManageGlobalConditionProps> = () => {
           <FormField
             control={form.control}
             name="datasource"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <FormLabel>Datasource</FormLabel>
-                <FormControl>
-                  <Input placeholder="Datasource" {...field} />
-                </FormControl>
-                <FormMessage />
+                <CustomDropDown
+                  data={datasourceNames}
+                  option={datasourceOption}
+                  setOption={setDatasourceOption}
+                />
               </FormItem>
             )}
           />

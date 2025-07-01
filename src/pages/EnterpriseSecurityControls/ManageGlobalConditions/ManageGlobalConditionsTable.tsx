@@ -70,6 +70,7 @@ const ManageGlobalConditionsTable = () => {
     manageGlobalConditionDeleteCalculate,
     deleteManageGlobalCondition,
     deleteLogicAndAttributeData,
+    fetchDataSource,
   } = useAACContext();
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState(8);
@@ -89,6 +90,10 @@ const ManageGlobalConditionsTable = () => {
   const [willBeDelete, setWillBeDelete] = useState<
     IManageGlobalConditionLogicExtendTypes[]
   >([]);
+
+  useEffect(() => {
+    fetchDataSource();
+  }, []);
 
   useEffect(() => {
     const selectedRowsData = table
