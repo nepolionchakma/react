@@ -72,7 +72,7 @@ const ActionItems = () => {
 
       <Card className="flex gap-4 p-4">
         <div className="w-[40px] h-[40px] flex justify-center items-center rounded-full border-2 border-[#3b82f6]">
-          <CircleCheckBig color="#3b82f6" />
+          {/* <CircleCheckBig color="#3b82f6" /> */}
         </div>
         <div className="flex flex-col gap-2 w-full">
           <div className="flex justify-between w-full">
@@ -105,7 +105,7 @@ const ActionItems = () => {
 
       <Card className="flex gap-4 p-4">
         <div className="bg-blue-500 w-[40px] h-[40px] flex justify-center items-center rounded-full">
-          <CircleCheckBig color="white" />
+          {/* <CircleCheckBig color="white" /> */}
         </div>
         <div className="flex flex-col gap-2 w-full">
           <div className="flex justify-between w-full">
