@@ -53,7 +53,7 @@ export default function CustomDropDown({
       {isOpen && (
         <div
           ref={ref}
-          className="flex flex-col items-start border rounded-md shadow-md p-1"
+          className="flex flex-col items-start border rounded-md shadow-md p-1 max-h-[10rem] overflow-y-auto"
         >
           {data.map((name, i) => {
             return (
