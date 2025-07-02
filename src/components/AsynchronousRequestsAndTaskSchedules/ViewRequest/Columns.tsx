@@ -208,7 +208,23 @@ export const columns = (
   },
   {
     accessorKey: "redbeat_schedule_name",
-    header: "Redbeat Schedule Name",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Redbeat Schedule Name
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
     cell: ({ row }) => (
       <div className="min-w-[20rem]">
         {row.getValue("redbeat_schedule_name")}
