@@ -69,7 +69,9 @@ interface IAACContextTypes {
   manageGlobalConditionDeleteCalculate: (
     id: number
   ) => Promise<IManageGlobalConditionLogicExtendTypes[] | undefined>;
-  deleteManageGlobalCondition: (id: number) => Promise<void>;
+  deleteManageGlobalCondition: (
+    items: IManageGlobalConditionTypes[]
+  ) => Promise<void>;
   deleteLogicAndAttributeData: (
     logicId: number,
     attrId: number
@@ -370,24 +372,32 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       console.log(error);
     }
   };
-  const deleteManageGlobalCondition = async (id: number) => {
-    api
-      .delete(`/def-global-conditions/${id}`)
-      .then((res) => {
-        if (res.status === 200) {
-          toast({
-            description: res.data.message,
-          });
-        }
-      })
-      .catch((error) => {
-        if (error instanceof Error) {
-          toast({ title: error.message, variant: "destructive" });
-        }
-      })
-      .finally(() => {
-        setStateChange((prev) => prev + 1);
-      });
+  const deleteManageGlobalCondition = async (
+    items: IManageGlobalConditionTypes[]
+  ) => {
+    for (const item of items) {
+      const { def_global_condition_id: id } = item;
+      api
+        .delete(`/def-global-conditions/${id}`)
+        .then((res) => {
+          if (res.status === 200) {
+            toast({
+              description: res.data.message,
+            });
+          }
+        })
+        .catch((error) => {
+          if (error instanceof Error) {
+            toast({
+              description: error.message,
+              variant: "destructive",
+            });
+          }
+        })
+        .finally(() => {
+          setStateChange((prev) => prev + 1);
+        });
+    }
   };
   const deleteLogicAndAttributeData = async (
     logicId: number,

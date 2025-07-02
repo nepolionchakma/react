@@ -83,10 +83,6 @@ const ManageGlobalConditionsTable = () => {
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isSelectAll, setIsSelectAll] = useState(false);
   const [selectedIds, setIsSelectedIds] = useState<number[]>([]);
-  const [pagination, setPagination] = useState({
-    pageIndex: 0, //initial page index
-    pageSize: 7, //default page size
-  });
   const [willBeDelete, setWillBeDelete] = useState<
     IManageGlobalConditionLogicExtendTypes[]
   >([]);
@@ -297,7 +293,6 @@ const ManageGlobalConditionsTable = () => {
     columnResizeMode: "onChange",
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
-    onPaginationChange: setPagination,
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
@@ -308,14 +303,14 @@ const ManageGlobalConditionsTable = () => {
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination,
-    },
-    initialState: {
       pagination: {
+        pageIndex: 0,
         pageSize: limit,
       },
     },
   });
+
+  console.log(selectedManageGlobalConditionItem, "dsfsd");
 
   // handle delete Calculate
   const handleDeleteCalculate = async () => {
@@ -339,8 +334,7 @@ const ManageGlobalConditionsTable = () => {
           results.push(res);
         }
       });
-      // setWillBeDelete((prev) => [...prev, ...results]);
-      setWillBeDelete(results);
+      setWillBeDelete((prev) => [...prev, ...results]);
     } catch (error) {
       console.log("Error Deleting Global model items", error);
     }
@@ -356,9 +350,7 @@ const ManageGlobalConditionsTable = () => {
         console.log(res, item);
       })
     );
-    await deleteManageGlobalCondition(
-      selectedManageGlobalConditionItem[0]?.def_global_condition_id
-    );
+    await deleteManageGlobalCondition(selectedManageGlobalConditionItem);
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
     setSelectedManageGlobalConditionItem([]);
     setWillBeDelete([]);

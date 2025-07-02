@@ -62,25 +62,7 @@ const ManageAccessModelUpdate: FC<IManageGlobalConditionProps> = ({ form }) => {
               </FormItem>
             )}
           />
-          {/* <FormField
-            control={form.control}
-            name="datasource"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Datasource</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Datasource"
-                    {...field}
-                    className="px-1 h-6"
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
 
-           */}
           <FormField
             control={form.control}
             name="datasource_name"
@@ -94,7 +76,7 @@ const ManageAccessModelUpdate: FC<IManageGlobalConditionProps> = ({ form }) => {
                 >
                   <FormControl>
                     <SelectTrigger className="px-1 h-6">
-                      <SelectValue placeholder="Select a option" />
+                      <SelectValue placeholder="Select an option" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>

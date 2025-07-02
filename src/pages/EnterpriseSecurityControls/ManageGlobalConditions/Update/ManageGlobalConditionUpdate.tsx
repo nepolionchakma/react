@@ -15,12 +15,14 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { FC } from "react";
+import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
 interface IManageGlobalConditionProps {
   form: any;
 }
 const ManageGlobalConditionUpdate: FC<IManageGlobalConditionProps> = ({
   form,
 }) => {
+  const { dataSources } = useAACContext();
   return (
     <Form {...form}>
       <form>
@@ -67,18 +69,31 @@ const ManageGlobalConditionUpdate: FC<IManageGlobalConditionProps> = ({
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Datasource</FormLabel>
-                <FormControl>
-                  <Input
-                    placeholder="Datasource"
-                    {...field}
-                    className="px-1 h-6"
-                  />
-                </FormControl>
+                <Select
+                  required
+                  value={field.value}
+                  onValueChange={field.onChange}
+                >
+                  <FormControl>
+                    <SelectTrigger className="px-1 h-6">
+                      <SelectValue placeholder="Select an option" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {dataSources.map((data) => (
+                      <SelectItem
+                        key={data.def_data_source_id}
+                        value={data.datasource_name}
+                      >
+                        {data.datasource_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="status"
