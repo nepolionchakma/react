@@ -39,10 +39,10 @@ export const columns: ColumnDef<IProfilesType>[] = [
     accessorKey: "profile_id",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as number;
-      const b = rowB.getValue(columnId) as number;
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
 
-      return a - b;
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
     },
     header: ({ column }) => {
       return (
@@ -78,8 +78,6 @@ export const columns: ColumnDef<IProfilesType>[] = [
         </div>
       );
     },
-    enableSorting: false,
-    enableHiding: false,
   },
 ];
 export default columns;
