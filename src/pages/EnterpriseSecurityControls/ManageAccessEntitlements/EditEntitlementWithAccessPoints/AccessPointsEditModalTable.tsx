@@ -52,6 +52,7 @@ const AccessPointsEditModal = () => {
     getFilteredRowModel: getFilteredRowModel(),
     onColumnVisibilityChange: setColumnVisibility,
     onRowSelectionChange: setRowSelection,
+    columnResizeMode: "onChange",
     state: {
       sorting,
       columnFilters,
@@ -93,7 +94,13 @@ const AccessPointsEditModal = () => {
         </div>
         <div className="rounded-md">
           <div className="max-h-[13rem] overflow-auto">
-            <Table>
+            <Table
+              style={{
+                width: table.getTotalSize(),
+                minWidth: "100%",
+                // tableLayout: "fixed",
+              }}
+            >
               <TableHeader>
                 {table.getHeaderGroups().map((headerGroup) => (
                   <TableRow key={headerGroup.id}>
@@ -101,7 +108,11 @@ const AccessPointsEditModal = () => {
                       return (
                         <TableHead
                           key={header.id}
-                          className="border border-slate-400 bg-slate-200 p-1 h-9"
+                          className="relative border border-slate-400 bg-slate-200 p-1 h-9"
+                          style={{
+                            width: `${header.getSize()}px`,
+                            maxWidth: header.id === "select" ? 7 : "",
+                          }}
                         >
                           {header.isPlaceholder
                             ? null
@@ -139,6 +150,20 @@ const AccessPointsEditModal = () => {
                               aria-label="Select all"
                             />
                           )}
+                          {header.id !== "select" && (
+                            <div
+                              {...{
+                                onDoubleClick: () => header.column.resetSize(),
+                                onMouseDown: header.getResizeHandler(),
+                                onTouchStart: header.getResizeHandler(),
+                                className: `absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2`,
+                                style: {
+                                  userSelect: "none",
+                                  touchAction: "none",
+                                },
+                              }}
+                            />
+                          )}
                         </TableHead>
                       );
                     })}
@@ -163,7 +188,14 @@ const AccessPointsEditModal = () => {
                       data-state={row.getIsSelected() ? "selected" : undefined}
                     >
                       {row.getVisibleCells().map((cell, index) => (
-                        <TableCell key={cell.id} className="border p-1 h-8">
+                        <TableCell
+                          key={cell.id}
+                          className="border p-1 h-8"
+                          style={{
+                            width: cell.column.getSize(),
+                            minWidth: cell.column.columnDef.minSize,
+                          }}
+                        >
                           {index === 0 ? (
                             <Checkbox
                               className=""
