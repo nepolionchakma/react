@@ -2,7 +2,6 @@ import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { useEffect, useState } from "react";
 import {
   Pencil,
-  Trash,
   Expand,
   Minimize,
   Plus,
