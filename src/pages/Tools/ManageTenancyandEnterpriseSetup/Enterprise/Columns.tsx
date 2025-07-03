@@ -39,7 +39,23 @@ export const columns: ColumnDef<IEnterprisesTypes>[] = [
   {
     accessorKey: "enterprise_name",
     enableResizing: true,
-    header: "Enterprise Name",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Enterprise Name
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
     cell: ({ row }) => (
       <div className="capitalize min-w-[25rem]">
         {row.getValue("enterprise_name")}
@@ -49,7 +65,23 @@ export const columns: ColumnDef<IEnterprisesTypes>[] = [
   {
     accessorKey: "enterprise_type",
     enableResizing: true,
-    header: "Enterprise Type",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Enterprise Type
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
     cell: ({ row }) => (
       <div className="capitalize min-w-[35rem]">
         {row.getValue("enterprise_type")}

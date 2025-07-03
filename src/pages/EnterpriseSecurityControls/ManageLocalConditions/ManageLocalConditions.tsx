@@ -11,7 +11,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown } from "lucide-react";
+import { ArrowUpDown, ChevronDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -86,7 +86,24 @@ export const columns: ColumnDef<IManageLocalConditonsType>[] = [
   {
     accessorKey: "instance",
     enableResizing: true,
-    header: "Instance",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Instance
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
+
     cell: ({ row }) => (
       <div className="capitalize min-w-max">{row.getValue("instance")}</div>
     ),
@@ -94,7 +111,24 @@ export const columns: ColumnDef<IManageLocalConditonsType>[] = [
   {
     accessorKey: "action",
     enableResizing: true,
-    header: "Action",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Action
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
+
     cell: ({ row }) => (
       <div className="capitalize min-w-max">{row.getValue("action")}</div>
     ),
@@ -102,7 +136,24 @@ export const columns: ColumnDef<IManageLocalConditonsType>[] = [
   {
     accessorKey: "access_point_type",
     enableResizing: true,
-    header: "Access Point Type",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Access Point Type
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
+
     cell: ({ row }) => (
       <div className="capitalize min-w-max">
         {row.getValue("access_point_type")}
@@ -120,7 +171,24 @@ export const columns: ColumnDef<IManageLocalConditonsType>[] = [
   {
     accessorKey: "from_access_point_type",
     enableResizing: true,
-    header: "From Access Point Type",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          From Access Point Type
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
+
     cell: ({ row }) => (
       <div className="capitalize min-w-max">
         {row.getValue("from_access_point_type")}
@@ -130,7 +198,24 @@ export const columns: ColumnDef<IManageLocalConditonsType>[] = [
   {
     accessorKey: "from_access_point",
     enableResizing: true,
-    header: "From Access Point",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          From Access Point
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
+
     cell: ({ row }) => (
       <div className="capitalize min-w-max">
         {row.getValue("from_access_point")}
@@ -140,7 +225,24 @@ export const columns: ColumnDef<IManageLocalConditonsType>[] = [
   {
     accessorKey: "status",
     enableResizing: true,
-    header: "Status",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Status
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
+
     cell: ({ row }) => (
       <div className="capitalize min-w-max">{row.getValue("status")}</div>
     ),
@@ -148,7 +250,24 @@ export const columns: ColumnDef<IManageLocalConditonsType>[] = [
   {
     accessorKey: "comments",
     enableResizing: true,
-    header: "Comments",
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Comments
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
+
     cell: ({ row }) => (
       <div className="capitalize min-w-max">{row.getValue("comments")}</div>
     ),

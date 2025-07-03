@@ -115,7 +115,7 @@ export interface IManageAccessModelPostType {
   type: string;
   run_status: string;
   state: string;
-  created_by: string;
+  created_by: number;
   last_updated_by: string;
   last_run_date?: string;
   datasource_name?: string;

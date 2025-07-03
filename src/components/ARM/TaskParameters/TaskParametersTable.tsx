@@ -316,12 +316,10 @@ export function TaskParametersTable() {
                     return (
                       <TableHead
                         key={header.id}
-                        className={`relative border h-9 py-0 px-1 border-slate-400 bg-slate-200 ${
-                          header.id === "select" ? "w-2" : ""
-                        }`}
+                        className={`relative border h-9 py-0 px-1 border-slate-400 bg-slate-200`}
                         style={{
                           width: `${header.getSize()}px`,
-                          maxWidth: header.id === "select" ? "10px" : "",
+                          maxWidth: header.id === "select" ? "25px" : "",
                         }}
                       >
                         {header.isPlaceholder
