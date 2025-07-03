@@ -1,5 +1,10 @@
 import { Card } from "@/components/ui/card";
-import { CircleCheckBig } from "lucide-react";
+import {
+  Circle,
+  CircleCheck,
+  CircleCheckBig,
+  LoaderCircle,
+} from "lucide-react";
 
 const ActionItems = () => {
   return (
@@ -38,8 +43,8 @@ const ActionItems = () => {
       </Card>
 
       <Card className="flex gap-4 p-4">
-        <div className="w-[40px] h-[40px] flex justify-center items-center rounded-full border-2 border-[#3b82f6]">
-          <CircleCheckBig color="#3b82f6" />
+        <div className="bg-blue-500 w-[40px] h-[40px] flex justify-center items-center rounded-full">
+          <LoaderCircle color="white" />
         </div>
         <div className="flex flex-col gap-2 w-full">
           <div className="flex justify-between w-full">
@@ -71,8 +76,8 @@ const ActionItems = () => {
       </Card>
 
       <Card className="flex gap-4 p-4">
-        <div className="w-[40px] h-[40px] flex justify-center items-center rounded-full border-2 border-[#3b82f6]">
-          {/* <CircleCheckBig color="#3b82f6" /> */}
+        <div className="bg-blue-500 w-[40px] h-[40px] flex justify-center items-center rounded-full">
+          <CircleCheck color="white" />
         </div>
         <div className="flex flex-col gap-2 w-full">
           <div className="flex justify-between w-full">
@@ -105,7 +110,7 @@ const ActionItems = () => {
 
       <Card className="flex gap-4 p-4">
         <div className="bg-blue-500 w-[40px] h-[40px] flex justify-center items-center rounded-full">
-          {/* <CircleCheckBig color="white" /> */}
+          <Circle color="white" />
         </div>
         <div className="flex flex-col gap-2 w-full">
           <div className="flex justify-between w-full">
