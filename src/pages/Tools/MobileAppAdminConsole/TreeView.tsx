@@ -165,73 +165,40 @@ const TreeView = () => {
     <div className="p-4">
       <div className="flex gap-2 mb-4">
         {/**Expand All Button */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={expandAll}
-                className="w-8 h-8 flex justify-center items-center bg-winter-400 rounded-full hover:bg-winter-300"
-              >
-                <Expand size={18} color="white" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Expand All</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <button
+          onClick={expandAll}
+          className="text-white rounded-md flex gap-1 items-center bg-winter-400 px-[14px] py-[10px] hover:bg-winter-300"
+        >
+          <Expand size={18} color="white" />
+          <p>Expand All</p>
+        </button>
 
         {/**Collasp All Button */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                onClick={collapseAll}
-                className="w-8 h-8 flex justify-center items-center bg-winter-400 rounded-full hover:bg-winter-300"
-              >
-                <Minimize size={18} color="white" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Collasp All</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <button
+          onClick={collapseAll}
+          className="text-white rounded-md flex gap-1 items-center bg-winter-400 px-[14px] py-[10px] hover:bg-winter-300"
+        >
+          <Minimize size={18} color="white" />
+          <p>Collasp All</p>
+        </button>
 
         {/**Add New Submenu Button */}
-
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                className="w-8 h-8 flex justify-center items-center bg-winter-400 rounded-full hover:bg-winter-300"
-                onClick={() => setShowModal(true)}
-              >
-                <Plus size={18} color="white" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Add new submenu</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <button
+          onClick={() => setShowModal(true)}
+          className="text-white rounded-md flex gap-1 items-center bg-winter-400 px-[14px] py-[10px] hover:bg-winter-300"
+        >
+          <Plus size={18} color="white" />
+          <p>Add Submenu</p>
+        </button>
 
         {/**Save to Database Button */}
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <button
-                className="w-8 h-8 flex justify-center items-center bg-winter-400 rounded-full hover:bg-winter-300"
-                onClick={saveToDatabase}
-              >
-                <Save size={18} color="white" />
-              </button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Save to Database</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
+        <button
+          onClick={saveToDatabase}
+          className="text-white rounded-md flex gap-1 items-center bg-winter-400 px-[14px] py-[10px] hover:bg-winter-300"
+        >
+          <Save size={18} color="white" />
+          <p>Save to Database</p>
+        </button>
       </div>
 
       {menuData.map((menu) => (
