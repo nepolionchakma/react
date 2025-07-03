@@ -1,24 +1,20 @@
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { useEffect, useState } from "react";
 import {
-  Dot,
-  ChevronRightIcon,
   Pencil,
   Trash,
   Expand,
   Minimize,
   Plus,
   Save,
-  ChevronDown,
+  CircleChevronRight,
+  CircleChevronDown,
+  Dot,
 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import Modal from "./Modal";
+import CustomTooltip from "@/components/Tooltip/Tooltip";
+import Alert from "@/components/Alert/Alert";
 
 interface MenuItem {
   name: string;
@@ -59,6 +55,9 @@ const TreeView = () => {
   });
   const [showModal, setShowModal] = useState(false);
   const [selected, setSelected] = useState("");
+  const alphabet = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"];
+
+  console.log(editable);
 
   //Fetch Mobile Menu Structure
   useEffect(() => {
@@ -113,6 +112,51 @@ const TreeView = () => {
   };
 
   const saveMenu = () => {
+    if (!editable.submenu.trim()) {
+      toast({
+        title: "The main menu name cannot be empty.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (editable.subMenus.length === 0) {
+      toast({
+        title: `There is no submenu in ${editable.submenu}`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    for (let i = 0; i < editable.subMenus.length; i++) {
+      const submenu = editable.subMenus[i];
+
+      // Check if submenu name is empty
+      if (!submenu.name.trim()) {
+        toast({
+          title: `Submenu ${i + 1} name cannot be empty.`,
+          variant: "destructive",
+        });
+
+        return;
+      }
+
+      if (submenu.menuItems) {
+        for (let j = 0; j < submenu.menuItems.length; j++) {
+          const menuItem = submenu.menuItems[j];
+          if (!menuItem.name.trim()) {
+            toast({
+              title: `Menu item ${alphabet[j]}. under submenu ${
+                i + 1
+              } cannot be empty.`,
+              variant: "destructive",
+            });
+            return;
+          }
+        }
+      }
+    }
+
     if (selected === "" && editable.subMenus.length > 0) {
       setMenuData((prev) => [...prev, editable]);
       setShowModal(false);
@@ -204,7 +248,7 @@ const TreeView = () => {
       {menuData.map((menu) => (
         <div key={menu.submenu} className="mb-2">
           <div
-            className="cursor-pointer flex items-center gap-4 text-lg"
+            className="cursor-pointer flex justify-between items-center gap-4 text-lg bg-light-200 p-2 rounded-md"
             onMouseOver={() => setHovered(menu.submenu)}
             onMouseLeave={() => setHovered("")}
           >
@@ -213,47 +257,28 @@ const TreeView = () => {
               onClick={() => toggleMenu(menu.submenu)}
             >
               {openMenus[menu.submenu] ? (
-                <ChevronDown size={20} />
+                <CircleChevronDown size={20} strokeWidth={1.5} />
               ) : (
-                <ChevronRightIcon size={20} />
+                <CircleChevronRight size={20} strokeWidth={1.5} />
               )}
               <p>{menu.submenu}</p>
             </div>
             {hovered === menu.submenu && (
               <div className="flex items-center gap-1">
                 {/**Edit Submenu Button */}
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        className="p-[0.3rem] rounded-full bg-winter-400"
-                        onClick={() => handleEditClick(menu.submenu)}
-                      >
-                        <Pencil size={16} color="white" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Edit Submenu</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <CustomTooltip tooltipTitle="Edit Submenu">
+                  <button onClick={() => handleEditClick(menu.submenu)}>
+                    <Pencil color="black" />
+                  </button>
+                </CustomTooltip>
 
                 {/**Delete Submenu */}
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        className="p-[0.3rem] rounded-full bg-winter-400"
-                        onClick={() => handleDelete(menu.submenu)}
-                      >
-                        <Trash size={16} color="white" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Delete Submenu</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                <Alert
+                  disabled={false}
+                  tooltipTitle="Delete Submenu"
+                  actionName="delete"
+                  onContinue={() => handleDelete(menu.submenu)}
+                />
               </div>
             )}
           </div>
@@ -276,9 +301,9 @@ const TreeView = () => {
                         }
                       >
                         {openMenus[`${menu.submenu}-${sub.name}`] ? (
-                          <ChevronDown size={20} />
+                          <CircleChevronDown size={20} strokeWidth={1.5} />
                         ) : (
-                          <ChevronRightIcon size={20} />
+                          <CircleChevronRight size={20} strokeWidth={1.5} />
                         )}
 
                         <p className="text-gray-700">{sub.name}</p>
@@ -294,9 +319,9 @@ const TreeView = () => {
                           sub.menuItems.map((item) => (
                             <div
                               key={item.routeName}
-                              className="flex items-center gap-1 mt-1"
+                              className="flex items-center gap-1 mt-1 ml-4"
                             >
-                              <Dot size={20} />
+                              <Dot size={20} strokeWidth={1.5} />
                               <p className="text-sm text-gray-600">
                                 {item.name}
                               </p>
@@ -307,7 +332,7 @@ const TreeView = () => {
                   ) : (
                     <div className="flex items-center gap-1">
                       {" "}
-                      <Dot size={20} />
+                      <Dot size={20} strokeWidth={1.5} />
                       <p className="text-sm text-gray-600">{sub.name}</p>
                     </div>
                   )}
@@ -323,6 +348,7 @@ const TreeView = () => {
         setEditable={setEditable}
         handleX={handleX}
         saveMenu={saveMenu}
+        alphabet={alphabet}
       />
     </div>
   );
