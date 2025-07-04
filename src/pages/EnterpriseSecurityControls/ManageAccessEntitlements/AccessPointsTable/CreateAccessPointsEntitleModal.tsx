@@ -78,8 +78,8 @@ const AccessPointsEntitleModal = () => {
       access_control: data.access_control,
       change_control: data.change_control,
       audit: data.audit,
-      created_by: token.user_name,
-      last_updated_by: token.user_name,
+      created_by: token.user_id,
+      last_updated_by: token.user_id,
     };
 
     const postAccessPointsElement = async () => {

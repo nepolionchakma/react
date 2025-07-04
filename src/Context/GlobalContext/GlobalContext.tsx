@@ -493,22 +493,28 @@ export function GlobalContextProvider({
     try {
       const res = await api.put<IDataSourcePostTypes>(
         `/def-data-sources/${id}`,
+        // {
+        //   data_source_id: id,
+        //   datasource_name: postData.datasource_name,
+        //   description: postData.description,
+        //   application_type: postData.application_type,
+        //   application_type_version: postData.application_type_version,
+        //   last_access_synchronization_status:
+        //     postData.last_access_synchronization_status,
+        //   last_access_synchronization_date:
+        //     postData.last_access_synchronization_date,
+        //   last_transaction_synchronization_status:
+        //     postData.last_transaction_synchronization_status,
+        //   last_transaction_synchronization_date:
+        //     postData.last_transaction_synchronization_date,
+        //   default_datasource: postData.default_datasource,
+        //   created_by: postData.created_by,
+        //   last_updated_by: postData.last_updated_by,
+        // }
         {
-          data_source_id: id,
-          datasource_name: postData.datasource_name,
           description: postData.description,
-          application_type: postData.application_type,
-          application_type_version: postData.application_type_version,
-          last_access_synchronization_status:
-            postData.last_access_synchronization_status,
-          last_access_synchronization_date:
-            postData.last_access_synchronization_date,
-          last_transaction_synchronization_status:
-            postData.last_transaction_synchronization_status,
           last_transaction_synchronization_date:
             postData.last_transaction_synchronization_date,
-          default_datasource: postData.default_datasource,
-          created_by: postData.created_by,
           last_updated_by: postData.last_updated_by,
         }
       );
