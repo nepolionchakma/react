@@ -97,8 +97,8 @@ const ManageAccessEntitlementsTable = () => {
       revision_date: "",
       created_on: "",
       last_updated_on: "",
-      last_updated_by: "",
-      created_by: "",
+      last_updated_by: 0,
+      created_by: 0,
     });
     setFilteredData([]);
     setSelectedManageAccessEntitlements({} as IManageAccessEntitlementsTypes);
@@ -154,8 +154,8 @@ const ManageAccessEntitlementsTable = () => {
         revision_date: "",
         created_on: "",
         last_updated_on: "",
-        last_updated_by: "",
-        created_by: "",
+        last_updated_by: 0,
+        created_by: 0,
       });
     } else {
       setSelectedAccessEntitlements(rowData);
@@ -228,8 +228,8 @@ const ManageAccessEntitlementsTable = () => {
       revision_date: "",
       created_on: "",
       last_updated_on: "",
-      last_updated_by: "",
-      created_by: "",
+      last_updated_by: 0,
+      created_by: 0,
     });
     setDeleteAccessPointsElements([]);
   };
@@ -282,8 +282,8 @@ const ManageAccessEntitlementsTable = () => {
                       revision_date: "",
                       created_on: "",
                       last_updated_on: "",
-                      last_updated_by: "",
-                      created_by: "",
+                      last_updated_by: 0,
+                      created_by: 0,
                     });
                     table
                       .getRowModel()

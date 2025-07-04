@@ -31,7 +31,7 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
       return (
         <div
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="min-w-[7rem] cursor-pointer"
+          className="min-w-max cursor-pointer"
         >
           Entitlement ID
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
@@ -84,7 +84,7 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
       return (
         <div
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="min-w-[20rem] cursor-pointer"
+          className="min-w-max cursor-pointer"
         >
           Description
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
@@ -258,7 +258,7 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
       return (
         <div
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="min-w-[6rem] cursor-pointer"
+          className="min-w-max cursor-pointer"
         >
           Created By
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
@@ -308,7 +308,7 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
       return (
         <div
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="min-w-[8rem] cursor-pointer"
+          className="min-w-max cursor-pointer"
         >
           Last Updated By
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
