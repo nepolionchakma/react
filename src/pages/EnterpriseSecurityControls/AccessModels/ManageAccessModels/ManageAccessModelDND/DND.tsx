@@ -26,6 +26,7 @@ import { Save, X } from "lucide-react";
 import DragOverlayComponent from "./DragOverlayComponent";
 import ManageAccessModelUpdate from "../Update/ManageAccessModelUpdate";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 interface IManageAccessModelDNDProps {
   setOpenEditModal: React.Dispatch<React.SetStateAction<boolean>>;
   isOpenEditModal: boolean;
@@ -34,6 +35,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   setOpenEditModal,
   isOpenEditModal,
 }) => {
+  const { token } = useGlobalContext();
   const api = useAxiosPrivate();
   const {
     isLoading,
@@ -91,6 +93,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     description: z.string(),
     state: z.string(),
     datasource_name: z.string(),
+    last_updated_by: z.number(),
   });
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -99,6 +102,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       description: selectedItem[0].description ?? "",
       datasource_name: selectedItem[0].datasource_name ?? "",
       state: selectedItem[0].state ?? "",
+      last_updated_by: token.user_id,
     },
   });
 
