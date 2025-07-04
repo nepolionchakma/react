@@ -150,10 +150,10 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
     enableResizing: true,
     minSize: 100,
     sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as string;
-      const b = rowB.getValue(columnId) as string;
+      const a = rowA.getValue(columnId) as number;
+      const b = rowB.getValue(columnId) as number;
 
-      return a.localeCompare(b, undefined, { sensitivity: "base" });
+      return a - b;
     },
     header: ({ column }) => {
       return (
@@ -177,10 +177,10 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
     enableResizing: true,
     minSize: 140,
     sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as string;
-      const b = rowB.getValue(columnId) as string;
+      const a = rowA.getValue(columnId) as number;
+      const b = rowB.getValue(columnId) as number;
 
-      return a.localeCompare(b, undefined, { sensitivity: "base" });
+      return a - b;
     },
     header: ({ column }) => {
       return (

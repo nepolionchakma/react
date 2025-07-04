@@ -61,7 +61,7 @@ const AddForm: FC<IManageAccessEntitlementsProps> = ({
       state: data.state,
       run_status: "Running",
       created_by: token?.user_id,
-      last_updated_by: token?.user_name,
+      last_updated_by: token?.user_id,
     };
 
     const res = await createDefAccessModel(postData);
