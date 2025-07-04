@@ -146,8 +146,8 @@ export const ManageAccessEntitlementsProvider = ({
       revision_date: "",
       created_on: "",
       last_updated_on: "",
-      last_updated_by: "",
-      created_by: "",
+      last_updated_by: 0,
+      created_by: 0,
     });
   const [filteredData, setFilteredData] = useState<
     IFetchCombinedAccessPointsElementAndDatasourceTypes[]
