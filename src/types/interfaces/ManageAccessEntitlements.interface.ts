@@ -29,9 +29,9 @@ export interface IFetchAccessPointsElementTypes {
   access_control: string;
   change_control: string;
   audit: string;
-  created_by: string;
+  created_by: number;
   created_on: string;
-  last_updated_by: string;
+  last_updated_by: number;
   last_updated_on: string;
 }
 
@@ -53,9 +53,8 @@ export interface ICreateAccessPointsElementTypes {
   access_control: string;
   change_control: string;
   audit: string;
-  created_by: string;
-  last_updated_by: string;
-  // [key: string]: any;
+  created_by: number;
+  last_updated_by: number;
 }
 export interface IManageLocalConditonsType {
   id: string;

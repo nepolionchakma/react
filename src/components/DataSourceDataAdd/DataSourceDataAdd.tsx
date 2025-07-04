@@ -121,12 +121,11 @@ const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
       last_transaction_synchronization_status: "COMPLETED",
       last_transaction_synchronization_date: date,
       default_datasource: data.default_datasource,
-      created_by: token.user_id,
-      last_updated_by:
-        props === "add"
-          ? token.user_id
-          : (selected[0].last_updated_by as number),
+      created_by: props === "add" ? token.user_id : selected[0].created_by ?? 0,
+      last_updated_by: token.user_id,
     };
+
+    console.log(postData);
     const submitAction =
       props === "add"
         ? createDataSource(postData)
