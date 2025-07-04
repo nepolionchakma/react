@@ -38,6 +38,8 @@ const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
   const [open, setOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  console.log(selected);
+
   useEffect(() => {
     if (props === "update") {
       const fetchDataFromAPI = async () => {
@@ -96,6 +98,19 @@ const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
     const date = new Date().toISOString();
     setRowSelection({});
     setIsLoading(false);
+    // const putData: IDataSourcePostTypes = {
+    //   datasource_name: data.datasource_name,
+    //   description: data.description,
+    //   application_type: "EBS",
+    //   application_type_version: "R12",
+    //   last_access_synchronization_status: "COMPLETED",
+    //   last_access_synchronization_date: date,
+    //   last_transaction_synchronization_status: "COMPLETED",
+    //   last_transaction_synchronization_date: date,
+    //   default_datasource: data.default_datasource,
+    //   created_by: token.user_id,
+    //   last_updated_by: selected[0].last_updated_by as number,
+    // };
     const postData: IDataSourcePostTypes = {
       datasource_name: data.datasource_name,
       description: data.description,
@@ -106,8 +121,11 @@ const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
       last_transaction_synchronization_status: "COMPLETED",
       last_transaction_synchronization_date: date,
       default_datasource: data.default_datasource,
-      created_by: token.user_name,
-      last_updated_by: token.user_name,
+      created_by: token.user_id,
+      last_updated_by:
+        props === "add"
+          ? token.user_id
+          : (selected[0].last_updated_by as number),
     };
     const submitAction =
       props === "add"

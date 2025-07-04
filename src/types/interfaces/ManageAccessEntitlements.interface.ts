@@ -11,8 +11,8 @@ export interface IManageAccessEntitlementsTypes {
   revision_date: string;
   created_on: string;
   last_updated_on: string;
-  last_updated_by: string;
-  created_by: string;
+  last_updated_by: number;
+  created_by: number;
 }
 export interface IManageAccessEntitlementsPerPageTypes {
   results: IManageAccessEntitlementsTypes[];
@@ -116,7 +116,7 @@ export interface IManageAccessModelPostType {
   run_status: string;
   state: string;
   created_by: number;
-  last_updated_by: string;
+  last_updated_by: number;
   last_run_date?: string;
   datasource_name?: string;
 }

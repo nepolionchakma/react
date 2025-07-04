@@ -31,7 +31,7 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
       return (
         <div
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="min-w-[7rem] cursor-pointer"
+          className="min-w-max cursor-pointer"
         >
           Entitlement ID
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
@@ -84,7 +84,7 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
       return (
         <div
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="min-w-[20rem] cursor-pointer"
+          className="min-w-max cursor-pointer"
         >
           Description
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
@@ -171,13 +171,13 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
     },
   },
   {
-    accessorKey: "revison",
+    accessorKey: "revision",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as string;
-      const b = rowB.getValue(columnId) as string;
+      const a = rowA.getValue(columnId) as number;
+      const b = rowB.getValue(columnId) as number;
 
-      return a.localeCompare(b, undefined, { sensitivity: "base" });
+      return a - b;
     },
     header: ({ column }) => {
       return (
@@ -185,14 +185,17 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="min-w-max cursor-pointer"
         >
-          Revison
+          Revision
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
         </div>
       );
     },
-    cell: ({ row }) => (
-      <div className="capitalize min-w-max">{row.getValue("revison")}</div>
-    ),
+    cell: ({ row }) => {
+      console.log(row.getValue("revision"));
+      return (
+        <div className="capitalize min-w-max">{row.getValue("revision")}</div>
+      );
+    },
   },
   {
     accessorKey: "revision_date",
@@ -246,16 +249,16 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
     accessorKey: "created_by",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as string;
-      const b = rowB.getValue(columnId) as string;
+      const a = rowA.getValue(columnId) as number;
+      const b = rowB.getValue(columnId) as number;
 
-      return a.localeCompare(b, undefined, { sensitivity: "base" });
+      return a - b;
     },
     header: ({ column }) => {
       return (
         <div
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="min-w-[6rem] cursor-pointer"
+          className="min-w-max cursor-pointer"
         >
           Created By
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
@@ -296,16 +299,16 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
     accessorKey: "last_updated_by",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as string;
-      const b = rowB.getValue(columnId) as string;
+      const a = rowA.getValue(columnId) as number;
+      const b = rowB.getValue(columnId) as number;
 
-      return a.localeCompare(b, undefined, { sensitivity: "base" });
+      return a - b;
     },
     header: ({ column }) => {
       return (
         <div
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="min-w-[8rem] cursor-pointer"
+          className="min-w-max cursor-pointer"
         >
           Last Updated By
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />

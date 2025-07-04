@@ -139,7 +139,7 @@ const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
           <input
             type="text"
             className="sticky top-0 w-full bg-light-100 border-b border-light-400 outline-none px-2 py-1"
-            placeholder="Element Name ..."
+            placeholder="Search Element Name"
             autoFocus
             value={query}
             onChange={handleQueryChange}

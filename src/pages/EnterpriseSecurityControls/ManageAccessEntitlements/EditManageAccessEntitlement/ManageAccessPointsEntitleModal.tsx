@@ -82,8 +82,8 @@ const ManageAccessPointsEntitleModal: FC<IManageAccessEntitlementsProps> = ({
       revision_date: selectedItem?.revision_date || "",
       created_on: selectedItem?.created_on || "",
       last_updated_on: selectedItem?.last_updated_on || "",
-      last_updated_by: token.user_name,
-      created_by: selectedItem?.created_by || "",
+      last_updated_by: token.user_id,
+      created_by: selectedItem?.created_by ?? 0,
     };
     const postData = {
       def_entitlement_id: 0,
@@ -96,8 +96,8 @@ const ManageAccessPointsEntitleModal: FC<IManageAccessEntitlementsProps> = ({
       revision_date: currentDate,
       created_on: currentDate,
       last_updated_on: currentDate,
-      last_updated_by: token.user_name,
-      created_by: token.user_name,
+      last_updated_by: token.user_id,
+      created_by: token.user_id,
     };
     if (mangeAccessEntitlementAction === "edit") {
       updateManageAccessEntitlements(id, putData);

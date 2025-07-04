@@ -135,10 +135,10 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
     accessorKey: "created_by",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as string;
-      const b = rowB.getValue(columnId) as string;
+      const a = rowA.getValue(columnId) as number;
+      const b = rowB.getValue(columnId) as number;
 
-      return a.localeCompare(b, undefined, { sensitivity: "base" });
+      return a - b;
     },
     header: ({ column }) => {
       return (

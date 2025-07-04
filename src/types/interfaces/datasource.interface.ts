@@ -9,6 +9,7 @@ export interface IDataSourceTypes {
   last_transaction_synchronization_date: string;
   last_transaction_synchronization_status: string;
   default_datasource: string;
+  last_updated_by?: number;
 }
 export interface IManageAccessEntitlementsPerPageTypes {
   results: IDataSourceTypes[];
@@ -27,8 +28,8 @@ export interface IDataSourcePostTypes {
   last_transaction_synchronization_status: string;
   last_transaction_synchronization_date: string;
   default_datasource: string;
-  created_by: string;
+  created_by: number;
   created_on?: Date;
-  last_updated_by: string;
+  last_updated_by: number;
   last_updated_on?: Date;
 }
