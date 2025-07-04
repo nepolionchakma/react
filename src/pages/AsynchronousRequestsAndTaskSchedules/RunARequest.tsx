@@ -133,7 +133,7 @@ const RunARequest = () => {
     try {
       setIsLoading(true);
       const results = await getTaskParametersByTaskName(task_name);
-      const updatedParameters: Record<string, string | number> = {};
+      const updatedParameters: Record<string, string | number | boolean> = {};
 
       if (results) {
         setParameterArray(results);

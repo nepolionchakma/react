@@ -46,131 +46,129 @@ const SearchModels = () => {
   }
 
   return (
-    <div className="bg-slate-100 px-4">
+    <div className="bg-slate-100 px-4 mb-4">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <div className="grid grid-cols-2 gap-4 ">
-            <div className="flex flex-col">
-              <FormField
-                control={form.control}
-                name="match"
-                render={({ field }) => (
-                  <FormItem className="grid grid-cols-2 gap-2 justify-around">
-                    <FormLabel className="mt-2">Match</FormLabel>
-                    <FormControl className="flex mt-0">
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex "
-                      >
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="all" />
-                          </FormControl>
-                          <FormLabel className="font-normal">All</FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="mentions" />
-                          </FormControl>
-                          <FormLabel className="font-normal">Any</FormLabel>
-                        </FormItem>
-                      </RadioGroup>
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="control_name"
-                render={({ field }) => (
-                  <FormItem className="grid grid-cols-2 gap-2 items-center">
-                    <FormLabel className="mt-2">Control Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="w-[50%] p-1 h-7 "
-                        placeholder="Control Name"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="control_type"
-                render={({ field }) => (
-                  <FormItem className="grid grid-cols-2 gap-2 items-center">
-                    <FormLabel className="mt-2">Control Type</FormLabel>
-                    <Select value={field.value} onValueChange={field.onChange}>
-                      <FormControl className="w-[50%] p-1 h-7 m-0">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a option" />
-                        </SelectTrigger>
+          <FormField
+            control={form.control}
+            name="match"
+            render={({ field }) => (
+              <FormItem className="flex w-full justify-between items-center mb-4">
+                <FormLabel className="mt-2">Match</FormLabel>
+                <FormControl className="flex mt-0">
+                  <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="flex "
+                  >
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="all" />
                       </FormControl>
-                      <SelectContent>
-                        <SelectItem value="access">Approved</SelectItem>
-                        <SelectItem value="disapproved">Disapproved</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="priority"
-                render={({ field }) => (
-                  <FormItem className="grid grid-cols-2 gap-2 items-center">
-                    <FormLabel className="mt-2">Priority</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="text"
-                        className="w-[50%] p-1 h-7 "
-                        {...field}
-                      />
+                      <FormLabel className="font-normal">All</FormLabel>
+                    </FormItem>
+                    <FormItem className="flex items-center space-x-3 space-y-0">
+                      <FormControl>
+                        <RadioGroupItem value="mentions" />
+                      </FormControl>
+                      <FormLabel className="font-normal">Any</FormLabel>
+                    </FormItem>
+                  </RadioGroup>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <div className="grid grid-cols-2 gap-4">
+            <FormField
+              control={form.control}
+              name="control_name"
+              render={({ field }) => (
+                <FormItem className="flex flex-col w-[100%]">
+                  <FormLabel className="mt-2">Control Name</FormLabel>
+                  <FormControl>
+                    <Input
+                      className="w-[100%] py-[14px] "
+                      placeholder="Control Name"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
+              name="control_type"
+              render={({ field }) => (
+                <FormItem className="flex flex-col w-[100%]">
+                  <FormLabel className="mt-2">Control Type</FormLabel>
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <FormControl className="w-[100%] py-[14px] m-0">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a option" />
+                      </SelectTrigger>
                     </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="datasources"
-                render={({ field }) => (
-                  <FormItem className="grid grid-cols-2 gap-2 items-center">
-                    <FormLabel className="mt-2">Datasources</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="text"
-                        className="w-[50%] p-1 h-7 "
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <div className="flex flex-col justify-center gap-2 my-3 w-20">
-              <Button className="h-8 w-15" type="submit">
-                Search
-              </Button>
-              <Button
-                className="h-8 w-15"
-                type="button"
-                onClick={() => {
-                  form.reset();
-                  fetchControls();
-                }}
-              >
-                Reset
-              </Button>
-            </div>
+                    <SelectContent>
+                      <SelectItem value="access">Approved</SelectItem>
+                      <SelectItem value="disapproved">Disapproved</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="priority"
+              render={({ field }) => (
+                <FormItem className="flex flex-col w-[100%]">
+                  <FormLabel className="mt-2">Priority</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      className="w-[100%] py-[14px] "
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="datasources"
+              render={({ field }) => (
+                <FormItem className="flex flex-col w-[100%]">
+                  <FormLabel className="mt-2">Datasources</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="text"
+                      className="w-[100%] py-[14px] "
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+          <div className="flex w-full justify-end items-center mt-4 gap-4">
+            <Button
+              className="h-10 w-18 bg-white text-black hover:bg-white/70"
+              type="button"
+              onClick={() => {
+                form.reset();
+                fetchControls();
+              }}
+            >
+              Reset
+            </Button>
+            <Button className="h-10 w-18" type="submit">
+              Search
+            </Button>
           </div>
         </form>
       </Form>
