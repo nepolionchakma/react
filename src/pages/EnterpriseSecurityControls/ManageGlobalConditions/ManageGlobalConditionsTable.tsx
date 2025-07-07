@@ -91,12 +91,12 @@ const ManageGlobalConditionsTable = () => {
     fetchDataSource();
   }, []);
 
-  useEffect(() => {
-    const selectedRowsData = table
-      .getSelectedRowModel()
-      .rows.map((row) => row.original as IManageGlobalConditionTypes);
-    setSelectedManageGlobalConditionItem(selectedRowsData);
-  }, [rowSelection, data]);
+  // useEffect(() => {
+  //   const selectedRowsData = table
+  //     .getSelectedRowModel()
+  //     .rows.map((row) => row.original as IManageGlobalConditionTypes);
+  //   setSelectedManageGlobalConditionItem(selectedRowsData);
+  // }, [rowSelection, data]);
 
   useEffect(() => {
     if (data.length > 0) {
@@ -309,8 +309,6 @@ const ManageGlobalConditionsTable = () => {
       },
     },
   });
-
-  console.log(selectedManageGlobalConditionItem, "dsfsd");
 
   // handle delete Calculate
   const handleDeleteCalculate = async () => {

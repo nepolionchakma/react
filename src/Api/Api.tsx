@@ -15,6 +15,8 @@ export const api = axios.create({
 
 export const flaskApi = {
   DefGlobalConditions: "/def_global_conditions",
+  DefGlobalConditionLogics: "/def_global_condition_logics",
+  DefGlobalConditionLogicAttributes: "/def_global_condition_logic_attributes",
 };
 
 // All Node api

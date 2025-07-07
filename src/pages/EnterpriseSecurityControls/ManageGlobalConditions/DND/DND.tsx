@@ -23,13 +23,14 @@ import { arrayMove } from "@dnd-kit/sortable";
 import { toast } from "@/components/ui/use-toast";
 import { Save, X } from "lucide-react";
 import DragOverlayComponent from "./DragOverlayComponent";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { putData, postData } from "@/Utility/funtion";
 
 const DND: FC = () => {
-  const api = useAxiosPrivate();
   const {
     isLoading,
     setStateChange,
+    setIdStateChange,
     isEditModalOpen,
     setIsEditModalOpen,
     selectedManageGlobalConditionItem: selectedItem,
@@ -39,11 +40,15 @@ const DND: FC = () => {
     isActionLoading,
     setIsActionLoading,
   } = useAACContext();
+  const [rightWidgets, setRightWidgets] = useState<Extend[]>([]);
+  const [originalData, setOriginalData] = useState<Extend[]>([]);
+  const [activeId, setActiveId] = useState<number | null>(null);
+  const [maxId, setMaxId] = useState(attrMaxId);
 
   const iniLeftWidget = [
     {
-      id: attrMaxId ? attrMaxId + 1 : 1,
-      def_global_condition_logic_id: attrMaxId ? attrMaxId + 1 : 1,
+      id: maxId ? maxId + 1 : 1,
+      def_global_condition_logic_id: maxId ? maxId + 1 : 1,
       def_global_condition_id: selectedItem[0]?.def_global_condition_id,
       object: "",
       attribute: "",
@@ -53,10 +58,8 @@ const DND: FC = () => {
       widget_state: 0,
     },
   ];
-  const [rightWidgets, setRightWidgets] = useState<Extend[]>([]);
   const [leftWidgets, setLeftWidgets] = useState<Extend[]>(iniLeftWidget);
-  const [originalData, setOriginalData] = useState<Extend[]>([]);
-  const [activeId, setActiveId] = useState<number | null>(null);
+
   useEffect(() => {
     const fetchDataFunc = async () => {
       try {
@@ -67,6 +70,9 @@ const DND: FC = () => {
         const sortedData = fetchData?.sort(
           (a, b) => a.widget_position - b.widget_position
         );
+
+        const id = Math.max(...originalData.map((item) => item.id));
+        setMaxId(id);
 
         setRightWidgets(sortedData as Extend[]);
         setOriginalData(sortedData as Extend[]);
@@ -110,12 +116,12 @@ const DND: FC = () => {
     (item) => item.def_global_condition_logic_id === activeId
   );
 
-  const attrmaxId =
+  const newId =
     rightWidgets.length > 0
       ? Math.max(...rightWidgets.map((item) => item.id))
       : 0;
 
-  const getId = rightWidgets.length > 0 ? attrmaxId + 1 : 1;
+  const getId = rightWidgets.length > 0 ? newId + 1 : 1;
 
   const newItem = {
     id: getId,
@@ -263,7 +269,6 @@ const DND: FC = () => {
   );
 
   const handleSave = async () => {
-    setSelectedManageGlobalConditionItem([]);
     const upsertLogics = items.map((item) => ({
       def_global_condition_logic_id: item.def_global_condition_logic_id,
       def_global_condition_id: item.def_global_condition_id,
@@ -279,57 +284,73 @@ const DND: FC = () => {
       widget_state: item.widget_state,
     }));
 
+    const putParams = {
+      baseURL: FLASK_URL,
+      url:
+        flaskApi.DefGlobalConditions +
+        "/" +
+        selectedItem[0]?.def_global_condition_id,
+      setLoading: setIsActionLoading,
+      payload: changedAccessGlobalCondition,
+    };
+
+    const postGlobalConditionLogicsParams = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefGlobalConditionLogics}/upsert`,
+      setLoading: setIsActionLoading,
+      payload: upsertLogics,
+    };
+    const postGlobalConditionAttributeParams = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefGlobalConditionLogicAttributes}/upsert`,
+      setLoading: setIsActionLoading,
+      payload: upsertAttributes,
+    };
+
     try {
-      setIsActionLoading(true);
       if (isChangedAccessGlobalCondition) {
-        api
-          .put(
-            `/def-global-conditions/${selectedItem[0]?.def_global_condition_id}`,
-            changedAccessGlobalCondition
-          )
-          .then((logicResult) => {
-            if (logicResult.status === 200) {
-              toast({
-                description: logicResult.data.message,
-              });
-            }
-          })
-          .catch((error) => {
-            if (error instanceof Error) {
-              toast({ title: error.message, variant: "destructive" });
-            }
-          })
-          .finally(() => {
-            setIsActionLoading(false);
-            setStateChange((prev) => prev + 1);
-            setIsEditModalOpen(false);
-          });
+        const res = await putData(putParams);
+        if (res) {
+          setStateChange((prev) => prev + 1);
+          setIsEditModalOpen(false);
+          setSelectedManageGlobalConditionItem([]);
+        }
       }
       if (items.length > 0) {
-        const upsertResult = await api.post(
-          `/def-global-condition-logics/upsert`,
-          upsertLogics
-        );
-
-        if (upsertResult.status !== 200) {
-          throw new Error("Upsert logics failed.");
+        const res1 = await postData(postGlobalConditionLogicsParams);
+        if (res1) {
+          const res2 = await postData(postGlobalConditionAttributeParams);
+          if (res2) {
+            toast({ title: res2 });
+            setOriginalData([...rightWidgets]);
+            setIdStateChange((prev) => prev + 1);
+          }
         }
 
-        const attributeResult = await api.post(
-          `/def-global-condition-logic-attributes/upsert`,
+        // const upsertResult = await api.post(
+        //   `/def-global-condition-logics/upsert`,
+        //   upsertLogics
+        // );
 
-          upsertAttributes
-        );
+        // if (upsertResult.status !== 200) {
+        //   throw new Error("Upsert logics failed.");
+        // }
 
-        if (attributeResult.status === 200) {
-          toast({
-            description: "Save data successfully.",
-          });
+        // const attributeResult = await api.post(
+        //   `/def-global-condition-logic-attributes/upsert`,
 
-          setOriginalData([...rightWidgets]);
-          setIsActionLoading(false);
-          setIsEditModalOpen(false);
-        }
+        //   upsertAttributes
+        // );
+
+        // if (attributeResult.status === 200) {
+        //   toast({
+        //     description: "Save data successfully.",
+        //   });
+
+        //   setOriginalData([...rightWidgets]);
+        //   setIsActionLoading(false);
+        //   setIsEditModalOpen(false);
+        // }
       }
     } catch (error) {
       if (error instanceof Error) {

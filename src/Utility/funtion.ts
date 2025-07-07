@@ -53,6 +53,9 @@ export async function postData(params: postDataParams) {
       toast({ title: res.data.message });
       return res;
     }
+    if (res.status === 200) {
+      return res.data[0].message;
+    }
   } catch (error) {
     if (error instanceof Error) {
       toast({ title: error.message, variant: "destructive" });
