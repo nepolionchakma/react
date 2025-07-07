@@ -16,7 +16,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { FC } from "react";
 import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
+
 interface IManageGlobalConditionProps {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: any;
 }
 const ManageGlobalConditionUpdate: FC<IManageGlobalConditionProps> = ({
@@ -103,11 +105,7 @@ const ManageGlobalConditionUpdate: FC<IManageGlobalConditionProps> = ({
                 <Select value={field.value} onValueChange={field.onChange}>
                   <FormControl className="px-1 h-6">
                     <SelectTrigger>
-                      <SelectValue>
-                        {field.value === "active"
-                          ? "Active"
-                          : "Select a status"}
-                      </SelectValue>
+                      <SelectValue placeholder="Select an option" />
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>

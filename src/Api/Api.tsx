@@ -1,5 +1,6 @@
 import axios from "axios";
 const url = import.meta.env.VITE_NODE_ENDPOINT_URL; //VITE_API_ENDPOINT using NGNIX;
+export const FLASK_URL = import.meta.env.VITE_FLASK_ENDPOINT_URL;
 
 axios.defaults.withCredentials = true;
 // export default axios.create({
@@ -12,6 +13,13 @@ export const api = axios.create({
   withCredentials: true,
 });
 
+export const flaskApi = {
+  DefGlobalConditions: "/def_global_conditions",
+  DefGlobalConditionLogics: "/def_global_condition_logics",
+  DefGlobalConditionLogicAttributes: "/def_global_condition_logic_attributes",
+};
+
+// All Node api
 export const nodeApi = {
   ViewEditScheduleTaskApi:
     "/asynchronous-requests-and-task-schedules/task-schedules",

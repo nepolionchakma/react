@@ -128,6 +128,7 @@ interface IAACContextTypes {
   currentPage: number;
   limit: number;
   setLimit: Dispatch<React.SetStateAction<number>>;
+  setIdStateChange: Dispatch<SetStateAction<number>>;
 }
 export const AACContext = createContext<IAACContextTypes | null>(null);
 
@@ -179,6 +180,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   const [limit, setLimit] = useState<number>(8);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [idStateChange, setIdStateChange] = useState(1);
 
   useEffect(() => {
     const maxId = async () => {
@@ -210,7 +212,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       }
     };
     maxId();
-  }, [api, token?.user_id]);
+  }, [api, token?.user_id, idStateChange]);
 
   useEffect(() => {
     const maxLogicId = async () => {
@@ -750,6 +752,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     currentPage,
     limit,
     setLimit,
+    setIdStateChange,
   };
   return (
     <AACContext.Provider value={value}>
