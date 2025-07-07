@@ -1,13 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -23,23 +16,26 @@ import { FC, useEffect, useState } from "react";
 import { ring } from "ldrs";
 import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
 import CustomDropDown from "@/components/CustomDropDown/CustomDropDown";
+import { postData } from "@/Utility/funtion";
+import { FLASK_URL } from "@/Api/Api";
+import { flaskApi } from "@/Api/Api";
 interface IManageGlobalConditionProps {
   selectedItem?: IManageGlobalConditionTypes;
 }
+
+const statusData = ["Active", "Inactive"];
+
 const ManageGlobalConditionsModal: FC<IManageGlobalConditionProps> = () => {
-  // const { updateManageAccessEntitlements, isLoading, setSelected, table } =
-  //   useManageAccessEntitlementsContext();
   const {
-    createManageGlobalCondition,
-    manageGlobalConditions,
+    setIsOpenManageGlobalConditionModal,
     isLoading,
+    setIsLoading,
+    setStateChange,
     dataSources,
   } = useAACContext();
   const [datasourceOption, setDatasourceOption] = useState("Select an option");
+  const [status, setStatus] = useState("Select an option");
   const [datasourceNames, setDatasourceNames] = useState<string[]>([]);
-  const maxId = Math.max(
-    ...manageGlobalConditions.map((item) => item.def_global_condition_id)
-  );
 
   useEffect(() => {
     setDatasourceNames(dataSources.map((item) => item.datasource_name));
@@ -49,9 +45,7 @@ const ManageGlobalConditionsModal: FC<IManageGlobalConditionProps> = () => {
     name: z.string(),
     description: z.string(),
     datasource: z.string(),
-    status: z.string().min(3, {
-      message: "Select a option",
-    }),
+    status: z.string(),
   });
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -64,15 +58,24 @@ const ManageGlobalConditionsModal: FC<IManageGlobalConditionProps> = () => {
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
-    const postData = {
-      def_global_condition_id: maxId,
+    const postPayload = {
       name: data.name,
       description: data.description,
       datasource: datasourceOption,
-      status: data.status,
+      status: status,
     };
-    const res = await createManageGlobalCondition(postData);
+    const postParams = {
+      baseURL: FLASK_URL,
+      url: flaskApi.DefGlobalConditions,
+      setLoading: setIsLoading,
+      payload: postPayload,
+    };
+
+    const res = await postData(postParams);
+    // const res = await createManageGlobalCondition(postData);
     if (res) {
+      setStateChange((prev) => prev + 1);
+      setIsOpenManageGlobalConditionModal(false);
       form.reset();
     }
   }
@@ -130,24 +133,14 @@ const ManageGlobalConditionsModal: FC<IManageGlobalConditionProps> = () => {
           <FormField
             control={form.control}
             name="status"
-            render={({ field }) => (
+            render={() => (
               <FormItem>
                 <FormLabel>Status</FormLabel>
-                <Select
-                  required
-                  value={field.value} // Use value instead of defaultValue
-                  onValueChange={field.onChange}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select an option" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
-                  </SelectContent>
-                </Select>
+                <CustomDropDown
+                  data={statusData}
+                  option={status}
+                  setOption={setStatus}
+                />
                 <FormMessage />
               </FormItem>
             )}
