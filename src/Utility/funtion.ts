@@ -1,6 +1,5 @@
 import { api } from "@/Api/Api";
 import { toast } from "@/components/ui/use-toast";
-import { AxiosResponse } from "axios";
 import { Dispatch, SetStateAction } from "react";
 
 interface loadDataParams {
