@@ -125,10 +125,8 @@ export const DroppableItem: FC<DroppableItemProps> = ({
     const remainingUser = items.filter(
       (item) => item.def_access_model_logic_id !== id
     );
-    console.log(items, "Drop");
     setItems(remainingUser);
     toast({
-      title: "Info !!!",
       description: "Delete data successfully.",
     });
     setDeleteAndSaveState((prev) => prev + 1);
