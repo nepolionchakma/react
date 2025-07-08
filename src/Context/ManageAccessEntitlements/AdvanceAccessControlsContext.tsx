@@ -200,12 +200,12 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         )
       );
       if (resGlobalCondition.data.length > 0) {
-        console.log(maxIdGlobalCondition, "maxId");
         setGlobalConditionAttrMaxId(maxIdGlobalCondition);
       } else {
         setGlobalConditionAttrMaxId(0);
       }
       if (resManageAccessModel.data.length > 0) {
+        console.log(maxIdManageAccessModel, "maxAccId");
         setManageAccessModelAttrMaxId(maxIdManageAccessModel);
       } else {
         setManageAccessModelAttrMaxId(0);

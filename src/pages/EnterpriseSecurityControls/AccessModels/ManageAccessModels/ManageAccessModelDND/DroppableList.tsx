@@ -35,7 +35,7 @@ const DroppableList: FC<DroppableListProps> = ({
       strategy={verticalListSortingStrategy}
     >
       <div
-        className="flex flex-col gap-2 p-4 "
+        className="flex flex-col gap-2 p-4"
         // ref={items.length === 0 ? setNodeRef : null}
         ref={setNodeRef}
       >
@@ -125,10 +125,8 @@ export const DroppableItem: FC<DroppableItemProps> = ({
     const remainingUser = items.filter(
       (item) => item.def_access_model_logic_id !== id
     );
-    console.log(items, "Drop");
     setItems(remainingUser);
     toast({
-      title: "Info !!!",
       description: "Delete data successfully.",
     });
     setDeleteAndSaveState((prev) => prev + 1);

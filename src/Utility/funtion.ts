@@ -54,7 +54,9 @@ export async function postData(params: postDataParams) {
       return res;
     }
     if (res.status === 200) {
-      return res.data[0].message;
+      toast({ title: res.data[0].message });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return res as any;
     }
   } catch (error) {
     if (error instanceof Error) {

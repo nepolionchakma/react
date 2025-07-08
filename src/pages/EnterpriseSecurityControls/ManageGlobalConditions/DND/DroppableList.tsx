@@ -5,18 +5,7 @@ import {
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { ArrowDown, Maximize, Minimize, Trash } from "lucide-react";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+import { ArrowDown, Maximize, Minimize } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 export interface DroppableListProps {
   id: string;
@@ -28,6 +17,7 @@ import { FC } from "react";
 import { IManageGlobalConditionLogicExtendTypes } from "@/types/interfaces/ManageAccessEntitlements.interface";
 import { useDroppable } from "@dnd-kit/core";
 import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
+import Alert from "@/components/Alert/Alert";
 
 const DroppableList: FC<DroppableListProps> = ({
   id,
@@ -133,7 +123,6 @@ export const DroppableItem: FC<DroppableItemProps> = ({
     );
     setItems(remainingUser);
     toast({
-      title: "Info !!!",
       description: "Delete data successfully.",
     });
   };
@@ -182,43 +171,19 @@ export const DroppableItem: FC<DroppableItemProps> = ({
                 className="p-1 cursor-pointer hover:text-slate-800"
               />
             )}
-
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <div className="hover:text-white rounded-md">
-                  <Trash
-                    size={30}
-                    className="p-1 cursor-pointer hover:text-black"
-                  />
-                </div>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    Really Want To <span className="text-black">Delete</span> ?
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This action cannot be undone. This will permanently delete
-                    from database and remove your data from our servers.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction
-                    className="bg-black"
-                    onClick={() =>
-                      handleDelete(
-                        item.id,
-                        item.def_global_condition_logic_id,
-                        item.id
-                      )
-                    }
-                  >
-                    Confirm
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
+            <Alert
+              actionName="delete"
+              disabled={false}
+              onContinue={() =>
+                handleDelete(
+                  item.id,
+                  item.def_global_condition_logic_id,
+                  item.id
+                )
+              }
+              tooltipTitle="Delete"
+              iconColor="white"
+            ></Alert>
           </div>
         </div>
         <div className="p-3">

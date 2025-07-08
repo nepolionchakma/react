@@ -43,12 +43,11 @@ const DND: FC = () => {
   const [rightWidgets, setRightWidgets] = useState<Extend[]>([]);
   const [originalData, setOriginalData] = useState<Extend[]>([]);
   const [activeId, setActiveId] = useState<number | null>(null);
-  const [maxId, setMaxId] = useState(attrMaxId);
 
   const iniLeftWidget = [
     {
-      id: maxId ? maxId + 1 : 1,
-      def_global_condition_logic_id: maxId ? maxId + 1 : 1,
+      id: attrMaxId ? attrMaxId + 1 : 1,
+      def_global_condition_logic_id: attrMaxId ? attrMaxId + 1 : 1,
       def_global_condition_id: selectedItem[0]?.def_global_condition_id,
       object: "",
       attribute: "",
@@ -70,9 +69,6 @@ const DND: FC = () => {
         const sortedData = fetchData?.sort(
           (a, b) => a.widget_position - b.widget_position
         );
-
-        const id = Math.max(...originalData.map((item) => item.id));
-        setMaxId(id);
 
         setRightWidgets(sortedData as Extend[]);
         setOriginalData(sortedData as Extend[]);
@@ -300,6 +296,7 @@ const DND: FC = () => {
       setLoading: setIsActionLoading,
       payload: upsertLogics,
     };
+
     const postGlobalConditionAttributeParams = {
       baseURL: FLASK_URL,
       url: `${flaskApi.DefGlobalConditionLogicAttributes}/upsert`,
@@ -307,57 +304,26 @@ const DND: FC = () => {
       payload: upsertAttributes,
     };
 
-    try {
-      if (isChangedAccessGlobalCondition) {
-        const res = await putData(putParams);
-        if (res) {
-          setStateChange((prev) => prev + 1);
-          setIsEditModalOpen(false);
-          setSelectedManageGlobalConditionItem([]);
-        }
+    if (isChangedAccessGlobalCondition) {
+      const res = await putData(putParams);
+      if (res) {
+        setStateChange((prev) => prev + 1);
+        setIsEditModalOpen(false);
+        setSelectedManageGlobalConditionItem([]);
+        // form.reset(form.getValues());
       }
-      if (items.length > 0) {
-        const res1 = await postData(postGlobalConditionLogicsParams);
-        if (res1) {
-          const res2 = await postData(postGlobalConditionAttributeParams);
-          if (res2) {
-            toast({ title: res2 });
-            setOriginalData([...rightWidgets]);
-            setIdStateChange((prev) => prev + 1);
-          }
-        }
+    }
 
-        // const upsertResult = await api.post(
-        //   `/def-global-condition-logics/upsert`,
-        //   upsertLogics
-        // );
+    if (items.length > 0) {
+      const [response1, response2] = await Promise.all([
+        postData(postGlobalConditionLogicsParams),
+        postData(postGlobalConditionAttributeParams),
+      ]);
 
-        // if (upsertResult.status !== 200) {
-        //   throw new Error("Upsert logics failed.");
-        // }
-
-        // const attributeResult = await api.post(
-        //   `/def-global-condition-logic-attributes/upsert`,
-
-        //   upsertAttributes
-        // );
-
-        // if (attributeResult.status === 200) {
-        //   toast({
-        //     description: "Save data successfully.",
-        //   });
-
-        //   setOriginalData([...rightWidgets]);
-        //   setIsActionLoading(false);
-        //   setIsEditModalOpen(false);
-        // }
+      if (response1.status === 200 && response2.status === 200) {
+        setOriginalData([...rightWidgets]);
+        setIdStateChange((prev) => prev + 1);
       }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
-    } finally {
-      form.reset(form.getValues());
     }
   };
   return (
