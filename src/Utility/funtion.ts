@@ -1,5 +1,6 @@
 import { api } from "@/Api/Api";
 import { toast } from "@/components/ui/use-toast";
+import { AxiosResponse } from "axios";
 import { Dispatch, SetStateAction } from "react";
 
 interface loadDataParams {
@@ -54,7 +55,9 @@ export async function postData(params: postDataParams) {
       return res;
     }
     if (res.status === 200) {
-      return res.data[0].message;
+      toast({ title: res.data[0].message });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return res as any;
     }
   } catch (error) {
     if (error instanceof Error) {

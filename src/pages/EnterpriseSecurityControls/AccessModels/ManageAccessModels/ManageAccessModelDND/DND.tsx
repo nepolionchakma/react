@@ -25,8 +25,11 @@ import { toast } from "@/components/ui/use-toast";
 import { Save, X } from "lucide-react";
 import DragOverlayComponent from "./DragOverlayComponent";
 import ManageAccessModelUpdate from "../Update/ManageAccessModelUpdate";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+// import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { postData, putData } from "@/Utility/funtion";
+
 interface IManageAccessModelDNDProps {
   setOpenEditModal: React.Dispatch<React.SetStateAction<boolean>>;
   isOpenEditModal: boolean;
@@ -36,7 +39,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   isOpenEditModal,
 }) => {
   const { token } = useGlobalContext();
-  const api = useAxiosPrivate();
+  // const api = useAxiosPrivate();
   const {
     isLoading,
     selectedAccessModelItem: selectedItem,
@@ -45,6 +48,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     isActionLoading,
     setIsActionLoading,
     setStateChange,
+    setIdStateChange,
   } = useAACContext();
 
   const [rightWidgets, setRightWidgets] = useState<Extend[]>([]);
@@ -296,73 +300,68 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       widget_state: item.widget_state,
     }));
 
-    try {
-      setIsActionLoading(true);
-      if (isChangedAccessAccessModel) {
-        api
-          .put(
-            `/def-access-models/${selectedItem[0].def_access_model_id}`,
-            changedAccessModel
-          )
-          .then((logicResult) => {
-            if (logicResult?.status === 200) {
-              toast({
-                description: logicResult.data.message,
-              });
-            } else {
-              toast({
-                description: "Select Data Source",
-                variant: "destructive",
-              });
-            }
-            // console.log("Logic Result:", logicResult);
-          })
-          .catch((error) => {
-            if (error instanceof Error) {
-              toast({
-                title: error.message,
-                variant: "destructive",
-              });
-            }
-          })
-          .finally(() => {
-            setIsActionLoading(false);
-            setStateChange((prev) => prev + 1);
-            setOpenEditModal(false);
-          });
-      }
-      if (items.length > 0) {
-        Promise.all([
-          api.post(`/def-access-model-logics/upsert`, upsertLogics),
-          api.post(
-            `/def-access-model-logic-attributes/upsert`,
-            upsertAttributes
-          ),
-        ])
-          .then(([logicResult, attributeResult]) => {
-            if (logicResult.status === 200 && attributeResult.status === 200) {
-              toast({
-                description: "Save data successfully.",
-              });
+    const putParams = {
+      baseURL: FLASK_URL,
+      url:
+        flaskApi.DefAccessModels + "/" + selectedItem[0]?.def_access_model_id,
+      setLoading: setIsActionLoading,
+      payload: changedAccessModel,
+    };
 
-              setOriginalData([...rightWidgets]);
-            }
-            // console.log("Logic Result:", logicResult);
-            // console.log("Attribute Result:", attributeResult);
-          })
-          .catch((error) => {
-            console.error("Error occurred:", error);
-          })
-          .finally(() => {
-            setIsActionLoading(false);
-            setStateChange((prev) => prev + 1);
-            setOpenEditModal(false);
-          });
+    const postAccessModelLogicsParams = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefAccessModelLogics}/upsert`,
+      setLoading: setIsActionLoading,
+      payload: upsertLogics,
+    };
+    const postAccessModelAttributeParams = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefAccessModelLogicAttributes}/upsert`,
+      setLoading: setIsActionLoading,
+      payload: upsertAttributes,
+    };
+
+    if (isChangedAccessAccessModel) {
+      const res = await putData(putParams);
+      if (res) {
+        setIsActionLoading(false);
+        setStateChange((prev) => prev + 1);
+        setOpenEditModal(false);
       }
-    } catch (error) {
-      console.error("Error saving data:", error);
-    } finally {
-      form.reset(form.getValues());
+    }
+    if (items.length > 0) {
+      const [response1, response2] = await Promise.all([
+        postData(postAccessModelLogicsParams),
+        postData(postAccessModelAttributeParams),
+      ]);
+
+      if (response1.status === 200 && response2.status === 200) {
+        setOriginalData([...rightWidgets]);
+        setIdStateChange((prev) => prev + 1);
+      }
+      // Promise.all([
+      //   api.post(`/def-access-model-logics/upsert`, upsertLogics),
+      //   api.post(
+      //     `/def-access-model-logic-attributes/upsert`,
+      //     upsertAttributes
+      //   ),
+      // ])
+      //   .then(([logicResult, attributeResult]) => {
+      //     if (logicResult.status === 200 && attributeResult.status === 200) {
+      //       toast({
+      //         description: "Save data successfully.",
+      //       });
+      //       setOriginalData([...rightWidgets]);
+      //     }
+      //   })
+      //   .catch((error) => {
+      //     console.error("Error occurred:", error);
+      //   })
+      //   .finally(() => {
+      //     setIsActionLoading(false);
+      //     setIdStateChange((prev) => prev + 1);
+      //     // setOpenEditModal(false);
+      //   });
     }
   };
 

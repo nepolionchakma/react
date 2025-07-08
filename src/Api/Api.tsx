@@ -17,6 +17,9 @@ export const flaskApi = {
   DefGlobalConditions: "/def_global_conditions",
   DefGlobalConditionLogics: "/def_global_condition_logics",
   DefGlobalConditionLogicAttributes: "/def_global_condition_logic_attributes",
+  DefAccessModels: "/def_access_models",
+  DefAccessModelLogics: "/def_access_model_logics",
+  DefAccessModelLogicAttributes: "/def_access_model_logic_attributes",
 };
 
 // All Node api
