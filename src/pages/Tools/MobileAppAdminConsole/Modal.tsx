@@ -246,7 +246,7 @@ export default function Modal({
                 className="px-6 py-2 bg-black rounded-md hover:bg-black/80 text-white"
                 onClick={saveMenu}
               >
-                Save
+                Ok
               </button>
             </div>
           </div>
