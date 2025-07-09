@@ -330,14 +330,13 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       }
     }
     if (items.length > 0) {
-      const [response1, response2] = await Promise.all([
-        postData(postAccessModelLogicsParams),
-        postData(postAccessModelAttributeParams),
-      ]);
-
-      if (response1.status === 200 && response2.status === 200) {
-        setOriginalData([...rightWidgets]);
-        setIdStateChange((prev) => prev + 1);
+      const res1 = await postData(postAccessModelLogicsParams);
+      if (res1.status === 200) {
+        const res2 = await postData(postAccessModelAttributeParams);
+        if (res2.status === 200) {
+          setOriginalData([...rightWidgets]);
+          setIdStateChange((prev) => prev + 1);
+        }
       }
       // Promise.all([
       //   api.post(`/def-access-model-logics/upsert`, upsertLogics),

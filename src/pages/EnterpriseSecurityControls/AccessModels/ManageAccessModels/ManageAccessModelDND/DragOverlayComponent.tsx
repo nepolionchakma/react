@@ -47,7 +47,7 @@ const DragOverlayComponent: FC<DroppableItemProps> = ({
     transition,
   } = useSortable({ id: item.def_access_model_logic_id });
 
-  const { deleteLogicAndAttributeData } = useAACContext();
+  const { deleteManageModelLogicAndAttributeData } = useAACContext();
 
   // const { deleteUser } = useSqliteAuthContext();
 
@@ -60,7 +60,7 @@ const DragOverlayComponent: FC<DroppableItemProps> = ({
 
   const handleDelete = async (id: number, logicId: number, attrId: number) => {
     // check if logicId and attrId exist in the database
-    const res = await deleteLogicAndAttributeData(logicId, attrId);
+    const res = await deleteManageModelLogicAndAttributeData(logicId, attrId);
     try {
       if (res === 200) {
         Promise.all([

@@ -312,7 +312,6 @@ const DND: FC = () => {
         // form.reset(form.getValues());
       }
     }
-
     if (items.length > 0) {
       const res1 = await postData(postGlobalConditionLogicsParams);
       if (res1.status === 200) {
@@ -323,15 +322,6 @@ const DND: FC = () => {
           setIdStateChange((prev) => prev + 1);
         }
       }
-      // const [response1, response2] = await Promise.all([
-      //   postData(postGlobalConditionLogicsParams),
-      //   postData(postGlobalConditionAttributeParams),
-      // ]);
-      // console.log(response1.data[0], response2.data[0]);
-      // if (response1.status === 200 && response2.status === 200) {
-      //   setOriginalData([...rightWidgets]);
-      //   setIdStateChange((prev) => prev + 1);
-      // }
     }
   };
   return (

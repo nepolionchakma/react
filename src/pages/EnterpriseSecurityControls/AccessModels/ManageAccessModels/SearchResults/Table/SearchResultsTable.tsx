@@ -61,6 +61,7 @@ const SearchResultsTable = () => {
     totalPage,
     limit,
     setLimit,
+    setIdStateChange,
   } = useAACContext();
 
   const [isOpenAddModal, setIsOpenAddModal] = React.useState<boolean>(false);
@@ -223,6 +224,7 @@ const SearchResultsTable = () => {
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
     setSelectedAccessModelItem([]);
     setWillBeDelete([]);
+    setIdStateChange((prev) => prev + 1);
   };
   // default hidden columns
   const hiddenColumns = [

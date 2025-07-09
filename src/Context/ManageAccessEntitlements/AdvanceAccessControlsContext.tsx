@@ -72,10 +72,6 @@ interface IAACContextTypes {
   deleteManageGlobalCondition: (
     items: IManageGlobalConditionTypes[]
   ) => Promise<void>;
-  deleteLogicAndAttributeData: (
-    logicId: number,
-    attrId: number
-  ) => Promise<number | undefined>;
   deleteGlobalLogicAndAttributeData: (
     logicId: number,
     attrId: number
@@ -402,22 +398,6 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         });
     }
   };
-  const deleteLogicAndAttributeData = async (
-    logicId: number,
-    attrId: number
-  ) => {
-    try {
-      const [isExistLogicId, isExistAttrId] = await Promise.all([
-        api.delete(`/def-access-model-logics/${logicId}`),
-        api.delete(`/def-access-model-logic-attributes/${attrId}`),
-      ]);
-      if (isExistLogicId.status === 200 && isExistAttrId.status === 200) {
-        return isExistLogicId.status;
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
   const deleteGlobalLogicAndAttributeData = async (
     logicId: number,
     attrId: number
@@ -623,14 +603,15 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       console.log(error);
     }
   };
+
   const deleteManageModelLogicAndAttributeData = async (
     logicId: number,
     attrId: number
   ) => {
     try {
       const [isExistLogicId, isExistAttrId] = await Promise.all([
-        api.delete(`/manage-access-model-logics/${logicId}`),
-        api.delete(`/manage-access-model-logic-attributes/${attrId}`),
+        api.delete(`/def-access-model-logics/${logicId}`),
+        api.delete(`/def-access-model-logic-attributes/${attrId}`),
       ]);
       if (isExistLogicId.status === 200 && isExistAttrId.status === 200) {
         return isExistLogicId.status;
@@ -721,7 +702,6 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     setIsActionLoading,
     manageGlobalConditionDeleteCalculate,
     deleteManageGlobalCondition,
-    deleteLogicAndAttributeData,
     deleteGlobalLogicAndAttributeData,
     manageAccessModels,
     setManageAccessModels,
