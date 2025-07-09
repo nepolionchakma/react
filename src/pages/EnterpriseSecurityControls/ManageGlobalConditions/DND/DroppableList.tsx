@@ -90,7 +90,8 @@ export const DroppableItem: FC<DroppableItemProps> = ({
     transition,
   } = useSortable({ id: item.def_global_condition_logic_id });
 
-  const { deleteGlobalLogicAndAttributeData } = useAACContext();
+  const { deleteGlobalLogicAndAttributeData, setIdStateChange } =
+    useAACContext();
 
   // const { deleteUser } = useSqliteAuthContext();
 
@@ -115,6 +116,7 @@ export const DroppableItem: FC<DroppableItemProps> = ({
     if (res.length === 0) {
       // check if logicId and attrId exist in the database
       await deleteGlobalLogicAndAttributeData(logicId, attrId);
+      setIdStateChange((prev) => prev + 1);
     }
 
     // delete Data from the array but not

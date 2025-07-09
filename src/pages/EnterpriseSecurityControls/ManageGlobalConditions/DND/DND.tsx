@@ -84,10 +84,9 @@ const DND: FC = () => {
     name: z.string(),
     description: z.string(),
     datasource: z.string(),
-    status: z.string().min(3, {
-      message: "Select a option",
-    }),
+    status: z.string(),
   });
+
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -313,16 +312,15 @@ const DND: FC = () => {
         // form.reset(form.getValues());
       }
     }
-
     if (items.length > 0) {
-      const [response1, response2] = await Promise.all([
-        postData(postGlobalConditionLogicsParams),
-        postData(postGlobalConditionAttributeParams),
-      ]);
-
-      if (response1.status === 200 && response2.status === 200) {
-        setOriginalData([...rightWidgets]);
-        setIdStateChange((prev) => prev + 1);
+      const res1 = await postData(postGlobalConditionLogicsParams);
+      if (res1.status === 200) {
+        const res2 = await postData(postGlobalConditionAttributeParams);
+        if (res2.status === 200) {
+          console.log(res1.data[0].message, res2.data[0].message);
+          setOriginalData([...rightWidgets]);
+          setIdStateChange((prev) => prev + 1);
+        }
       }
     }
   };

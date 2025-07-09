@@ -69,7 +69,7 @@ const ManageGlobalConditionsTable = () => {
     setManageGlobalConditionTopicData,
     manageGlobalConditionDeleteCalculate,
     deleteManageGlobalCondition,
-    deleteLogicAndAttributeData,
+    deleteGlobalLogicAndAttributeData,
     fetchDataSource,
   } = useAACContext();
   const [page, setPage] = useState<number>(1);
@@ -91,12 +91,12 @@ const ManageGlobalConditionsTable = () => {
     fetchDataSource();
   }, []);
 
-  // useEffect(() => {
-  //   const selectedRowsData = table
-  //     .getSelectedRowModel()
-  //     .rows.map((row) => row.original as IManageGlobalConditionTypes);
-  //   setSelectedManageGlobalConditionItem(selectedRowsData);
-  // }, [rowSelection, data]);
+  useEffect(() => {
+    const selectedRowsData = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.original as IManageGlobalConditionTypes);
+    setSelectedManageGlobalConditionItem(selectedRowsData);
+  }, [rowSelection, data]);
 
   useEffect(() => {
     if (data.length > 0) {
@@ -332,6 +332,7 @@ const ManageGlobalConditionsTable = () => {
           results.push(res);
         }
       });
+
       setWillBeDelete((prev) => [...prev, ...results]);
     } catch (error) {
       console.log("Error Deleting Global model items", error);
@@ -341,7 +342,7 @@ const ManageGlobalConditionsTable = () => {
   const handleDelete = async () => {
     await Promise.all(
       await willBeDelete.map(async (item) => {
-        const res = await deleteLogicAndAttributeData(
+        const res = await deleteGlobalLogicAndAttributeData(
           item.def_global_condition_logic_id,
           item.id
         );
