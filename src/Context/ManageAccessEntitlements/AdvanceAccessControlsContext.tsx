@@ -201,6 +201,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       );
       if (resGlobalCondition.data.length > 0) {
         setGlobalConditionAttrMaxId(maxIdGlobalCondition);
+        console.log(maxIdGlobalCondition, "maxGId");
       } else {
         setGlobalConditionAttrMaxId(0);
       }
