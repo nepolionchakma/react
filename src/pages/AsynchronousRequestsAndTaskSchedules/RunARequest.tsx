@@ -50,7 +50,7 @@ const RunARequest = () => {
     IARMAsynchronousTasksTypes[] | undefined
   >(undefined);
   const [parameters, setParameters] = useState<
-    Record<string, string | number | boolean>
+    Record<string, string | number | boolean | Date | undefined>
   >({});
   const [parameterArray, setParameterArray] = useState<
     IARMAsynchronousTasksParametersTypes[] | undefined
@@ -87,7 +87,9 @@ const RunARequest = () => {
 
   const FormSchema = z.object({
     task_name: z.string(),
-    parameters: z.record(z.union([z.string(), z.number(), z.boolean()])),
+    parameters: z.record(
+      z.union([z.string(), z.number(), z.boolean(), z.date()])
+    ),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -318,7 +320,7 @@ const RunARequest = () => {
                                       setOpen(false);
                                       setParameters((prev) => ({
                                         ...prev,
-                                        [pm.parameter_name]: String(date),
+                                        [pm.parameter_name]: date,
                                       }));
                                     }}
                                   />
