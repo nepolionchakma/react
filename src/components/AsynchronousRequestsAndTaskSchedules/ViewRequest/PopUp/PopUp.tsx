@@ -1,4 +1,5 @@
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
+import { convertDate } from "@/Utility/DateConverter";
 import { X } from "lucide-react";
 interface IResultsProps {
   action: string;
@@ -15,17 +16,32 @@ const PopUp = ({ action, data, setData }: IResultsProps) => {
         </div>
         <div className="p-2 flex flex-col ">
           {/* {JSON.stringify(data)} */}
-          {Object.entries(data).map(([key, value]) => (
-            <div key={key}>
-              {action === "Parameters" ? (
-                <span className="capitalize">
-                  {key.toLowerCase().replace("_", " ")}: {value}
-                </span>
-              ) : (
-                <span>{value}</span>
-              )}
-            </div>
-          ))}
+          {Object.entries(data).map(([key, value]) => {
+            // console.log(key, value, "key value");
+            // console.log(typeof key, typeof value, "key value type");
+            return (
+              <div key={key}>
+                {action === "Parameters" ? (
+                  <span className="capitalize">
+                    {key.toLowerCase().replace("_", " ")}:{" "}
+                    {key === "Flag" && typeof value === "boolean"
+                      ? value === true
+                        ? "Yes"
+                        : "No"
+                      : key === "Date-Time"
+                      ? convertDate(new Date(value))
+                      : key === "get_id"
+                      ? Number(value)
+                      : key === "EMPLOYEE_ID"
+                      ? Number(value)
+                      : value}
+                  </span>
+                ) : (
+                  <span>{value}</span>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </CustomModal4>
