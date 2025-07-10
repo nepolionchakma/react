@@ -72,7 +72,7 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
     IARMAsynchronousTasksTypes[] | undefined
   >(undefined);
   const [parameters, setParameters] = useState<
-    Record<string, string | number | boolean>
+    Record<string, string | number | boolean | Date | undefined>
   >(selected?.kwargs || {});
   const [parameterArray, setParameterArray] = useState<
     IARMAsynchronousTasksParametersTypes[] | undefined
@@ -114,7 +114,9 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
   const FormSchema = z.object({
     user_schedule_name: z.string(),
     task_name: z.string(),
-    parameters: z.record(z.union([z.string(), z.number(), z.boolean()])),
+    parameters: z.record(
+      z.union([z.string(), z.number(), z.boolean(), z.date()])
+    ),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -483,7 +485,7 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
                                       setOpen(false);
                                       setParameters((prev) => ({
                                         ...prev,
-                                        [pm.parameter_name]: String(date),
+                                        [pm.parameter_name]: date,
                                       }));
                                     }}
                                   />
