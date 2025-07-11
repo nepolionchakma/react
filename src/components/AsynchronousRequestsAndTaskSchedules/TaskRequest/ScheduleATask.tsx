@@ -449,6 +449,9 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
                               }))
                             }
                             className="h-8"
+                            placeholder={
+                              pm.parameter_name === "Interval" ? "2h" : ""
+                            }
                           />
                         )}
                         {pm.data_type.toLowerCase() === "integer" && (
