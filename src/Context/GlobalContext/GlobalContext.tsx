@@ -377,6 +377,9 @@ export function GlobalContextProvider({
       params.setLoading(true);
       const res = await api.get(`${params.url}`, {
         baseURL: params.baseURL,
+        headers: {
+          Authorization: `Bearer ${token.access_token}`,
+        },
       });
       if (res) {
         return res.data;
