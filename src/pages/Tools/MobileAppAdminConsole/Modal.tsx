@@ -129,7 +129,7 @@ const Modal = ({
     };
 
     return (
-      <div className={`mt-4`} style={{ paddingLeft: `${level * 20}px` }}>
+      <div className={`mt-4`} style={{ paddingLeft: `30px` }}>
         <div className="flex items-center gap-2">
           <p>{`${level + 1}.${index + 1}.`}</p>
           <input
