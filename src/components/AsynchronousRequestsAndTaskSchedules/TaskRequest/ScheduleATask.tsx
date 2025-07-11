@@ -33,6 +33,7 @@ import {
   IARMAsynchronousTasksParametersTypes,
   IARMAsynchronousTasksTypes,
   IAsynchronousRequestsAndTaskSchedulesTypes,
+  IParametersTypes,
   IScheduleOnce,
   ISchedulePropsNonPeriodic,
   ISchedulePropsPeriodic,
@@ -71,14 +72,15 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
   const [asyncTaskNames, setAsyncTaskNames] = useState<
     IARMAsynchronousTasksTypes[] | undefined
   >(undefined);
-  const [parameters, setParameters] = useState<
-    Record<string, string | number | boolean | Date | undefined>
-  >(selected?.kwargs || {});
+  const [parameters, setParameters] = useState<IParametersTypes>({});
+  // Record<string, string | number | boolean | Date | undefined>
+  // console.log(parameters, "parameters");
   const [parameterArray, setParameterArray] = useState<
     IARMAsynchronousTasksParametersTypes[] | undefined
   >([]);
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
+  const [time, setTime] = useState("00:00:00");
 
   const [scheduleType, setScheduleType] = useState<string>(
     selected?.schedule_type ?? ""
@@ -103,7 +105,11 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
             item.data_type.toLowerCase() === "integer" ? 0 : "";
         });
       }
-      setParameters(updatedParameters);
+      if (selected?.parameters) {
+        setParameters(selected.parameters);
+      } else {
+        setParameters(updatedParameters);
+      }
     } catch (error) {
       console.error(error);
     } finally {
@@ -124,7 +130,7 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
     defaultValues: {
       user_schedule_name: "",
       task_name: "",
-      parameters: selected?.kwargs ?? {},
+      parameters: selected?.parameters ?? {},
     },
   });
 
@@ -256,6 +262,16 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
         }
       }
     });
+    // handleGetParameters for editing scheduled task
+    if (selected) {
+      handleGetParameters(selected.task_name);
+
+      const dateString = selected?.parameters["Date-Time"];
+      const date = new Date(dateString as Date | string);
+      const time = format(selected?.parameters["Date-Time"] as Date, "HH:mm");
+      setTime(time);
+      setDate(date);
+    }
   }, [scheduleType, selected]);
 
   return (
@@ -497,7 +513,32 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
                                 type="time"
                                 id="time-picker"
                                 step="1"
-                                defaultValue="00:00:00"
+                                value={
+                                  parameters[pm.parameter_name]
+                                    ? format(
+                                        parameters[pm.parameter_name] as Date,
+                                        "HH:mm"
+                                      )
+                                    : time
+                                }
+                                onChange={(e) => {
+                                  const timeValue = e.target.value;
+                                  setTime(timeValue);
+                                  if (date) {
+                                    const [hours, minutes, seconds] =
+                                      timeValue.split(":");
+                                    const updatedDate = new Date(date);
+                                    updatedDate.setHours(
+                                      parseInt(hours),
+                                      parseInt(minutes),
+                                      parseInt(seconds)
+                                    );
+                                    setParameters((prev) => ({
+                                      ...prev,
+                                      [pm.parameter_name]: updatedDate,
+                                    }));
+                                  }
+                                }}
                                 className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                               />
                             </div>
