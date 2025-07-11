@@ -125,7 +125,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   // Asunchronous Tasks
   const getAsyncTasks = async () => {
     try {
-      setIsLoading(true);
+      // setIsLoading(true);
       const res = await api.get<IARMAsynchronousTasksTypes[]>(
         `/arm-tasks/def_async_tasks`
       );

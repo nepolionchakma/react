@@ -48,8 +48,12 @@ export function ViewRequestTable() {
   const [limit, setLimit] = React.useState(8);
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
   const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
-  const [viewParameters, setViewParameters] = React.useState("");
-  const [viewResult, setViewResult] = React.useState("");
+  const [viewParameters, setViewParameters] = React.useState<any | undefined>(
+    undefined
+  );
+  const [viewResult, setViewResult] = React.useState<any | undefined>(
+    undefined
+  );
   const [clickedRowId, setClickedRowId] = React.useState("");
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -108,7 +112,7 @@ export function ViewRequestTable() {
 
     return () => clearTimeout(delayDebounce); // Cleanup timeout
   }, [query, page, limit]); // Run on query and page change
-
+  // console.log(viewParameters, "viewParameters 00");
   const table = useReactTable({
     data,
     columns: getColumns(
@@ -170,7 +174,7 @@ export function ViewRequestTable() {
 
   return (
     <div className="px-3">
-      {(viewParameters || viewResult) && (
+      {(viewParameters !== undefined || viewResult !== undefined) && (
         <PopUp
           action={viewParameters ? "Parameters" : "Result"}
           data={viewParameters ? viewParameters : viewResult}

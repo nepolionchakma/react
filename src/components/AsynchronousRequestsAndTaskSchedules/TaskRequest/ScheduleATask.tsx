@@ -18,7 +18,7 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { FC, useEffect, useState } from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import {
@@ -33,6 +33,7 @@ import {
   IARMAsynchronousTasksParametersTypes,
   IARMAsynchronousTasksTypes,
   IAsynchronousRequestsAndTaskSchedulesTypes,
+  IParametersTypes,
   IScheduleOnce,
   ISchedulePropsNonPeriodic,
   ISchedulePropsPeriodic,
@@ -55,6 +56,9 @@ interface ITaskRequestProps {
   handleCloseModal: () => void;
   user_schedule_name: string;
   selected?: IAsynchronousRequestsAndTaskSchedulesTypes;
+  setSelected: Dispatch<
+    SetStateAction<IAsynchronousRequestsAndTaskSchedulesTypes | undefined>
+  >;
 }
 
 const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
@@ -62,6 +66,7 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
   handleCloseModal,
   user_schedule_name,
   selected,
+  setSelected,
 }) => {
   const api = useAxiosPrivate();
   const { getAsyncTasks, getTaskParametersByTaskName, setChangeState } =
@@ -71,14 +76,15 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
   const [asyncTaskNames, setAsyncTaskNames] = useState<
     IARMAsynchronousTasksTypes[] | undefined
   >(undefined);
-  const [parameters, setParameters] = useState<
-    Record<string, string | number | boolean | Date | undefined>
-  >(selected?.kwargs || {});
+  const [parameters, setParameters] = useState<IParametersTypes>({});
+  // Record<string, string | number | boolean | Date | undefined>
+  // console.log(parameters, "parameters");
   const [parameterArray, setParameterArray] = useState<
     IARMAsynchronousTasksParametersTypes[] | undefined
   >([]);
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
+  // const [time, setTime] = useState("00:00:00");
 
   const [scheduleType, setScheduleType] = useState<string>(
     selected?.schedule_type ?? ""
@@ -103,7 +109,11 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
             item.data_type.toLowerCase() === "integer" ? 0 : "";
         });
       }
-      setParameters(updatedParameters);
+      if (selected?.parameters) {
+        setParameters(selected.parameters);
+      } else {
+        setParameters(updatedParameters);
+      }
     } catch (error) {
       console.error(error);
     } finally {
@@ -124,7 +134,7 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
     defaultValues: {
       user_schedule_name: "",
       task_name: "",
-      parameters: selected?.kwargs ?? {},
+      parameters: selected?.parameters ?? {},
     },
   });
 
@@ -178,6 +188,18 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
             payload
           ));
       if (res.status === 200) {
+        if (selected) {
+          // select value update
+          setSelected((prev) => {
+            if (prev) {
+              return {
+                ...prev,
+                parameters: payload.parameters,
+              };
+            }
+            return prev;
+          });
+        }
         toast({ title: "Success", description: `${res.data.message}` });
         handleCloseModal();
       }
@@ -256,6 +278,17 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
         }
       }
     });
+    // handleGetParameters for editing scheduled task
+    if (selected) {
+      handleGetParameters(selected.task_name);
+      if (selected?.parameters["Date-Time"]) {
+        const dateString = selected?.parameters["Date-Time"];
+        const date = new Date(dateString as Date | string);
+        // const time = format(selected?.parameters["Date-Time"] as Date, "HH:mm");
+        // setTime(time);
+        setDate(date);
+      }
+    }
   }, [scheduleType, selected]);
 
   return (
@@ -416,6 +449,9 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
                               }))
                             }
                             className="h-8"
+                            placeholder={
+                              pm.parameter_name === "Interval" ? "2h" : ""
+                            }
                           />
                         )}
                         {pm.data_type.toLowerCase() === "integer" && (
@@ -497,7 +533,32 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
                                 type="time"
                                 id="time-picker"
                                 step="1"
-                                defaultValue="00:00:00"
+                                value={
+                                  parameters[pm.parameter_name]
+                                    ? format(
+                                        parameters[pm.parameter_name] as Date,
+                                        "HH:mm"
+                                      )
+                                    : "00:00:00" //time
+                                }
+                                onChange={(e) => {
+                                  const timeValue = e.target.value;
+                                  // setTime(timeValue);
+                                  if (date) {
+                                    const [hours, minutes, seconds] =
+                                      timeValue.split(":");
+                                    const updatedDate = new Date(date);
+                                    updatedDate.setHours(
+                                      parseInt(hours),
+                                      parseInt(minutes),
+                                      parseInt(seconds)
+                                    );
+                                    setParameters((prev) => ({
+                                      ...prev,
+                                      [pm.parameter_name]: updatedDate,
+                                    }));
+                                  }
+                                }}
                                 className="bg-background appearance-none [&::-webkit-calendar-picker-indicator]:hidden [&::-webkit-calendar-picker-indicator]:appearance-none"
                               />
                             </div>

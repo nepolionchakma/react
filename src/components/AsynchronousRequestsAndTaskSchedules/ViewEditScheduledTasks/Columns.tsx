@@ -1,4 +1,7 @@
-import { IAsynchronousRequestsAndTaskSchedulesTypes } from "@/types/interfaces/ARM.interface";
+import {
+  IAsynchronousRequestsAndTaskSchedulesTypes,
+  IParametersTypes,
+} from "@/types/interfaces/ARM.interface";
 import { ColumnDef } from "@tanstack/react-table";
 import {
   ArrowUpDown,
@@ -10,8 +13,8 @@ import {
 export const columns = (
   expandedRow: string | null,
   setExpandedRow: (row: string | null) => void,
-  viewParameters: string,
-  setViewParameters: (row: string) => void,
+  viewParameters: IParametersTypes | undefined,
+  setViewParameters: (row: IParametersTypes | undefined) => void,
   clickedRowId: string,
   setClickedRowId: (row: string) => void
 ): ColumnDef<IAsynchronousRequestsAndTaskSchedulesTypes>[] => [

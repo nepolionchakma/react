@@ -31,7 +31,10 @@ import {
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { columns as getColumns } from "./Columns";
 import Pagination5 from "@/components/Pagination/Pagination5";
-import { IAsynchronousRequestsAndTaskSchedulesTypes } from "@/types/interfaces/ARM.interface";
+import {
+  IAsynchronousRequestsAndTaskSchedulesTypes,
+  IParametersTypes,
+} from "@/types/interfaces/ARM.interface";
 import { toast } from "@/components/ui/use-toast";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import ScheduleATaskComponent from "../TaskRequest/ScheduleATask";
@@ -59,7 +62,9 @@ export function ViewEditScheduledTasksTable() {
     IAsynchronousRequestsAndTaskSchedulesTypes[] | []
   >([]);
   const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
-  const [viewParameters, setViewParameters] = React.useState("");
+  const [viewParameters, setViewParameters] = React.useState<
+    IParametersTypes | undefined
+  >(undefined);
   const [clickedRowId, setClickedRowId] = React.useState("");
   const [limit, setLimit] = React.useState<number>(8);
   const [page, setPage] = React.useState<number>(1);
@@ -230,7 +235,7 @@ export function ViewEditScheduledTasksTable() {
   const handleCloseModal = () => {
     setIsOpenModal("");
   };
-
+  // console.log(viewParameters, "viewParameters in table");
   return (
     <div className="px-3">
       {isOpenModal === "edit_task_schedule" && (
@@ -238,12 +243,13 @@ export function ViewEditScheduledTasksTable() {
           <ScheduleATaskComponent
             action="Edit Scheduled Task"
             selected={selected}
+            setSelected={setSelected}
             user_schedule_name="run_script"
             handleCloseModal={handleCloseModal}
           />
         </CustomModal2>
       )}
-      {viewParameters && (
+      {viewParameters !== undefined && (
         <PopUp
           action="Parameters"
           data={viewParameters}

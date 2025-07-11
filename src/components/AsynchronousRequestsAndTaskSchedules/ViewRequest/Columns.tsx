@@ -11,10 +11,10 @@ import {
 export const columns = (
   expandedRow: string | null,
   setExpandedRow: (row: string | null) => void,
-  viewParameters: string,
-  setViewParameters: (row: string) => void,
-  viewResult: string,
-  setViewResult: (row: string) => void,
+  viewParameters: any,
+  setViewParameters: (row: any) => void,
+  viewResult: any,
+  setViewResult: (row: any) => void,
   clickedRowId: string,
   setClickedRowId: (row: string) => void
 ): ColumnDef<IARMViewRequestsTypes>[] => [

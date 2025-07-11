@@ -74,7 +74,9 @@ export interface ISchedulePropsNonPeriodic {
 export interface IScheduleOnce {
   VALUES: string;
 }
-
+export interface IParametersTypes {
+  [key: string]: string | number | boolean | Date | undefined;
+}
 export interface IAsynchronousRequestsAndTaskSchedulesTypes {
   args: string[];
   def_task_sche_id: number;
@@ -86,7 +88,7 @@ export interface IAsynchronousRequestsAndTaskSchedulesTypes {
   };
   last_update_date: string;
   last_updated_by: number;
-  parameters: string;
+  parameters: IParametersTypes;
   redbeat_schedule_name: string;
   ready_for_redbeat: string;
   schedule: ISchedulePropsPeriodic | ISchedulePropsNonPeriodic | IScheduleOnce;
