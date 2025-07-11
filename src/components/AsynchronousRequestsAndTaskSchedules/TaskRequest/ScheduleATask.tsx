@@ -18,7 +18,7 @@ import {
   FormLabel,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { FC, useEffect, useState } from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import {
@@ -56,6 +56,9 @@ interface ITaskRequestProps {
   handleCloseModal: () => void;
   user_schedule_name: string;
   selected?: IAsynchronousRequestsAndTaskSchedulesTypes;
+  setSelected: Dispatch<
+    SetStateAction<IAsynchronousRequestsAndTaskSchedulesTypes | undefined>
+  >;
 }
 
 const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
@@ -63,6 +66,7 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
   handleCloseModal,
   user_schedule_name,
   selected,
+  setSelected,
 }) => {
   const api = useAxiosPrivate();
   const { getAsyncTasks, getTaskParametersByTaskName, setChangeState } =
@@ -80,7 +84,7 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
   >([]);
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
-  const [time, setTime] = useState("00:00:00");
+  // const [time, setTime] = useState("00:00:00");
 
   const [scheduleType, setScheduleType] = useState<string>(
     selected?.schedule_type ?? ""
@@ -184,6 +188,18 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
             payload
           ));
       if (res.status === 200) {
+        if (selected) {
+          // select value update
+          setSelected((prev) => {
+            if (prev) {
+              return {
+                ...prev,
+                parameters: payload.parameters,
+              };
+            }
+            return prev;
+          });
+        }
         toast({ title: "Success", description: `${res.data.message}` });
         handleCloseModal();
       }
@@ -265,12 +281,13 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
     // handleGetParameters for editing scheduled task
     if (selected) {
       handleGetParameters(selected.task_name);
-
-      const dateString = selected?.parameters["Date-Time"];
-      const date = new Date(dateString as Date | string);
-      const time = format(selected?.parameters["Date-Time"] as Date, "HH:mm");
-      setTime(time);
-      setDate(date);
+      if (selected?.parameters["Date-Time"]) {
+        const dateString = selected?.parameters["Date-Time"];
+        const date = new Date(dateString as Date | string);
+        // const time = format(selected?.parameters["Date-Time"] as Date, "HH:mm");
+        // setTime(time);
+        setDate(date);
+      }
     }
   }, [scheduleType, selected]);
 
@@ -519,11 +536,11 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
                                         parameters[pm.parameter_name] as Date,
                                         "HH:mm"
                                       )
-                                    : time
+                                    : "00:00:00" //time
                                 }
                                 onChange={(e) => {
                                   const timeValue = e.target.value;
-                                  setTime(timeValue);
+                                  // setTime(timeValue);
                                   if (date) {
                                     const [hours, minutes, seconds] =
                                       timeValue.split(":");

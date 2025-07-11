@@ -238,6 +238,7 @@ export function ViewEditScheduledTasksTable() {
           <ScheduleATaskComponent
             action="Edit Scheduled Task"
             selected={selected}
+            setSelected={setSelected}
             user_schedule_name="run_script"
             handleCloseModal={handleCloseModal}
           />
