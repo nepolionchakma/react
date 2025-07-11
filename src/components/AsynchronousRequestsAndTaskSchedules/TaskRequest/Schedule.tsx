@@ -111,7 +111,7 @@ const Schedule: FC<IScheduleProps> = ({
   // Date and Time selections
   const handleDateSelect = (time: string) => {
     if (schedule && "VALUES" in schedule) {
-      console.log(time, "time");
+      // console.log(time, "time");
       if (Array.isArray(schedule.VALUES)) {
         {
           schedule?.VALUES.includes(time)
@@ -151,7 +151,7 @@ const Schedule: FC<IScheduleProps> = ({
       form.reset({ schedule_type: scheduleType, schedule: selected?.schedule });
     }
   }, [scheduleType]);
-
+  // console.log(schedule, "schedule");
   return (
     <div>
       {action === "Schedule" && (
@@ -224,6 +224,10 @@ const Schedule: FC<IScheduleProps> = ({
                           onChange={(e) => {
                             field.onChange(Number(e.target.value));
                             setFrequency(e.target.valueAsNumber);
+                            setSchedule({
+                              FREQUENCY: e.target.valueAsNumber,
+                              FREQUENCY_TYPE: frequency_type ?? "MINUTE(S)",
+                            });
                             form.setValue("schedule", {
                               FREQUENCY: e.target.valueAsNumber,
                               FREQUENCY_TYPE: frequency_type ?? "MINUTE(S)",
@@ -247,13 +251,17 @@ const Schedule: FC<IScheduleProps> = ({
                           onValueChange={(value) => {
                             field.onChange(value);
                             setFrequency_type(value);
+                            setSchedule({
+                              FREQUENCY: frequency ?? 0,
+                              FREQUENCY_TYPE: value,
+                            });
                             form.setValue("schedule", {
-                              FREQUENCY: frequency ?? 1,
+                              FREQUENCY: frequency ?? 0,
                               FREQUENCY_TYPE: value,
                             });
                           }}
                           value={
-                            field.value === "MINUTES"
+                            field.value === "MINUTE(S)"
                               ? "MINUTE(S)"
                               : field.value
                           }
@@ -341,6 +349,18 @@ const Schedule: FC<IScheduleProps> = ({
                 "VALUES" in schedule &&
                 schedule.VALUES.length === 0
               }
+              className={`${
+                scheduleType === "IMMEDIATE" || scheduleType === "ONCE"
+                  ? "bg-[#64748B] hover:bg-[#4B5563]"
+                  : schedule &&
+                    "VALUES" in schedule &&
+                    schedule?.["VALUES"].length > 0
+                  ? "bg-[#64748B] hover:bg-[#4B5563]"
+                  : schedule &&
+                    "FREQUENCY" in schedule &&
+                    schedule?.["FREQUENCY"] > 0 &&
+                    "bg-[#64748B] hover:bg-[#4B5563]"
+              }`}
             >
               OK
             </Button>
