@@ -220,7 +220,7 @@ const TreeView = () => {
         const isOpen = openNodes[path];
 
         return (
-          <div key={path} className={`mt-2`} style={{ paddingLeft: `30px` }}>
+          <div key={path} className={`mt-2 ${level !== 0 && "pl-8"}`}>
             <div
               className={`cursor-pointer flex justify-between items-center ${
                 hasChildren &&
