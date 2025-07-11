@@ -454,9 +454,10 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       url: `/view_requests/${page}/${limit}`,
       setLoading: setIsLoading,
     };
-    const result:
-      | { pages: number; items: IARMViewRequestsTypes[] }
-      | undefined = await loadData(params);
+    const result = await loadData<{
+      pages: number;
+      items: IARMViewRequestsTypes[];
+    }>(params);
     if (result) {
       setTotalPage(result.pages);
       console.log(result);
