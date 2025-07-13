@@ -22,6 +22,7 @@ import Undefined from "/icons/undefined.svg";
 import App from "/favicon-black.svg";
 import { Switch } from "@/components/ui/switch";
 import { IUserLinkedDevices } from "@/types/interfaces/users.interface";
+import { putData } from "@/Utility/funtion";
 
 const YourDevices = () => {
   const api = useAxiosPrivate();
@@ -29,7 +30,9 @@ const YourDevices = () => {
   const { linkedDevices, setLinkedDevices, inactiveDevice } =
     useSocketContext();
   const [isLoading, setIsLoading] = useState(true);
+  const [isButtonLoading, setIsButtonLoading] = useState(false);
   const userInfo = useUserInfo();
+  const node_url = import.meta.env.VITE_NODE_ENDPOINT_URL;
 
   useEffect(() => {
     if (!token || token.user_id === 0) return;
@@ -72,87 +75,135 @@ const YourDevices = () => {
     }
   };
 
+  // Logout from all devices
+  const logoutFromAllDevices = async () => {
+    const putParams = {
+      baseURL: node_url,
+      url: `/devices/${token.user_id}`,
+      setLoading: setIsButtonLoading,
+      payload: {
+        is_active: 0,
+      },
+    };
+    const res = await putData(putParams);
+    if (res.status === 200) {
+      setIsLoading(true);
+      for (const device of linkedDevices) {
+        inactiveDevice(device);
+      }
+    }
+  };
+
   return (
     <>
       <div className="flex flex-col gap-2 bg-[#b4d6f3] p-4">
         <h3 className="font-semibold">Your Devices</h3>
         <p>Your account is logged in from multiple devices.</p>
         <div>
-          <p className="w-[239px] text-center bg-white text-red-500 font-semibold p-2 inline-block cursor-pointer">
-            Logout from all devices
-          </p>
+          <button
+            onClick={logoutFromAllDevices}
+            className="w-[239px] text-center bg-white text-red-500 font-semibold p-2 inline-block cursor-pointer"
+          >
+            <span>
+              {isButtonLoading ? (
+                <span className="flex justify-center items-center">
+                  <l-tailspin
+                    size="24"
+                    stroke="4"
+                    speed="0.9"
+                    color="black"
+                  ></l-tailspin>
+                </span>
+              ) : (
+                "Logout from all devices"
+              )}
+            </span>
+          </button>
         </div>
       </div>
       <div className="px-4 py-2 bg-[#f5f5f5]">
         <div className="flex flex-col gap-2 overflow-y-auto h-[calc(100vh-250px)]">
-          {linkedDevices.map((device) => (
-            <div
-              key={device.id}
-              className="p-4 bg-white flex justify-between items-center"
-            >
-              <div className="flex gap-2">
-                <div>
-                  <img
-                    src={
-                      device.os === "Windows"
-                        ? Windows
-                        : device.os === "Linux"
-                        ? Linux
-                        : device.os === "Mac"
-                        ? MacOS
-                        : device.os === "iOS"
-                        ? iOS
-                        : device.os === "Android"
-                        ? Android
-                        : Undefined
-                    }
-                    alt="image"
-                    className="w-6"
-                  />
-                </div>
-                <div>
-                  <p className="font-medium">{device.os}</p>
-                  <span className=" ">
-                    <span>{device.location}</span>
-                    <span> - </span>
-                    <span className="font-medium">{device.ip_address}</span>
-                  </span>
-                  <div className="flex gap-1">
-                    <img
-                      src={
-                        device.browser_name === "Microsoft Edge"
-                          ? Edge
-                          : device.browser_name === "Google Chrome"
-                          ? Chrome
-                          : device.browser_name === "Apple Safari"
-                          ? Safari
-                          : device.browser_name === "Mozilla Firefox"
-                          ? Firefox
-                          : device.browser_name === "Opera"
-                          ? Opera
-                          : device.browser_name === "App"
-                          ? App
-                          : Undefined
-                      }
-                      alt="image"
-                      className="w-6"
+          {isLoading ? (
+            <span className="flex justify-center items-center h-full">
+              <l-tailspin
+                size="40"
+                stroke="5"
+                speed="0.9"
+                color="black"
+              ></l-tailspin>
+            </span>
+          ) : (
+            <>
+              {linkedDevices.map((device) => (
+                <div
+                  key={device.id}
+                  className="p-4 bg-white flex justify-between items-center"
+                >
+                  <div className="flex gap-2">
+                    <div>
+                      <img
+                        src={
+                          device.os === "Windows"
+                            ? Windows
+                            : device.os === "Linux"
+                            ? Linux
+                            : device.os === "Mac"
+                            ? MacOS
+                            : device.os === "iOS"
+                            ? iOS
+                            : device.os === "Android"
+                            ? Android
+                            : Undefined
+                        }
+                        alt="image"
+                        className="w-6"
+                      />
+                    </div>
+                    <div>
+                      <p className="font-medium">{device.os}</p>
+                      <span className=" ">
+                        <span>{device.location}</span>
+                        <span> - </span>
+                        <span className="font-medium">{device.ip_address}</span>
+                      </span>
+                      <div className="flex gap-1">
+                        <img
+                          src={
+                            device.browser_name === "Microsoft Edge"
+                              ? Edge
+                              : device.browser_name === "Google Chrome"
+                              ? Chrome
+                              : device.browser_name === "Apple Safari"
+                              ? Safari
+                              : device.browser_name === "Mozilla Firefox"
+                              ? Firefox
+                              : device.browser_name === "Opera"
+                              ? Opera
+                              : device.browser_name === "App"
+                              ? App
+                              : Undefined
+                          }
+                          alt="image"
+                          className="w-6"
+                        />
+                        <p>{device.browser_version}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div>
+                    <Switch
+                      disabled={device.is_active === 0 && true}
+                      checked={device.is_active === 1 ? true : false}
+                      onCheckedChange={() => {
+                        // setIsActive(true);
+                        switchFunc(device);
+                      }}
                     />
-                    <p>{device.browser_version}</p>
                   </div>
                 </div>
-              </div>
-              <div>
-                <Switch
-                  disabled={device.is_active === 0 && true}
-                  checked={device.is_active === 1 ? true : false}
-                  onCheckedChange={() => {
-                    // setIsActive(true);
-                    switchFunc(device);
-                  }}
-                />
-              </div>
-            </div>
-          ))}
+              ))}
+            </>
+          )}
         </div>
       </div>
     </>
