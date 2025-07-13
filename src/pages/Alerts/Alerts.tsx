@@ -26,11 +26,11 @@ const Alerts = () => {
               posuere. Elit duis neque nec tincidunt est lacus vitae id non.
             </p>
           </div>
-          <div className="flex justify-between gap-1">
-            <button className="w-[49%] h-10 rounded-sm flex justify-center items-center bg-gray-300">
+          <div className="flex items-center gap-2">
+            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
               <p>ITEM 1</p>
             </button>
-            <button className="w-[49%] h-10 rounded-sm flex justify-center items-center bg-gray-300">
+            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
               <p>ITEM 2</p>
             </button>
           </div>
@@ -59,11 +59,11 @@ const Alerts = () => {
               posuere. Elit duis neque nec tincidunt est lacus vitae id non.
             </p>
           </div>
-          <div className="flex justify-between gap-1">
-            <button className="w-[49%] h-10 rounded-sm flex justify-center items-center bg-gray-300">
+          <div className="flex items-center gap-2">
+            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
               <p>ITEM 1</p>
             </button>
-            <button className="w-[49%] h-10 rounded-sm flex justify-center items-center bg-gray-300">
+            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
               <p>ITEM 2</p>
             </button>
           </div>
@@ -92,11 +92,11 @@ const Alerts = () => {
               posuere. Elit duis neque nec tincidunt est lacus vitae id non.
             </p>
           </div>
-          <div className="flex justify-between gap-1">
-            <button className="w-[49%] h-10 rounded-sm flex justify-center items-center bg-gray-300">
+          <div className="flex items-center gap-2">
+            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
               <p>ITEM 1</p>
             </button>
-            <button className="w-[49%] h-10 rounded-sm flex justify-center items-center bg-gray-300">
+            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
               <p>ITEM 2</p>
             </button>
           </div>
@@ -125,11 +125,11 @@ const Alerts = () => {
               posuere. Elit duis neque nec tincidunt est lacus vitae id non.
             </p>
           </div>
-          <div className="flex justify-between gap-1">
-            <button className="w-[49%] h-10 rounded-sm flex justify-center items-center bg-gray-300">
+          <div className="flex items-center gap-2">
+            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
               <p>ITEM 1</p>
             </button>
-            <button className="w-[49%] h-10 rounded-sm flex justify-center items-center bg-gray-300">
+            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
               <p>ITEM 2</p>
             </button>
           </div>

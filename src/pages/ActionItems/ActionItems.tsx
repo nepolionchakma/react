@@ -11,26 +11,27 @@ const ActionItems = () => {
         <div className="flex flex-col gap-2 w-full">
           <div className="flex justify-between w-full">
             <div>
-              <p>Action Item 1</p>
-              <p className="text-gray-600">Lorem ipsum dolor</p>
+              <p className="font-semibold mb-1">
+                Lorem ipsum lorem ipsum lorem lorem lorem
+              </p>
+              <p className="text-gray-600">Sunday, July 13, 2025</p>
             </div>
-            <p className="text-blue-600">Time</p>
+            <div className="bg-green-600 text-white flex w-28 h-6 justify-center items-center rounded-full">
+              <p>Complete</p>
+            </div>
           </div>
           <div>
-            <p className="font-semibold mb-1">
-              Lorem ipsum lorem ipsum lorem lorem lorem
-            </p>
             <p className="text-gray-600">
               Lorem ipsum dolor sit amet consectetur. Eget lobortis tristique
               amet urna. Posuere semper nunc malesuada non massa blandit sit
               posuere. Elit duis neque nec tincidunt est lacus vitae id non.
             </p>
           </div>
-          <div className="flex justify-between gap-1">
-            <button className="w-[49%] h-10 rounded-sm flex justify-center items-center bg-gray-300">
+          <div className="flex items-center gap-2">
+            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
               <p>ITEM 1</p>
             </button>
-            <button className="w-[49%] h-10 rounded-sm flex justify-center items-center bg-gray-300">
+            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
               <p>ITEM 2</p>
             </button>
           </div>
@@ -77,26 +78,27 @@ const ActionItems = () => {
         <div className="flex flex-col gap-2 w-full">
           <div className="flex justify-between w-full">
             <div>
-              <p>Action Item 2</p>
-              <p className="text-gray-600">Lorem ipsum dolor</p>
+              <p className="font-semibold mb-1">
+                Lorem ipsum lorem ipsum lorem lorem lorem
+              </p>
+              <p className="text-gray-600">Sunday, July 13, 2025</p>
             </div>
-            <p className="text-blue-600">Time</p>
+            <div className="bg-yellow-400 text-white flex w-28 h-6 justify-center items-center rounded-full">
+              <p>In Progress</p>
+            </div>
           </div>
           <div>
-            <p className="font-semibold mb-1">
-              Lorem ipsum lorem ipsum lorem lorem lorem
-            </p>
             <p className="text-gray-600">
               Lorem ipsum dolor sit amet consectetur. Eget lobortis tristique
               amet urna. Posuere semper nunc malesuada non massa blandit sit
               posuere. Elit duis neque nec tincidunt est lacus vitae id non.
             </p>
           </div>
-          <div className="flex justify-between gap-1">
-            <button className="w-[49%] h-10 rounded-sm flex justify-center items-center bg-gray-300">
+          <div className="flex items-center gap-2">
+            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
               <p>ITEM 1</p>
             </button>
-            <button className="w-[49%] h-10 rounded-sm flex justify-center items-center bg-gray-300">
+            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
               <p>ITEM 2</p>
             </button>
           </div>
@@ -110,26 +112,27 @@ const ActionItems = () => {
         <div className="flex flex-col gap-2 w-full">
           <div className="flex justify-between w-full">
             <div>
-              <p>Action Item 3</p>
-              <p className="text-gray-600">Lorem ipsum dolor</p>
+              <p className="font-semibold mb-1">
+                Lorem ipsum lorem ipsum lorem lorem lorem
+              </p>
+              <p className="text-gray-600">Sunday, July 13, 2025</p>
             </div>
-            <p className="text-blue-600">Time</p>
+            <div className="bg-blue-400 text-white flex w-28 h-6 justify-center items-center rounded-full">
+              <p>New</p>
+            </div>
           </div>
           <div>
-            <p className="font-semibold mb-1">
-              Lorem ipsum lorem ipsum lorem lorem lorem
-            </p>
             <p className="text-gray-600">
               Lorem ipsum dolor sit amet consectetur. Eget lobortis tristique
               amet urna. Posuere semper nunc malesuada non massa blandit sit
               posuere. Elit duis neque nec tincidunt est lacus vitae id non.
             </p>
           </div>
-          <div className="flex justify-between gap-1">
-            <button className="w-[49%] h-10 rounded-sm flex justify-center items-center bg-gray-300">
+          <div className="flex items-center gap-2">
+            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
               <p>ITEM 1</p>
             </button>
-            <button className="w-[49%] h-10 rounded-sm flex justify-center items-center bg-gray-300">
+            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
               <p>ITEM 2</p>
             </button>
           </div>
