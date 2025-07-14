@@ -1,8 +1,14 @@
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
-import CustomTooltip from "@/components/Tooltip/Tooltip";
-import { CirclePlus, Plus, Trash, X } from "lucide-react";
+import { CirclePlus, EllipsisVertical, Plus, Trash, X } from "lucide-react";
 import React from "react";
 import { v4 as uuidv4 } from "uuid";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface TreeNode {
   id: string;
@@ -21,8 +27,9 @@ interface ModalProps {
 }
 
 interface EditorProps {
-  index: number;
+  index: number; // still useful for React key
   item: TreeNode;
+  siblings: TreeNode[]; // 👈 NEW
   onChange: (updated: TreeNode) => void;
   onDelete: () => void;
   level?: number;
@@ -85,19 +92,31 @@ const Modal = ({
   };
 
   const RecursiveEditor: React.FC<EditorProps> = ({
-    index,
     item,
     onChange,
     onDelete,
+    siblings,
     level = 0,
   }) => {
-    const isSubmenu = Array.isArray(item.children);
-
     const [name, setName] = React.useState(item.name);
 
     React.useEffect(() => {
       setName(item.name); // in case parent updates externally
     }, [item.name]);
+
+    const isSubmenu = Array.isArray(item.children);
+
+    const submenuIndex = siblings
+      .filter((sibling) => Array.isArray(sibling.children))
+      .findIndex((sibling) => sibling.id === item.id);
+
+    const menuItemIndex = siblings
+      .filter((sibling) => !Array.isArray(sibling.children))
+      .findIndex((sibling) => sibling.id === item.id);
+
+    const displayLabel = isSubmenu
+      ? `${level + 1}.${submenuIndex + 1}.`
+      : `${level + 1}.${String.fromCharCode(96 + (menuItemIndex + 1))}.`;
 
     const handleBlur = () => {
       if (name !== item.name) {
@@ -131,7 +150,7 @@ const Modal = ({
     return (
       <div className={`mt-4`} style={{ paddingLeft: `30px` }}>
         <div className="flex items-center gap-2">
-          <p>{`${level + 1}.${index + 1}.`}</p>
+          <p>{displayLabel}</p>
           <input
             type="text"
             value={name}
@@ -140,7 +159,45 @@ const Modal = ({
             placeholder={isSubmenu ? "Submenu Name" : "Menu Item Name"}
             className="border-b w-full focus:outline-none"
           />
-          {isSubmenu && (
+          <DropdownMenu>
+            <DropdownMenuTrigger>
+              <EllipsisVertical strokeWidth={1.5} />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="mr-20">
+              {isSubmenu && (
+                <>
+                  <DropdownMenuItem>
+                    <button
+                      className="flex gap-1 items-center"
+                      onClick={() => addChild(true)}
+                    >
+                      <CirclePlus size={16} />
+                      <p>Submenu</p>
+                    </button>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <button
+                      className="flex gap-1 items-center"
+                      onClick={() => addChild(false)}
+                    >
+                      <Plus size={16} />
+                      <p>Menu Item</p>
+                    </button>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </>
+              )}
+              <DropdownMenuItem>
+                <button className="flex gap-1 items-center" onClick={onDelete}>
+                  <Trash size={16} />
+                  <p>Delete</p>
+                </button>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* {isSubmenu && (
             <>
               <CustomTooltip tooltipTitle="Add Submenu">
                 <button onClick={() => addChild(true)}>
@@ -161,7 +218,7 @@ const Modal = ({
             <button onClick={onDelete}>
               <Trash size={16} />
             </button>
-          </CustomTooltip>
+          </CustomTooltip> */}
         </div>
 
         {isSubmenu &&
@@ -170,6 +227,7 @@ const Modal = ({
               index={index}
               key={child.id}
               item={child}
+              siblings={item.children!}
               onChange={(updatedChild) => {
                 setEditable((prev) =>
                   updateNodeById(prev, child.id, () => updatedChild)
@@ -262,6 +320,7 @@ const Modal = ({
                   index={index}
                   key={child.id}
                   item={child}
+                  siblings={editable.children!}
                   onChange={(updatedChild) => {
                     setEditable((prev) =>
                       updateNodeById(prev, child.id, () => updatedChild)
