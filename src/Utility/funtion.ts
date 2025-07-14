@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "@/Api/Api";
 import { toast } from "@/components/ui/use-toast";
 import { Dispatch, SetStateAction } from "react";
@@ -76,7 +77,7 @@ export async function putData(params: putDataParams) {
     });
     if (res.status === 200) {
       toast({ title: res.data.message });
-      return res;
+      return res as any;
     }
   } catch (error) {
     if (error instanceof Error) {

@@ -45,7 +45,7 @@ interface SocketContext {
   totalRecycleBinMsg: number;
   handleDraftMsgId: (id: string) => void;
   addDevice: (data: IUserLinkedDevices) => void;
-  inactiveDevice: (data: IUserLinkedDevices) => void;
+  inactiveDevice: (data: IUserLinkedDevices[]) => void;
   linkedDevices: IUserLinkedDevices[];
   setLinkedDevices: React.Dispatch<React.SetStateAction<IUserLinkedDevices[]>>;
   handleRestoreMessage: (id: string, user: string) => void;
@@ -430,8 +430,8 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     socket.emit("addDevice", { ...data, user });
   };
 
-  const inactiveDevice = (data: IUserLinkedDevices) => {
-    socket.emit("inactiveDevice", { ...data, user });
+  const inactiveDevice = (data: IUserLinkedDevices[]) => {
+    socket.emit("inactiveDevice", { data, user });
   };
 
   return (
