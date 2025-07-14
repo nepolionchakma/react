@@ -22,7 +22,6 @@ import Undefined from "/icons/undefined.svg";
 import App from "/favicon-black.svg";
 import { Switch } from "@/components/ui/switch";
 import { IUserLinkedDevices } from "@/types/interfaces/users.interface";
-import { putData } from "@/Utility/funtion";
 
 const YourDevices = () => {
   const api = useAxiosPrivate();
@@ -32,7 +31,6 @@ const YourDevices = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
   const userInfo = useUserInfo();
-  const node_url = import.meta.env.VITE_NODE_ENDPOINT_URL;
 
   useEffect(() => {
     if (!token || token.user_id === 0) return;
@@ -78,18 +76,19 @@ const YourDevices = () => {
 
   // Logout from all devices
   const logoutFromAllDevices = async () => {
-    const putParams = {
-      baseURL: node_url,
-      url: `/devices/${token.user_id}`,
-      setLoading: setIsButtonLoading,
-      payload: {
+    try {
+      setIsButtonLoading(true);
+      const res = await api.put(`/devices/${token.user_id}`, {
         is_active: 0,
-      },
-    };
-    const res = await putData(putParams);
-    if (res.status === 200) {
-      setIsLoading(true);
-      inactiveDevice(linkedDevices);
+      });
+
+      if (res.status === 200) {
+        setIsButtonLoading(false);
+        setIsLoading(true);
+        inactiveDevice(linkedDevices);
+      }
+    } catch (error) {
+      console.log("Error while deactivating device");
     }
   };
 
