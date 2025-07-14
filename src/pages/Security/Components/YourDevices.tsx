@@ -65,7 +65,8 @@ const YourDevices = () => {
         );
 
         if (res.status === 200) {
-          inactiveDevice(res.data);
+          console.log(res.data, "res.data");
+          inactiveDevice([res.data]);
         }
       };
 
@@ -88,9 +89,7 @@ const YourDevices = () => {
     const res = await putData(putParams);
     if (res.status === 200) {
       setIsLoading(true);
-      for (const device of linkedDevices) {
-        inactiveDevice(device);
-      }
+      inactiveDevice(linkedDevices);
     }
   };
 
