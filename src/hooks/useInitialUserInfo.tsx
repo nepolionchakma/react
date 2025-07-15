@@ -7,7 +7,7 @@ const useInitialUserInfo = () => {
   const getUserIP = useUserIP();
   const api = useAxiosPrivate();
   const { presentDevice, setPresentDevice } = useGlobalContext();
-  const { addDevice } = useSocketContext();
+  // const { addDevice } = useSocketContext();
   const initialUserInfo = async (user_id: number) => {
     try {
       const ipAddress = await getUserIP();
@@ -23,7 +23,7 @@ const useInitialUserInfo = () => {
       });
 
       setPresentDevice(response.data);
-      addDevice(response.data);
+      // addDevice(response.data);
     } catch (error) {
       console.log(error);
     }
