@@ -32,7 +32,8 @@ interface EditorProps {
   siblings: TreeNode[]; // 👈 NEW
   onChange: (updated: TreeNode) => void;
   onDelete: () => void;
-  level?: number;
+  level: number;
+  parentIndices: number[];
 }
 
 const Modal = ({
@@ -96,7 +97,8 @@ const Modal = ({
     onChange,
     onDelete,
     siblings,
-    level = 0,
+    level,
+    parentIndices,
   }) => {
     const [name, setName] = React.useState(item.name);
 
@@ -114,9 +116,17 @@ const Modal = ({
       .filter((sibling) => !Array.isArray(sibling.children))
       .findIndex((sibling) => sibling.id === item.id);
 
+    const currentIndices = [...parentIndices, submenuIndex + 1];
+
     const displayLabel = isSubmenu
-      ? `${level + 1}.${submenuIndex + 1}.`
-      : `${level + 1}.${String.fromCharCode(96 + (menuItemIndex + 1))}.`;
+      ? `${level}.${submenuIndex + 1}` // Submenu: 6.1
+      : level - 1 !== 0
+      ? `${level - 1}.${
+          currentIndices[currentIndices.length - 2]
+        }.${String.fromCharCode(97 + menuItemIndex)}.`
+      : `${currentIndices[currentIndices.length - 2]}.${String.fromCharCode(
+          97 + menuItemIndex
+        )}.`;
 
     const handleBlur = () => {
       if (name !== item.name) {
@@ -237,6 +247,7 @@ const Modal = ({
                 setEditable((prev) => deleteNodeById(prev, child.id));
               }}
               level={level + 1}
+              parentIndices={currentIndices}
             />
           ))}
       </div>
@@ -266,53 +277,63 @@ const Modal = ({
                 }
                 className="border-b w-full focus:outline-none"
               />
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <EllipsisVertical strokeWidth={1.5} />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="mr-20">
+                  <DropdownMenuItem>
+                    <button
+                      className="flex gap-1 items-center"
+                      onClick={() =>
+                        setEditable((prev) => ({
+                          ...prev,
+                          children: [
+                            ...(prev.children || []),
+                            {
+                              id: uuidv4(),
+                              name: "",
+                              order: 1,
+                              children: [],
+                            },
+                          ],
+                        }))
+                      }
+                    >
+                      <CirclePlus size={16} />
+                      <p>Submenu</p>
+                    </button>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem>
+                    <button
+                      className="flex gap-1 items-center"
+                      onClick={() =>
+                        setEditable((prev) => ({
+                          ...prev,
+                          children: [
+                            ...(prev.children || []),
+                            {
+                              id: uuidv4(),
+                              name: "",
+                              order: 1,
+                              routeName: "",
+                            },
+                          ],
+                        }))
+                      }
+                    >
+                      <Plus size={16} />
+                      <p>Menu Item</p>
+                    </button>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
 
             <div className="pl-8 pr-4 mt-4">
               <div className="flex items-center justify-between cursor-pointer">
                 <p>Submenus:</p>
-                <div className="flex gap-2">
-                  <button
-                    className="text-white rounded-md bg-winter-400 px-3 py-2 hover:bg-winter-300 flex gap-1"
-                    onClick={() =>
-                      setEditable((prev) => ({
-                        ...prev,
-                        children: [
-                          ...(prev.children || []),
-                          {
-                            id: uuidv4(),
-                            name: "",
-                            order: 1,
-                            children: [],
-                          },
-                        ],
-                      }))
-                    }
-                  >
-                    <CirclePlus />
-                    <p>Submenu</p>
-                  </button>
-                  <button
-                    className="text-white rounded-md bg-winter-400 px-3 py-2 hover:bg-winter-300 flex gap-1"
-                    onClick={() =>
-                      setEditable((prev) => ({
-                        ...prev,
-                        children: [
-                          ...(prev.children || []),
-                          {
-                            id: uuidv4(),
-                            name: "",
-                            order: 1,
-                            routeName: "New_Item",
-                          },
-                        ],
-                      }))
-                    }
-                  >
-                    <Plus />
-                    <p>Menu Item</p>
-                  </button>
-                </div>
               </div>
 
               {editable.children?.map((child, index) => (
@@ -329,6 +350,8 @@ const Modal = ({
                   onDelete={() => {
                     setEditable((prev) => deleteNodeById(prev, child.id));
                   }}
+                  level={1}
+                  parentIndices={[editable.order || 1]}
                 />
               ))}
             </div>
