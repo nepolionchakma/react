@@ -11,6 +11,7 @@ import { LogOut, Settings, ShieldBan, User } from "lucide-react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+import { useState } from "react";
 // const Loading = "/public/profile/loading.gif";
 
 // import { useEffect } from "react";
@@ -18,8 +19,10 @@ import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 const Dropdown = () => {
   const api = useAxiosPrivate();
   const apiUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
-  const { token, setToken, combinedUser } = useGlobalContext();
-  const { handleDisconnect, setLinkedDevices } = useSocketContext();
+  const { token, setToken, combinedUser, presentDevice } = useGlobalContext();
+  const { handleDisconnect, setLinkedDevices, inactiveDevice } =
+    useSocketContext();
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const userExample = {
@@ -35,11 +38,30 @@ const Dropdown = () => {
     profile_picture: { original: "", thumbnail: "" },
   };
   const handleSignOut = async () => {
-    setLinkedDevices([]);
-    await api.get(`/logout`);
-    handleDisconnect();
-    setToken(userExample);
-    navigate("/login");
+    try {
+      setIsLoading(true);
+      const res = await api.put(
+        `/devices/inactive-device/${token.user_id}/${presentDevice.id}`,
+        {
+          ...presentDevice,
+          is_active: 0,
+        }
+      );
+
+      if (res.status === 200) {
+        inactiveDevice([res.data]);
+        const response = await api.get(`/logout`);
+        if (response.status === 200) {
+          setIsLoading(false);
+          handleDisconnect();
+          setToken(userExample);
+          setLinkedDevices([]);
+          navigate("/login");
+        }
+      }
+    } catch (error) {
+      console.log("Error while deactivating device");
+    }
   };
 
   return (
@@ -105,8 +127,21 @@ const Dropdown = () => {
             onClick={handleSignOut}
             className="flex gap-2 items-center w-full text-Red-300"
           >
-            <LogOut size={18} />
-            <p className="font-semibold font-workSans text-md">Logout</p>
+            {isLoading ? (
+              <span className="flex mx-auto justify-center items-center">
+                <l-tailspin
+                  size="18"
+                  stroke="3"
+                  speed="0.9"
+                  color="black"
+                ></l-tailspin>
+              </span>
+            ) : (
+              <>
+                <LogOut size={18} />
+                <p className="font-semibold font-workSans text-md">Logout</p>
+              </>
+            )}
           </button>
         </div>
       </DropdownMenuContent>

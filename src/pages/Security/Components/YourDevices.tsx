@@ -39,7 +39,7 @@ const YourDevices = () => {
       try {
         await userInfo(token.user_id);
         const res = await api.get(`/devices/${token?.user_id}`);
-        console.log(res, "res");
+
         setLinkedDevices(res.data);
       } catch (error) {
         console.log("error while getting devices");
