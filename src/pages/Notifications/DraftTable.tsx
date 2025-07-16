@@ -115,7 +115,7 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
 
   return (
     <>
-      <div className="ml-[11rem] border rounded-md shadow-sm p-4 mb-4 ">
+      <div className="ml-[11rem] border rounded-md shadow-sm p-4">
         <div className="flex justify-between">
           <h1 className="text-lg font-bold mb-6 ">{path}</h1>
           <TableRowCounter
@@ -130,7 +130,7 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
               <TableRow className="bg-slate-200 hover:bg-slate-200">
                 <TableHead className="w-[7rem] font-bold">{person}</TableHead>
                 <TableHead className="font-bold">Subject</TableHead>
-                <TableHead className="w-[7rem] font-bold">Date</TableHead>
+                <TableHead className="min-w-[5rem] font-bold">Date</TableHead>
                 <TableHead className="w-[5rem] font-bold">Action</TableHead>
               </TableRow>
             </TableHeader>
@@ -157,7 +157,7 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
                         {msg.recivers.length > 1 && ", ..."}
                       </TableCell>
                       <TableCell className="py-2">
-                        <span className="font-medium mr-1">
+                        <span className="mr-1">
                           {msg.subject === ""
                             ? "(no subject)"
                             : msg.status === "ReplayDraft"

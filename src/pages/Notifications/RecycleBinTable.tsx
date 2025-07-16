@@ -258,7 +258,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
                 <TableHead className="w-[3rem] font-bold">Origin</TableHead>
                 <TableHead className="w-[7rem] font-bold">{person}</TableHead>
                 <TableHead className="font-bold">Subject</TableHead>
-                <TableHead className="w-[7rem] font-bold">Date</TableHead>
+                <TableHead className="min-w-[5rem] font-bold">Date</TableHead>
                 <TableHead className="w-[5rem] font-bold">Action</TableHead>
               </TableRow>
             </TableHeader>
@@ -294,7 +294,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
                         {msg.recivers.length > 1 && ", ..."}
                       </TableCell>
                       <TableCell className="py-2">
-                        <span className="font-medium mr-1">
+                        <span className="mr-1">
                           {msg.subject === "" ? "(no subject)" : msg.subject}
                         </span>
                       </TableCell>

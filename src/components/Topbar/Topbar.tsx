@@ -88,8 +88,14 @@ const Topbar = () => {
         >
           <Mail className="text-2xl" />
           {uniquMessages.length > 0 ? (
-            <p className="w-4 h-4 flex justify-center items-center rounded-full bg-Red-100 text-white text-sm absolute left-8 top-1">
-              {uniquMessages.length}
+            <p className="w-5 h-5 flex justify-center items-center rounded-full bg-Red-100 text-white text-sm absolute left-[28px] top-0">
+              {uniquMessages.length > 9 ? (
+                <span className="relative">
+                  9<span className="text-[0.5rem] absolute top-0">+</span>
+                </span>
+              ) : (
+                <p>{uniquMessages.length}</p>
+              )}
             </p>
           ) : null}
           <p className="font-semibold hidden lg:block transition duration-300 ease-in-out">

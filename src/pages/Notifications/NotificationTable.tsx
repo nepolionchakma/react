@@ -127,7 +127,7 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
 
   return (
     <>
-      <div className="ml-[11rem] border rounded-md shadow-sm p-4 mb-4 ">
+      <div className="ml-[11rem] border rounded-md shadow-sm p-4">
         <div className="flex justify-between">
           <h1 className="text-lg font-bold mb-6 ">{path}</h1>
           <TableRowCounter
@@ -142,7 +142,7 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
               <TableRow className="bg-slate-200 hover:bg-slate-200">
                 <TableHead className="w-[7rem] font-bold">{person}</TableHead>
                 <TableHead className="font-bold">Subject</TableHead>
-                <TableHead className="w-[7rem] font-bold">Date</TableHead>
+                <TableHead className="min-w-[5rem] font-bold">Date</TableHead>
                 <TableHead className="w-[5rem] font-bold">Action</TableHead>
               </TableRow>
             </TableHeader>
@@ -161,12 +161,10 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
               <TableBody>
                 {receivedMessages.map((msg) => (
                   <TableRow
-                    key={msg.id}
                     className={
-                      uniquMessagesIds.includes(msg.id)
-                        ? "bg-winter-100/30"
-                        : "mt-0"
+                      uniquMessagesIds.includes(msg.id) ? "font-semibold" : ""
                     }
+                    key={msg.id}
                   >
                     <>
                       <TableCell className="py-2">
@@ -174,22 +172,25 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
                         {msg.sender.name.length > 8 && "..."}
                       </TableCell>
                       <TableCell className="py-2">
-                        <span className="font-medium mr-1">{msg.subject}</span>
+                        <span className="mr-1">{msg.subject}</span>
                       </TableCell>
-                      <TableCell className="py-2">
+                      <TableCell className="py-2 min-w-[5rem]">
                         {convertDate(msg.date)}
                       </TableCell>
                       <TableCell className="flex gap-2 py-auto">
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span>
+                              <span className="relative">
                                 <View
                                   onClick={() =>
                                     handleUniqueMessages(msg.parentid)
                                   }
                                   className="cursor-pointer"
                                 />
+                                {uniquMessagesIds.includes(msg.id) && (
+                                  <div className="w-[10px] h-[10px] bg-Red-100 rounded-full absolute right-[-2px] top-[-2px]" />
+                                )}
                               </span>
                             </TooltipTrigger>
                             <TooltipContent>
