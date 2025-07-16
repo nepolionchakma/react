@@ -99,21 +99,18 @@ export function SocketContextProvider({ children }: SocketContextProps) {
           sentTotal,
           draftTotal,
           recyclebinTotal,
-          linkedDevices,
         ] = await Promise.all([
           api.get(`/messages/notification/${user}`),
           api.get(`/messages/total-received/${user}`),
           api.get(`/messages/total-sent/${user}`),
           api.get(`/messages/total-draft/${user}`),
           api.get(`/messages/total-recyclebin/${user}`),
-          api.get(`/devices/${token?.user_id}`),
         ]);
         setSocketMessages(notificationTotal.data);
         setTotalReceivedMessages(receivedTotal.data.total);
         setTotalSentMessages(sentTotal.data.total);
         setTotalDraftMessages(draftTotal.data.total);
         setTotalRecycleBinMsg(recyclebinTotal.data.total);
-        setLinkedDevices(linkedDevices.data);
       } catch (error) {
         console.log(error);
       }
@@ -141,7 +138,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
           deviceInfo: deviceData,
         });
         setPresentDevice(response.data);
-        addDevice(response.data);
+        // addDevice(response.data);
       } catch (error) {
         console.log(error);
       }
@@ -201,6 +198,14 @@ export function SocketContextProvider({ children }: SocketContextProps) {
 
   //Listen to socket events
   useEffect(() => {
+    socket.on("connect", () => {
+      const hasDevice = localStorage.getItem("presentDevice");
+      if (hasDevice) {
+        socket.emit("addDevice", { ...presentDevice, user });
+        localStorage.removeItem("presentDevice");
+      }
+    });
+
     socket.on("receivedMessage", (data) => {
       const receivedMessagesId = receivedMessages.map((msg) => msg.id);
       if (receivedMessagesId.includes(data.id)) {
