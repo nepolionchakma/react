@@ -1,5 +1,13 @@
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
-import { CirclePlus, EllipsisVertical, Plus, Trash, X } from "lucide-react";
+import {
+  CirclePlus,
+  EllipsisVertical,
+  File,
+  Folder,
+  Plus,
+  Trash,
+  X,
+} from "lucide-react";
 import React from "react";
 import { v4 as uuidv4 } from "uuid";
 import {
@@ -9,6 +17,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+
+import Alert from "@/components/Alert/Alert";
 
 interface TreeNode {
   id: string;
@@ -123,10 +133,10 @@ const Modal = ({
       : level - 1 !== 0
       ? `${level - 1}.${
           currentIndices[currentIndices.length - 2]
-        }.${String.fromCharCode(97 + menuItemIndex)}.`
+        }.${String.fromCharCode(97 + menuItemIndex)}`
       : `${currentIndices[currentIndices.length - 2]}.${String.fromCharCode(
           97 + menuItemIndex
-        )}.`;
+        )}`;
 
     const handleBlur = () => {
       if (name !== item.name) {
@@ -159,7 +169,8 @@ const Modal = ({
 
     return (
       <div className={`mt-4`} style={{ paddingLeft: `30px` }}>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1">
+          {isSubmenu ? <Folder size={16} /> : <File size={16} />}
           <p>{displayLabel}</p>
           <input
             type="text"
@@ -176,34 +187,39 @@ const Modal = ({
             <DropdownMenuContent className="mr-20">
               {isSubmenu && (
                 <>
-                  <DropdownMenuItem>
-                    <button
-                      className="flex gap-1 items-center"
-                      onClick={() => addChild(true)}
-                    >
-                      <CirclePlus size={16} />
-                      <p>Submenu</p>
-                    </button>
-                  </DropdownMenuItem>
+                  <button
+                    className="flex gap-1 items-center hover:bg-winter-100 w-full px-2 py-1  rounded-md"
+                    onClick={() => addChild(true)}
+                  >
+                    <CirclePlus size={16} />
+                    <p>Submenu</p>
+                  </button>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem>
-                    <button
-                      className="flex gap-1 items-center"
-                      onClick={() => addChild(false)}
-                    >
-                      <Plus size={16} />
-                      <p>Menu Item</p>
-                    </button>
-                  </DropdownMenuItem>
+                  <button
+                    className="flex gap-1 items-center hover:bg-winter-100 w-full px-2 py-1  rounded-md"
+                    onClick={() => addChild(false)}
+                  >
+                    <Plus size={16} />
+                    <p>Menu Item</p>
+                  </button>
                   <DropdownMenuSeparator />
                 </>
               )}
-              <DropdownMenuItem>
-                <button className="flex gap-1 items-center" onClick={onDelete}>
-                  <Trash size={16} />
-                  <p>Delete</p>
-                </button>
-              </DropdownMenuItem>
+              <Alert
+                disabled={false}
+                actionName="delete"
+                onContinue={onDelete}
+                customButton={
+                  <button className="flex gap-1 items-center hover:bg-winter-100 w-full px-2 py-1  rounded-md">
+                    <Trash size={16} />
+                    <p>Delete</p>
+                  </button>
+                }
+              >
+                <p>
+                  {isSubmenu ? "Submenu:" : "Menu Item:"} {name}
+                </p>
+              </Alert>
             </DropdownMenuContent>
           </DropdownMenu>
 

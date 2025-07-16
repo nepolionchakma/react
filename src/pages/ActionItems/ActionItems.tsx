@@ -14,11 +14,11 @@ const ActionItems = () => {
               <p className="font-semibold mb-1">
                 Lorem ipsum lorem ipsum lorem lorem lorem
               </p>
-              <p className="text-gray-600">Sunday, July 13, 2025</p>
+              <div className="bg-green-600 text-white flex w-28 h-6 justify-center items-center rounded-full">
+                <p>Completed</p>
+              </div>
             </div>
-            <div className="bg-green-600 text-white flex w-28 h-6 justify-center items-center rounded-full">
-              <p>Complete</p>
-            </div>
+            <p className="text-gray-700">7/1/2025, 5:50:24 PM</p>
           </div>
           <div>
             <p className="text-gray-600">
@@ -81,11 +81,11 @@ const ActionItems = () => {
               <p className="font-semibold mb-1">
                 Lorem ipsum lorem ipsum lorem lorem lorem
               </p>
-              <p className="text-gray-600">Sunday, July 13, 2025</p>
+              <div className="bg-yellow-400 text-white flex w-28 h-6 justify-center items-center rounded-full">
+                <p>In Progress</p>
+              </div>
             </div>
-            <div className="bg-yellow-400 text-white flex w-28 h-6 justify-center items-center rounded-full">
-              <p>In Progress</p>
-            </div>
+            <p className="text-gray-700">7/1/2025, 5:50:24 PM</p>
           </div>
           <div>
             <p className="text-gray-600">
@@ -115,11 +115,11 @@ const ActionItems = () => {
               <p className="font-semibold mb-1">
                 Lorem ipsum lorem ipsum lorem lorem lorem
               </p>
-              <p className="text-gray-600">Sunday, July 13, 2025</p>
+              <div className="bg-blue-400 text-white flex w-28 h-6 justify-center items-center rounded-full">
+                <p>New</p>
+              </div>
             </div>
-            <div className="bg-blue-400 text-white flex w-28 h-6 justify-center items-center rounded-full">
-              <p>New</p>
-            </div>
+            <p className="text-gray-700">7/1/2025, 5:50:24 PM</p>
           </div>
           <div>
             <p className="text-gray-600">

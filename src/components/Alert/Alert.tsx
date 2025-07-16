@@ -27,6 +27,7 @@ interface AlertProps {
   onClick?: () => void;
   tooltipAdjustmentStyle?: string | undefined;
   iconColor?: string;
+  customButton?: React.ReactNode;
 }
 
 const Alert = ({
@@ -38,31 +39,36 @@ const Alert = ({
   onClick,
   tooltipAdjustmentStyle,
   iconColor = "black",
+  customButton,
 }: AlertProps) => {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <button
-          onClick={onClick}
-          disabled={disabled}
-          className={`${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
-        >
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div>
-                  <IconController
-                    name={actionName}
-                    color={disabled ? "#e5e5e5" : iconColor}
-                  />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent className={tooltipAdjustmentStyle}>
-                <p>{tooltipTitle}</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </button>
+        {customButton ? (
+          customButton
+        ) : (
+          <button
+            onClick={onClick}
+            disabled={disabled}
+            className={`${disabled ? "cursor-not-allowed" : "cursor-pointer"}`}
+          >
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div>
+                    <IconController
+                      name={actionName}
+                      color={disabled ? "#e5e5e5" : iconColor}
+                    />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className={tooltipAdjustmentStyle}>
+                  <p>{tooltipTitle}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </button>
+        )}
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>

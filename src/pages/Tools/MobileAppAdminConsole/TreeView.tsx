@@ -40,6 +40,7 @@ const TreeView = () => {
   const { toast } = useToast();
   const [data, setData] = useState<IMenuTypes[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [menuData, setMenuData] = useState<TreeNode[]>([]);
   const [openNodes, setOpenNodes] = useState<Record<string, boolean>>({});
   const [hovered, setHovered] = useState("");
@@ -56,12 +57,15 @@ const TreeView = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         const res = await api.get(`${url}/mobile-menu`);
         console.log(res);
         setData(res.data);
         setMenuData(res.data[0].menu_structure);
       } catch (error) {
         toast({ title: "Error fetching data from the Database" });
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchData();
@@ -156,9 +160,11 @@ const TreeView = () => {
     }
 
     if (selected === "") {
-      if (editable.children?.length === 0) {
+      if (!editable.children || editable.children.length === 0) {
         toast({
-          description: `Submenu ${editable.name} must contain children`,
+          description: `Submenu "${
+            editable.name || "Untitled"
+          }" must contain at least one menu item or submenu.`,
           variant: "destructive",
         });
         return;
@@ -320,7 +326,13 @@ const TreeView = () => {
         </button>
       </div>
 
-      <div>{renderTree(menuData)}</div>
+      {isLoading ? (
+        <div className="w-[100vw] h-[30vh] flex justify-center items-center">
+          <Spinner size="80" color="black" />
+        </div>
+      ) : (
+        <div>{renderTree(menuData)}</div>
+      )}
 
       <Modal
         showModal={showModal}
