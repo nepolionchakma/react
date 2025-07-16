@@ -1,7 +1,7 @@
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
-import useUserInfo from "@/hooks/useUserInfo";
+// import useUserInfo from "@/hooks/useUserInfo";
 import { useEffect, useState } from "react";
 // import Desktop from "/icons/device-icon/desktop.svg";
 // import Laptop from "/icons/device-icon/laptop.svg";
@@ -30,14 +30,14 @@ const YourDevices = () => {
     useSocketContext();
   const [isLoading, setIsLoading] = useState(true);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
-  const userInfo = useUserInfo();
+  // const userInfo = useUserInfo();
 
   useEffect(() => {
     if (!token || token.user_id === 0) return;
 
     const getDevices = async () => {
       try {
-        await userInfo(token.user_id);
+        // await userInfo(token.user_id);
         const res = await api.get(`/devices/${token?.user_id}`);
 
         setLinkedDevices(res.data);
