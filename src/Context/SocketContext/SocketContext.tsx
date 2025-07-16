@@ -4,6 +4,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import { useGlobalContext, userExample } from "../GlobalContext/GlobalContext";
@@ -76,6 +77,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   const [linkedDevices, setLinkedDevices] = useState<IUserLinkedDevices[]>([]);
   const getUserIP = useUserIP();
   const getLocation = useUserLocation();
+  const presentDeviceRef = useRef(presentDevice);
 
   // Memoize the socket connection so that it's created only once
   const socket = useMemo(() => {
@@ -87,6 +89,10 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       transports: ["websocket"],
     });
   }, [socket_url, user]);
+
+  useEffect(() => {
+    presentDeviceRef.current = presentDevice;
+  }, [presentDevice]);
 
   //Fetch Notification Messages
   useEffect(() => {
@@ -119,9 +125,10 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     fetchCounterMessages();
   }, [user, url_location, api]);
 
-  // device Action
+  // // device Action
   useEffect(() => {
     const userInfo = async (user_id: number) => {
+      console.log(presentDevice.id, "presentDevice.id in userInfo");
       try {
         if (!token || token?.user_id === 0) return;
         const ipAddress = await getUserIP();
@@ -144,12 +151,13 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       }
     };
     userInfo(token.user_id);
-  }, [token?.user_id, api, url_location]);
+  }, [token?.user_id, api]);
 
   const deviceSync = async (data: IUserLinkedDevices) => {
     try {
-      if (!token || (token?.user_id === 0 && !presentDevice.id)) return;
-      if (data.id === presentDevice.id) {
+      if (!token || (token?.user_id === 0 && !presentDeviceRef.current.id))
+        return;
+      if (data.id === presentDeviceRef.current.id) {
         try {
           await api.get(`/logout`);
           handleDisconnect();
@@ -194,7 +202,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     };
 
     checkUserDevice();
-  }, [api, url_location, token?.user_id, presentDevice?.id]);
+  }, [api, token?.user_id, presentDevice?.id]);
 
   //Listen to socket events
   useEffect(() => {
