@@ -66,11 +66,14 @@ const Topbar = () => {
           to="/alerts"
           className={({ isActive }) =>
             isActive
-              ? "bg-winter-100 px-4 py-2 rounded-md flex gap-2 items-center hover:bg-hover"
-              : "px-4 py-2 rounded-md flex gap-2 items-center hover:bg-hover"
+              ? "bg-winter-100 px-4 py-2 rounded-md flex gap-2 items-center hover:bg-hover relative"
+              : "px-4 py-2 rounded-md flex gap-2 items-center hover:bg-hover relative"
           }
         >
           <Bell className="text-2xl" />
+          <p className="w-5 h-5 flex justify-center items-center rounded-full bg-Red-100 text-white text-sm absolute left-[28px] top-0">
+            4
+          </p>
           <p className="font-semibold hidden lg:block transition duration-300 ease-in-out">
             Alerts
           </p>
