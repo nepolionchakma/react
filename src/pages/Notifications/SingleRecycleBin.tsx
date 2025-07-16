@@ -175,7 +175,11 @@ const SingleRecycleBin = () => {
                     <p className="font-semibold">{message.sender.name}</p>
                     <div className="text-sm gap-1 flex items-center">
                       <span className="text-dark-400">to</span>
-                      <span>{message.recivers[0].name}</span>
+                      <span>
+                        {message.recivers[0]
+                          ? `${message.recivers[0].name}`
+                          : "(no user)"}
+                      </span>
                       {message.recivers.length > 1 && (
                         <DropdownMenu>
                           <DropdownMenuTrigger className="focus:outline-none">
