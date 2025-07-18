@@ -15,7 +15,7 @@ import {
 import { io } from "socket.io-client";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import useUserIP from "@/hooks/useUserIP";
-import useUserLocation from "@/hooks/useUserLocation";
+import useLocation from "@/hooks/useLocation";
 
 interface SocketContextProps {
   children: ReactNode;
@@ -72,12 +72,13 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   const [socketMessage, setSocketMessages] = useState<Message[]>([]);
   const [recycleBinMsg, setRecycleBinMsg] = useState<Message[]>([]);
   const [totalRecycleBinMsg, setTotalRecycleBinMsg] = useState<number>(0);
-  const url_location = window.location.pathname;
+  // const url_location = window.location.pathname;
   const socket_url = import.meta.env.VITE_SOCKET_URL;
   const [linkedDevices, setLinkedDevices] = useState<IUserLinkedDevices[]>([]);
   const getUserIP = useUserIP();
-  const getLocation = useUserLocation();
+  // const getLocation = useUserLocation();
   const presentDeviceRef = useRef(presentDevice);
+  const { location } = useLocation();
 
   // Memoize the socket connection so that it's created only once
   const socket = useMemo(() => {
@@ -123,35 +124,57 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     };
 
     fetchCounterMessages();
-  }, [user, url_location, api]);
+  }, [user, api]);
 
   // // device Action
   useEffect(() => {
     const userInfo = async (user_id: number) => {
-      console.log(presentDevice.id, "presentDevice.id in userInfo");
       try {
         if (!token || token?.user_id === 0) return;
         const ipAddress = await getUserIP();
-        const geolocation = await getLocation();
+        // const geolocation = await getLocation();
 
         const deviceData = {
           ...presentDevice,
           ip_address: ipAddress ? ipAddress : "Unknown",
-          location: geolocation ? geolocation : "Unknown (Location off)",
+          location,
         };
-
+        const currentDevice = linkedDevices.find(
+          (d) => d.id === presentDeviceRef.current.id
+        );
+        if (currentDevice) {
+          const sanitizedDeviceData = {
+            ...deviceData,
+            location: deviceData.location ?? "Unknown (Location off)",
+          };
+          const location = currentDevice.location;
+          if (location !== undefined && location !== null) {
+            setLinkedDevices((prev) =>
+              prev.map((d) =>
+                d.id === currentDevice.id ? { ...d, ...sanitizedDeviceData } : d
+              )
+            );
+          } else {
+            // Add new device
+            setLinkedDevices((prev) => [...prev]);
+          }
+        }
         const response = await api.post("/devices/add-device", {
           user_id,
           deviceInfo: deviceData,
         });
-        setPresentDevice(response.data);
+        if (response.status === 200) {
+          // Update existing device
+
+          setPresentDevice(response.data);
+        }
         // addDevice(response.data);
       } catch (error) {
         console.log(error);
       }
     };
     userInfo(token.user_id);
-  }, [token?.user_id, api]);
+  }, [token?.user_id, api, location]);
 
   const deviceSync = async (data: IUserLinkedDevices) => {
     try {
