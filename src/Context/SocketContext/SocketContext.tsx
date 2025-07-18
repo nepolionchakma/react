@@ -145,7 +145,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
         if (currentDevice) {
           const sanitizedDeviceData = {
             ...deviceData,
-            location: deviceData.location ?? undefined,
+            location: deviceData.location ?? "Unknown (Location off)",
           };
           const location = currentDevice.location;
           if (location !== undefined && location !== null) {
