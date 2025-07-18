@@ -97,7 +97,7 @@ const Topbar = () => {
                   9<span className="text-[0.5rem] absolute top-0">+</span>
                 </span>
               ) : (
-                <p>{uniquMessages.length}</p>
+                <span>{uniquMessages.length}</span>
               )}
             </p>
           ) : null}

@@ -30,7 +30,6 @@ const YourDevices = () => {
     useSocketContext();
   const [isLoading, setIsLoading] = useState(true);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
-  // const userInfo = useUserInfo();
 
   useEffect(() => {
     if (!token || token.user_id === 0) return;
@@ -120,7 +119,7 @@ const YourDevices = () => {
         </div>
       </div>
       <div className="px-4 py-2 bg-[#f5f5f5]">
-        <div className="flex flex-col gap-2 overflow-y-auto h-[calc(100vh-250px)]">
+        <div className="flex flex-col gap-2 overflow-y-auto min-h-[280px] max-h-[280px]">
           {isLoading ? (
             <span className="flex justify-center items-center h-full">
               <l-tailspin
