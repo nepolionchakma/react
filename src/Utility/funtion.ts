@@ -15,6 +15,7 @@ interface postDataParams {
   setLoading: Dispatch<SetStateAction<boolean>>;
   payload: any;
   isConsole?: boolean;
+  isToast?: boolean;
 }
 
 interface putDataParams {
@@ -23,6 +24,7 @@ interface putDataParams {
   setLoading: Dispatch<SetStateAction<boolean>>;
   payload: any;
   isConsole?: boolean;
+  isToast?: boolean;
 }
 
 export async function loadData(params: loadDataParams) {
@@ -52,16 +54,20 @@ export async function postData(params: postDataParams) {
     });
     if (res.status === 201) {
       toast({ title: res.data.message });
-      return res;
+      return res as any;
     }
     if (res.status === 200) {
-      toast({ title: res.data[0].message });
+      if (params.isToast) {
+        toast({ title: res.data[0].message });
+      }
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return res as any;
+      return res;
     }
   } catch (error) {
     if (error instanceof Error) {
-      toast({ title: error.message, variant: "destructive" });
+      if (params.isToast) {
+        toast({ title: error.message, variant: "destructive" });
+      }
       return error.message;
     }
   } finally {
@@ -76,12 +82,16 @@ export async function putData(params: putDataParams) {
       baseURL: params.baseURL,
     });
     if (res.status === 200) {
-      toast({ title: res.data.message });
+      if (params.isToast) {
+        toast({ title: res.data.message });
+      }
       return res as any;
     }
   } catch (error) {
     if (error instanceof Error) {
-      toast({ title: error.message, variant: "destructive" });
+      if (params.isToast) {
+        toast({ title: error.message, variant: "destructive" });
+      }
       return error.message;
     }
   } finally {
