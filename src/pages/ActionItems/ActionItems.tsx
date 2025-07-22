@@ -5,8 +5,8 @@ const ActionItems = () => {
   return (
     <div className="flex flex-col gap-4">
       <Card className="flex gap-4 p-4">
-        <div className="bg-blue-500 w-[40px] h-[40px] flex justify-center items-center rounded-full">
-          <CircleCheckBig color="white" />
+        <div className="bg-green-200 w-[40px] h-[40px] flex justify-center items-center rounded-full">
+          <CircleCheckBig color="black" />
         </div>
         <div className="flex flex-col gap-2 w-full">
           <div className="flex justify-between w-full">
@@ -14,13 +14,14 @@ const ActionItems = () => {
               <p className="font-semibold mb-1">
                 Lorem ipsum lorem ipsum lorem lorem lorem
               </p>
-              <div className="bg-green-600 text-white flex w-[180px] h-6 justify-center items-center rounded-full">
-                <p>Status: Completed</p>
-              </div>
             </div>
             <p className="text-gray-700">7/1/2025, 5:50:24 PM</p>
           </div>
+
           <div>
+            <div className="bg-green-200 px-[1px] rounded-md inline-block">
+              <p>Completed</p>
+            </div>
             <p className="text-gray-600">
               Lorem ipsum dolor sit amet consectetur. Eget lobortis tristique
               amet urna. Posuere semper nunc malesuada non massa blandit sit
@@ -72,8 +73,8 @@ const ActionItems = () => {
       </Card> */}
 
       <Card className="flex gap-4 p-4">
-        <div className="bg-blue-500 w-[40px] h-[40px] flex justify-center items-center rounded-full">
-          <CircleCheck color="white" />
+        <div className="bg-yellow-200 w-[40px] h-[40px] flex justify-center items-center rounded-full">
+          <CircleCheck color="black" />
         </div>
         <div className="flex flex-col gap-2 w-full">
           <div className="flex justify-between w-full">
@@ -81,13 +82,13 @@ const ActionItems = () => {
               <p className="font-semibold mb-1">
                 Lorem ipsum lorem ipsum lorem lorem lorem
               </p>
-              <div className="bg-yellow-400 text-white flex w-[180px] h-6 justify-center items-center rounded-full">
-                <p>Status: In Progress</p>
-              </div>
             </div>
             <p className="text-gray-700">7/1/2025, 5:50:24 PM</p>
           </div>
           <div>
+            <div className="bg-yellow-200 px-[1px] rounded-md inline-block">
+              <p>In Progress</p>
+            </div>
             <p className="text-gray-600">
               Lorem ipsum dolor sit amet consectetur. Eget lobortis tristique
               amet urna. Posuere semper nunc malesuada non massa blandit sit
@@ -106,8 +107,8 @@ const ActionItems = () => {
       </Card>
 
       <Card className="flex gap-4 p-4">
-        <div className="bg-blue-500 w-[40px] h-[40px] flex justify-center items-center rounded-full">
-          <Circle color="white" />
+        <div className="bg-orange-200 w-[40px] h-[40px] flex justify-center items-center rounded-full">
+          <Circle color="black" />
         </div>
         <div className="flex flex-col gap-2 w-full">
           <div className="flex justify-between w-full">
@@ -115,13 +116,13 @@ const ActionItems = () => {
               <p className="font-semibold mb-1">
                 Lorem ipsum lorem ipsum lorem lorem lorem
               </p>
-              <div className="bg-blue-400 text-white flex w-[180px] h-6 justify-center items-center rounded-full">
-                <p>Status: New</p>
-              </div>
             </div>
             <p className="text-gray-700">7/1/2025, 5:50:24 PM</p>
           </div>
           <div>
+            <div className="bg-orange-200 px-[1px] rounded-md inline-block">
+              <p>New</p>
+            </div>
             <p className="text-gray-600">
               Lorem ipsum dolor sit amet consectetur. Eget lobortis tristique
               amet urna. Posuere semper nunc malesuada non massa blandit sit

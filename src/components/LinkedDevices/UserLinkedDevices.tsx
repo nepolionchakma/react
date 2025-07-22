@@ -31,8 +31,10 @@ import Firefox from "/icons/browser-icon/mozila.svg";
 import Opera from "/icons/browser-icon/opera.svg";
 import Undefined from "/icons/undefined.svg";
 import App from "../../../public/favicon-black.svg";
+import { putData } from "@/Utility/funtion";
 
 const UserLinkedDevices = () => {
+  const nodeURL = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const api = useAxiosPrivate();
   const { token } = useGlobalContext();
   const { inactiveDevice, linkedDevices, setLinkedDevices } =
@@ -59,22 +61,23 @@ const UserLinkedDevices = () => {
   }, [api, isLoading, setLinkedDevices]);
 
   const switchFunc = async (data: IUserLinkedDevices) => {
+    const putParams = {
+      baseURL: nodeURL,
+      url: `/devices/inactive-device/${token.user_id}/${data.id}`,
+      setLoading: setIsLoading,
+      payload: {
+        ...data,
+        is_active: 0,
+      },
+      isConsole: true,
+      isToast: false,
+    };
     try {
-      const res = async () => {
-        const res = await api.put(
-          `/devices/inactive-device/${token.user_id}/${data.id}`,
-          {
-            ...data,
-            is_active: 0,
-          }
-        );
+      const res = await putData(putParams);
 
-        if (res.status === 200) {
-          inactiveDevice(res.data);
-        }
-      };
-
-      res();
+      if (res.status === 200) {
+        inactiveDevice(res.data);
+      }
     } catch (error) {
       console.log("Error while deactivating device");
     }

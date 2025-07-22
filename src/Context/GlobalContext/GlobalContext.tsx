@@ -159,6 +159,8 @@ export function GlobalContextProvider({
     userDevice()
   );
 
+  console.log(presentDevice);
+
   //get user (when refresh page user must be needed)
   useEffect(() => {
     const getUser = async () => {
