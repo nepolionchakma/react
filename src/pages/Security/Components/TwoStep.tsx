@@ -16,7 +16,7 @@ const TwoStep = () => {
           className="flex justify-between cursor-pointer"
           onClick={() => setIsOpenAccordion(!isOpenAccordion)}
         >
-          <h3 className="font-semibold">Two-step Verification</h3>
+          <h3 className="font-semibold">Multifactor Authentication</h3>
           {isOpenAccordion ? <ChevronDown /> : <ChevronRight />}
         </div>
         {isOpenAccordion && (

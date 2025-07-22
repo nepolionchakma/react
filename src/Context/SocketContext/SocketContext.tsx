@@ -61,8 +61,7 @@ export function useSocketContext() {
 
 export function SocketContextProvider({ children }: SocketContextProps) {
   const api = useAxiosPrivate();
-  const { user, token, setToken, presentDevice, setPresentDevice } =
-    useGlobalContext();
+  const { user, token, setToken, presentDevice } = useGlobalContext();
   const [receivedMessages, setReceivedMessages] = useState<Message[]>([]);
   const [totalReceivedMessages, setTotalReceivedMessages] = useState<number>(0);
   const [sentMessages, setSentMessages] = useState<Message[]>([]);
@@ -128,7 +127,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
 
   // // device Action
   useEffect(() => {
-    const userInfo = async (user_id: number) => {
+    const userInfo = async () => {
       try {
         if (!token || token?.user_id === 0) return;
         const ipAddress = await getUserIP();
@@ -159,21 +158,13 @@ export function SocketContextProvider({ children }: SocketContextProps) {
             setLinkedDevices((prev) => [...prev]);
           }
         }
-        const response = await api.post("/devices/add-device", {
-          user_id,
-          deviceInfo: deviceData,
-        });
-        if (response.status === 200) {
-          // Update existing device
 
-          setPresentDevice(response.data);
-        }
         // addDevice(response.data);
       } catch (error) {
         console.log(error);
       }
     };
-    userInfo(token.user_id);
+    userInfo();
   }, [token?.user_id, api, location]);
 
   const deviceSync = async (data: IUserLinkedDevices) => {

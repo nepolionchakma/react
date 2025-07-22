@@ -23,13 +23,20 @@ import App from "/favicon-black.svg";
 import { Switch } from "@/components/ui/switch";
 import { IUserLinkedDevices } from "@/types/interfaces/users.interface";
 
+import SignonAudit from "./Modals/SignonAudit";
+
 const YourDevices = () => {
   const api = useAxiosPrivate();
-  const { token } = useGlobalContext();
+  const { token, signonId, setSignonId } = useGlobalContext();
   const { linkedDevices, setLinkedDevices, inactiveDevice } =
     useSocketContext();
   const [isLoading, setIsLoading] = useState(true);
   const [isButtonLoading, setIsButtonLoading] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedDevice, setSelectedDevice] =
+    useState<IUserLinkedDevices | null>(null);
+
+  console.log(linkedDevices);
 
   useEffect(() => {
     if (!token || token.user_id === 0) return;
@@ -58,12 +65,16 @@ const YourDevices = () => {
           {
             ...data,
             is_active: 0,
+            signon_id: signonId,
           }
         );
 
         if (res.status === 200) {
-          console.log(res.data, "res.data");
           inactiveDevice([res.data]);
+          setSignonId("");
+          localStorage.removeItem("signonId");
+          localStorage.removeItem("presentDeviceInfo");
+          localStorage.removeItem("presentDevice");
         }
       };
 
@@ -119,7 +130,7 @@ const YourDevices = () => {
         </div>
       </div>
       <div className="px-4 py-2 bg-[#f5f5f5]">
-        <div className="flex flex-col gap-2 overflow-y-auto min-h-[280px] max-h-[280px]">
+        <div className="flex flex-col gap-2 overflow-y-auto max-h-[calc(100vh-17rem)]">
           {isLoading ? (
             <span className="flex justify-center items-center h-full">
               <l-tailspin
@@ -187,7 +198,7 @@ const YourDevices = () => {
                       </div>
                     </div>
                   </div>
-                  <div>
+                  <div className="flex flex-col items-end gap-1">
                     <Switch
                       disabled={device.is_active === 0 && true}
                       checked={device.is_active === 1 ? true : false}
@@ -196,12 +207,26 @@ const YourDevices = () => {
                         switchFunc(device);
                       }}
                     />
+                    <p
+                      className="text-blue-600 font-semibold cursor-pointer"
+                      onClick={() => {
+                        setShowModal(true);
+                        setSelectedDevice(device);
+                      }}
+                    >
+                      Show Singon Audit
+                    </p>
                   </div>
                 </div>
               ))}
             </>
           )}
         </div>
+        <SignonAudit
+          showModal={showModal}
+          setShowModal={setShowModal}
+          selectedDevice={selectedDevice}
+        />
       </div>
     </>
   );

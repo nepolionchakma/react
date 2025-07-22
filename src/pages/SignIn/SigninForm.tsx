@@ -14,7 +14,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 // import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { AxiosError } from "axios";
 import { api } from "@/Api/Api";
-import useInitialUserInfo from "@/hooks/useInitialUserInfo";
+// import useInitialUserInfo from "@/hooks/useInitialUserInfo";
+import { v4 as uuidv4 } from "uuid";
 
 interface SignInFormProps {
   setIsWrongCredential: React.Dispatch<React.SetStateAction<boolean>>;
@@ -26,10 +27,17 @@ const loginSchema = z.object({
 });
 
 const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
-  const { setToken, isLoading, setIsLoading } = useGlobalContext();
+  const {
+    setToken,
+    isLoading,
+    setIsLoading,
+    setPresentDevice,
+    presentDevice,
+    setSignonId,
+  } = useGlobalContext();
   const navigate = useNavigate();
   const location = useLocation();
-  const initialUserInfo = useInitialUserInfo();
+  // const initialUserInfo = useInitialUserInfo();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -44,14 +52,34 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
       setIsLoading(true);
       const response = await api.post(`/login`, data);
       if (!response.data) return;
-      await initialUserInfo(response.data.user_id);
+      // await initialUserInfo(response.data.user_id);
 
-      console.log("Response:", response.data);
+      console.log("Response:57", response.data);
       setToken(response.data);
       setIsWrongCredential(false);
 
       if (response.data) {
         navigate(location?.state ? location?.state : "/", { replace: true });
+
+        const newSignonID = uuidv4();
+        const res = await api.post("/devices/add-device", {
+          user_id: response.data.user_id,
+          deviceInfo: presentDevice,
+          signon_audit: {
+            signon_id: newSignonID,
+            login: new Date(),
+            logout: "",
+          },
+        });
+        console.log(res, "signin");
+        setSignonId(newSignonID);
+        localStorage.setItem("signonId", newSignonID);
+
+        if (res.status === 200) {
+          setPresentDevice(res.data);
+          localStorage.setItem("presentDevice", "true");
+          localStorage.setItem("presentDeviceInfo", JSON.stringify(res.data));
+        }
       }
     } catch (error) {
       setIsWrongCredential(true);
