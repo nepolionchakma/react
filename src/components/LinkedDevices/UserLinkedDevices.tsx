@@ -36,7 +36,7 @@ import { putData } from "@/Utility/funtion";
 const UserLinkedDevices = () => {
   const nodeURL = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const api = useAxiosPrivate();
-  const { token } = useGlobalContext();
+  const { token, signonId, setSignonId } = useGlobalContext();
   const { inactiveDevice, linkedDevices, setLinkedDevices } =
     useSocketContext();
   const [isLoading, setIsLoading] = useState(true);
@@ -68,6 +68,7 @@ const UserLinkedDevices = () => {
       payload: {
         ...data,
         is_active: 0,
+        signon_id: signonId,
       },
       isConsole: true,
       isToast: false,
@@ -77,6 +78,10 @@ const UserLinkedDevices = () => {
 
       if (res.status === 200) {
         inactiveDevice(res.data);
+        setSignonId("");
+        localStorage.removeItem("signonId");
+        localStorage.removeItem("presentDeviceInfo");
+        localStorage.removeItem("presentDevice");
       }
     } catch (error) {
       console.log("Error while deactivating device");

@@ -5,7 +5,7 @@ const ActionItems = () => {
   return (
     <div className="flex flex-col gap-4">
       <Card className="flex gap-4 p-4">
-        <div className="bg-green-200 w-[40px] h-[40px] flex justify-center items-center rounded-full">
+        <div className="bg-green-100 w-[40px] h-[40px] flex justify-center items-center rounded-full">
           <CircleCheckBig color="black" />
         </div>
         <div className="flex flex-col gap-2 w-full">
@@ -19,7 +19,7 @@ const ActionItems = () => {
           </div>
 
           <div>
-            <div className="bg-green-200 px-[1px] rounded-md inline-block">
+            <div className="bg-green-100 px-[2px] rounded-sm inline-block">
               <p>Completed</p>
             </div>
             <p className="text-gray-600">
@@ -73,7 +73,7 @@ const ActionItems = () => {
       </Card> */}
 
       <Card className="flex gap-4 p-4">
-        <div className="bg-yellow-200 w-[40px] h-[40px] flex justify-center items-center rounded-full">
+        <div className="bg-yellow-100 w-[40px] h-[40px] flex justify-center items-center rounded-full">
           <CircleCheck color="black" />
         </div>
         <div className="flex flex-col gap-2 w-full">
@@ -86,7 +86,7 @@ const ActionItems = () => {
             <p className="text-gray-700">7/1/2025, 5:50:24 PM</p>
           </div>
           <div>
-            <div className="bg-yellow-200 px-[1px] rounded-md inline-block">
+            <div className="bg-yellow-100 px-[2px] rounded-sm inline-block">
               <p>In Progress</p>
             </div>
             <p className="text-gray-600">
@@ -107,7 +107,7 @@ const ActionItems = () => {
       </Card>
 
       <Card className="flex gap-4 p-4">
-        <div className="bg-orange-200 w-[40px] h-[40px] flex justify-center items-center rounded-full">
+        <div className="bg-orange-100 w-[40px] h-[40px] flex justify-center items-center rounded-full">
           <Circle color="black" />
         </div>
         <div className="flex flex-col gap-2 w-full">
@@ -120,7 +120,7 @@ const ActionItems = () => {
             <p className="text-gray-700">7/1/2025, 5:50:24 PM</p>
           </div>
           <div>
-            <div className="bg-orange-200 px-[1px] rounded-md inline-block">
+            <div className="bg-orange-100 px-[2px] rounded-sm inline-block">
               <p>New</p>
             </div>
             <p className="text-gray-600">

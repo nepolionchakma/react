@@ -105,6 +105,10 @@ interface GlobalContex {
   setPresentDevice: Dispatch<SetStateAction<IUserLinkedDevices>>;
   stateChange: number;
   setStateChange: Dispatch<SetStateAction<number>>;
+  signonId: string;
+  setSignonId: Dispatch<SetStateAction<string>>;
+  isActive: boolean;
+  setIsActive: Dispatch<SetStateAction<boolean>>;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -154,12 +158,45 @@ export function GlobalContextProvider({
   const [limit, setLimit] = useState<number>(8);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [currentPage, setCurrentPage] = useState<number>(1);
+  const [signonId, setSignonId] = useState("");
+  const [isActive, setIsActive] = useState(true);
 
   const [presentDevice, setPresentDevice] = useState<IUserLinkedDevices>(
     userDevice()
   );
 
   console.log(presentDevice);
+
+  useEffect(() => {
+    const storedValue = localStorage.getItem("signonId");
+    if (storedValue) {
+      setSignonId(storedValue);
+    }
+  }, []);
+
+  useEffect(() => {
+    const storedValue = localStorage.getItem("presentDeviceInfo");
+    if (storedValue) {
+      const parsed: IUserLinkedDevices = JSON.parse(storedValue);
+      setPresentDevice(parsed);
+    }
+  }, []);
+
+  // //Get unique device
+  // useEffect(() => {
+  //   const getUniqueDevice = async () => {
+  //     if (presentDevice.id === 0) return;
+  //     const res = await api.get(`/devices/unique-device/${presentDevice.id}`);
+  //     if (res.status === 200) {
+  //       if (res.data.is_active === 0) {
+  //         setIsActive(false);
+  //       } else {
+  //         setIsActive(true);
+  //       }
+  //     }
+  //   };
+  //   getUniqueDevice();
+  // }, [api]);
 
   //get user (when refresh page user must be needed)
   useEffect(() => {
@@ -252,7 +289,6 @@ export function GlobalContextProvider({
       password,
     } = postData;
     try {
-      console.log(postData, "postData");
       const res = await axios.post(`${FLASK_ENDPOINT_URL}/users`, {
         user_type,
         user_name,
@@ -267,7 +303,6 @@ export function GlobalContextProvider({
         password,
       });
 
-      console.log(res, "res");
       if (res.status === 201) {
         setIsLoading(false);
         toast({
@@ -622,6 +657,10 @@ export function GlobalContextProvider({
         setPresentDevice,
         stateChange,
         setStateChange,
+        signonId,
+        setSignonId,
+        isActive,
+        setIsActive,
       }}
     >
       <SocketContextProvider>

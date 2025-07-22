@@ -105,6 +105,12 @@ export interface IUserPasswordResetTypes {
   new_password: string;
 }
 
+export interface audit {
+  signon_id: string;
+  login?: Date;
+  logout?: Date;
+}
+
 export interface IUserLinkedDevices {
   id: number;
   user_id?: number;
@@ -118,6 +124,7 @@ export interface IUserLinkedDevices {
   user?: string;
   ip_address?: string;
   location?: string;
+  signon_audit?: audit[];
 }
 
 export interface IProfilesType {
