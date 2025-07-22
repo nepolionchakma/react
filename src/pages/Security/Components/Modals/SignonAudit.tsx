@@ -32,7 +32,9 @@ export default function SignonAudit({
         <CustomModal4>
           <div className="w-[500px]">
             <div className="flex justify-between items-center bg-[#CEDEF2] p-2">
-              <h3 className="font-semibold">Device Id: {selectedDevice?.id}</h3>
+              <h3 className="font-semibold">
+                IP Address: {selectedDevice?.ip_address}
+              </h3>
               <X
                 onClick={() => setShowModal(false)}
                 className="cursor-pointer"
