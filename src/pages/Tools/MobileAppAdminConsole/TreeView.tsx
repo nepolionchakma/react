@@ -59,7 +59,7 @@ const TreeView = () => {
       try {
         setIsLoading(true);
         const res = await api.get(`${url}/mobile-menu`);
-        console.log(res);
+
         setData(res.data);
         setMenuData(res.data[0].menu_structure);
       } catch (error) {

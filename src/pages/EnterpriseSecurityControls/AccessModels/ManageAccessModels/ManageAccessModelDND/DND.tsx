@@ -178,7 +178,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
 
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
-    console.log(active.id, over?.id, "handleDragOver");
+
     if (!over) return;
 
     // Find containers for active and over items
@@ -194,8 +194,6 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     }
     const activeItemId = active.id;
     const overItemId = over.id;
-    // console.log(activeItemId, overItemId, " handleDragOver");
-    // console.log(activeContainer, overContainer, " handleDragOver 2");
 
     // Ensure that leftEmptyWidget and users are arrays
     if (!Array.isArray(leftWidgets) || !Array.isArray(rightWidgets)) {
@@ -220,7 +218,6 @@ const DND: FC<IManageAccessModelDNDProps> = ({
         overIndexInRight === -1 ? rightWidgets.length : overIndexInRight;
     }
     if (findEmptyInput.length === 0) {
-      // console.log(rightWidgets, "right widgets");
       if (activeContainer === "left" && overContainer === "right") {
         // Move item from leftEmptyWidget to users
         setRightWidgets((prev) => {
@@ -243,7 +240,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     setActiveId(null);
     const { active, over } = event;
     if (!over) return;
-    console.log(active.id, over?.id, "handleDragEnd");
+
     if (over) {
       const activeItemId = active.id;
       const overItemId = over.id;

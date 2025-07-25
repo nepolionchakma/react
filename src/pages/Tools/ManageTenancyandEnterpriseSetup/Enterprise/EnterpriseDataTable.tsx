@@ -159,8 +159,6 @@ export function EnterpriseDataTable({
     fetch();
   }, [api, page, stateChanged, enterpriseLimit]);
 
-  console.log(tabName, "tabname", action);
-
   return (
     <div className="w-full">
       <>

@@ -110,7 +110,6 @@ const EditNode: FC<EditNodeProps> = ({
   }, [selectedNode, form]);
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
-    console.log(data, "data");
     if (selectedNode) {
       setNodes((prev: ShapeNode[]) => {
         return prev.map((node: ShapeNode) => {

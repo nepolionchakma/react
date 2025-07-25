@@ -14,7 +14,7 @@ const useUserLocation = () => {
                 `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
               );
               const data = await response.json();
-              console.log(data, "data");
+
               const location = `${data.address.city}, ${
                 data.address.county
               }, ${data.address.country_code.toUpperCase()}`;

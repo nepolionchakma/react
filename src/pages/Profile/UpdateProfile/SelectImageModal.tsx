@@ -90,7 +90,6 @@ const SelectImageModal = ({ setIsEditProfileImage }: Props) => {
         });
       }
     } catch (err) {
-      console.log(err, "err");
       toast({
         variant: "destructive",
         description: "Failed to update profile image.",

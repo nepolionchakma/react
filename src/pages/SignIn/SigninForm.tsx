@@ -16,6 +16,7 @@ import { AxiosError } from "axios";
 import { api } from "@/Api/Api";
 // import useInitialUserInfo from "@/hooks/useInitialUserInfo";
 import { v4 as uuidv4 } from "uuid";
+// import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 
 interface SignInFormProps {
   setIsWrongCredential: React.Dispatch<React.SetStateAction<boolean>>;
@@ -35,6 +36,7 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
     presentDevice,
     setSignonId,
   } = useGlobalContext();
+  // const { addDevice } = useSocketContext();
   const navigate = useNavigate();
   const location = useLocation();
   // const initialUserInfo = useInitialUserInfo();
@@ -71,12 +73,14 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
             logout: "",
           },
         });
-        console.log(res, "signin");
+
         setSignonId(newSignonID);
         localStorage.setItem("signonId", newSignonID);
 
         if (res.status === 200) {
+          console.log(res, "79");
           setPresentDevice(res.data);
+          // addDevice(res.data);
           localStorage.setItem("presentDevice", "true");
           localStorage.setItem("presentDeviceInfo", JSON.stringify(res.data));
         }

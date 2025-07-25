@@ -49,11 +49,6 @@ const Dropdown = () => {
       setIsLoading(true);
       const response = await api.get(`/logout`);
       if (response.status === 200) {
-        setIsLoading(false);
-        handleDisconnect();
-        setToken(userExample);
-        setLinkedDevices([]);
-        navigate("/login");
         const res = await api.put(
           `/devices/inactive-device/${token.user_id}/${presentDevice.id}`,
           {
@@ -64,6 +59,10 @@ const Dropdown = () => {
         );
 
         if (res.status === 200) {
+          setIsLoading(false);
+          setToken(userExample);
+          setLinkedDevices([]);
+          navigate("/login");
           inactiveDevice([res.data]);
           setSignonId("");
           localStorage.removeItem("signonId");
@@ -73,6 +72,8 @@ const Dropdown = () => {
       }
     } catch (error) {
       console.log("Error while deactivating device");
+    } finally {
+      handleDisconnect();
     }
   };
 

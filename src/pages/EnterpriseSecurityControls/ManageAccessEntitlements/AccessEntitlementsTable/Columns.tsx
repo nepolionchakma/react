@@ -191,7 +191,6 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
       );
     },
     cell: ({ row }) => {
-      console.log(row.getValue("revision"));
       return (
         <div className="capitalize min-w-max">{row.getValue("revision")}</div>
       );

@@ -68,8 +68,6 @@ const AccessPointsEntitleTable = () => {
   const [data, setData] = useState<IFetchAccessPointsElementTypes[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  console.log(data);
-
   // Table Initialization
   const table = useReactTable({
     data,
@@ -94,7 +92,6 @@ const AccessPointsEntitleTable = () => {
       },
     },
   });
-  console.log(selectedAccessEntitlements);
 
   // Effect: Fetch Data when relevant parameters change
   useEffect(() => {
@@ -121,8 +118,6 @@ const AccessPointsEntitleTable = () => {
               const filterAccessPointsById = await api.get(
                 `/def-access-point-elements/accesspoints?accessPointsId=${accessPointsId}`
               );
-
-              console.log(filterAccessPointsById, "access point data");
 
               setData(
                 filterAccessPointsById.data as IFetchCombinedAccessPointsElementAndDatasourceTypes[]

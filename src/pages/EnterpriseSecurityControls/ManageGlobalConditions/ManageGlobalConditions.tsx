@@ -13,7 +13,7 @@ const ManageGlobalConditions = () => {
     isOpenManageGlobalConditionModal,
     setIsOpenManageGlobalConditionModal,
   } = useAACContext();
-  // console.log(isOpenManageGlobalConditionModal);
+
   return (
     <div>
       <ManageGlobalConditionsTable />

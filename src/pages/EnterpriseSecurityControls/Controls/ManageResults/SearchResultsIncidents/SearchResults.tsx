@@ -87,7 +87,7 @@ const SearchResults = () => {
 
     return () => clearTimeout(delayDebounce);
   }, [page, limit, query]);
-  // console.log(data, "data");
+
   const handleQuery = (e: string) => {
     if (e === "") {
       setQuery({ isEmpty: true, value: e });
@@ -283,7 +283,7 @@ const SearchResults = () => {
                               const selectedRows = table
                                 .getSelectedRowModel()
                                 .rows.map((row) => row.original);
-                              // console.log(selectedRows);
+
                               setSelectedControl(selectedRows);
                             }, 0);
                           }}

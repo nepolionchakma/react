@@ -78,7 +78,7 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
   >(undefined);
   const [parameters, setParameters] = useState<IParametersTypes>({});
   // Record<string, string | number | boolean | Date | undefined>
-  // console.log(parameters, "parameters");
+
   const [parameterArray, setParameterArray] = useState<
     IARMAsynchronousTasksParametersTypes[] | undefined
   >([]);

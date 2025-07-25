@@ -58,8 +58,6 @@ const RunARequest = () => {
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
 
-  console.log(parameters, parameterArray);
-
   useEffect(() => {
     const fetchAsyncTasks = async () => {
       try {

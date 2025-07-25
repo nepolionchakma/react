@@ -22,11 +22,10 @@ const useUserInfo = () => {
   const getLocation = async (): Promise<string | null> => {
     try {
       if (!("geolocation" in navigator)) {
-        console.log("not allowed");
         console.error("Geolocation is not supported by this browser.");
         return "Unknown (Location off)";
       }
-      // console.log("allowed");
+
       return new Promise((resolve, reject) => {
         navigator.geolocation.getCurrentPosition(
           async (position) => {
@@ -61,7 +60,7 @@ const useUserInfo = () => {
     try {
       const ipAddress = await getIP();
       const geolocation = await getLocation();
-      // console.log(geolocation, "allowed then geolocation");
+
       const deviceData = {
         ...presentDevice,
         ip_address: ipAddress ? ipAddress : "Unknown",

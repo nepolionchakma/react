@@ -235,7 +235,7 @@ export function ViewEditScheduledTasksTable() {
   const handleCloseModal = () => {
     setIsOpenModal("");
   };
-  // console.log(viewParameters, "viewParameters in table");
+
   return (
     <div className="px-3">
       {isOpenModal === "edit_task_schedule" && (

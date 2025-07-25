@@ -79,8 +79,7 @@ const ReplyDialog = ({
     try {
       setIsSending(true);
       const response = await api.post(`/messages`, data);
-      console.log(data);
-      console.log(response.data);
+
       if (response.status === 201) {
         handlesendMessage(data);
         setTotalMessages((prev) => [data, ...prev]);

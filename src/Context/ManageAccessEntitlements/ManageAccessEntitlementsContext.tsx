@@ -206,7 +206,7 @@ export const ManageAccessEntitlementsProvider = ({
         `/def-access-point-elements/search/${page}/${limit}?element_name=${element_name}`
       );
       setTotalPage(resultLazyLoading.data.pages);
-      console.log(resultLazyLoading.data.items);
+
       return resultLazyLoading.data.items;
     } catch (error) {
       console.log(error);
@@ -238,7 +238,6 @@ export const ManageAccessEntitlementsProvider = ({
             const totalCount = response.data.length;
             const totalPages = Math.ceil(totalCount / limit);
 
-            console.log(filterAccessPointsById, "access point data");
             setTotalPage(totalPages);
             setCurrentPage(currentPage);
             setFilteredData(
@@ -265,11 +264,11 @@ export const ManageAccessEntitlementsProvider = ({
           const response = await api.get<
             IFetchAccessEntitlementElementsTypes[]
           >(`/access-entitlement-elements/${fetchData.def_entitlement_id}`);
-          console.log(response, "response");
+
           const accessPointsId = response.data.map(
             (data) => data.access_point_id
           );
-          console.log(accessPointsId, "accesspointsid");
+
           // fetch access points data by IDS array
           if (accessPointsId.length > 0) {
             const filterAccessPointsById = await api.get(
@@ -563,8 +562,6 @@ export const ManageAccessEntitlementsProvider = ({
     try {
       //fetch access entitlements
       const response = await api.get(`/access-entitlement-elements/${id}`);
-
-      console.log(response, "response 569");
 
       if (response.data.length > 0) {
         for (const element of response.data) {

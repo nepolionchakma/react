@@ -153,7 +153,7 @@ export function ManageExecutionMethodsTable() {
     //table toggle false
     // table.toggleAllRowsSelected(false);
   };
-  // console.log(selected, "selected");
+
   // default unselect
   const hiddenColumns = [
     "created_by",
@@ -163,7 +163,6 @@ export function ManageExecutionMethodsTable() {
     "cancelled_yn",
   ];
   const handleDelete = async (selected: IExecutionMethodsTypes[]) => {
-    console.log(selected, "selected");
     try {
       selected.forEach(async (method) => {
         await deleteExecutionMethod(method.internal_execution_method);

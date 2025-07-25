@@ -55,7 +55,6 @@ const EditEdge: FC<EditNodeProps> = ({
   }, [selectedEdge, form]);
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
-    console.log(data, "data");
     if (selectedEdge) {
       setEdges((prevNodes: Edge[]) =>
         prevNodes.map((edge: Edge) => {

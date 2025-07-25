@@ -78,7 +78,7 @@ const AddControl = () => {
       // created_by: token.user_name,
       // created_date: date,
     };
-    console.log(postData);
+
     try {
       createControl(postData);
       reset();
@@ -86,7 +86,7 @@ const AddControl = () => {
       console.log(error);
     }
   };
-  // console.log(userType);
+
   return (
     <div>
       <div className="w-[50%] py-6 mx-auto text-center font-bold text-2xl">

@@ -38,8 +38,6 @@ const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
   const [open, setOpen] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  console.log(selected);
-
   useEffect(() => {
     if (props === "update") {
       const fetchDataFromAPI = async () => {
@@ -125,7 +123,6 @@ const DataSourceDataAdd: FC<IDataSourceAddDataTypes> = ({
       last_updated_by: token.user_id,
     };
 
-    console.log(postData);
     const submitAction =
       props === "add"
         ? createDataSource(postData)

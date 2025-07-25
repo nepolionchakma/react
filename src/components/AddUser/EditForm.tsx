@@ -38,7 +38,6 @@ const EditForm: FC<AddFormProps> = ({
   handleReset,
   onSubmit,
 }) => {
-  // console.log(form.getValues(), "form");
   const { token } = useGlobalContext();
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);

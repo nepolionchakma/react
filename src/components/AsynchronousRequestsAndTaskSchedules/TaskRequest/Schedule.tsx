@@ -111,7 +111,6 @@ const Schedule: FC<IScheduleProps> = ({
   // Date and Time selections
   const handleDateSelect = (time: string) => {
     if (schedule && "VALUES" in schedule) {
-      // console.log(time, "time");
       if (Array.isArray(schedule.VALUES)) {
         {
           schedule?.VALUES.includes(time)
@@ -151,7 +150,7 @@ const Schedule: FC<IScheduleProps> = ({
       form.reset({ schedule_type: scheduleType, schedule: selected?.schedule });
     }
   }, [scheduleType]);
-  // console.log(schedule, "schedule");
+
   return (
     <div>
       {action === "Schedule" && (

@@ -51,7 +51,6 @@ const ProfileTable = ({
   const editProfile = (profile: IProfilesType1) => {
     setIsUpdateProfile(true);
     setEditableProfile(profile);
-    // console.log(profile, "profile");
   };
 
   const displayOrder = ["Email", "Mobile Number", "GUID"];

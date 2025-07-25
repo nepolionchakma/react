@@ -19,7 +19,7 @@ const useLocation = () => {
               `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
             );
             const data = await response.json();
-            console.log(data, "data");
+
             const loc = `${
               data.address.city ||
               data.address.town ||
@@ -67,10 +67,6 @@ const useLocation = () => {
         }
 
         permissionStatus.onchange = () => {
-          console.log(
-            "Geolocation permission changed:",
-            permissionStatus.state
-          );
           if (permissionStatus.state === "granted") {
             getLocation();
           } else {

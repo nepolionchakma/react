@@ -21,7 +21,6 @@ const TenancyCreateAndEditModal = ({
   handleCloseModal,
   setSelectedTenancyRows,
 }: ICustomModalTypes) => {
-  console.log(tabName, "tabneame");
   const [tenantName, setTenantName] = useState<string>(
     selectedTenancyRows && action === "edit"
       ? selectedTenancyRows[0].tenant_name
