@@ -35,8 +35,8 @@ const Alerts = () => {
         </div>
         <div className="flex flex-col gap-2 w-full">
           <div className="flex justify-between w-full">
-            <p className="font-semibold mb-1">Alert 1</p>
-            <p className="text-gray-700">7/1/2025, 5:50:24 PM</p>
+            <p className="font-semibold mb-1">Alert 2</p>
+            <p className="text-gray-700">7/1/2025, 5:52:24 PM</p>
           </div>
           <div>
             <p className="text-gray-600">
@@ -60,8 +60,8 @@ const Alerts = () => {
         </div>
         <div className="flex flex-col gap-2 w-full">
           <div className="flex justify-between w-full">
-            <p className="font-semibold mb-1">Alert 1</p>
-            <p className="text-gray-700">7/1/2025, 5:50:24 PM</p>
+            <p className="font-semibold mb-1">Alert 3</p>
+            <p className="text-gray-700">7/1/2025, 5:53:24 PM</p>
           </div>
           <div>
             <p className="text-gray-600">
@@ -85,8 +85,8 @@ const Alerts = () => {
         </div>
         <div className="flex flex-col gap-2 w-full">
           <div className="flex justify-between w-full">
-            <p className="font-semibold mb-1">Alert 1</p>
-            <p className="text-gray-700">7/1/2025, 5:50:24 PM</p>
+            <p className="font-semibold mb-1">Alert 4</p>
+            <p className="text-gray-700">7/1/2025, 5:54:24 PM</p>
           </div>
           <div>
             <p className="text-gray-600">
