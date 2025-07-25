@@ -43,7 +43,6 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
   const { selectedTask, setChangeState } = useARMContext();
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
-  console.log(selected);
   const FormSchema = z.object({
     parameter_name: z.string(),
     data_type: z.string(),
@@ -66,8 +65,6 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
           },
   });
   const { reset } = form;
-
-  console.log(selected);
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     const postData = {

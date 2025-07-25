@@ -41,7 +41,6 @@ const SearchModels = () => {
     },
   });
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
     searchFilter(data);
   }
 

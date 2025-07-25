@@ -118,7 +118,7 @@ export const DroppableItem: FC<DroppableItemProps> = ({
             ori.def_access_model_logic_id === item.def_access_model_logic_id
         )
     );
-    console.log(res);
+
     if (res.length === 0) {
       // check if logicId and attrId exist in the database
       await deleteManageModelLogicAndAttributeData(logicId, attrId);
@@ -141,7 +141,6 @@ export const DroppableItem: FC<DroppableItemProps> = ({
     field: string,
     value: string | number
   ) => {
-    // console.log(index, field, value);
     if (index !== undefined) {
       setItems((prevItems) =>
         prevItems.map((item, i) =>

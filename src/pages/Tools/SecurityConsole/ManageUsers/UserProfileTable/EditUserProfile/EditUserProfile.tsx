@@ -49,7 +49,7 @@ const EditUserProfile = ({
         toast({ description: `Primary profile already exists.` });
     }
   }, [isChecked]);
-  // console.log(primaryCheckedItem, "primaryCheckedItem");
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -69,7 +69,6 @@ const EditUserProfile = ({
               `/access-profiles/${primaryCheckedItem.user_id}/${primaryCheckedItem.serial_number}`,
               { ...primaryCheckedItem, primary_yn: "N" }
             );
-            // console.log(response.data, "response");
           } catch (error) {
             console.error("Error updating profile:", error);
           }

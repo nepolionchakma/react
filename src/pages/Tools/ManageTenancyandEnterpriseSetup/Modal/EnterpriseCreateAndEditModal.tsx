@@ -37,7 +37,6 @@ const EnterpriseCreateAndEditModal = ({
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
-  console.log(tabName, "tabname");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -47,8 +46,6 @@ const EnterpriseCreateAndEditModal = ({
         enterprise_name: enterpriseName,
         enterprise_type: enterpriseType,
       };
-
-      console.log(data, "data", selectedEnterpriseRows, "selectedenterprises");
 
       if (action === "edit") {
         const res = await api.put(

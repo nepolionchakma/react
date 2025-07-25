@@ -218,16 +218,26 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     checkUserDevice();
   }, [api, token?.user_id, presentDevice?.id]);
 
+  // useEffect(() => {
+  //   socket.on("connect", () => {
+  //     const hasDevice = localStorage.getItem("presentDevice");
+  //     console.log(hasDevice, presentDevice);
+  //     console.log(
+  //       hasDevice === "true",
+  //       "hasdevice",
+  //       presentDevice.id !== 0,
+  //       "presentdeviceId"
+  //     );
+  //     if (presentDevice.id !== 0) {
+  //       socket.emit("addDevice", { ...presentDevice, user });
+  //       console.log("emitted addDevice event", { ...presentDevice, user });
+  //       localStorage.removeItem("presentDevice");
+  //     }
+  //   });
+  // }, [presentDevice, presentDevice.id, socket, user]);
+
   //Listen to socket events
   useEffect(() => {
-    socket.on("connect", () => {
-      const hasDevice = localStorage.getItem("presentDevice");
-      if (hasDevice) {
-        socket.emit("addDevice", { ...presentDevice, user });
-        localStorage.removeItem("presentDevice");
-      }
-    });
-
     socket.on("receivedMessage", (data) => {
       const receivedMessagesId = receivedMessages.map((msg) => msg.id);
       if (receivedMessagesId.includes(data.id)) {
@@ -266,7 +276,6 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       // for sync socket draft messages
       const draftMessageId = draftMessages.map((msg) => msg.id);
       if (draftMessageId.includes(id)) {
-        console.log("check draftMessageId time");
         setDraftMessages((prev) => prev.filter((item) => item.id !== id));
         setTotalDraftMessages((prev) => prev - 1);
       }
@@ -343,7 +352,6 @@ export function SocketContextProvider({ children }: SocketContextProps) {
 
     socket.on("restoreMessage", (id) => {
       const message = recycleBinMsg.find((msg) => msg.id === id);
-      console.log(id, message, "restoreMessage");
 
       try {
         if (!message) return;
@@ -370,6 +378,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
 
     // device Action
     socket.on("addDevice", (data) => {
+      console.log(data, "addDevice Event");
       setLinkedDevices((prev) => {
         if (
           prev.some(
@@ -458,7 +467,8 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   };
 
   const inactiveDevice = (data: IUserLinkedDevices[]) => {
-    socket.emit("inactiveDevice", { data, user });
+    socket.emit("inactiveDevice", { data: data, user: user });
+    console.log(data, user, "emitting inactive device event");
   };
 
   return (

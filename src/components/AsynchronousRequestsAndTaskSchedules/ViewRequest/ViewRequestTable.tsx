@@ -113,7 +113,7 @@ export function ViewRequestTable() {
 
     return () => clearTimeout(delayDebounce); // Cleanup timeout
   }, [query, page, limit]); // Run on query and page change
-  // console.log(viewParameters, "viewParameters 00");
+
   const table = useReactTable({
     data,
     columns: getColumns(
@@ -284,7 +284,7 @@ export function ViewRequestTable() {
             ) : table.getRowModel().rows.length ? (
               table.getRowModel().rows.map((row) => {
                 const isExpanded = expandedRow === row.id;
-                // console.log(row.original, "row");
+
                 return (
                   <React.Fragment key={row.id}>
                     <TableRow data-state={row.getIsSelected() && "selected"}>

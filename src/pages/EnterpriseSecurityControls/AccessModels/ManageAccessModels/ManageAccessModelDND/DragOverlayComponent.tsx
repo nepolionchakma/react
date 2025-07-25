@@ -68,8 +68,7 @@ const DragOverlayComponent: FC<DroppableItemProps> = ({
           api.delete(`/manage-global-condition-logic-attributes/${attrId}`),
         ])
           // .then(([logicResult, attributeResult]) => {
-          //   console.log("Logic Result:", logicResult);
-          //   console.log("Attribute Result:", attributeResult);
+
           // })
           .catch((error) => {
             console.error("Error occurred:", error);
@@ -94,7 +93,6 @@ const DragOverlayComponent: FC<DroppableItemProps> = ({
     field: string,
     value: string | number
   ) => {
-    // console.log(index, field, value);
     if (index !== undefined) {
       setItems((prevItems) =>
         prevItems.map((item, i) =>

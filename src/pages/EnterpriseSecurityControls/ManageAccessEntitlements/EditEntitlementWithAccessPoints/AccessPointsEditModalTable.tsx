@@ -137,7 +137,7 @@ const AccessPointsEditModal = () => {
                                   const selectedRows = table
                                     .getSelectedRowModel()
                                     .rows.map((row) => row.original);
-                                  // console.log(selectedRows);
+
                                   const ids = selectedRows.map(
                                     (row) => row?.def_access_point_id
                                   );

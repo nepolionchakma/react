@@ -36,7 +36,9 @@ const YourDevices = () => {
   const [selectedDevice, setSelectedDevice] =
     useState<IUserLinkedDevices | null>(null);
 
-  console.log(linkedDevices);
+  const sortedDevices = linkedDevices?.sort(
+    (a, b) => b.is_active - a.is_active
+  );
 
   useEffect(() => {
     if (!token || token.user_id === 0) return;
@@ -142,7 +144,7 @@ const YourDevices = () => {
             </span>
           ) : (
             <>
-              {linkedDevices.map((device) => (
+              {sortedDevices.map((device) => (
                 <div
                   key={device.id}
                   className="p-4 bg-white flex justify-between items-center"

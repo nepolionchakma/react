@@ -120,7 +120,7 @@ export const ControlsContextProvider = ({
           Authorization: `Bearer ${token.access_token}`,
         },
       });
-      console.log(res, "res");
+
       if (res.status === 201) {
         toast({
           description: `${res.data.message}`,
@@ -155,8 +155,7 @@ export const ControlsContextProvider = ({
       const matchesDatasources =
         data.datasources.length === 0 ||
         item.datasources.toLowerCase().includes(data.datasources.toLowerCase());
-      // console.log(matchesModelName);
-      // console.log(matchesDate);
+
       setIsLoading(false);
       // Return true only if all conditions are met
       return (

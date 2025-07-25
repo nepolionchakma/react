@@ -85,8 +85,6 @@ export function TenancyDataTable({
     setSelectedIds(selected);
   }, [selectedTenancyRows.length, data.length]);
 
-  console.log(selectedTenancyRows, "rows", selectedIds, "ids");
-
   // const selectedTenancyRowsID = selectedTenancyRows.map((row) => row.tenant_id);
 
   const table = useReactTable({
@@ -358,8 +356,7 @@ export function TenancyDataTable({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   if (header.index === 0) {
-                    console.log(header.getSize(), "tenancy");
-                    console.log(table.getTotalSize(), "tenancy2");
+              
                   }
                   return (
                     <TableHead

@@ -38,12 +38,12 @@ const CreateAccessProfile = ({
     try {
       setIsLoading(true);
       const data = { profile_type: profileType, profile_id: profileId };
-      // console.log(data, "data");
+
       const res = await api.post(
         `/access-profiles/${combinedUser?.user_id}`,
         data
       );
-      console.log(data, res, "data");
+
       if (res) {
         setIsUpdated(Math.random() + 23 * 3000);
         toast({

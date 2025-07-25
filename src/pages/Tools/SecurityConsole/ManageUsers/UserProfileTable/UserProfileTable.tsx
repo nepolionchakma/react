@@ -319,7 +319,7 @@ export function UserProfileTable({
                               const selectedRows = table
                                 .getSelectedRowModel()
                                 .rows.map((row) => row.original);
-                              // console.log(selectedRows);
+
                               setSelectedProfile(selectedRows);
                             }, 0);
                           }}

@@ -17,9 +17,6 @@ const PopUp = ({ action, data, setData }: IResultsProps) => {
         </div>
         <div className="p-2 flex flex-col ">
           {Object.entries(data!).map(([key, value]) => {
-            // console.log(key, value, "key value");
-            // console.log(key === "Date-Time", value, "key is date time");
-            // console.log(typeof key, typeof value, "key value type");
             return (
               <div key={key}>
                 <span className="capitalize">

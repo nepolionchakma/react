@@ -28,7 +28,7 @@ const CreateAFlow = ({
   closeAllProgress,
 }: ICreateAFlowProps) => {
   const api = useAxiosPrivate();
-  console.log(actionType, "actionType");
+
   const handleCreateNewFlow = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
@@ -53,12 +53,11 @@ const CreateAFlow = ({
           };
 
           if (actionType === "CreateAFlow") {
-            console.log(actionType, postData, "actionType");
             const res = await api.post(
               "/orchestration-studio-process",
               postData
             );
-            console.log(res, "res");
+
             if (res) {
               setSelectedFlowName(newProcessName);
               closeAllProgress();
@@ -71,12 +70,11 @@ const CreateAFlow = ({
               });
             }
           } else if (actionType === "EditFlowName") {
-            console.log(actionType, putData, "actionType");
             const res = await api.put(
               `/orchestration-studio-process/process-name/${selectedFlowData?.process_id}`,
               putData
             );
-            console.log(res, "res");
+
             if (res) {
               setIsEditFlowName(false);
               setSelectedFlowName(newProcessName);

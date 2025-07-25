@@ -50,7 +50,6 @@ const ActionItems = ({
   };
 
   const handleAction = () => {
-    console.log(selectedEnterpriseRows, "59");
     if (selectedEnterpriseRows[0].enterprise_name === null) {
       setAction("add");
     } else {

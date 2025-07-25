@@ -7,7 +7,6 @@ const DynamicSubSubMenu = () => {
 
   const { route } = useParams();
   const name = route?.split("-").join(" ");
-  console.log(name, "title");
 
   return (
     <div>

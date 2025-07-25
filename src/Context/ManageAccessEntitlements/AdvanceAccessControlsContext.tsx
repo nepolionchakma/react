@@ -556,7 +556,6 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         ...response.data.map((data) => data.def_access_model_logic_id)
       );
       setMaxLogicId(maxId);
-      console.log(maxId, "context");
     } catch (error) {
       console.log(error);
     } finally {
@@ -653,8 +652,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       const matchesDate =
         data.last_run_date.length === 0 ||
         // item.last_run_date.includes(data.last_run_date);
-        // console.log(matchesModelName);
-        // console.log(matchesDate);
+
         setIsLoading(false);
       // Return true only if all conditions are met
       return (

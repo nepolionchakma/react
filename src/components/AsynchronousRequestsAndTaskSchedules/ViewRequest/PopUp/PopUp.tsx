@@ -18,8 +18,6 @@ const PopUp = ({ action, data, setData }: IProps) => {
         <div className="p-2 flex flex-col ">
           {/* {JSON.stringify(data)} */}
           {Object.entries(data!).map(([key, value]) => {
-            // console.log(key, value, "key value");
-            // console.log(typeof key, typeof value, "key value type");
             return (
               <div key={key}>
                 {action === "Parameters" ? (

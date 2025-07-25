@@ -129,7 +129,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       const res = await api.get<IARMAsynchronousTasksTypes[]>(
         `/arm-tasks/def_async_tasks`
       );
-      console.log(res);
+
       return res.data ?? [];
     } catch (error) {
       if (error instanceof Error) {
@@ -460,7 +460,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     }>(params);
     if (result) {
       setTotalPage(result.pages);
-      console.log(result);
+
       return result.items;
     }
   };

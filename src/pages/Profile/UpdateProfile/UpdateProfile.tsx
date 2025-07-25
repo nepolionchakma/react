@@ -22,7 +22,7 @@ const UpdateProfile: React.FC = () => {
       ? `${url}/${combinedUser?.profile_picture?.original}`
       : `${url}/uploads/profiles/default/loading.gif`;
   }, [combinedUser?.profile_picture?.original]);
-  console.log(profileLogo, "profileLogo");
+
   const [isImageSelected, setIsImageSelected] = useState(false);
   const [profileImage, setProfileImage] = useState(profileLogo);
   const [file, setFile] = useState<File | null>(null);
@@ -87,7 +87,6 @@ const UpdateProfile: React.FC = () => {
         });
       }
     } catch (err) {
-      console.log(err, "err");
       toast({
         variant: "destructive",
         description: "Failed to update profile image.",

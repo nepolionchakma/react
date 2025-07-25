@@ -262,7 +262,7 @@ export function GlobalContextProvider({
       const res = await api.get<IGetResponeUsersInfoTypes>(
         `/combined-user/search/${page}/${limit}?user_name=${userName}`
       );
-      // console.log(res.data, "res.data");
+
       // setUsersInfo(res.data.items ?? []);
       // setTotalPage(res.data.pages);
       // setCurrentPage(res.data.page);
@@ -512,7 +512,7 @@ export function GlobalContextProvider({
         last_updated_by,
       });
       // for sync data call fetch data source
-      console.log(res.status);
+
       if (res.status === 201) {
         toast({
           description: `Data added successfully.`,

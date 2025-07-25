@@ -59,7 +59,7 @@ export const columns: ColumnDef<IUsersInfoTypes>[] = [
     },
     cell: ({ row }) => {
       const emailAddresses = row.getValue("email_addresses");
-      console.log(emailAddresses, "fsdfsd");
+
       const splitedEmailAddresses = Array.isArray(emailAddresses)
         ? emailAddresses.join(", ")
         : "";

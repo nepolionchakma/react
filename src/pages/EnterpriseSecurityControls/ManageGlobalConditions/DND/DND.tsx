@@ -78,7 +78,7 @@ const DND: FC = () => {
     };
     fetchDataFunc();
   }, []);
-  // console.log(selectedItem[0], "selectedManageGlobalConditionItem[0]");
+
   //Top Form Start
   const FormSchema = z.object({
     name: z.string(),
@@ -163,7 +163,7 @@ const DND: FC = () => {
   };
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
-    // console.log(active, over, "handleDragOver");
+
     if (!over) return;
 
     // Find containers for active and over items
@@ -179,8 +179,6 @@ const DND: FC = () => {
     }
     const activeItemId = active.id;
     const overItemId = over.id;
-    // console.log(activeItemId, overItemId, " handleDragOver");
-    // console.log(activeContainer, overContainer, " handleDragOver 2");
 
     // Ensure that leftEmptyWidget and users are arrays
     if (!Array.isArray(leftWidgets) || !Array.isArray(rightWidgets)) {
@@ -205,7 +203,6 @@ const DND: FC = () => {
         overIndexInRight === -1 ? rightWidgets.length : overIndexInRight;
     }
     if (findEmptyInput.length === 0) {
-      // console.log(rightWidgets, "right widgets");
       if (activeContainer === "left" && overContainer === "right") {
         // Move item from leftEmptyWidget to users
         setRightWidgets((prev) => {
@@ -317,7 +314,6 @@ const DND: FC = () => {
       if (res1.status === 200) {
         const res2 = await postData(postGlobalConditionAttributeParams);
         if (res2.status === 200) {
-          console.log(res1.data[0].message, res2.data[0].message);
           setOriginalData([...rightWidgets]);
           setIdStateChange((prev) => prev + 1);
         }

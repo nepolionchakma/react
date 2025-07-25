@@ -100,7 +100,7 @@ const ManageGlobalConditionsTable = () => {
 
   useEffect(() => {
     if (data.length > 0) {
-      if (selectedManageGlobalConditionItem.length !== data.length) {
+      if (selectedManageGlobalConditionItem?.length !== data.length) {
         setIsSelectAll(false);
       } else {
         setIsSelectAll(true);
@@ -110,7 +110,11 @@ const ManageGlobalConditionsTable = () => {
       (item) => item.def_global_condition_id
     );
     setIsSelectedIds(ids);
-  }, [selectedManageGlobalConditionItem.length, data.length]);
+  }, [
+    selectedManageGlobalConditionItem?.length,
+    data.length,
+    selectedManageGlobalConditionItem,
+  ]);
 
   const handleSelectAll = () => {
     if (isSelectAll) {

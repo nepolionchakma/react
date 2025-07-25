@@ -119,7 +119,7 @@ export interface IUserLinkedDevices {
   device_type: string;
   browser_version: string;
   user_agent: string;
-  is_active?: number;
+  is_active: number;
   added_at?: string;
   user?: string;
   ip_address?: string;
