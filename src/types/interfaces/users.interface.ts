@@ -125,6 +125,7 @@ export interface IUserLinkedDevices {
   ip_address?: string;
   location?: string;
   signon_audit?: audit[];
+  signon_id: string;
 }
 
 export interface IProfilesType {
