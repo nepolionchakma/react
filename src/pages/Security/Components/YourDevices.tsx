@@ -65,13 +65,12 @@ const YourDevices = () => {
         const res = await api.put(
           `/devices/inactive-device/${token.user_id}/${data.id}`,
           {
-            ...data,
             is_active: 0,
-            signon_id: signonId,
           }
         );
 
         if (res.status === 200) {
+          console.log(res.data);
           inactiveDevice([res.data]);
           setSignonId("");
           localStorage.removeItem("signonId");
