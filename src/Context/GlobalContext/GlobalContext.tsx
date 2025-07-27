@@ -165,8 +165,6 @@ export function GlobalContextProvider({
     userDevice()
   );
 
-  console.log(presentDevice);
-
   useEffect(() => {
     const storedValue = localStorage.getItem("signonId");
     if (storedValue) {
