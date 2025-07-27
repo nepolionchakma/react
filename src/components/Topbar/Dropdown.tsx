@@ -19,14 +19,8 @@ import { useState } from "react";
 const Dropdown = () => {
   const api = useAxiosPrivate();
   const apiUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
-  const {
-    token,
-    setToken,
-    combinedUser,
-    presentDevice,
-    signonId,
-    setSignonId,
-  } = useGlobalContext();
+  const { token, setToken, combinedUser, presentDevice, setSignonId } =
+    useGlobalContext();
   const { handleDisconnect, setLinkedDevices, inactiveDevice } =
     useSocketContext();
   const [isLoading, setIsLoading] = useState(false);
@@ -52,9 +46,7 @@ const Dropdown = () => {
         const res = await api.put(
           `/devices/inactive-device/${token.user_id}/${presentDevice.id}`,
           {
-            ...presentDevice,
             is_active: 0,
-            signon_id: signonId,
           }
         );
 
