@@ -27,7 +27,7 @@ import SignonAudit from "./Modals/SignonAudit";
 
 const YourDevices = () => {
   const api = useAxiosPrivate();
-  const { token, signonId, setSignonId } = useGlobalContext();
+  const { token, setSignonId, presentDevice } = useGlobalContext();
   const { linkedDevices, setLinkedDevices, inactiveDevice } =
     useSocketContext();
   const [isLoading, setIsLoading] = useState(true);
@@ -74,7 +74,9 @@ const YourDevices = () => {
           inactiveDevice([res.data]);
           setSignonId("");
           localStorage.removeItem("signonId");
-          localStorage.removeItem("presentDeviceInfo");
+          if (presentDevice.id === res.data.id) {
+            localStorage.removeItem("presentDeviceInfo");
+          }
           localStorage.removeItem("presentDevice");
         }
       };
@@ -97,6 +99,7 @@ const YourDevices = () => {
         setIsButtonLoading(false);
         setIsLoading(true);
         inactiveDevice(linkedDevices);
+        localStorage.removeItem("presentDeviceInfo");
       }
     } catch (error) {
       console.log("Error while deactivating device");

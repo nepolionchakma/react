@@ -1,7 +1,7 @@
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import useUserIP from "./useUserIP";
 import useAxiosPrivate from "./useAxiosPrivate";
-import useLocation from "./useLocation";
+import useLocation from "./useUserLocationInfo";
 import { v4 as uuidv4 } from "uuid";
 
 const useInitialUserInfo = () => {
