@@ -84,21 +84,15 @@ export function SocketContextProvider({ children }: SocketContextProps) {
 
   // Memoize the socket connection so that it's created only once
   const socket = useMemo(() => {
-    // let lastOnline;
-    // if (presentDevice.signon_audit) {
-    //   lastOnline =
-    //     presentDevice.signon_audit[presentDevice.signon_audit?.length - 1];
-    // }
     return io(socket_url, {
       path: "/socket.io/",
       query: {
         key: user,
         device_id: presentDevice.id,
-        // logoutInfo: lastOnline?.logout,
       },
       transports: ["websocket"],
     });
-  }, [socket_url, user]);
+  }, [user, presentDevice.id]);
 
   useEffect(() => {
     const getAllDevices = async () => {

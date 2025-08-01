@@ -84,13 +84,11 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
         setSignonId(newSignonID);
         localStorage.setItem("signonId", newSignonID);
 
-        if (res.status === 200) {
-          setPresentDevice(res.data);
-          // setLoggedDevice(true);
-
-          console.log(res, "79");
+        if (res.status === 201 || res.status === 200) {
+          console.log(res.data, "79");
           localStorage.setItem("presentDevice", "true");
           localStorage.setItem("presentDeviceInfo", JSON.stringify(res.data));
+          setPresentDevice(res.data);
           navigate(location?.state ? location?.state : "/", { replace: true });
         }
       }
