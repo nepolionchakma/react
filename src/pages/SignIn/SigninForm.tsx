@@ -16,7 +16,8 @@ import { AxiosError } from "axios";
 import { api } from "@/Api/Api";
 // import useInitialUserInfo from "@/hooks/useInitialUserInfo";
 import { v4 as uuidv4 } from "uuid";
-// import { useSocketContext } from "@/Context/SocketContext/SocketContext";
+import useUserIP from "@/hooks/useUserIP";
+import useUserLocationInfo from "@/hooks/useUserLocationInfo";
 
 interface SignInFormProps {
   setIsWrongCredential: React.Dispatch<React.SetStateAction<boolean>>;
@@ -36,9 +37,10 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
     presentDevice,
     setSignonId,
   } = useGlobalContext();
-  // const { addDevice } = useSocketContext();
   const navigate = useNavigate();
   const location = useLocation();
+  const { location: userLocation } = useUserLocationInfo();
+  const userIp = useUserIP();
   // const initialUserInfo = useInitialUserInfo();
 
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -50,6 +52,13 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
   });
 
   const handleSubmit = async (data: z.infer<typeof loginSchema>) => {
+    const ipAddress = await userIp();
+    const deviceData = {
+      ...presentDevice,
+      ip_address: ipAddress ? ipAddress : "Unknown",
+      location: userLocation,
+    };
+
     try {
       setIsLoading(true);
       const response = await api.post(`/login`, data);
@@ -61,12 +70,10 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
       setIsWrongCredential(false);
 
       if (response.data) {
-        navigate(location?.state ? location?.state : "/", { replace: true });
-
         const newSignonID = uuidv4();
         const res = await api.post("/devices/add-device", {
           user_id: response.data.user_id,
-          deviceInfo: presentDevice,
+          deviceInfo: deviceData,
           signon_audit: {
             signon_id: newSignonID,
             login: new Date(),
@@ -78,11 +85,13 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
         localStorage.setItem("signonId", newSignonID);
 
         if (res.status === 200) {
-          console.log(res, "79");
           setPresentDevice(res.data);
-          // addDevice(res.data);
+          // setLoggedDevice(true);
+
+          console.log(res, "79");
           localStorage.setItem("presentDevice", "true");
           localStorage.setItem("presentDeviceInfo", JSON.stringify(res.data));
+          navigate(location?.state ? location?.state : "/", { replace: true });
         }
       }
     } catch (error) {

@@ -165,8 +165,6 @@ export function GlobalContextProvider({
     userDevice()
   );
 
-  console.log(presentDevice);
-
   useEffect(() => {
     const storedValue = localStorage.getItem("signonId");
     if (storedValue) {
@@ -180,23 +178,25 @@ export function GlobalContextProvider({
       const parsed: IUserLinkedDevices = JSON.parse(storedValue);
       setPresentDevice(parsed);
     }
-  }, []);
+  }, [presentDevice.id]);
 
   // //Get unique device
   // useEffect(() => {
   //   const getUniqueDevice = async () => {
-  //     if (presentDevice.id === 0) return;
-  //     const res = await api.get(`/devices/unique-device/${presentDevice.id}`);
-  //     if (res.status === 200) {
-  //       if (res.data.is_active === 0) {
-  //         setIsActive(false);
-  //       } else {
-  //         setIsActive(true);
-  //       }
-  //     }
+  //     console.log(typeof presentDevice.id, "presentDeviceId");
+
+  //       const res = await api.get(`/devices/unique-device/${presentDevice.id}`);
+  //       console.log(res.data, "uniqueDevice");
+
+  //     // if (res.data.is_active === 0) {
+  //     //   setIsActive(false);
+  //     // } else {
+  //     //   setIsActive(true);
+  //     // }
   //   };
+
   //   getUniqueDevice();
-  // }, [api]);
+  // }, [api,  presentDevice.id]);
 
   //get user (when refresh page user must be needed)
   useEffect(() => {

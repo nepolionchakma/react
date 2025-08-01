@@ -4,7 +4,6 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { useGlobalContext, userExample } from "../GlobalContext/GlobalContext";
@@ -15,7 +14,7 @@ import {
 import { io } from "socket.io-client";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import useUserIP from "@/hooks/useUserIP";
-import useLocation from "@/hooks/useLocation";
+import useLocation from "@/hooks/useUserLocationInfo";
 
 interface SocketContextProps {
   children: ReactNode;
@@ -50,6 +49,8 @@ interface SocketContext {
   linkedDevices: IUserLinkedDevices[];
   setLinkedDevices: React.Dispatch<React.SetStateAction<IUserLinkedDevices[]>>;
   handleRestoreMessage: (id: string, user: string) => void;
+  setAllDevices: React.Dispatch<React.SetStateAction<IUserLinkedDevices[]>>;
+  // setLoggedDevice: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const SocketContext = createContext({} as SocketContext);
@@ -74,56 +75,46 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   // const url_location = window.location.pathname;
   const socket_url = import.meta.env.VITE_SOCKET_URL;
   const [linkedDevices, setLinkedDevices] = useState<IUserLinkedDevices[]>([]);
+  const [allDevices, setAllDevices] = useState<IUserLinkedDevices[]>([]);
+  // const [loggedDevice, setLoggedDevice] = useState(false);
   const getUserIP = useUserIP();
   // const getLocation = useUserLocation();
-  const presentDeviceRef = useRef(presentDevice);
+
   const { location } = useLocation();
 
   // Memoize the socket connection so that it's created only once
   const socket = useMemo(() => {
+    // let lastOnline;
+    // if (presentDevice.signon_audit) {
+    //   lastOnline =
+    //     presentDevice.signon_audit[presentDevice.signon_audit?.length - 1];
+    // }
     return io(socket_url, {
       path: "/socket.io/",
       query: {
         key: user,
+        device_id: presentDevice.id,
+        // logoutInfo: lastOnline?.logout,
       },
       transports: ["websocket"],
     });
   }, [socket_url, user]);
 
   useEffect(() => {
-    presentDeviceRef.current = presentDevice;
-  }, [presentDevice]);
-
-  //Fetch Notification Messages
-  useEffect(() => {
-    const fetchCounterMessages = async () => {
+    const getAllDevices = async () => {
       try {
-        if (!user) return;
-        const [
-          notificationTotal,
-          receivedTotal,
-          sentTotal,
-          draftTotal,
-          recyclebinTotal,
-        ] = await Promise.all([
-          api.get(`/messages/notification/${user}`),
-          api.get(`/messages/total-received/${user}`),
-          api.get(`/messages/total-sent/${user}`),
-          api.get(`/messages/total-draft/${user}`),
-          api.get(`/messages/total-recyclebin/${user}`),
-        ]);
-        setSocketMessages(notificationTotal.data);
-        setTotalReceivedMessages(receivedTotal.data.total);
-        setTotalSentMessages(sentTotal.data.total);
-        setTotalDraftMessages(draftTotal.data.total);
-        setTotalRecycleBinMsg(recyclebinTotal.data.total);
+        if (!token || token.user_id === 0) return;
+
+        const res = await api.get(`/devices/${token?.user_id}`);
+        if (res.status === 200) {
+          setAllDevices(res.data);
+        }
       } catch (error) {
-        console.log(error);
+        console.log("Error fetching devices:", error);
       }
     };
-
-    fetchCounterMessages();
-  }, [user, api]);
+    getAllDevices();
+  }, [api, token?.user_id]);
 
   // // device Action
   useEffect(() => {
@@ -131,7 +122,6 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       try {
         if (!token || token?.user_id === 0) return;
         const ipAddress = await getUserIP();
-        // const geolocation = await getLocation();
 
         const deviceData = {
           ...presentDevice,
@@ -139,7 +129,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
           location,
         };
         const currentDevice = linkedDevices.find(
-          (d) => d.id === presentDeviceRef.current.id
+          (d) => d.id === presentDevice.id
         );
         if (currentDevice) {
           const sanitizedDeviceData = {
@@ -169,14 +159,14 @@ export function SocketContextProvider({ children }: SocketContextProps) {
 
   const deviceSync = async (data: IUserLinkedDevices) => {
     try {
-      if (!token || (token?.user_id === 0 && !presentDeviceRef.current.id))
-        return;
-      if (data.id === presentDeviceRef.current.id) {
+      if (!token || (token?.user_id === 0 && !presentDevice.id)) return;
+      if (data.id === presentDevice.id) {
         try {
           await api.get(`/logout`);
           handleDisconnect();
           setToken(userExample);
           window.location.href = "/login";
+          localStorage.removeItem("presentDeviceInfo");
         } catch (error) {
           console.log(error);
         }
@@ -186,57 +176,39 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     }
   };
 
-  useEffect(() => {
-    const checkUserDevice = async () => {
-      try {
-        if (!token || token?.user_id === 0 || presentDevice?.id === 0) return;
-
-        if (presentDevice.id && linkedDevices.length > 0) {
-          const response = linkedDevices.some((device: IUserLinkedDevices) => {
-            if (device?.id === presentDevice?.id && device?.is_active === 1) {
-              return true;
-            }
-            return false;
-          });
-
-          if (!response) {
-            try {
-              await api.get(`/logout`);
-              handleDisconnect();
-              setToken(userExample);
-              window.location.href = "/login";
-            } catch (error) {
-              console.log(error);
-            }
-          }
-        }
-      } catch (error) {
-        console.log("Error checking user device");
-      }
-    };
-
-    checkUserDevice();
-  }, [api, token?.user_id, presentDevice?.id]);
-
   // useEffect(() => {
-  //   socket.on("connect", () => {
-  //     const hasDevice = localStorage.getItem("presentDevice");
-  //     console.log(hasDevice, presentDevice);
-  //     console.log(
-  //       hasDevice === "true",
-  //       "hasdevice",
-  //       presentDevice.id !== 0,
-  //       "presentdeviceId"
-  //     );
-  //     if (presentDevice.id !== 0) {
-  //       socket.emit("addDevice", { ...presentDevice, user });
-  //       console.log("emitted addDevice event", { ...presentDevice, user });
-  //       localStorage.removeItem("presentDevice");
-  //     }
-  //   });
-  // }, [presentDevice, presentDevice.id, socket, user]);
+  //   const checkUserDevice = async () => {
+  //     try {
+  //       if (!token || token?.user_id === 0 || presentDevice?.id === 0) return;
 
-  //Listen to socket events
+  //       if (presentDevice.id && linkedDevices.length > 0) {
+  //         const response = linkedDevices.some((device: IUserLinkedDevices) => {
+  //           if (device?.id === presentDevice?.id && device?.is_active === 1) {
+  //             return true;
+  //           }
+  //           return false;
+  //         });
+
+  //         if (!response) {
+  //           try {
+  //             await api.get(`/logout`);
+  //             handleDisconnect();
+  //             setToken(userExample);
+  //             window.location.href = "/login";
+  //           } catch (error) {
+  //             console.log(error);
+  //           }
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.log("Error checking user device");
+  //     }
+  //   };
+
+  //   checkUserDevice();
+  // }, [api, token?.user_id, presentDevice?.id]);
+
+  // Listen to socket events
   useEffect(() => {
     socket.on("receivedMessage", (data) => {
       const receivedMessagesId = receivedMessages.map((msg) => msg.id);
@@ -378,7 +350,6 @@ export function SocketContextProvider({ children }: SocketContextProps) {
 
     // device Action
     socket.on("addDevice", (data) => {
-      console.log(data, "addDevice Event");
       setLinkedDevices((prev) => {
         if (
           prev.some(
@@ -420,6 +391,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       socket.off("addDevice");
       socket.off("inactiveDevice");
       socket.off("restoreMessage");
+      socket.off("connect");
       // socket.disconnect();
     };
   }, [
@@ -431,6 +403,9 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     socket,
     socketMessage,
     totalRecycleBinMsg,
+    allDevices,
+    presentDevice,
+    user,
   ]);
 
   // messages Action
@@ -467,8 +442,8 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   };
 
   const inactiveDevice = (data: IUserLinkedDevices[]) => {
+    if (!token || token.user_id === 0 || !data?.length) return;
     socket.emit("inactiveDevice", { data: data, user: user });
-    console.log(data, user, "emitting inactive device event");
   };
 
   return (
@@ -502,6 +477,8 @@ export function SocketContextProvider({ children }: SocketContextProps) {
         linkedDevices,
         setLinkedDevices,
         handleRestoreMessage,
+        setAllDevices,
+        // setLoggedDevice,
       }}
     >
       {children}

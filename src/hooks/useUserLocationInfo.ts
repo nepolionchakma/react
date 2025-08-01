@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const useLocation = () => {
+const useUserLocationInfo = () => {
   const [location, setLocation] = useState<string | null>(null);
 
   const getLocation = async (): Promise<void> => {
@@ -91,4 +91,4 @@ const useLocation = () => {
   return { location, getLocation };
 };
 
-export default useLocation;
+export default useUserLocationInfo;

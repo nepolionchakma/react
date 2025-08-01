@@ -1,4 +1,8 @@
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+
 const useUserDevice = () => {
+  const { signonId } = useGlobalContext();
+
   const userDevice = () => {
     const user_agent = navigator.userAgent || navigator.vendor;
     const platform = navigator.platform || "unknown";
@@ -76,6 +80,7 @@ const useUserDevice = () => {
       os,
       user_agent,
       is_active: 1,
+      signon_id: signonId,
     };
     return userDevice;
   };
