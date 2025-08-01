@@ -63,9 +63,7 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
       setIsLoading(true);
       const response = await api.post(`/login`, data);
       if (!response.data) return;
-      // await initialUserInfo(response.data.user_id);
 
-      console.log("Response:57", response.data);
       setToken(response.data);
       setIsWrongCredential(false);
 
@@ -85,7 +83,6 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
         localStorage.setItem("signonId", newSignonID);
 
         if (res.status === 201 || res.status === 200) {
-          console.log(res.data, "79");
           localStorage.setItem("presentDevice", "true");
           localStorage.setItem("presentDeviceInfo", JSON.stringify(res.data));
           setPresentDevice(res.data);

@@ -49,8 +49,6 @@ interface SocketContext {
   linkedDevices: IUserLinkedDevices[];
   setLinkedDevices: React.Dispatch<React.SetStateAction<IUserLinkedDevices[]>>;
   handleRestoreMessage: (id: string, user: string) => void;
-  setAllDevices: React.Dispatch<React.SetStateAction<IUserLinkedDevices[]>>;
-  // setLoggedDevice: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const SocketContext = createContext({} as SocketContext);
@@ -75,8 +73,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   // const url_location = window.location.pathname;
   const socket_url = import.meta.env.VITE_SOCKET_URL;
   const [linkedDevices, setLinkedDevices] = useState<IUserLinkedDevices[]>([]);
-  const [allDevices, setAllDevices] = useState<IUserLinkedDevices[]>([]);
-  // const [loggedDevice, setLoggedDevice] = useState(false);
+
   const getUserIP = useUserIP();
   // const getLocation = useUserLocation();
 
@@ -94,25 +91,25 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     });
   }, [user, presentDevice.id]);
 
-  useEffect(() => {
-    const getAllDevices = async () => {
-      try {
-        if (!token || token.user_id === 0) return;
+  // useEffect(() => {
+  //   const getAllDevices = async () => {
+  //     try {
+  //       if (!token || token.user_id === 0) return;
 
-        const res = await api.get(`/devices/${token?.user_id}`);
-        if (res.status === 200) {
-          setAllDevices(res.data);
-        }
-      } catch (error) {
-        console.log("Error fetching devices:", error);
-      }
-    };
-    getAllDevices();
-  }, [api, token?.user_id]);
+  //       const res = await api.get(`/devices/${token?.user_id}`);
+  //       if (res.status === 200) {
+
+  //       }
+  //     } catch (error) {
+  //       console.log("Error fetching devices:", error);
+  //     }
+  //   };
+  //   getAllDevices();
+  // }, [api, token?.user_id]);
 
   // // device Action
   useEffect(() => {
-    const userInfo = async () => {
+    const userInfo = async (user_id: number) => {
       try {
         if (!token || token?.user_id === 0) return;
         const ipAddress = await getUserIP();
@@ -130,6 +127,13 @@ export function SocketContextProvider({ children }: SocketContextProps) {
             ...deviceData,
             location: deviceData.location ?? "Unknown (Location off)",
           };
+
+          await api.post("/devices/add-device", {
+            user_id,
+            deviceInfo: sanitizedDeviceData,
+            signon_audit: presentDevice.signon_audit,
+          });
+
           const location = currentDevice.location;
           if (location !== undefined && location !== null) {
             setLinkedDevices((prev) =>
@@ -148,8 +152,8 @@ export function SocketContextProvider({ children }: SocketContextProps) {
         console.log(error);
       }
     };
-    userInfo();
-  }, [token?.user_id, api, location]);
+    userInfo(token?.user_id);
+  }, [token?.user_id, api, location, token]);
 
   const deviceSync = async (data: IUserLinkedDevices) => {
     try {
@@ -385,7 +389,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       socket.off("addDevice");
       socket.off("inactiveDevice");
       socket.off("restoreMessage");
-      socket.off("connect");
+      // socket.off("connect");
       // socket.disconnect();
     };
   }, [
@@ -397,7 +401,6 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     socket,
     socketMessage,
     totalRecycleBinMsg,
-    allDevices,
     presentDevice,
     user,
   ]);
@@ -471,8 +474,6 @@ export function SocketContextProvider({ children }: SocketContextProps) {
         linkedDevices,
         setLinkedDevices,
         handleRestoreMessage,
-        setAllDevices,
-        // setLoggedDevice,
       }}
     >
       {children}
