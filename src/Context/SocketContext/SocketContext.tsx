@@ -91,6 +91,8 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     });
   }, [user, presentDevice.id]);
 
+  console.log(presentDevice.id, "presentDevice id");
+
   // useEffect(() => {
   //   const getAllDevices = async () => {
   //     try {
