@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const useUserLocationInfo = () => {
   const [location, setLocation] = useState<string | null>(null);
@@ -45,48 +45,6 @@ const useUserLocationInfo = () => {
       setLocation("Unknown (Location off)");
     }
   };
-
-  useEffect(() => {
-    getLocation();
-    let permissionStatus: PermissionStatus;
-
-    const watchPermission = async () => {
-      if (!navigator.permissions) {
-        getLocation(); // fallback
-        return;
-      }
-
-      try {
-        permissionStatus = await navigator.permissions.query({
-          name: "geolocation",
-        });
-        if (permissionStatus.state === "granted") {
-          getLocation();
-        } else {
-          setLocation("Unknown (Location off)");
-        }
-
-        permissionStatus.onchange = () => {
-          if (permissionStatus.state === "granted") {
-            getLocation();
-          } else {
-            setLocation("Unknown (Location off)");
-          }
-        };
-      } catch (err) {
-        console.error("Permission API error:", err);
-        setLocation("Unknown (Location off)");
-      }
-    };
-
-    watchPermission();
-
-    return () => {
-      if (permissionStatus) {
-        permissionStatus.onchange = null;
-      }
-    };
-  }, []);
 
   return { location, getLocation };
 };
