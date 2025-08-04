@@ -1,14 +1,14 @@
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import useUserIP from "./useUserIP";
 import useAxiosPrivate from "./useAxiosPrivate";
-import useLocation from "./useUserLocationInfo";
+// import useLocation from "./useUserLocationInfo";
 import { v4 as uuidv4 } from "uuid";
 
 const useInitialUserInfo = () => {
   const getUserIP = useUserIP();
   const api = useAxiosPrivate();
   const { presentDevice, setPresentDevice, setSignonId } = useGlobalContext();
-  const { location } = useLocation();
+  // const { location } = useLocation();
 
   const initialUserInfo = async (user_id: number) => {
     const newSignonID = uuidv4();
