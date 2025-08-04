@@ -56,7 +56,7 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
     const deviceData = {
       ...presentDevice,
       ip_address: ipAddress ? ipAddress : "Unknown",
-      location: userLocation,
+      location: userLocation ? userLocation : "Unknown (Location off)",
     };
 
     try {
@@ -83,6 +83,7 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
         localStorage.setItem("signonId", newSignonID);
 
         if (res.status === 201 || res.status === 200) {
+          console.log(res.data, "Device added successfully");
           localStorage.setItem("presentDevice", "true");
           localStorage.setItem("presentDeviceInfo", JSON.stringify(res.data));
           setPresentDevice(res.data);

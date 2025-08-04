@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const useUserLocationInfo = () => {
   const [location, setLocation] = useState<string | null>(null);
@@ -45,6 +45,24 @@ const useUserLocationInfo = () => {
       setLocation("Unknown (Location off)");
     }
   };
+
+  useEffect(() => {
+    if (!navigator.permissions) return;
+
+    navigator.permissions
+      .query({ name: "geolocation" })
+      .then((permissionStatus) => {
+        // React to changes in permission state
+        permissionStatus.onchange = () => {
+          console.log("Permission changed to:", permissionStatus.state);
+          if (permissionStatus.state === "granted") {
+            getLocation();
+          } else {
+            setLocation("Unknown (Location off)");
+          }
+        };
+      });
+  }, []);
 
   return { location, getLocation };
 };

@@ -14,7 +14,7 @@ import {
 import { io } from "socket.io-client";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import useUserIP from "@/hooks/useUserIP";
-import useLocation from "@/hooks/useUserLocationInfo";
+import useUserLocationInfo from "@/hooks/useUserLocationInfo";
 
 interface SocketContextProps {
   children: ReactNode;
@@ -77,7 +77,14 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   const getUserIP = useUserIP();
   // const getLocation = useUserLocation();
 
-  const { location } = useLocation();
+  const { location, getLocation } = useUserLocationInfo();
+
+  // Get user location on mount
+  useEffect(() => {
+    getLocation();
+  }, [getLocation]);
+
+  console.log(location, "User Location");
 
   // Memoize the socket connection so that it's created only once
   const socket = useMemo(() => {
@@ -90,8 +97,6 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       transports: ["websocket"],
     });
   }, [user, presentDevice.id]);
-
-  console.log(presentDevice.id, "presentDevice id");
 
   // useEffect(() => {
   //   const getAllDevices = async () => {
@@ -121,6 +126,8 @@ export function SocketContextProvider({ children }: SocketContextProps) {
           ip_address: ipAddress ? ipAddress : "Unknown",
           location,
         };
+
+        console.log(deviceData, "Device Data");
         const currentDevice = linkedDevices.find(
           (d) => d.id === presentDevice.id
         );
@@ -130,11 +137,19 @@ export function SocketContextProvider({ children }: SocketContextProps) {
             location: deviceData.location ?? "Unknown (Location off)",
           };
 
-          await api.post("/devices/add-device", {
+          console.log({
             user_id,
             deviceInfo: sanitizedDeviceData,
             signon_audit: presentDevice.signon_audit,
           });
+
+          const response = await api.post("/devices/add-device", {
+            user_id,
+            deviceInfo: sanitizedDeviceData,
+            signon_audit: presentDevice.signon_audit,
+          });
+
+          console.log(response.data, "Device added successfully");
 
           const location = currentDevice.location;
           if (location !== undefined && location !== null) {
@@ -155,7 +170,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       }
     };
     userInfo(token?.user_id);
-  }, [token?.user_id, api, location, token]);
+  }, [token?.user_id, api, location]);
 
   const deviceSync = async (data: IUserLinkedDevices) => {
     try {
