@@ -4,21 +4,11 @@ import { Navigate, useLocation } from "react-router-dom";
 import Spinner from "@/components/Spinner/Spinner";
 import { useEffect } from "react";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
-import useUserLocationInfo from "@/hooks/useUserLocationInfo";
-// import { useEffect } from "react";
-// import { api } from "@/Api/Api";
 
 const Layout = () => {
   const { token, isUserLoading, presentDevice } = useGlobalContext();
   const location = useLocation();
   const { addDevice } = useSocketContext();
-  const { getLocation } = useUserLocationInfo();
-
-  useEffect(() => {
-    if (token?.isLoggedIn === true) {
-      getLocation();
-    }
-  }, [token]);
 
   useEffect(() => {
     const hasDevice = localStorage.getItem("presentDevice");

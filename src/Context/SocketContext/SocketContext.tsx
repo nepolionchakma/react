@@ -13,8 +13,7 @@ import {
 } from "@/types/interfaces/users.interface";
 import { io } from "socket.io-client";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
-import useUserIP from "@/hooks/useUserIP";
-import useUserLocationInfo from "@/hooks/useUserLocationInfo";
+import { getUserLocation, watchGeoPermission } from "@/Utility/locationUtils";
 
 interface SocketContextProps {
   children: ReactNode;
@@ -73,18 +72,9 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   // const url_location = window.location.pathname;
   const socket_url = import.meta.env.VITE_SOCKET_URL;
   const [linkedDevices, setLinkedDevices] = useState<IUserLinkedDevices[]>([]);
-
-  const getUserIP = useUserIP();
-  // const getLocation = useUserLocation();
-
-  const { location, getLocation } = useUserLocationInfo();
-
-  // Get user location on mount
-  useEffect(() => {
-    getLocation();
-  }, [getLocation]);
-
-  console.log(location, "User Location");
+  const [geoPermissionState, setGeoPermissionState] =
+    useState<PermissionState>("prompt");
+  // const getUserIP = useUserIP();
 
   // Memoize the socket connection so that it's created only once
   const socket = useMemo(() => {
@@ -97,6 +87,13 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       transports: ["websocket"],
     });
   }, [user, presentDevice.id]);
+
+  useEffect(() => {
+    watchGeoPermission(
+      () => setGeoPermissionState("granted"),
+      () => setGeoPermissionState("denied")
+    );
+  }, []);
 
   //Fetch Notification Messages
   useEffect(() => {
@@ -129,79 +126,34 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     fetchCounterMessages();
   }, [user, api]);
 
-  // useEffect(() => {
-  //   const getAllDevices = async () => {
-  //     try {
-  //       if (!token || token.user_id === 0) return;
-
-  //       const res = await api.get(`/devices/${token?.user_id}`);
-  //       if (res.status === 200) {
-
-  //       }
-  //     } catch (error) {
-  //       console.log("Error fetching devices:", error);
-  //     }
-  //   };
-  //   getAllDevices();
-  // }, [api, token?.user_id]);
-
-  // // device Action
+  // device Action
   useEffect(() => {
-    const userInfo = async (user_id: number) => {
+    const locationUpdate = async (device_id: number) => {
       try {
-        if (!token || token?.user_id === 0) return;
-        const ipAddress = await getUserIP();
+        if (!token || token?.user_id === 0 || device_id === 0) return;
 
-        const deviceData = {
-          ...presentDevice,
-          ip_address: ipAddress ? ipAddress : "Unknown",
-          location,
-        };
-
-        console.log(deviceData, "Device Data");
-        const currentDevice = linkedDevices.find(
-          (d) => d.id === presentDevice.id
-        );
-        if (currentDevice) {
-          const sanitizedDeviceData = {
-            ...deviceData,
-            location: deviceData.location ?? "Unknown (Location off)",
-          };
-
-          console.log({
-            user_id,
-            deviceInfo: sanitizedDeviceData,
-            signon_audit: presentDevice.signon_audit,
-          });
-
-          const response = await api.post("/devices/add-device", {
-            user_id,
-            deviceInfo: sanitizedDeviceData,
-            signon_audit: presentDevice.signon_audit,
-          });
-
-          console.log(response.data, "Device added successfully");
-
-          const location = currentDevice.location;
-          if (location !== undefined && location !== null) {
-            setLinkedDevices((prev) =>
-              prev.map((d) =>
-                d.id === currentDevice.id ? { ...d, ...sanitizedDeviceData } : d
-              )
-            );
-          } else {
-            // Add new device
-            setLinkedDevices((prev) => [...prev]);
+        const location = await getUserLocation();
+        const response = await api.put(
+          "/devices/update-device-location/" + device_id,
+          {
+            location,
           }
-        }
+        );
 
-        // addDevice(response.data);
+        if (response.status === 200) {
+          // Update the linkedDevices state with the new location
+          setLinkedDevices((prev) => {
+            return prev.map((device) =>
+              device.id === device_id ? { ...device, location } : device
+            );
+          });
+        }
       } catch (error) {
         console.log(error);
       }
     };
-    userInfo(token?.user_id);
-  }, [token?.user_id, api, location]);
+    locationUpdate(presentDevice.id);
+  }, [token, api, presentDevice.id, geoPermissionState]);
 
   const deviceSync = async (data: IUserLinkedDevices) => {
     try {
@@ -255,6 +207,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   // }, [api, token?.user_id, presentDevice?.id]);
 
   // Listen to socket events
+
   useEffect(() => {
     socket.on("receivedMessage", (data) => {
       const receivedMessagesId = receivedMessages.map((msg) => msg.id);

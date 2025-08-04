@@ -17,7 +17,7 @@ import { api } from "@/Api/Api";
 // import useInitialUserInfo from "@/hooks/useInitialUserInfo";
 import { v4 as uuidv4 } from "uuid";
 import useUserIP from "@/hooks/useUserIP";
-import useUserLocationInfo from "@/hooks/useUserLocationInfo";
+import { getUserLocation } from "@/Utility/locationUtils";
 
 interface SignInFormProps {
   setIsWrongCredential: React.Dispatch<React.SetStateAction<boolean>>;
@@ -39,9 +39,7 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
   } = useGlobalContext();
   const navigate = useNavigate();
   const location = useLocation();
-  const { location: userLocation } = useUserLocationInfo();
   const userIp = useUserIP();
-  // const initialUserInfo = useInitialUserInfo();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -53,6 +51,7 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
 
   const handleSubmit = async (data: z.infer<typeof loginSchema>) => {
     const ipAddress = await userIp();
+    const userLocation = await getUserLocation();
     const deviceData = {
       ...presentDevice,
       ip_address: ipAddress ? ipAddress : "Unknown",
@@ -83,7 +82,6 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
         localStorage.setItem("signonId", newSignonID);
 
         if (res.status === 201 || res.status === 200) {
-          console.log(res.data, "Device added successfully");
           localStorage.setItem("presentDevice", "true");
           localStorage.setItem("presentDeviceInfo", JSON.stringify(res.data));
           setPresentDevice(res.data);
