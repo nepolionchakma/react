@@ -98,6 +98,37 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     });
   }, [user, presentDevice.id]);
 
+  //Fetch Notification Messages
+  useEffect(() => {
+    const fetchCounterMessages = async () => {
+      try {
+        if (!user) return;
+        const [
+          notificationTotal,
+          receivedTotal,
+          sentTotal,
+          draftTotal,
+          recyclebinTotal,
+        ] = await Promise.all([
+          api.get(`/messages/notification/${user}`),
+          api.get(`/messages/total-received/${user}`),
+          api.get(`/messages/total-sent/${user}`),
+          api.get(`/messages/total-draft/${user}`),
+          api.get(`/messages/total-recyclebin/${user}`),
+        ]);
+        setSocketMessages(notificationTotal.data);
+        setTotalReceivedMessages(receivedTotal.data.total);
+        setTotalSentMessages(sentTotal.data.total);
+        setTotalDraftMessages(draftTotal.data.total);
+        setTotalRecycleBinMsg(recyclebinTotal.data.total);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchCounterMessages();
+  }, [user, api]);
+
   // useEffect(() => {
   //   const getAllDevices = async () => {
   //     try {
