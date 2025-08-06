@@ -21,7 +21,7 @@ import CustomTooltip from "@/components/Tooltip/Tooltip";
 
 const SingleRecycleBin = () => {
   const api = useAxiosPrivate();
-  const { user } = useGlobalContext();
+  const { user, token } = useGlobalContext();
   const { handleDeleteMessage, handleRestoreMessage } = useSocketContext();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -92,7 +92,7 @@ const SingleRecycleBin = () => {
     try {
       const response = await api.put(`/messages/restore-message/${id}/${user}`);
       if (response.status === 200) {
-        handleRestoreMessage(id as string, user);
+        handleRestoreMessage(id as string, token.user_id);
         toast({
           title: "Message has been restored.",
         });

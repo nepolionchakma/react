@@ -11,6 +11,7 @@ import { useGlobalContext, userExample } from "../GlobalContext/GlobalContext";
 import {
   IUserLinkedDevices,
   Message,
+  Notication,
 } from "@/types/interfaces/users.interface";
 import { io } from "socket.io-client";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
@@ -23,7 +24,7 @@ interface SocketContextProps {
 
 interface SocketContext {
   receivedMessages: Message[];
-  handlesendMessage: (data: Message) => void;
+  handlesendMessage: (data: Notication) => void;
   handleDisconnect: () => void;
   handleRead: (id: string) => void;
   handleDeleteMessage: (id: string) => void;
@@ -36,7 +37,7 @@ interface SocketContext {
   setDraftMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   recycleBinMsg: Message[];
   setRecycleBinMsg: React.Dispatch<React.SetStateAction<Message[]>>;
-  handleDraftMessage: (data: Message) => void;
+  handleDraftMessage: (data: Notication) => void;
   totalReceivedMessages: number;
   setTotalReceivedMessages: React.Dispatch<React.SetStateAction<number>>;
   totalSentMessages: number;
@@ -49,7 +50,7 @@ interface SocketContext {
   inactiveDevice: (data: IUserLinkedDevices[]) => void;
   linkedDevices: IUserLinkedDevices[];
   setLinkedDevices: React.Dispatch<React.SetStateAction<IUserLinkedDevices[]>>;
-  handleRestoreMessage: (id: string, user: string) => void;
+  handleRestoreMessage: (id: string, user: number) => void;
 }
 
 const SocketContext = createContext({} as SocketContext);
@@ -434,7 +435,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   ]);
 
   // messages Action
-  const handlesendMessage = (data: Message) => {
+  const handlesendMessage = (data: Notication) => {
     socket.emit("sendMessage", data);
   };
 
@@ -443,32 +444,31 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   };
 
   const handleRead = (id: string) => {
-    socket.emit("read", { id, user });
+    socket.emit("read", { id, user: token.user_id });
   };
   const handleDeleteMessage = (id: string) => {
-    socket.emit("deleteMessage", { id, user });
+    socket.emit("deleteMessage", { id, user: token.user_id });
   };
 
-  const handleDraftMessage = (data: Message) => {
+  const handleDraftMessage = (data: Notication) => {
     socket.emit("sendDraft", data);
   };
 
   const handleDraftMsgId = (id: string) => {
-    socket.emit("draftMsgId", { id, user });
+    socket.emit("draftMsgId", { id, user: token.user_id });
   };
 
-  const handleRestoreMessage = (id: string, user: string) => {
+  const handleRestoreMessage = (id: string, user: number) => {
     socket.emit("restoreMessage", { id, user });
   };
 
   // device Action
   const addDevice = (data: IUserLinkedDevices) => {
-    socket.emit("addDevice", { ...data, user });
+    socket.emit("addDevice", { ...data, user: token.user_id });
   };
 
   const inactiveDevice = (data: IUserLinkedDevices[]) => {
-    socket.emit("inactiveDevice", { data: data, user: user });
-    console.log(data, user, "emitting inactive device event");
+    socket.emit("inactiveDevice", { data: data, user: token.user_id });
   };
 
   return (

@@ -189,7 +189,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
     try {
       const response = await api.put(`/messages/restore-message/${id}/${user}`);
       if (response.status === 200) {
-        handleRestoreMessage(id, user);
+        handleRestoreMessage(id, token.user_id);
         toast({
           title: "Message has been restored.",
         });

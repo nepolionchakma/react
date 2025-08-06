@@ -20,36 +20,31 @@ import { v4 as uuidv4 } from "uuid";
 import Spinner from "@/components/Spinner/Spinner";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
-import { UserModel } from "@/types/interfaces/users.interface";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // import { send } from "process";
 
 const ComposeButton = () => {
   const api = useAxiosPrivate();
-  const { users, token, user } = useGlobalContext();
+  const { users, token } = useGlobalContext();
   const { handlesendMessage, handleDraftMessage } = useSocketContext();
   const { toast } = useToast();
-  const [recivers, setRecivers] = useState<UserModel[]>([]);
+  const [recivers, setRecivers] = useState<number[]>([]);
+  const [notifcationType, setNotificationType] = useState("REGULAR");
   const [subject, setSubject] = useState<string>("");
   const [body, setBody] = useState<string>("");
   const [query, setQuery] = useState<string>("");
   const [isSending, setIsSending] = useState(false);
   const [isDrafting, setIsDrafting] = useState(false);
   const [isAllClicked, setIsAllClicked] = useState(true);
-  const sender = {
-    name: user,
-    profile_picture: token?.profile_picture?.thumbnail,
-  };
   const id = uuidv4();
-  const date = new Date();
+  // const date = new Date();
   const apiUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
 
-  const receiverNames = recivers.map((rcvr) => rcvr.name);
-
-  const totalusers = [...receiverNames, user];
+  const totalusers = [...recivers, token.user_id];
   const involvedusers = [...new Set(totalusers)];
-  const actualUsers = users.filter((usr) => usr.user_name !== user);
+  const actualUsers = users.filter((usr) => usr.user_id !== token.user_id);
 
   const filterdUser = actualUsers.filter((user) =>
     user.user_name.toLowerCase().includes(query.toLowerCase())
@@ -59,9 +54,9 @@ const ComposeButton = () => {
     setQuery(e.target.value);
   };
 
-  const handleReciever = (reciever: UserModel) => {
-    if (receiverNames.includes(reciever.name)) {
-      const newArray = recivers.filter((rcvr) => rcvr.name !== reciever.name);
+  const handleReciever = (reciever: number) => {
+    if (recivers.includes(reciever)) {
+      const newArray = recivers.filter((rcvr) => rcvr !== reciever);
       setRecivers(newArray);
       setQuery("");
     } else {
@@ -73,12 +68,7 @@ const ComposeButton = () => {
   const handleSelectAll = () => {
     if (!isAllClicked) {
       setIsAllClicked(true);
-      const newReceivers = actualUsers.map((usr) => {
-        return {
-          name: usr.user_name,
-          profile_picture: usr.profile_picture?.thumbnail,
-        };
-      });
+      const newReceivers = actualUsers.map((usr) => usr.user_id);
       setRecivers(newReceivers);
     } else {
       setIsAllClicked(false);
@@ -87,46 +77,71 @@ const ComposeButton = () => {
     setQuery("");
   };
 
-  const handleRemoveReciever = (reciever: string) => {
-    const newRecipients = recivers.filter((rcvr) => rcvr.name !== reciever);
+  const handleRemoveReciever = (reciever: number) => {
+    const newRecipients = recivers.filter((rcvr) => rcvr !== reciever);
     setRecivers(newRecipients);
   };
 
+  const renderUserName = (id: number) => {
+    const user = users.find((usr) => usr.user_id === id);
+
+    return user?.user_name;
+  };
+
+  const renderAvatarFallback = (id: number) => {
+    const user = users.find((usr) => usr.user_id === id);
+
+    if (user) {
+      const userName = user?.user_name;
+      return userName.slice(0, 1).toUpperCase();
+    }
+  };
+
+  const renderProfilePicture = (id: number) => {
+    const user = users.find((usr) => usr.user_id === id);
+
+    return user?.profile_picture.thumbnail;
+  };
+
   const handleSend = async () => {
-    const data = {
-      id,
-      sender,
-      recivers,
-      subject,
-      body,
-      date,
+    const notifcationData = {
+      notification_id: id,
+      notification_type: notifcationType,
+      sender: token.user_id,
+      recipients: recivers,
+      subject: subject,
+      notification_body: body,
       status: "Sent",
-      parentid: id,
-      involvedusers,
-      readers: receiverNames,
+      creation_date: new Date(),
+      parent_notification_id: id,
+      involved_users: involvedusers,
+      readers: recivers,
       holders: involvedusers,
-      recyclebin: [],
+      recycle_bin: [],
+      action_item_id: null,
+      alert_id: null,
     };
-    const sendNotificationPayload = {
-      id,
-      parentid: id,
-      date,
-      sender: sender,
-      recivers: recivers,
-      subject,
-      body,
-    };
+
+    // const sendNotificationPayload = {
+    //   id,
+    //   parentid: id,
+    //   date,
+    //   sender: token.user_id,
+    //   recivers: recivers,
+    //   subject,
+    //   body,
+    // };
     try {
       setIsSending(true);
 
-      const response = await api.post(`/messages`, data);
+      const response = await api.post(`/notifications`, notifcationData);
 
       if (response.status === 201) {
-        handlesendMessage(data);
-        await api.post(
-          "/push-notification/send-notification",
-          sendNotificationPayload
-        );
+        handlesendMessage(notifcationData);
+        // await api.post(
+        //   "/push-notification/send-notification",
+        //   sendNotificationPayload
+        // );
         toast({
           title: "Message Sent",
         });
@@ -149,18 +164,21 @@ const ComposeButton = () => {
 
   const handleDraft = async () => {
     const data = {
-      id,
-      sender,
-      recivers,
-      subject,
-      body,
-      date,
+      notification_id: id,
+      notification_type: notifcationType,
+      sender: token.user_id,
+      recipients: recivers,
+      subject: subject,
+      notification_body: body,
       status: "Draft",
-      parentid: id,
-      involvedusers,
-      readers: receiverNames,
-      holders: [sender.name],
-      recyclebin: [],
+      creation_date: new Date(),
+      parent_notification_id: id,
+      involved_users: involvedusers,
+      readers: recivers,
+      holders: involvedusers,
+      recycle_bin: [],
+      action_item_id: null,
+      alert_id: null,
     };
     try {
       setIsDrafting(true);
@@ -217,12 +235,7 @@ const ComposeButton = () => {
                 </div>
                 {filterdUser.map((user) => (
                   <div
-                    onClick={() =>
-                      handleReciever({
-                        name: user.user_name,
-                        profile_picture: user.profile_picture?.thumbnail,
-                      })
-                    }
+                    onClick={() => handleReciever(user.user_id)}
                     key={user.user_id}
                     className="flex justify-between px-2 items-center hover:bg-light-200 cursor-pointer"
                   >
@@ -238,7 +251,7 @@ const ComposeButton = () => {
 
                       <p>{user.user_name}</p>
                     </div>
-                    {receiverNames.includes(user.user_name) ? (
+                    {recivers.includes(user.user_id) ? (
                       <Check size={14} color="#038C5A" />
                     ) : null}
                   </div>
@@ -250,16 +263,22 @@ const ComposeButton = () => {
               <div className="rounded-sm max-h-[4.5rem] scrollbar-thin overflow-auto flex flex-wrap gap-1 justify-end">
                 {recivers.map((rec) => (
                   <div
-                    key={rec.name}
+                    key={rec}
                     className="flex gap-1 border h-8 px-2 items-center rounded-sm"
                   >
                     <Avatar className="h-4 w-4">
-                      <AvatarImage src={`${apiUrl}/${rec.profile_picture}`} />
-                      <AvatarFallback>{rec.name.slice(0, 1)}</AvatarFallback>
+                      <AvatarImage
+                        src={`${apiUrl}/${renderProfilePicture(rec)}`}
+                      />
+                      <AvatarFallback>
+                        {renderAvatarFallback(rec)}
+                      </AvatarFallback>
                     </Avatar>
-                    <p className="font-semibold text-green-600">{rec.name}</p>
+                    <p className="font-semibold text-green-600">
+                      {renderUserName(rec)}
+                    </p>
                     <div
-                      onClick={() => handleRemoveReciever(rec.name)}
+                      onClick={() => handleRemoveReciever(rec)}
                       className="flex h-[65%] items-end cursor-pointer"
                     >
                       <Delete size={18} />
