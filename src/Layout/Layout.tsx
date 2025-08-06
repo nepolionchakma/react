@@ -4,8 +4,6 @@ import { Navigate, useLocation } from "react-router-dom";
 import Spinner from "@/components/Spinner/Spinner";
 import { useEffect } from "react";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
-// import { useEffect } from "react";
-// import { api } from "@/Api/Api";
 
 const Layout = () => {
   const { token, isUserLoading, presentDevice } = useGlobalContext();

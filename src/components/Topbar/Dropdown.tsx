@@ -6,7 +6,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { LogOut, Settings, ShieldBan, User } from "lucide-react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
@@ -24,7 +24,7 @@ const Dropdown = () => {
   const { handleDisconnect, setLinkedDevices, inactiveDevice } =
     useSocketContext();
   const [isLoading, setIsLoading] = useState(false);
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
   const userExample = {
     isLoggedIn: false,
@@ -54,12 +54,11 @@ const Dropdown = () => {
           setIsLoading(false);
           setToken(userExample);
           setLinkedDevices([]);
-          navigate("/login");
+          window.location.href = "/login";
           inactiveDevice([res.data]);
           setSignonId("");
           localStorage.removeItem("signonId");
           localStorage.removeItem("presentDeviceInfo");
-          localStorage.removeItem("presentDevice");
         }
       }
     } catch (error) {

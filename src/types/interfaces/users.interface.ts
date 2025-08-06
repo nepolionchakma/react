@@ -62,7 +62,7 @@ export interface Message {
   recyclebin?: string[];
 }
 
-export interface Notication {
+export interface Notification {
   notification_id: string;
   notification_type: string;
   sender: number;

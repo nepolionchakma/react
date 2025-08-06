@@ -16,7 +16,8 @@ import { AxiosError } from "axios";
 import { api } from "@/Api/Api";
 // import useInitialUserInfo from "@/hooks/useInitialUserInfo";
 import { v4 as uuidv4 } from "uuid";
-// import { useSocketContext } from "@/Context/SocketContext/SocketContext";
+import useUserIP from "@/hooks/useUserIP";
+import { getUserLocation } from "@/Utility/locationUtils";
 
 interface SignInFormProps {
   setIsWrongCredential: React.Dispatch<React.SetStateAction<boolean>>;
@@ -36,10 +37,9 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
     presentDevice,
     setSignonId,
   } = useGlobalContext();
-  // const { addDevice } = useSocketContext();
   const navigate = useNavigate();
   const location = useLocation();
-  // const initialUserInfo = useInitialUserInfo();
+  const userIp = useUserIP();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -50,23 +50,27 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
   });
 
   const handleSubmit = async (data: z.infer<typeof loginSchema>) => {
+    const ipAddress = await userIp();
+    const userLocation = await getUserLocation();
+    const deviceData = {
+      ...presentDevice,
+      ip_address: ipAddress ? ipAddress : "Unknown",
+      location: userLocation ? userLocation : "Unknown (Location off)",
+    };
+
     try {
       setIsLoading(true);
       const response = await api.post(`/login`, data);
       if (!response.data) return;
-      // await initialUserInfo(response.data.user_id);
 
-      console.log("Response:57", response.data);
       setToken(response.data);
       setIsWrongCredential(false);
 
       if (response.data) {
-        navigate(location?.state ? location?.state : "/", { replace: true });
-
         const newSignonID = uuidv4();
         const res = await api.post("/devices/add-device", {
           user_id: response.data.user_id,
-          deviceInfo: presentDevice,
+          deviceInfo: deviceData,
           signon_audit: {
             signon_id: newSignonID,
             login: new Date(),
@@ -77,12 +81,11 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
         setSignonId(newSignonID);
         localStorage.setItem("signonId", newSignonID);
 
-        if (res.status === 200) {
-          console.log(res, "79");
-          setPresentDevice(res.data);
-          // addDevice(res.data);
+        if (res.status === 201 || res.status === 200) {
           localStorage.setItem("presentDevice", "true");
           localStorage.setItem("presentDeviceInfo", JSON.stringify(res.data));
+          setPresentDevice(res.data);
+          navigate(location?.state ? location?.state : "/", { replace: true });
         }
       }
     } catch (error) {

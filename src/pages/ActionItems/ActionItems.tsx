@@ -12,7 +12,7 @@ const ActionItems = () => {
           <div className="flex justify-between w-full">
             <div>
               <p className="font-semibold mb-1">
-                Lorem ipsum lorem ipsum lorem lorem lorem
+                Lorem ipsum lorem ipsum lorem lorem lorem 1
               </p>
             </div>
             <p className="text-gray-700">7/1/2025, 5:50:24 PM</p>
@@ -80,7 +80,7 @@ const ActionItems = () => {
           <div className="flex justify-between w-full">
             <div>
               <p className="font-semibold mb-1">
-                Lorem ipsum lorem ipsum lorem lorem lorem
+                Lorem ipsum lorem ipsum lorem lorem lorem 2
               </p>
             </div>
             <p className="text-gray-700">7/1/2025, 5:50:24 PM</p>
@@ -114,7 +114,7 @@ const ActionItems = () => {
           <div className="flex justify-between w-full">
             <div>
               <p className="font-semibold mb-1">
-                Lorem ipsum lorem ipsum lorem lorem lorem
+                Lorem ipsum lorem ipsum lorem lorem lorem 3
               </p>
             </div>
             <p className="text-gray-700">7/1/2025, 5:50:24 PM</p>

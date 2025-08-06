@@ -4,19 +4,17 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
 } from "react";
 import { useGlobalContext, userExample } from "../GlobalContext/GlobalContext";
 import {
   IUserLinkedDevices,
   Message,
-  Notication,
+  Notification,
 } from "@/types/interfaces/users.interface";
 import { io } from "socket.io-client";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
-import useUserIP from "@/hooks/useUserIP";
-import useLocation from "@/hooks/useLocation";
+import { getUserLocation, watchGeoPermission } from "@/Utility/locationUtils";
 
 interface SocketContextProps {
   children: ReactNode;
@@ -24,7 +22,7 @@ interface SocketContextProps {
 
 interface SocketContext {
   receivedMessages: Message[];
-  handlesendMessage: (data: Notication) => void;
+  handlesendMessage: (data: Notification) => void;
   handleDisconnect: () => void;
   handleRead: (id: string) => void;
   handleDeleteMessage: (id: string) => void;
@@ -37,7 +35,7 @@ interface SocketContext {
   setDraftMessages: React.Dispatch<React.SetStateAction<Message[]>>;
   recycleBinMsg: Message[];
   setRecycleBinMsg: React.Dispatch<React.SetStateAction<Message[]>>;
-  handleDraftMessage: (data: Notication) => void;
+  handleDraftMessage: (data: Notification) => void;
   totalReceivedMessages: number;
   setTotalReceivedMessages: React.Dispatch<React.SetStateAction<number>>;
   totalSentMessages: number;
@@ -50,7 +48,7 @@ interface SocketContext {
   inactiveDevice: (data: IUserLinkedDevices[]) => void;
   linkedDevices: IUserLinkedDevices[];
   setLinkedDevices: React.Dispatch<React.SetStateAction<IUserLinkedDevices[]>>;
-  handleRestoreMessage: (id: string, user: number) => void;
+  handleRestoreMessage: (id: string, user: string) => void;
 }
 
 const SocketContext = createContext({} as SocketContext);
@@ -75,10 +73,9 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   // const url_location = window.location.pathname;
   const socket_url = import.meta.env.VITE_SOCKET_URL;
   const [linkedDevices, setLinkedDevices] = useState<IUserLinkedDevices[]>([]);
-  const getUserIP = useUserIP();
-  // const getLocation = useUserLocation();
-  const presentDeviceRef = useRef(presentDevice);
-  const { location } = useLocation();
+  const [geoPermissionState, setGeoPermissionState] =
+    useState<PermissionState>("prompt");
+  // const getUserIP = useUserIP();
 
   // Memoize the socket connection so that it's created only once
   const socket = useMemo(() => {
@@ -86,14 +83,18 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       path: "/socket.io/",
       query: {
         key: user,
+        device_id: presentDevice.id,
       },
       transports: ["websocket"],
     });
-  }, [socket_url, user]);
+  }, [user, presentDevice.id]);
 
   useEffect(() => {
-    presentDeviceRef.current = presentDevice;
-  }, [presentDevice]);
+    watchGeoPermission(
+      () => setGeoPermissionState("granted"),
+      () => setGeoPermissionState("denied")
+    );
+  }, []);
 
   //Fetch Notification Messages
   useEffect(() => {
@@ -126,58 +127,45 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     fetchCounterMessages();
   }, [user, api]);
 
-  // // device Action
+  // device Action
   useEffect(() => {
-    const userInfo = async () => {
+    const locationUpdate = async (device_id: number) => {
       try {
-        if (!token || token?.user_id === 0) return;
-        const ipAddress = await getUserIP();
-        // const geolocation = await getLocation();
+        if (!token || token?.user_id === 0 || device_id === 0) return;
 
-        const deviceData = {
-          ...presentDevice,
-          ip_address: ipAddress ? ipAddress : "Unknown",
-          location,
-        };
-        const currentDevice = linkedDevices.find(
-          (d) => d.id === presentDeviceRef.current.id
-        );
-        if (currentDevice) {
-          const sanitizedDeviceData = {
-            ...deviceData,
-            location: deviceData.location ?? "Unknown (Location off)",
-          };
-          const location = currentDevice.location;
-          if (location !== undefined && location !== null) {
-            setLinkedDevices((prev) =>
-              prev.map((d) =>
-                d.id === currentDevice.id ? { ...d, ...sanitizedDeviceData } : d
-              )
-            );
-          } else {
-            // Add new device
-            setLinkedDevices((prev) => [...prev]);
+        const location = await getUserLocation();
+        const response = await api.put(
+          "/devices/update-device-location/" + device_id,
+          {
+            location,
           }
-        }
+        );
 
-        // addDevice(response.data);
+        if (response.status === 200) {
+          // Update the linkedDevices state with the new location
+          setLinkedDevices((prev) => {
+            return prev.map((device) =>
+              device.id === device_id ? { ...device, location } : device
+            );
+          });
+        }
       } catch (error) {
         console.log(error);
       }
     };
-    userInfo();
-  }, [token?.user_id, api, location]);
+    locationUpdate(presentDevice.id);
+  }, [token, api, presentDevice.id, geoPermissionState]);
 
   const deviceSync = async (data: IUserLinkedDevices) => {
     try {
-      if (!token || (token?.user_id === 0 && !presentDeviceRef.current.id))
-        return;
-      if (data.id === presentDeviceRef.current.id) {
+      if (!token || (token?.user_id === 0 && !presentDevice.id)) return;
+      if (data.id === presentDevice.id) {
         try {
           await api.get(`/logout`);
           handleDisconnect();
           setToken(userExample);
           window.location.href = "/login";
+          localStorage.removeItem("presentDeviceInfo");
         } catch (error) {
           console.log(error);
         }
@@ -187,57 +175,40 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     }
   };
 
-  useEffect(() => {
-    const checkUserDevice = async () => {
-      try {
-        if (!token || token?.user_id === 0 || presentDevice?.id === 0) return;
-
-        if (presentDevice.id && linkedDevices.length > 0) {
-          const response = linkedDevices.some((device: IUserLinkedDevices) => {
-            if (device?.id === presentDevice?.id && device?.is_active === 1) {
-              return true;
-            }
-            return false;
-          });
-
-          if (!response) {
-            try {
-              await api.get(`/logout`);
-              handleDisconnect();
-              setToken(userExample);
-              window.location.href = "/login";
-            } catch (error) {
-              console.log(error);
-            }
-          }
-        }
-      } catch (error) {
-        console.log("Error checking user device");
-      }
-    };
-
-    checkUserDevice();
-  }, [api, token?.user_id, presentDevice?.id]);
-
   // useEffect(() => {
-  //   socket.on("connect", () => {
-  //     const hasDevice = localStorage.getItem("presentDevice");
-  //     console.log(hasDevice, presentDevice);
-  //     console.log(
-  //       hasDevice === "true",
-  //       "hasdevice",
-  //       presentDevice.id !== 0,
-  //       "presentdeviceId"
-  //     );
-  //     if (presentDevice.id !== 0) {
-  //       socket.emit("addDevice", { ...presentDevice, user });
-  //       console.log("emitted addDevice event", { ...presentDevice, user });
-  //       localStorage.removeItem("presentDevice");
-  //     }
-  //   });
-  // }, [presentDevice, presentDevice.id, socket, user]);
+  //   const checkUserDevice = async () => {
+  //     try {
+  //       if (!token || token?.user_id === 0 || presentDevice?.id === 0) return;
 
-  //Listen to socket events
+  //       if (presentDevice.id && linkedDevices.length > 0) {
+  //         const response = linkedDevices.some((device: IUserLinkedDevices) => {
+  //           if (device?.id === presentDevice?.id && device?.is_active === 1) {
+  //             return true;
+  //           }
+  //           return false;
+  //         });
+
+  //         if (!response) {
+  //           try {
+  //             await api.get(`/logout`);
+  //             handleDisconnect();
+  //             setToken(userExample);
+  //             window.location.href = "/login";
+  //           } catch (error) {
+  //             console.log(error);
+  //           }
+  //         }
+  //       }
+  //     } catch (error) {
+  //       console.log("Error checking user device");
+  //     }
+  //   };
+
+  //   checkUserDevice();
+  // }, [api, token?.user_id, presentDevice?.id]);
+
+  // Listen to socket events
+
   useEffect(() => {
     socket.on("receivedMessage", (data) => {
       const receivedMessagesId = receivedMessages.map((msg) => msg.id);
@@ -351,35 +322,34 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       }
     });
 
-    socket.on("restoreMessage", (id) => {
-      const message = recycleBinMsg.find((msg) => msg.id === id);
+    // socket.on("restoreMessage", (id) => {
+    //   const message = recycleBinMsg.find((msg) => msg.id === id);
 
-      try {
-        if (!message) return;
-        if (message.status === "Draft") {
-          setDraftMessages((prev) => [message, ...prev]);
-          setTotalDraftMessages((prev) => prev + 1);
-        } else {
-          if (message.sender.name === user) {
-            setSentMessages((prev) => [message, ...prev]);
-            setTotalSentMessages((prev) => prev + 1);
-          } else {
-            setReceivedMessages((prev) => [message, ...prev]);
-            setTotalReceivedMessages((prev) => prev + 1);
-          }
-        }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        const newRecycle = recycleBinMsg.filter((msg) => msg.id !== id);
-        setRecycleBinMsg(newRecycle);
-        setTotalRecycleBinMsg((prev) => prev - 1);
-      }
-    });
+    //   try {
+    //     if (!message) return;
+    //     if (message.status === "Draft") {
+    //       setDraftMessages((prev) => [message, ...prev]);
+    //       setTotalDraftMessages((prev) => prev + 1);
+    //     } else {
+    //       if (message.sender === user) {
+    //         setSentMessages((prev) => [message, ...prev]);
+    //         setTotalSentMessages((prev) => prev + 1);
+    //       } else {
+    //         setReceivedMessages((prev) => [message, ...prev]);
+    //         setTotalReceivedMessages((prev) => prev + 1);
+    //       }
+    //     }
+    //   } catch (error) {
+    //     console.log(error);
+    //   } finally {
+    //     const newRecycle = recycleBinMsg.filter((msg) => msg.id !== id);
+    //     setRecycleBinMsg(newRecycle);
+    //     setTotalRecycleBinMsg((prev) => prev - 1);
+    //   }
+    // });
 
     // device Action
     socket.on("addDevice", (data) => {
-      console.log(data, "addDevice Event");
       setLinkedDevices((prev) => {
         if (
           prev.some(
@@ -421,6 +391,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       socket.off("addDevice");
       socket.off("inactiveDevice");
       socket.off("restoreMessage");
+      // socket.off("connect");
       // socket.disconnect();
     };
   }, [
@@ -432,10 +403,12 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     socket,
     socketMessage,
     totalRecycleBinMsg,
+    presentDevice,
+    user,
   ]);
 
   // messages Action
-  const handlesendMessage = (data: Notication) => {
+  const handlesendMessage = (data: Notification) => {
     socket.emit("sendMessage", data);
   };
 
@@ -444,31 +417,32 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   };
 
   const handleRead = (id: string) => {
-    socket.emit("read", { id, user: token.user_id });
+    socket.emit("read", { id, user });
   };
   const handleDeleteMessage = (id: string) => {
-    socket.emit("deleteMessage", { id, user: token.user_id });
+    socket.emit("deleteMessage", { id, user });
   };
 
-  const handleDraftMessage = (data: Notication) => {
+  const handleDraftMessage = (data: Notification) => {
     socket.emit("sendDraft", data);
   };
 
   const handleDraftMsgId = (id: string) => {
-    socket.emit("draftMsgId", { id, user: token.user_id });
+    socket.emit("draftMsgId", { id, user });
   };
 
-  const handleRestoreMessage = (id: string, user: number) => {
+  const handleRestoreMessage = (id: string, user: string) => {
     socket.emit("restoreMessage", { id, user });
   };
 
   // device Action
   const addDevice = (data: IUserLinkedDevices) => {
-    socket.emit("addDevice", { ...data, user: token.user_id });
+    socket.emit("addDevice", { ...data, user });
   };
 
   const inactiveDevice = (data: IUserLinkedDevices[]) => {
-    socket.emit("inactiveDevice", { data: data, user: token.user_id });
+    if (!token || token.user_id === 0 || !data?.length) return;
+    socket.emit("inactiveDevice", { data: data, user: user });
   };
 
   return (
