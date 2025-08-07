@@ -14,6 +14,7 @@ import {
 import { io } from "socket.io-client";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { getUserLocation, watchGeoPermission } from "@/Utility/locationUtils";
+import { Alerts } from "@/types/interfaces/alerts.interface";
 
 interface SocketContextProps {
   children: ReactNode;
@@ -48,6 +49,8 @@ interface SocketContext {
   linkedDevices: IUserLinkedDevices[];
   setLinkedDevices: React.Dispatch<React.SetStateAction<IUserLinkedDevices[]>>;
   handleRestoreMessage: (id: string, user: string) => void;
+  alerts: Alerts[];
+  setAlerts: React.Dispatch<React.SetStateAction<Alerts[]>>;
 }
 
 const SocketContext = createContext({} as SocketContext);
@@ -69,12 +72,12 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   const [socketMessage, setSocketMessages] = useState<Message[]>([]);
   const [recycleBinMsg, setRecycleBinMsg] = useState<Message[]>([]);
   const [totalRecycleBinMsg, setTotalRecycleBinMsg] = useState<number>(0);
-  // const url_location = window.location.pathname;
+  // alerts
+  const [alerts, setAlerts] = useState<Alerts[]>([]);
   const socket_url = import.meta.env.VITE_SOCKET_URL;
   const [linkedDevices, setLinkedDevices] = useState<IUserLinkedDevices[]>([]);
   const [geoPermissionState, setGeoPermissionState] =
     useState<PermissionState>("prompt");
-  // const getUserIP = useUserIP();
 
   // Memoize the socket connection so that it's created only once
   const socket = useMemo(() => {
@@ -475,6 +478,8 @@ export function SocketContextProvider({ children }: SocketContextProps) {
         linkedDevices,
         setLinkedDevices,
         handleRestoreMessage,
+        alerts,
+        setAlerts,
       }}
     >
       {children}

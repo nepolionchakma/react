@@ -180,24 +180,6 @@ export function GlobalContextProvider({
     }
   }, [presentDevice.id]);
 
-  // //Get unique device
-  // useEffect(() => {
-  //   const getUniqueDevice = async () => {
-  //     console.log(typeof presentDevice.id, "presentDeviceId");
-
-  //       const res = await api.get(`/devices/unique-device/${presentDevice.id}`);
-  //       console.log(res.data, "uniqueDevice");
-
-  //     // if (res.data.is_active === 0) {
-  //     //   setIsActive(false);
-  //     // } else {
-  //     //   setIsActive(true);
-  //     // }
-  //   };
-
-  //   getUniqueDevice();
-  // }, [api,  presentDevice.id]);
-
   //get user (when refresh page user must be needed)
   useEffect(() => {
     const getUser = async () => {
