@@ -51,6 +51,8 @@ interface SocketContext {
   handleRestoreMessage: (id: string, user: string) => void;
   alerts: Alerts[];
   setAlerts: React.Dispatch<React.SetStateAction<Alerts[]>>;
+  totalAlert: Alerts[];
+  setTotalAlert: React.Dispatch<React.SetStateAction<Alerts[]>>;
 }
 
 const SocketContext = createContext({} as SocketContext);
@@ -74,6 +76,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   const [totalRecycleBinMsg, setTotalRecycleBinMsg] = useState<number>(0);
   // alerts
   const [alerts, setAlerts] = useState<Alerts[]>([]);
+  const [totalAlert, setTotalAlert] = useState<Alerts[]>([]);
   const socket_url = import.meta.env.VITE_SOCKET_URL;
   const [linkedDevices, setLinkedDevices] = useState<IUserLinkedDevices[]>([]);
   const [geoPermissionState, setGeoPermissionState] =
@@ -97,6 +100,17 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       () => setGeoPermissionState("denied")
     );
   }, []);
+
+  /** fetch total alert */
+  useEffect(() => {
+    const fetchTotalAlert = async () => {
+      const res = await api.get(`/alerts/view/total/${token.user_id}`);
+      if (res.status === 200) {
+        setTotalAlert(res.data);
+      }
+    };
+    fetchTotalAlert();
+  }, [api, token.user_id, totalAlert]);
 
   //Fetch Notification Messages
   useEffect(() => {
@@ -480,6 +494,8 @@ export function SocketContextProvider({ children }: SocketContextProps) {
         handleRestoreMessage,
         alerts,
         setAlerts,
+        totalAlert,
+        setTotalAlert,
       }}
     >
       {children}

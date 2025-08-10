@@ -3,7 +3,7 @@ import { CircleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
 import { loadData } from "@/Utility/funtion";
 import { convertDate } from "@/Utility/DateConverter";
-import { url, nodeApi } from "@/Api/Api";
+import { url, nodeApi, api } from "@/Api/Api";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import Spinner from "@/components/Spinner/Spinner";
@@ -29,6 +29,18 @@ const Alerts = () => {
     };
     fetchAlerts();
   }, [token.user_id, currentPage, setAlerts]);
+
+  const handleClick = async (
+    user_id: number,
+    alert_id: number,
+    data: Alerts
+  ) => {
+    try {
+      await api.put(`/alerts/${user_id}/${alert_id}`, data);
+    } catch (error) {
+      console.log("errror", error);
+    }
+  };
 
   return (
     <div>
@@ -59,7 +71,12 @@ const Alerts = () => {
                       </p>
                     </div>
                     <div className="flex items-center gap-2">
-                      <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
+                      <button
+                        onClick={() =>
+                          handleClick(item.user_id, item.alert_id, item)
+                        }
+                        className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300"
+                      >
                         <p>Button 1</p>
                       </button>
                     </div>
