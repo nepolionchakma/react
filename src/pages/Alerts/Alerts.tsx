@@ -25,7 +25,7 @@ const Alerts = () => {
       };
 
       const res = await loadData(alertDataParams);
-      setAlerts(res);
+      setAlerts(res.items);
     };
     fetchAlerts();
   }, [token.user_id, currentPage, setAlerts]);
