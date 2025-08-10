@@ -93,7 +93,7 @@ const AccessPointsEditModal = () => {
           <RelationAccessPoint tableRow={tableRow} />
         </div>
         <div className="rounded-md">
-          <div className="max-h-[13rem] overflow-auto">
+          <div className="max-h-[13rem] overflow-auto scrollbar-thin">
             <Table
               style={{
                 width: table.getTotalSize(),

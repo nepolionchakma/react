@@ -4,7 +4,6 @@ import {
   CardContent,
   CardFooter,
   CardHeader,
-  CardTitle,
 } from "@/components/ui/card";
 
 import { ChangeEvent, useEffect, useState } from "react";
@@ -17,26 +16,30 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Message, UserModel } from "@/types/interfaces/users.interface";
+import { Notification } from "@/types/interfaces/users.interface";
 import Spinner from "@/components/Spinner/Spinner";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
+import {
+  renderUserName,
+  renderProfilePicture,
+  renderSlicedUsername,
+} from "@/Utility/NotificationUtils";
 // import { v4 as uuidv4 } from "uuid";
 
 interface IOldMsgTypes {
-  receivers?: UserModel[];
+  receivers?: number[];
   subject?: string;
   body?: string;
 }
 const SingleDraft = () => {
   const api = useAxiosPrivate();
-  const { users, token, user } = useGlobalContext();
+  const { users, user, token } = useGlobalContext();
   const {
     handlesendMessage,
-    // totalDraftMessages,
     handleDraftMessage,
     handleDeleteMessage,
     handleDraftMsgId,
@@ -46,10 +49,8 @@ const SingleDraft = () => {
   const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const idString = useParams();
   const id = idString.id;
-  const date = new Date();
-  const [parentid, setParentid] = useState<string>("");
-  const [status, setStatus] = useState<string>("");
-  const [recivers, setRecivers] = useState<UserModel[]>([]);
+
+  const [recivers, setRecivers] = useState<number[]>([]);
   const [subject, setSubject] = useState<string>("");
   const [body, setBody] = useState<string>("");
   const [query, setQuery] = useState<string>("");
@@ -59,28 +60,23 @@ const SingleDraft = () => {
   const [saveDraftLoading, setSaveDraftLoading] = useState(false);
   const [oldMsgState, setOldMsgState] = useState<IOldMsgTypes | undefined>({});
   const [userChanged, setuserChanged] = useState<boolean>(false);
-  const sender = {
-    name: token?.user_name,
-    profile_picture: token?.profile_picture?.thumbnail,
-  };
-  const receiverNames = recivers.map((rcvr) => rcvr.name);
-  const totalusers = [...receiverNames, token?.user_name];
+  const [notifcationType, setNotificationType] = useState("REGULAR");
+
+  const totalusers = [...recivers, user];
   const involvedusers = [...new Set(totalusers)];
 
   useEffect(() => {
     const fetchMessage = async () => {
       try {
-        const response = await api.get<Message>(`/messages/${id}`);
+        const response = await api.get<Notification>(`/notifications/${id}`);
         const result = response.data;
-        setParentid(result.parentid);
-        setStatus(result.status);
-        setRecivers(result.recivers);
+        setRecivers(result.recipients);
         setSubject(result.subject);
-        setBody(result.body);
+        setBody(result.notification_body);
         setOldMsgState({
-          receivers: result?.recivers,
+          receivers: result?.recipients,
           subject: result?.subject,
-          body: result?.body,
+          body: result?.notification_body,
         });
       } catch (error) {
         if (error instanceof Error) {
@@ -94,7 +90,7 @@ const SingleDraft = () => {
     fetchMessage();
   }, [id, api]);
 
-  const actualUsers = users.filter((usr) => usr.user_name !== user);
+  const actualUsers = users.filter((usr) => usr.user_id !== user);
 
   const handleQueryChange = (e: ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
@@ -104,9 +100,9 @@ const SingleDraft = () => {
     user.user_name.toLowerCase().includes(query.toLowerCase())
   );
 
-  const handleReciever = (reciever: UserModel) => {
-    if (receiverNames.includes(reciever.name)) {
-      const newArray = recivers.filter((rcvr) => rcvr.name !== reciever.name);
+  const handleReciever = (reciever: number) => {
+    if (recivers.includes(reciever)) {
+      const newArray = recivers.filter((rcvr) => rcvr !== reciever);
       setRecivers(newArray);
       setQuery("");
     } else {
@@ -118,12 +114,7 @@ const SingleDraft = () => {
   const handleSelectAll = () => {
     if (!isAllClicked) {
       setIsAllClicked(true);
-      const newReceivers = actualUsers.map((usr) => {
-        return {
-          name: usr.user_name,
-          profile_picture: usr.profile_picture?.thumbnail,
-        };
-      });
+      const newReceivers = actualUsers.map((usr) => usr.user_id);
       setRecivers(newReceivers);
     } else {
       setIsAllClicked(false);
@@ -132,34 +123,36 @@ const SingleDraft = () => {
     setQuery("");
   };
 
-  const handleRemoveReciever = (reciever: string) => {
-    const newRecipients = recivers.filter((rcvr) => rcvr.name !== reciever);
+  const handleRemoveReciever = (reciever: number) => {
+    const newRecipients = recivers.filter((rcvr) => rcvr !== reciever);
     setRecivers(newRecipients);
   };
 
   const handleSend = async () => {
-    // const newID = uuidv4();
     const data = {
-      id: id as string,
-      sender,
-      recivers,
-      subject,
-      body,
-      date,
-      status: "Sent",
-      parentid,
-      involvedusers,
-      readers: receiverNames,
+      notification_id: id as string,
+      notification_type: notifcationType,
+      sender: user,
+      recipients: recivers,
+      subject: subject,
+      notification_body: body,
+      status: "SENT",
+      creation_date: new Date(),
+      parent_notification_id: id as string,
+      involved_users: involvedusers,
+      readers: recivers,
       holders: involvedusers,
-      recyclebin: [],
+      recycle_bin: [],
+      action_item_id: null,
+      alert_id: null,
     };
 
     const sendNotificationPayload = {
-      id,
-      parentid: id,
-      date,
-      sender: sender,
-      recivers: recivers,
+      notificationID: id,
+      parentId: id,
+      date: new Date(),
+      sender: token.user_name,
+      recipients: recivers,
       subject,
       body,
     };
@@ -167,8 +160,8 @@ const SingleDraft = () => {
     try {
       setIsSending(true);
 
-      const deletedMsg = await api.delete(`/messages/${id}`);
-      const newMsg = await api.post(`/messages`, data);
+      const deletedMsg = await api.delete(`/notifications/${id}`);
+      const newMsg = await api.post(`/notifications`, data);
       if (newMsg.data && deletedMsg.data) {
         handleDraftMsgId(id as string);
         handlesendMessage(data);
@@ -177,7 +170,7 @@ const SingleDraft = () => {
           sendNotificationPayload
         );
         toast({
-          title: "Message Sent",
+          title: `${newMsg.data.message}`,
         });
         setTimeout(async () => {
           navigate("/notifications/drafts");
@@ -197,28 +190,31 @@ const SingleDraft = () => {
 
   const handleDraft = async () => {
     const data = {
-      id: id as string,
-      sender,
-      recivers,
-      subject,
-      body,
-      date,
-      status: status,
-      parentid,
-      involvedusers,
-      readers: receiverNames,
-      holders: [sender.name],
-      recyclebin: [],
+      notification_id: id as string,
+      notification_type: notifcationType,
+      sender: user,
+      recipients: recivers,
+      subject: subject,
+      notification_body: body,
+      status: "DRAFT",
+      creation_date: new Date(),
+      parent_notification_id: id as string,
+      involved_users: involvedusers,
+      readers: recivers,
+      holders: [user],
+      recycle_bin: [],
+      action_item_id: null,
+      alert_id: null,
     };
 
     // handlesendMessage(data);
     try {
       setSaveDraftLoading(true);
-      const response = await api.put(`/messages/${id}`, data);
+      const response = await api.put(`/notifications/${id}`, data);
       if (response.status === 200) {
         handleDraftMessage(data);
         toast({
-          title: "Message saved to drafts",
+          title: "Notification saved to Drafts",
         });
       }
     } catch (error) {
@@ -237,13 +233,13 @@ const SingleDraft = () => {
   const handleDelete = async () => {
     try {
       const response = await api.put(
-        `/messages/set-user-into-recyclebin/${id}/${token.user_name}`
+        `/notifications/move-to-recyclebin/${id}/${user}`
       );
       if (response.status === 200) {
         handleDeleteMessage(id as string);
         navigate("/notifications/drafts");
         toast({
-          title: "Message has been moved to recyclebin.",
+          title: `${response.data.message}`,
         });
       }
     } catch (error) {
@@ -317,7 +313,6 @@ const SingleDraft = () => {
                 tooltipTitle="Move to Recycle Bin"
               />
             </div>
-            <CardTitle className=" font-bold">Draft Message Check</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-col gap-4">
@@ -342,12 +337,7 @@ const SingleDraft = () => {
                     </div>
                     {filterdUser.map((user) => (
                       <div
-                        onClick={() =>
-                          handleReciever({
-                            name: user.user_name,
-                            profile_picture: user.profile_picture?.thumbnail,
-                          })
-                        }
+                        onClick={() => handleReciever(user.user_id)}
                         key={user.user_id}
                         className="flex justify-between px-2 items-center hover:bg-light-200 cursor-pointer"
                       >
@@ -363,7 +353,7 @@ const SingleDraft = () => {
 
                           <p>{user.user_name}</p>
                         </div>
-                        {receiverNames.includes(user.user_name) ? (
+                        {recivers.includes(user.user_id) ? (
                           <Check size={14} color="#038C5A" />
                         ) : null}
                       </div>
@@ -374,25 +364,25 @@ const SingleDraft = () => {
                 <div className="flex gap-2 w-[calc(100%-11rem)] justify-end">
                   <div className="rounded-sm max-h-[4.5rem] scrollbar-thin overflow-auto flex flex-wrap gap-1">
                     {recivers
-                      .filter((usr) => usr.name !== user)
+                      .filter((usr) => usr !== user)
                       .map((rec) => (
                         <div
-                          key={rec.name}
+                          key={rec}
                           className="flex gap-1 border h-8 px-2 items-center rounded-sm"
                         >
                           <Avatar className="h-4 w-4">
                             <AvatarImage
-                              src={`${url}/${rec.profile_picture}`}
+                              src={`${url}/${renderProfilePicture(rec, users)}`}
                             />
                             <AvatarFallback>
-                              {rec.name.slice(0, 1)}
+                              {renderSlicedUsername(rec, users, 1)}
                             </AvatarFallback>
                           </Avatar>
                           <p className="font-semibold text-green-600">
-                            {rec.name}
+                            {renderUserName(rec, users)}
                           </p>
                           <div
-                            onClick={() => handleRemoveReciever(rec.name)}
+                            onClick={() => handleRemoveReciever(rec)}
                             className="flex h-[65%] items-end cursor-pointer"
                           >
                             <Delete size={18} />

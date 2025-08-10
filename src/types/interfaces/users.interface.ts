@@ -76,8 +76,8 @@ export interface Notification {
   readers: number[];
   holders: number[];
   recycle_bin: number[];
-  action_item_id: number | null;
-  alert_id: number | null;
+  action_item_id?: number | null;
+  alert_id?: number | null;
 }
 export interface IAddUserTypes {
   user_type: string;

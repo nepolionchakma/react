@@ -12,35 +12,41 @@ import React, { useEffect, useState } from "react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useToast } from "@/components/ui/use-toast";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Message } from "@/types/interfaces/users.interface";
+import { Notification } from "@/types/interfaces/users.interface";
 import Spinner from "@/components/Spinner/Spinner";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
+import {
+  renderUserName,
+  renderProfilePicture,
+  renderSlicedUsername,
+} from "@/Utility/NotificationUtils";
 
 const SingleRecycleBin = () => {
   const api = useAxiosPrivate();
-  const { user, token } = useGlobalContext();
+  const { user, token, users } = useGlobalContext();
   const { handleDeleteMessage, handleRestoreMessage } = useSocketContext();
   const navigate = useNavigate();
   const { toast } = useToast();
   const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const idString = useParams();
   const id = idString.id;
-  const [message, setMessage] = useState<Message>({
-    id: "",
-    sender: { name: "", profile_picture: "" },
-    recivers: [],
+  const [message, setMessage] = useState<Notification>({
+    notification_id: "",
+    notification_type: "",
+    sender: 0,
+    recipients: [],
     subject: "",
-    body: "",
-    date: new Date(),
+    notification_body: "",
+    creation_date: new Date(),
     status: "",
-    parentid: "",
-    involvedusers: [],
+    parent_notification_id: "",
+    involved_users: [],
     readers: [],
     holders: [],
-    recyclebin: [],
+    recycle_bin: [],
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
@@ -48,7 +54,7 @@ const SingleRecycleBin = () => {
   useEffect(() => {
     const fetchMessage = async () => {
       try {
-        const response = await api.get<Message>(`/messages/${id}`);
+        const response = await api.get<Notification>(`/notifications/${id}`);
         const result = response.data;
         setMessage(result);
       } catch (error) {
@@ -66,13 +72,13 @@ const SingleRecycleBin = () => {
   const handleDelete = async () => {
     try {
       const response = await api.put(
-        `/messages/remove-user-from-recyclebin/${id}/${user}`
+        `/notifications/remove-from-recyclebin/${id}/${user}`
       );
       if (response.status === 200) {
         handleDeleteMessage(id as string);
         navigate("/notifications/recycle-bin");
         toast({
-          title: "Message has been deleted permenantly.",
+          title: `${response.data.message}`,
         });
       }
     } catch (error) {
@@ -90,11 +96,11 @@ const SingleRecycleBin = () => {
 
   const restoreMessage = async () => {
     try {
-      const response = await api.put(`/messages/restore-message/${id}/${user}`);
+      const response = await api.put(`/notifications/restore/${id}/${user}`);
       if (response.status === 200) {
         handleRestoreMessage(id as string, token.user_id);
         toast({
-          title: "Message has been restored.",
+          title: `${response.data.message}`,
         });
         navigate(-1);
       }
@@ -162,33 +168,40 @@ const SingleRecycleBin = () => {
             <p className="font-bold ml-4">{message.subject}</p>
           </div>
           <div className="flex flex-col gap-4 w-full ">
-            <div className="flex gap-4 items-start" key={message.id}>
+            <div
+              className="flex gap-4 items-start"
+              key={message.notification_id}
+            >
               <Avatar className="w-8 h-8">
-                <AvatarImage src={`${url}/${message.sender.profile_picture}`} />
+                <AvatarImage
+                  src={`${url}/${renderProfilePicture(message.sender, users)}`}
+                />
                 <AvatarFallback>
-                  {message.sender.name.slice(0, 1)}
+                  {renderSlicedUsername(message.sender, users, 1)}
                 </AvatarFallback>
               </Avatar>
               <div className="flex flex-col w-full">
                 <div className="flex justify-between items-start">
                   <div className="flex flex-col">
-                    <p className="font-semibold">{message.sender.name}</p>
+                    <p className="font-semibold">
+                      {renderUserName(message.sender, users)}
+                    </p>
                     <div className="text-sm gap-1 flex items-center">
                       <span className="text-dark-400">to</span>
                       <span>
-                        {message.recivers[0]
-                          ? `${message.recivers[0].name}`
+                        {message.recipients[0]
+                          ? `${renderUserName(message.recipients[0], users)}`
                           : "(no user)"}
                       </span>
-                      {message.recivers.length > 1 && (
+                      {message.recipients.length > 1 && (
                         <DropdownMenu>
                           <DropdownMenuTrigger className="focus:outline-none">
                             {" "}
                             <Ellipsis strokeWidth={1} size={16} />
                           </DropdownMenuTrigger>
                           <DropdownMenuContent className="p-2">
-                            {message.recivers
-                              .slice(1, message.recivers.length + 1)
+                            {message.recipients
+                              .slice(1, message.recipients.length + 1)
                               .map((rcvr, i) => (
                                 <div
                                   className="flex items-center gap-2 mb-1"
@@ -196,13 +209,16 @@ const SingleRecycleBin = () => {
                                 >
                                   <Avatar className="w-5 h-5 ">
                                     <AvatarImage
-                                      src={`${url}/${rcvr.profile_picture}`}
+                                      src={`${url}/${renderProfilePicture(
+                                        rcvr,
+                                        users
+                                      )}`}
                                     />
                                     <AvatarFallback>
-                                      {rcvr.name.slice(0, 1)}
+                                      {renderSlicedUsername(rcvr, users, 1)}
                                     </AvatarFallback>
                                   </Avatar>
-                                  <p>{rcvr.name}</p>
+                                  <p>{renderUserName(rcvr, users)}</p>
                                 </div>
                               ))}
                           </DropdownMenuContent>
@@ -212,7 +228,7 @@ const SingleRecycleBin = () => {
                   </div>
                   <div className="flex flex-col items-end">
                     <p className="text-sm text-dark-400">
-                      {convertDate(message.date)}
+                      {convertDate(message.creation_date)}
                     </p>
                     <div className="flex items-center">
                       <Alert
@@ -226,7 +242,7 @@ const SingleRecycleBin = () => {
                   </div>
                 </div>
                 <p className="text-dark-400 mb-2">
-                  {renderMessage(message.body)}
+                  {renderMessage(message.notification_body)}
                 </p>
               </div>
             </div>

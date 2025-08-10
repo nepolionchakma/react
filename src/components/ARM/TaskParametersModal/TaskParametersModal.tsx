@@ -209,7 +209,7 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
                               <SelectValue placeholder="Select Data Type" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent className="max-h-[10rem] overflow-auto">
+                          <SelectContent className="max-h-[10rem] overflow-auto scrollbar-thin">
                             <SelectItem value="varchar">Text</SelectItem>
                             {/* <SelectItem value="string">{`Text (String)`}</SelectItem> */}
                             <SelectItem value="integer">Number</SelectItem>

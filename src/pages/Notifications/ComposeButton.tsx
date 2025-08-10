@@ -20,7 +20,11 @@ import { v4 as uuidv4 } from "uuid";
 import Spinner from "@/components/Spinner/Spinner";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
-
+import {
+  renderUserName,
+  renderProfilePicture,
+  renderSlicedUsername,
+} from "@/Utility/NotificationUtils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 // import { send } from "process";
@@ -82,27 +86,6 @@ const ComposeButton = () => {
     setRecivers(newRecipients);
   };
 
-  const renderUserName = (id: number) => {
-    const user = users.find((usr) => usr.user_id === id);
-
-    return user?.user_name;
-  };
-
-  const renderAvatarFallback = (id: number) => {
-    const user = users.find((usr) => usr.user_id === id);
-
-    if (user) {
-      const userName = user?.user_name;
-      return userName.slice(0, 1).toUpperCase();
-    }
-  };
-
-  const renderProfilePicture = (id: number) => {
-    const user = users.find((usr) => usr.user_id === id);
-
-    return user?.profile_picture.thumbnail;
-  };
-
   const handleSend = async () => {
     const notifcationData = {
       notification_id: id,
@@ -111,7 +94,7 @@ const ComposeButton = () => {
       recipients: recivers,
       subject: subject,
       notification_body: body,
-      status: "Sent",
+      status: "SENT",
       creation_date: new Date(),
       parent_notification_id: id,
       involved_users: involvedusers,
@@ -122,15 +105,15 @@ const ComposeButton = () => {
       alert_id: null,
     };
 
-    // const sendNotificationPayload = {
-    //   id,
-    //   parentid: id,
-    //   date,
-    //   sender: token.user_id,
-    //   recivers: recivers,
-    //   subject,
-    //   body,
-    // };
+    const sendNotificationPayload = {
+      notificationID: id,
+      parentId: id,
+      date: new Date(),
+      sender: token.user_name,
+      recipients: recivers,
+      subject,
+      body,
+    };
     try {
       setIsSending(true);
 
@@ -138,12 +121,12 @@ const ComposeButton = () => {
 
       if (response.status === 201) {
         handlesendMessage(notifcationData);
-        // await api.post(
-        //   "/push-notification/send-notification",
-        //   sendNotificationPayload
-        // );
+        await api.post(
+          "/push-notification/send-notification",
+          sendNotificationPayload
+        );
         toast({
-          title: "Message Sent",
+          title: `${response.data.message}`,
         });
       }
     } catch (error) {
@@ -170,7 +153,7 @@ const ComposeButton = () => {
       recipients: recivers,
       subject: subject,
       notification_body: body,
-      status: "Draft",
+      status: "DRAFT",
       creation_date: new Date(),
       parent_notification_id: id,
       involved_users: involvedusers,
@@ -182,11 +165,12 @@ const ComposeButton = () => {
     };
     try {
       setIsDrafting(true);
-      const response = await api.post(`/messages`, data);
+      const response = await api.post(`/notifications`, data);
+      console.log(response);
       if (response.status === 201) {
         handleDraftMessage(data);
         toast({
-          title: "Message saved to drafts",
+          title: `${response.data.message}`,
         });
       }
     } catch (error) {
@@ -268,14 +252,14 @@ const ComposeButton = () => {
                   >
                     <Avatar className="h-4 w-4">
                       <AvatarImage
-                        src={`${apiUrl}/${renderProfilePicture(rec)}`}
+                        src={`${apiUrl}/${renderProfilePicture(rec, users)}`}
                       />
                       <AvatarFallback>
-                        {renderAvatarFallback(rec)}
+                        {renderSlicedUsername(rec, users, 1)}
                       </AvatarFallback>
                     </Avatar>
                     <p className="font-semibold text-green-600">
-                      {renderUserName(rec)}
+                      {renderUserName(rec, users)}
                     </p>
                     <div
                       onClick={() => handleRemoveReciever(rec)}

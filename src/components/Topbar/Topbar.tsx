@@ -10,7 +10,8 @@ const Topbar = () => {
   const { socketMessage } = useSocketContext();
   const uniquMessages = socketMessage.filter(
     (item, index) =>
-      index === socketMessage.findIndex((obj) => obj.date === item.date)
+      index ===
+      socketMessage.findIndex((obj) => obj.creation_date === item.creation_date)
   );
   const location = useLocation();
 

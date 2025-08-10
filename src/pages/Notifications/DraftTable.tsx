@@ -20,11 +20,12 @@ import TableRowCounter from "@/components/TableCounter/TableRowCounter";
 import Spinner from "@/components/Spinner/Spinner";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { useEffect, useState } from "react";
-import { Message } from "@/types/interfaces/users.interface";
+import { Notification } from "@/types/interfaces/users.interface";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import Alert from "@/components/Alert/Alert";
+import { renderUserName } from "@/Utility/NotificationUtils";
 
 interface DraftTableProps {
   path: string;
@@ -39,7 +40,7 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
     handleDeleteMessage,
     setDraftMessages,
   } = useSocketContext();
-  const { user } = useGlobalContext();
+  const { user, users } = useGlobalContext();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -51,8 +52,8 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
     const fetchSentMessages = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get<Message[]>(
-          `/messages/draft/${user}/${currentPage}`
+        const response = await api.get<Notification[]>(
+          `/notifications/draft/${user}/${currentPage}/50`
         );
         const result = response.data;
         setDraftMessages(result);
@@ -88,12 +89,12 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
   const handleDelete = async (id: string) => {
     try {
       const response = await api.put(
-        `/messages/set-user-into-recyclebin/${id}/${user}`
+        `/notifications/move-to-recyclebin/${id}/${user}`
       );
       if (response.status === 200) {
         handleDeleteMessage(id);
         toast({
-          title: "Message has been moved to recyclebin.",
+          title: `${response.data.message}`,
         });
       }
     } catch (error) {
@@ -124,7 +125,7 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
             totalNumber={totalDraftMessages}
           />
         </div>
-        <div className="max-h-[60vh] overflow-auto">
+        <div className="max-h-[60vh] overflow-auto scrollbar-thin">
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-200 hover:bg-slate-200">
@@ -148,13 +149,13 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
             ) : draftMessages.length > 0 ? (
               <TableBody>
                 {draftMessages.map((msg) => (
-                  <TableRow key={msg.id}>
+                  <TableRow key={msg.notification_id}>
                     <>
                       <TableCell className="py-2">
-                        {msg.recivers.length === 0
+                        {msg.recipients.length === 0
                           ? "(no user)"
-                          : msg.recivers[0].name}
-                        {msg.recivers.length > 1 && ", ..."}
+                          : renderUserName(msg.recipients[0], users)}
+                        {msg.recipients.length > 1 && ", ..."}
                       </TableCell>
                       <TableCell className="py-2">
                         <span className="mr-1">
@@ -166,7 +167,7 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
                         </span>
                       </TableCell>
                       <TableCell className="w-[115px] py-2">
-                        {convertDate(msg.date)}
+                        {convertDate(msg.creation_date)}
                       </TableCell>
                       <TableCell className="flex gap-2 py-auto">
                         <TooltipProvider>
@@ -174,7 +175,9 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
                             <TooltipTrigger asChild>
                               <span>
                                 <Edit
-                                  onClick={() => handleNavigate(msg.id)}
+                                  onClick={() =>
+                                    handleNavigate(msg.notification_id)
+                                  }
                                   className="cursor-pointer"
                                 />
                               </span>
@@ -187,7 +190,7 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
                         <Alert
                           disabled={false}
                           actionName="move to Recycle Bin"
-                          onContinue={() => handleDelete(msg.id)}
+                          onContinue={() => handleDelete(msg.notification_id)}
                           tooltipTitle="Move to Recycle Bin"
                           tooltipAdjustmentStyle="mr-14"
                         />
