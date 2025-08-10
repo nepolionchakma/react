@@ -12,15 +12,20 @@ import { useToast } from "@/components/ui/use-toast";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
-import { Message } from "@/types/interfaces/users.interface";
+import { Notification } from "@/types/interfaces/users.interface";
 import { MessageCircleReply, Reply, Save } from "lucide-react";
 import { ChangeEvent, useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  renderUserName,
+  renderProfilePicture,
+  renderSlicedUsername,
+} from "@/Utility/NotificationUtils";
 
 interface ReplyDialogProps {
-  parrentMessage: Message;
-  setTotalMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  parrentMessage: Notification;
+  setTotalMessages: React.Dispatch<React.SetStateAction<Notification[]>>;
 }
 
 const ReplyDialog = ({
@@ -28,7 +33,7 @@ const ReplyDialog = ({
   setTotalMessages,
 }: ReplyDialogProps) => {
   const api = useAxiosPrivate();
-  const { token, user } = useGlobalContext();
+  const { users, user, token } = useGlobalContext();
   const { handlesendMessage, handleDraftMessage } = useSocketContext();
   const [subject, setSubject] = useState<string>("");
   const [body, setBody] = useState<string>("");
@@ -36,16 +41,12 @@ const ReplyDialog = ({
   const [isDrafting, setIsDrafting] = useState(false);
 
   const id = uuidv4();
-  const date = new Date();
+
   const { toast } = useToast();
-  const sender = {
-    name: user,
-    profile_picture: token?.profile_picture?.thumbnail,
-  };
+
   const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
-  const totalInvolved = [...parrentMessage.recivers, parrentMessage.sender];
-  const recivers = totalInvolved.filter((rcvr) => rcvr.name !== user);
-  const receiverNames = recivers.map((rcvr) => rcvr.name);
+  const totalInvolved = [...parrentMessage.recipients, parrentMessage.sender];
+  const recivers = totalInvolved.filter((rcvr) => rcvr !== user);
 
   useEffect(() => {
     setSubject(`Re: ${parrentMessage.subject}`);
@@ -53,32 +54,35 @@ const ReplyDialog = ({
 
   const handleSend = async () => {
     const data = {
-      id,
-      sender,
-      recivers,
-      subject,
-      body,
-      date,
-      status: "Sent",
-      parentid: parrentMessage.parentid,
-      involvedusers: parrentMessage.involvedusers,
-      readers: receiverNames,
-      holders: parrentMessage.involvedusers,
-      recyclebin: [],
+      notification_id: id,
+      notification_type: parrentMessage.notification_type,
+      sender: user,
+      recipients: recivers,
+      subject: subject,
+      notification_body: body,
+      status: "SENT",
+      creation_date: new Date(),
+      parent_notification_id: parrentMessage.parent_notification_id,
+      involved_users: parrentMessage.involved_users,
+      readers: recivers,
+      holders: parrentMessage.involved_users,
+      recycle_bin: [],
+      action_item_id: parrentMessage.action_item_id,
+      alert_id: parrentMessage.alert_id,
     };
 
     const sendNotificationPayload = {
-      id,
-      parentid: parrentMessage.id,
-      date,
-      sender: sender,
-      recivers: recivers,
+      notificationID: id,
+      parentId: parrentMessage.parent_notification_id,
+      date: new Date(),
+      sender: token.user_name,
+      recipients: recivers,
       subject,
       body,
     };
     try {
       setIsSending(true);
-      const response = await api.post(`/messages`, data);
+      const response = await api.post(`/notifications`, data);
 
       if (response.status === 201) {
         handlesendMessage(data);
@@ -88,7 +92,7 @@ const ReplyDialog = ({
           sendNotificationPayload
         );
         toast({
-          title: "Message Sent",
+          title: `${response.data.message}`,
         });
       }
     } catch (error) {
@@ -107,26 +111,29 @@ const ReplyDialog = ({
 
   const handleDraft = async () => {
     const data = {
-      id,
-      sender,
-      recivers,
-      subject: `Re: ${subject}`,
-      body,
-      date: new Date(),
-      status: "Draft",
-      parentid: parrentMessage.parentid,
-      involvedusers: parrentMessage.involvedusers,
-      readers: receiverNames,
-      holders: [sender.name],
-      recyclebin: [],
+      notification_id: id,
+      notification_type: parrentMessage.notification_type,
+      sender: user,
+      recipients: recivers,
+      subject: `${subject}`,
+      notification_body: body,
+      status: "DRAFT",
+      creation_date: new Date(),
+      parent_notification_id: parrentMessage.parent_notification_id,
+      involved_users: parrentMessage.involved_users,
+      readers: recivers,
+      holders: [user],
+      recycle_bin: [],
+      action_item_id: parrentMessage.action_item_id,
+      alert_id: parrentMessage.alert_id,
     };
     try {
       setIsDrafting(true);
-      const response = await api.post(`/messages`, data);
+      const response = await api.post(`/notifications`, data);
       if (response.status === 201) {
         handleDraftMessage(data);
         toast({
-          title: "Message saved to drafts",
+          title: `${response.data.message}`,
         });
       }
     } catch (error) {
@@ -155,14 +162,18 @@ const ReplyDialog = ({
             <div className="rounded-sm max-h-[4.5rem] scrollbar-thin overflow-auto flex flex-wrap gap-1 justify-end">
               {recivers.map((rec) => (
                 <div
-                  key={rec.name}
+                  key={rec}
                   className="flex gap-1 border h-8 px-2 items-center rounded-sm"
                 >
                   <Avatar className="h-4 w-4">
-                    <AvatarImage src={`${url}/${rec.profile_picture}`} />
-                    <AvatarFallback>{rec.name.slice(0, 1)}</AvatarFallback>
+                    <AvatarImage
+                      src={`${url}/${renderProfilePicture(rec, users)}`}
+                    />
+                    <AvatarFallback>
+                      {renderSlicedUsername(rec, users, 1)}
+                    </AvatarFallback>
                   </Avatar>
-                  <p className="font-semibold ">{rec.name}</p>
+                  <p className="font-semibold ">{renderUserName(rec, users)}</p>
                 </div>
               ))}
             </div>

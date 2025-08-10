@@ -61,6 +61,24 @@ export interface Message {
   holders?: string[];
   recyclebin?: string[];
 }
+
+export interface Notification {
+  notification_id: string;
+  notification_type: string;
+  sender: number;
+  recipients: number[];
+  subject: string;
+  notification_body: string;
+  creation_date: Date;
+  status: string;
+  parent_notification_id: string;
+  involved_users: number[];
+  readers: number[];
+  holders: number[];
+  recycle_bin: number[];
+  action_item_id?: number | null;
+  alert_id?: number | null;
+}
 export interface IAddUserTypes {
   user_type: string;
   user_name: string;

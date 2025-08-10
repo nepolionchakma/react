@@ -21,10 +21,11 @@ import TableRowCounter from "@/components/TableCounter/TableRowCounter";
 import Spinner from "@/components/Spinner/Spinner";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { useEffect, useState } from "react";
-import { Message } from "@/types/interfaces/users.interface";
+import { Notification } from "@/types/interfaces/users.interface";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import Alert from "@/components/Alert/Alert";
+import { renderSlicedUsername } from "@/Utility/NotificationUtils";
 
 interface NotificationTableProps {
   path: string;
@@ -33,7 +34,7 @@ interface NotificationTableProps {
 
 const NotificationTable = ({ path, person }: NotificationTableProps) => {
   const api = useAxiosPrivate();
-  const { user } = useGlobalContext();
+  const { user, users } = useGlobalContext();
   const {
     socketMessage,
     receivedMessages,
@@ -51,9 +52,10 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
     const fetchReceivedMessages = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get<Message[]>(
-          `/messages/received/${user}/${currentPage}`
+        const response = await api.get<Notification[]>(
+          `/notifications/received/${user}/${currentPage}/50`
         );
+
         const result = response.data;
         setReceivedMessages(result);
       } catch (error) {
@@ -85,11 +87,13 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
     startNumber = page * totalDisplayedMessages + 1;
   }
 
-  const uniquMessagesIds = socketMessage.map((msg) => msg.id);
+  const uniquMessagesIds = socketMessage.map((msg) => msg.notification_id);
 
   const handleUniqueMessages = async (parentid: string) => {
     try {
-      const res = await api.put(`/messages/update-readers/${parentid}/${user}`);
+      const res = await api.put(
+        `/notifications/update-readers/${parentid}/${user}`
+      );
       if (res) {
         navigate(`/notifications/inbox/${parentid}`);
         handleRead(parentid);
@@ -104,12 +108,12 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
   const handleDelete = async (id: string) => {
     try {
       const response = await api.put(
-        `/messages/set-user-into-recyclebin/${id}/${user}`
+        `/notifications/move-to-recyclebin/${id}/${user}`
       );
       if (response.status === 200) {
         handleDeleteMessage(id);
         toast({
-          title: "Message has been moved to recyclebin.",
+          title: `${response.data.message}`,
         });
       }
     } catch (error) {
@@ -136,7 +140,7 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
             totalNumber={totalReceivedMessages}
           />
         </div>
-        <div className="max-h-[60vh] overflow-auto">
+        <div className="max-h-[60vh] overflow-auto scrollbar-thin">
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-200 hover:bg-slate-200">
@@ -162,20 +166,21 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
                 {receivedMessages.map((msg) => (
                   <TableRow
                     className={
-                      uniquMessagesIds.includes(msg.id) ? "font-semibold" : ""
+                      uniquMessagesIds.includes(msg.notification_id)
+                        ? "font-semibold"
+                        : ""
                     }
-                    key={msg.id}
+                    key={msg.notification_id}
                   >
                     <>
                       <TableCell className="py-2">
-                        {msg.sender.name.slice(0, 8)}
-                        {msg.sender.name.length > 8 && "..."}
+                        {renderSlicedUsername(msg.sender, users, 10)}
                       </TableCell>
                       <TableCell className="py-2">
                         <span className="mr-1">{msg.subject}</span>
                       </TableCell>
                       <TableCell className="py-2 min-w-[5rem]">
-                        {convertDate(msg.date)}
+                        {convertDate(msg.creation_date)}
                       </TableCell>
                       <TableCell className="flex gap-2 py-auto">
                         <TooltipProvider>
@@ -184,11 +189,15 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
                               <span className="relative">
                                 <View
                                   onClick={() =>
-                                    handleUniqueMessages(msg.parentid)
+                                    handleUniqueMessages(
+                                      msg.parent_notification_id
+                                    )
                                   }
                                   className="cursor-pointer"
                                 />
-                                {uniquMessagesIds.includes(msg.id) && (
+                                {uniquMessagesIds.includes(
+                                  msg.notification_id
+                                ) && (
                                   <div className="w-[10px] h-[10px] bg-Red-100 rounded-full absolute right-[-2px] top-[-2px]" />
                                 )}
                               </span>
@@ -201,7 +210,7 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
                         <Alert
                           disabled={false}
                           actionName="move to Recycle Bin"
-                          onContinue={() => handleDelete(msg.id)}
+                          onContinue={() => handleDelete(msg.notification_id)}
                           tooltipTitle="Move to Recycle Bin"
                           tooltipAdjustmentStyle="mr-14"
                         />

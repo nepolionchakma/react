@@ -12,7 +12,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
 import { useToast } from "@/components/ui/use-toast";
 import { View } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -20,11 +19,12 @@ import TableRowCounter from "@/components/TableCounter/TableRowCounter";
 import Spinner from "@/components/Spinner/Spinner";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { useEffect, useState } from "react";
-import { Message } from "@/types/interfaces/users.interface";
+import { Notification } from "@/types/interfaces/users.interface";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import Alert from "@/components/Alert/Alert";
+import { renderUserName } from "@/Utility/NotificationUtils";
 
 interface SentTableProps {
   path: string;
@@ -39,7 +39,7 @@ const SentTable = ({ path, person }: SentTableProps) => {
     handleDeleteMessage,
     setSentMessages,
   } = useSocketContext();
-  const { user } = useGlobalContext();
+  const { user, users } = useGlobalContext();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -50,8 +50,8 @@ const SentTable = ({ path, person }: SentTableProps) => {
     const fetchSentMessages = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get<Message[]>(
-          `/messages/sent/${user}/${currentPage}`
+        const response = await api.get<Notification[]>(
+          `/notifications/sent/${user}/${currentPage}/50`
         );
         const result = response.data;
         setSentMessages(result);
@@ -87,12 +87,12 @@ const SentTable = ({ path, person }: SentTableProps) => {
   const handleDelete = async (id: string) => {
     try {
       const response = await api.put(
-        `/messages/set-user-into-recyclebin/${id}/${user}`
+        `/notifications/move-to-recyclebin/${id}/${user}`
       );
       if (response.status === 200) {
         handleDeleteMessage(id);
         toast({
-          title: "Message has been moved to recyclebin.",
+          title: `${response.data.message}`,
         });
       }
     } catch (error) {
@@ -123,7 +123,7 @@ const SentTable = ({ path, person }: SentTableProps) => {
             totalNumber={totalSentMessages}
           />
         </div>
-        <div className="max-h-[60vh] overflow-auto">
+        <div className="max-h-[60vh] overflow-auto scrollbar-thin">
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-200 hover:bg-slate-200">
@@ -149,15 +149,16 @@ const SentTable = ({ path, person }: SentTableProps) => {
                 {sentMessages.map((msg, i) => (
                   <TableRow key={i}>
                     <TableCell className="py-2">
-                      {msg.recivers[0].name}
-                      {(msg.recivers || []).length > 1 && ", ..."}
+                      {renderUserName(msg.recipients[0], users)}
+
+                      {(msg.recipients || []).length > 1 && ", ..."}
                     </TableCell>
 
                     <TableCell className="py-2">
                       <span className="mr-1">{msg.subject}</span>
                     </TableCell>
                     <TableCell className="w-[115px] py-2">
-                      {convertDate(msg.date)}
+                      {convertDate(msg.creation_date)}
                     </TableCell>
                     <TableCell className="flex gap-2 py-auto">
                       <TooltipProvider>
@@ -165,7 +166,9 @@ const SentTable = ({ path, person }: SentTableProps) => {
                           <TooltipTrigger asChild>
                             <span>
                               <View
-                                onClick={() => handleNavigate(msg.parentid)}
+                                onClick={() =>
+                                  handleNavigate(msg.parent_notification_id)
+                                }
                                 className="cursor-pointer"
                               />
                             </span>
@@ -178,7 +181,7 @@ const SentTable = ({ path, person }: SentTableProps) => {
                       <Alert
                         disabled={false}
                         actionName="move to Recycle Bin"
-                        onContinue={() => handleDelete(msg.id)}
+                        onContinue={() => handleDelete(msg.notification_id)}
                         tooltipTitle="Move to Recycle Bin"
                         tooltipAdjustmentStyle="mr-14"
                       />

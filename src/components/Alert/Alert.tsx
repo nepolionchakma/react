@@ -77,7 +77,7 @@ const Alert = ({
               Are you sure you want to {actionName}?
             </span>
           </AlertDialogTitle>
-          <AlertDialogDescription className="max-h-[50vh] overflow-auto mt-2 text-gray-700">
+          <AlertDialogDescription className="max-h-[50vh] overflow-auto mt-2 text-gray-700 scrollbar-thin">
             {children}
           </AlertDialogDescription>
         </AlertDialogHeader>

@@ -1,16 +1,9 @@
 import { Card } from "@/components/ui/card";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-
 import { ArrowLeft, Ellipsis } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ReplyDialog from "./ReplyDialog";
-import { Message } from "@/types/interfaces/users.interface";
+import { Notification } from "@/types/interfaces/users.interface";
 import { useToast } from "@/components/ui/use-toast";
 import Spinner from "@/components/Spinner/Spinner";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
@@ -24,11 +17,16 @@ import {
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
+import {
+  renderUserName,
+  renderProfilePicture,
+  renderSlicedUsername,
+} from "@/Utility/NotificationUtils";
 
 const SingleMessage = () => {
   const api = useAxiosPrivate();
   const { handleDeleteMessage } = useSocketContext();
-  const { token, user } = useGlobalContext();
+  const { user, users } = useGlobalContext();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -36,32 +34,36 @@ const SingleMessage = () => {
   const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const { id } = useParams();
 
-  const [totalMessages, setTotalMessages] = useState<Message[]>([]);
-  const [parrentMessage, setParrentMessage] = useState<Message>({
-    id: "",
-    sender: { name: "", profile_picture: "" },
-    recivers: [],
+  const [totalMessages, setTotalMessages] = useState<Notification[]>([]);
+  const [parrentMessage, setParrentMessage] = useState<Notification>({
+    notification_id: "",
+    notification_type: "",
+    sender: 0,
+    recipients: [],
     subject: "",
-    body: "",
-    date: new Date(),
+    notification_body: "",
+    creation_date: new Date(),
     status: "",
-    parentid: "",
-    involvedusers: [],
+    parent_notification_id: "",
+    involved_users: [],
     readers: [],
     holders: [],
-    recyclebin: [],
+    recycle_bin: [],
   });
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   //Fetch TotalReplyMessages
   useEffect(() => {
     const fetchMessage = async () => {
       try {
-        const response = await api.get<Message[]>(
-          `/messages/reply/${id}/${user}`
+        const response = await api.get<Notification[]>(
+          `/notifications/reply/${id}/${user}`
         );
-        const result = response.data;
-        setTotalMessages(result);
-        setIsLoaded(true);
+        if (response) {
+          const result = response.data;
+
+          setTotalMessages(result);
+          setIsLoaded(true);
+        }
       } catch (error) {
         if (error instanceof Error) {
           toast({
@@ -81,7 +83,7 @@ const SingleMessage = () => {
   useEffect(() => {
     const fetchMessage = async () => {
       try {
-        const response = await api.get<Message>(`/messages/${id}`);
+        const response = await api.get<Notification>(`/notifications/${id}`);
         const result = response.data;
         setParrentMessage(result);
       } catch (error) {
@@ -110,13 +112,15 @@ const SingleMessage = () => {
   const handleDelete = async (msgId: string) => {
     try {
       const response = await api.put(
-        `/messages/set-user-into-recyclebin/${msgId}/${token.user_name}`
+        `/notifications/move-to-recyclebin/${msgId}/${user}`
       );
       if (response.status === 200) {
         handleDeleteMessage(msgId as string);
-        setTotalMessages((prev) => prev.filter((msg) => msg.id !== msgId));
+        setTotalMessages((prev) =>
+          prev.filter((msg) => msg.notification_id !== msgId)
+        );
         toast({
-          title: "Message has been moved to recyclebin.",
+          title: `${response.data.message}`,
         });
       }
     } catch (error) {
@@ -175,45 +179,53 @@ const SingleMessage = () => {
       ) : (
         <Card className="flex flex-col gap-4 w-full p-4">
           <div className="flex items-center">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <span className="p-1 rounded-md  h-7">
-                    <Link to="/notifications/inbox">
-                      <ArrowLeft size={20} />
-                    </Link>
-                  </span>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Back</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            <p className="font-bold ml-4">{parrentMessage.subject}</p>
+            <CustomTooltip tooltipTitle="Back">
+              <span>
+                <Link to="/notifications/inbox">
+                  <ArrowLeft size={20} />
+                </Link>
+              </span>
+            </CustomTooltip>
+
+            <CustomTooltip tooltipTitle="Reply">
+              <span>
+                <ReplyDialog
+                  setTotalMessages={setTotalMessages}
+                  parrentMessage={parrentMessage}
+                />
+              </span>
+            </CustomTooltip>
+            <p className="font-bold ml-4">{parrentMessage?.subject}</p>
           </div>
           <div className="flex flex-col gap-4 w-full ">
             {totalMessages.map((msg) => (
-              <div className="flex gap-4 items-start" key={msg.id}>
+              <div className="flex gap-4 items-start" key={msg.notification_id}>
                 <Avatar className="w-8 h-8">
-                  <AvatarImage src={`${url}/${msg.sender.profile_picture}`} />
-                  <AvatarFallback>{msg.sender.name.slice(0, 1)}</AvatarFallback>
+                  <AvatarImage
+                    src={`${url}/${renderProfilePicture(msg.sender, users)}`}
+                  />
+                  <AvatarFallback>
+                    {renderSlicedUsername(msg.sender, users, 1)}
+                  </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col w-full">
                   <div className="flex justify-between items-start">
                     <div className="flex flex-col">
-                      <p className="font-semibold">{msg.sender.name}</p>
+                      <p className="font-semibold">
+                        {renderUserName(msg.sender, users)}
+                      </p>
                       <div className="text-sm gap-1 flex items-center">
                         <span className="text-dark-400">to</span>
-                        <span>{msg.recivers[0].name}</span>
-                        {msg.recivers.length > 1 && (
+                        <span>{renderUserName(msg.recipients[0], users)}</span>
+                        {msg.recipients.length > 1 && (
                           <DropdownMenu>
                             <DropdownMenuTrigger className="focus:outline-none">
                               {" "}
                               <Ellipsis strokeWidth={1} size={16} />
                             </DropdownMenuTrigger>
                             <DropdownMenuContent className="p-2">
-                              {msg.recivers
-                                .slice(1, msg.recivers.length + 1)
+                              {msg.recipients
+                                .slice(1, msg.recipients.length + 1)
                                 .map((rcvr, i) => (
                                   <div
                                     className="flex items-center gap-2 mb-1"
@@ -221,13 +233,16 @@ const SingleMessage = () => {
                                   >
                                     <Avatar className="w-5 h-5 ">
                                       <AvatarImage
-                                        src={`${url}/${rcvr.profile_picture}`}
+                                        src={`${url}/${renderProfilePicture(
+                                          rcvr,
+                                          users
+                                        )}`}
                                       />
                                       <AvatarFallback>
-                                        {rcvr.name.slice(0, 1)}
+                                        {renderSlicedUsername(rcvr, users, 1)}
                                       </AvatarFallback>
                                     </Avatar>
-                                    <p>{rcvr.name}</p>
+                                    <p>{renderUserName(rcvr, users)}</p>
                                   </div>
                                 ))}
                             </DropdownMenuContent>
@@ -237,22 +252,13 @@ const SingleMessage = () => {
                     </div>
                     <div className="flex flex-col items-end">
                       <p className="text-sm text-dark-400">
-                        {convertDate(msg.date)}
+                        {convertDate(msg.creation_date)}
                       </p>
                       <div className="flex items-center">
-                        <CustomTooltip tooltipTitle="Reply">
-                          <span>
-                            <ReplyDialog
-                              setTotalMessages={setTotalMessages}
-                              parrentMessage={parrentMessage}
-                            />
-                          </span>
-                        </CustomTooltip>
-
                         <Alert
                           disabled={false}
                           actionName="move to Recycle Bin"
-                          onContinue={() => handleDelete(msg.id)}
+                          onContinue={() => handleDelete(msg.notification_id)}
                           tooltipTitle="Move to Recycle Bin"
                           tooltipAdjustmentStyle="mr-6"
                         />
@@ -260,7 +266,7 @@ const SingleMessage = () => {
                     </div>
                   </div>
                   <p className="text-dark-400 mb-2">
-                    {renderMessage(msg.body)}
+                    {renderMessage(msg.notification_body)}
                   </p>
                   <div className="bg-gray-200 h-[0.7px] w-full"></div>
                 </div>

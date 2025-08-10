@@ -1,5 +1,5 @@
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import { Message } from "@/types/interfaces/users.interface";
+import { Notification } from "@/types/interfaces/users.interface";
 import { useEffect, useState } from "react";
 import {
   Table,
@@ -16,18 +16,18 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
-import { Check, RotateCcw, Trash2, View, X } from "lucide-react";
+// import {
+//   AlertDialog,
+//   AlertDialogAction,
+//   AlertDialogCancel,
+//   AlertDialogContent,
+//   AlertDialogDescription,
+//   AlertDialogFooter,
+//   AlertDialogHeader,
+//   AlertDialogTitle,
+//   AlertDialogTrigger,
+// } from "@/components/ui/alert-dialog";
+import { RotateCcw, View } from "lucide-react";
 import TableRowCounter from "@/components/TableCounter/TableRowCounter";
 import Spinner from "@/components/Spinner/Spinner";
 import Pagination5 from "@/components/Pagination/Pagination5";
@@ -36,13 +36,15 @@ import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import { useNavigate } from "react-router-dom";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import Alert from "@/components/Alert/Alert";
+import { renderUserName } from "@/Utility/NotificationUtils";
+
 interface RecycleBinTableProps {
   path: string;
   person: string;
 }
 const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
   const api = useAxiosPrivate();
-  const { user, token } = useGlobalContext();
+  const { user, token, users } = useGlobalContext();
   const {
     handleDeleteMessage,
     recycleBinMsg,
@@ -58,8 +60,8 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
     const fetchRecycleBinMsg = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get<Message[]>(
-          `/messages/recyclebin/${user}/${currentPage}`
+        const response = await api.get<Notification[]>(
+          `/notifications/recyclebin/${user}/${currentPage}/50`
         );
         setRecycleBinMsg(response.data);
       } catch (error) {
@@ -72,10 +74,6 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
     };
     fetchRecycleBinMsg();
   }, [api, currentPage, setIsLoading, setRecycleBinMsg, user]);
-
-  const newReceivers = recycleBinMsg.map((msg) => msg.recivers);
-
-  console.log(newReceivers, "73");
 
   const totalDisplayedMessages = 50;
   const totalPageNumbers = Math.ceil(
@@ -97,40 +95,16 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
     const formattedDate = date.toLocaleString();
     return formattedDate;
   };
-  const handleDelete = async (msg: Message) => {
+  const handleDelete = async (msg: Notification) => {
     try {
-      const holdersNumber = msg.holders?.length ?? 0;
-      const recycleBinNumber = msg.recyclebin?.length ?? 0;
-      if (holdersNumber > 0) {
-        const response = await api.put(
-          `/messages/remove-user-from-recyclebin/${msg.id}/${user}`
-        );
-        if (response.status === 200) {
-          handleDeleteMessage(msg.id);
-          toast({
-            title: "Message has been deleted.",
-          });
-        }
-      } else {
-        if (recycleBinNumber > 1) {
-          const response = await api.put(
-            `/messages/remove-user-from-recyclebin/${msg.id}/${user}`
-          );
-          if (response.status === 200) {
-            handleDeleteMessage(msg.id);
-            toast({
-              title: "Message has been deleted.",
-            });
-          }
-        } else if (recycleBinNumber === 1) {
-          const response = await api.delete(`/messages/${msg.id}`);
-          if (response.status === 200) {
-            handleDeleteMessage(msg.id);
-            toast({
-              title: "Message has been deleted.",
-            });
-          }
-        }
+      const response = await api.put(
+        `/notifications/remove-from-recyclebin/${msg.notification_id}/${user}`
+      );
+      if (response.status === 200) {
+        handleDeleteMessage(msg.notification_id);
+        toast({
+          title: `${response.data.message}`,
+        });
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -138,74 +112,76 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
       }
     }
   };
-  const emptyRecycleBin = async () => {
-    try {
-      for (const msg of recycleBinMsg) {
-        const holdersNumber = msg.holders?.length ?? 0;
-        const recycleBinNumber = msg.recyclebin?.length ?? 0;
-        if (holdersNumber > 0) {
-          const response = await api.put(
-            `/messages/remove-user-from-recyclebin/${msg.id}/${user}`
-          );
-          if (response.status === 200) {
-            handleDeleteMessage(msg.id);
-            toast({
-              title: "Message has been deleted.",
-            });
-          }
-        } else {
-          if (recycleBinNumber > 1) {
-            const response = await api.put(
-              `/messages/remove-user-from-recyclebin/${msg.id}/${user}`
-            );
-            if (response.status === 200) {
-              handleDeleteMessage(msg.id);
-              toast({
-                title: "Message has been deleted.",
-              });
-            }
-          } else if (recycleBinNumber === 1) {
-            const response = await api.delete(`/messages/${msg.id}`);
-            if (response.status === 200) {
-              handleDeleteMessage(msg.id);
-              toast({
-                title: "Message has been deleted.",
-              });
-            }
-          }
-        }
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
-    }
-  };
+  // const emptyRecycleBin = async () => {
+  //   try {
+  //     for (const msg of recycleBinMsg) {
+  //       const holdersNumber = msg.holders?.length ?? 0;
+  //       const recycleBinNumber = msg.recycle_bin?.length ?? 0;
+  //       if (holdersNumber > 0) {
+  //         const response = await api.put(
+  //           `/messages/remove-user-from-recyclebin/${msg.notification_id}/${user}`
+  //         );
+  //         if (response.status === 200) {
+  //           handleDeleteMessage(msg.notification_id);
+  //           toast({
+  //             title: "Message has been deleted.",
+  //           });
+  //         }
+  //       } else {
+  //         if (recycleBinNumber > 1) {
+  //           const response = await api.put(
+  //             `/messages/remove-user-from-recyclebin/${msg.notification_id}/${user}`
+  //           );
+  //           if (response.status === 200) {
+  //             handleDeleteMessage(msg.notification_id);
+  //             toast({
+  //               title: "Message has been deleted.",
+  //             });
+  //           }
+  //         } else if (recycleBinNumber === 1) {
+  //           const response = await api.delete(
+  //             `/messages/${msg.notification_id}`
+  //           );
+  //           if (response.status === 200) {
+  //             handleDeleteMessage(msg.notification_id);
+  //             toast({
+  //               title: "Message has been deleted.",
+  //             });
+  //           }
+  //         }
+  //       }
+  //     }
+  //   } catch (error) {
+  //     if (error instanceof Error) {
+  //       toast({ title: error.message, variant: "destructive" });
+  //     }
+  //   }
+  // };
   const handleNavigate = (id: string) => {
     navigate(`/notifications/recycle-bin/${id}`);
   };
 
   const restoreMessage = async (id: string) => {
     try {
-      const response = await api.put(`/messages/restore-message/${id}/${user}`);
+      const response = await api.put(`/notifications/restore/${id}/${user}`);
       if (response.status === 200) {
-        handleRestoreMessage(id, user);
+        handleRestoreMessage(id, token.user_id);
         toast({
-          title: "Message has been restored.",
+          title: `${response.data.message}`,
         });
       }
     } catch (error) {
-      toast({
-        title: "There is an error restoring message.",
-      });
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
+      }
     }
   };
 
-  const findOrigin = (msg: Message) => {
-    if (msg.status === "Draft") {
+  const findOrigin = (msg: Notification) => {
+    if (msg.status === "DRAFT") {
       return "Drafts";
     } else {
-      if (msg.sender.name === user) {
+      if (msg.sender === user) {
         return "Sent";
       } else {
         return "Inbox";
@@ -218,7 +194,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
       <div className="ml-[11rem] border rounded-md shadow-sm p-4">
         <div className="flex justify-between">
           <h1 className="text-lg font-bold mb-6 ">{path} </h1>
-          <div>
+          {/* <div>
             <AlertDialog>
               <AlertDialogTrigger className="bg-white text-white cursor-default">
                 <Trash2 /> <span>Empty Bin</span>
@@ -244,14 +220,14 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
-          </div>
+          </div> */}
           <TableRowCounter
             startNumber={totalRecycleBinMsg > 0 ? startNumber : 0}
             endNumber={endNumber}
             totalNumber={totalRecycleBinMsg}
           />
         </div>
-        <div className="max-h-[60vh] overflow-auto">
+        <div className="max-h-[60vh] overflow-auto scrollbar-thin">
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-200 hover:bg-slate-200">
@@ -277,21 +253,18 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
             ) : recycleBinMsg.length !== 0 ? (
               <TableBody>
                 {recycleBinMsg.map((msg) => (
-                  <TableRow key={msg.id}>
+                  <TableRow key={msg.notification_id}>
                     <>
                       <TableCell className="py-2 font-bold">
                         {findOrigin(msg)}
                       </TableCell>
                       <TableCell className="py-2">
-                        {msg.recivers.length === 0
+                        {msg.recipients.length === 0
                           ? "(no user)"
-                          : msg.recivers.includes({
-                              name: user,
-                              profile_picture: token.profile_picture?.thumbnail,
-                            })
-                          ? msg.sender.name
-                          : msg.recivers[0].name}
-                        {msg.recivers.length > 1 && ", ..."}
+                          : msg.recipients.includes(user)
+                          ? renderUserName(msg.sender, users)
+                          : renderUserName(msg.recipients[0], users)}
+                        {msg.recipients.length > 1 && ", ..."}
                       </TableCell>
                       <TableCell className="py-2">
                         <span className="mr-1">
@@ -299,7 +272,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
                         </span>
                       </TableCell>
                       <TableCell className="w-[115px] py-2">
-                        {convertDate(msg.date)}
+                        {convertDate(msg.creation_date)}
                       </TableCell>
                       <TableCell className="flex gap-2 py-auto">
                         {/* View Tooltip */}
@@ -308,7 +281,9 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
                             <TooltipTrigger asChild>
                               <span>
                                 <View
-                                  onClick={() => handleNavigate(msg.id)}
+                                  onClick={() =>
+                                    handleNavigate(msg.notification_id)
+                                  }
                                   className="cursor-pointer"
                                 />
                               </span>
@@ -323,7 +298,11 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span onClick={() => restoreMessage(msg.id)}>
+                              <span
+                                onClick={() =>
+                                  restoreMessage(msg.notification_id)
+                                }
+                              >
                                 <RotateCcw className="cursor-pointer" />
                               </span>
                             </TooltipTrigger>

@@ -40,7 +40,7 @@ export default function SignonAudit({
                 className="cursor-pointer"
               />
             </div>
-            <div className="max-h-[70vh] overflow-auto">
+            <div className="max-h-[70vh] overflow-auto scrollbar-thin">
               <Table>
                 <TableHeader>
                   <TableRow className="p-1">
