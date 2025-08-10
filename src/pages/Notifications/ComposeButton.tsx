@@ -35,7 +35,7 @@ const ComposeButton = () => {
   const { handlesendMessage, handleDraftMessage } = useSocketContext();
   const { toast } = useToast();
   const [recivers, setRecivers] = useState<number[]>([]);
-  const [notifcationType, setNotificationType] = useState("REGULAR");
+  const notifcationType = "REGULAR";
   const [subject, setSubject] = useState<string>("");
   const [body, setBody] = useState<string>("");
   const [query, setQuery] = useState<string>("");

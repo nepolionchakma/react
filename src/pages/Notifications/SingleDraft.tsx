@@ -60,7 +60,7 @@ const SingleDraft = () => {
   const [saveDraftLoading, setSaveDraftLoading] = useState(false);
   const [oldMsgState, setOldMsgState] = useState<IOldMsgTypes | undefined>({});
   const [userChanged, setuserChanged] = useState<boolean>(false);
-  const [notifcationType, setNotificationType] = useState("REGULAR");
+  const notifcationType = "REGULAR";
 
   const totalusers = [...recivers, user];
   const involvedusers = [...new Set(totalusers)];
