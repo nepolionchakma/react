@@ -13,7 +13,7 @@ const Alerts = () => {
   const { token } = useGlobalContext();
   const { alerts, setAlerts } = useSocketContext();
   const [isloading, setIsLoading] = useState(true);
-  const [currentPage, setCurrentPage] = useState(1);
+  const currentPage = 1;
   const limit = 8;
 
   useEffect(() => {
