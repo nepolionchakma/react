@@ -14,6 +14,7 @@ import {
 import { io } from "socket.io-client";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { getUserLocation, watchGeoPermission } from "@/Utility/locationUtils";
+import { Alerts } from "@/types/interfaces/alerts.interface";
 
 interface SocketContextProps {
   children: ReactNode;
@@ -47,6 +48,10 @@ interface SocketContext {
   inactiveDevice: (data: IUserLinkedDevices[]) => void;
   linkedDevices: IUserLinkedDevices[];
   setLinkedDevices: React.Dispatch<React.SetStateAction<IUserLinkedDevices[]>>;
+  alerts: Alerts[];
+  setAlerts: React.Dispatch<React.SetStateAction<Alerts[]>>;
+  totalAlert: Alerts[];
+  setTotalAlert: React.Dispatch<React.SetStateAction<Alerts[]>>;
   handleRestoreMessage: (id: string, user: number) => void;
 }
 
@@ -69,12 +74,13 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   const [socketMessage, setSocketMessages] = useState<Notification[]>([]);
   const [recycleBinMsg, setRecycleBinMsg] = useState<Notification[]>([]);
   const [totalRecycleBinMsg, setTotalRecycleBinMsg] = useState<number>(0);
-  // const url_location = window.location.pathname;
+  // alerts
+  const [alerts, setAlerts] = useState<Alerts[]>([]);
+  const [totalAlert, setTotalAlert] = useState<Alerts[]>([]);
   const socket_url = import.meta.env.VITE_SOCKET_URL;
   const [linkedDevices, setLinkedDevices] = useState<IUserLinkedDevices[]>([]);
   const [geoPermissionState, setGeoPermissionState] =
     useState<PermissionState>("prompt");
-  // const getUserIP = useUserIP();
 
   // Memoize the socket connection so that it's created only once
   const socket = useMemo(() => {
@@ -94,6 +100,17 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       () => setGeoPermissionState("denied")
     );
   }, []);
+
+  /** fetch total alert */
+  useEffect(() => {
+    const fetchTotalAlert = async () => {
+      const res = await api.get(`/alerts/view/total/${token.user_id}`);
+      if (res.status === 200) {
+        setTotalAlert(res.data);
+      }
+    };
+    fetchTotalAlert();
+  }, [api, token.user_id, totalAlert]);
 
   //Fetch Notification Messages
   useEffect(() => {
@@ -502,6 +519,10 @@ export function SocketContextProvider({ children }: SocketContextProps) {
         linkedDevices,
         setLinkedDevices,
         handleRestoreMessage,
+        alerts,
+        setAlerts,
+        totalAlert,
+        setTotalAlert,
       }}
     >
       {children}
