@@ -171,7 +171,7 @@ const ActionItems = () => {
             </>
           ) : (
             <div className="flex items-center justify-center h-96">
-              <span>No Data found.</span>
+              <span>No Data Found.</span>
             </div>
           )}
 
