@@ -91,7 +91,7 @@ const Alerts = () => {
             </div>
           ) : (
             <div className="flex items-center justify-center h-96">
-              <span>No alerts found.</span>
+              <span>No Data Found.</span>
             </div>
           )}
         </>
