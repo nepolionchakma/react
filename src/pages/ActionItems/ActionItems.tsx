@@ -51,11 +51,12 @@ const ActionItems = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [query, setQuery] = useState({ isEmpty: true, value: "" });
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [selectedOption, setSelectedOption] = useState("");
   const currentPage = 1;
   const limit = 8;
   const actionItemsParams = {
     baseURL: FLASK_URL,
-    url: `${flaskApi.DefActionItems}/${token.user_id}/${currentPage}/${limit}`,
+    url: `${flaskApi.DefActionItems}/${token.user_id}/${currentPage}/${limit}?status=${selectedOption}`,
     setLoading: setIsLoading,
   };
   const fetchActionItems = async () => {
@@ -68,7 +69,7 @@ const ActionItems = () => {
 
   useEffect(() => {
     fetchActionItems();
-  }, [token.user_id]);
+  }, [token.user_id, selectedOption]);
 
   /** reload data by clicking refresh button */
   const handleRefresh = async () => {
@@ -81,7 +82,7 @@ const ActionItems = () => {
 
   /** For handling fetch data by changing options */
   const handleSelectOption = (value: string) => {
-    console.log(value);
+    setSelectedOption(value);
   };
 
   return (
