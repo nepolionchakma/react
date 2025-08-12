@@ -1,12 +1,5 @@
-import { MailPlus, Send, Delete, Save, ChevronDown } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Send, Delete, Save, ChevronDown, X } from "lucide-react";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,10 +21,13 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toTitleCase } from "@/Utility/general";
 import { postData, putData } from "@/Utility/funtion";
+import CustomModal4 from "@/components/CustomModal/CustomModal4";
 
-// import { send } from "process";
+interface ComposeButtonProps {
+  setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
+}
 
-const ComposeButton = () => {
+const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
   const api = useAxiosPrivate();
   const { users, token } = useGlobalContext();
   const { handlesendMessage, handleDraftMessage } = useSocketContext();
@@ -278,17 +274,14 @@ const ComposeButton = () => {
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <button className="flex gap-2 items-center px-5 py-2 rounded-xl bg-dark-100 text-white hover:scale-95 duration-300 fixed bottom-4">
-          <MailPlus size={18} />
-          <p className="font-semibold ">Compose</p>
+    <CustomModal4 className="w-[700px]">
+      <div className="flex justify-between px-2 items-center bg-[#CEDEF2] h-[41px]">
+        <p className="font-semibold">New Notification</p>
+        <button onClick={() => setShowModal(false)}>
+          <X />
         </button>
-      </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-auto scrollbar-thin">
-        <DialogHeader>
-          <DialogTitle className=" font-bold">New Message</DialogTitle>
-        </DialogHeader>
+      </div>
+      <div className="max-h-[90vh] overflow-auto scrollbar-thin p-4">
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-2">
             <DropdownMenu>
@@ -296,7 +289,7 @@ const ComposeButton = () => {
                 <p>{`${toTitleCase(notifcationType)}` || "Select Type"}</p>
                 <ChevronDown strokeWidth={1} />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[230px] max-h-[255px] overflow-auto scrollbar-thin">
+              <DropdownMenuContent className="w-[330px] max-h-[255px] overflow-auto scrollbar-thin">
                 <div
                   onClick={() => setNotificationType("REGULAR")}
                   className="flex justify-between px-2 items-center hover:bg-light-200 cursor-pointer"
@@ -332,7 +325,7 @@ const ComposeButton = () => {
                 <p>Select Recipients</p>
                 <ChevronDown strokeWidth={1} />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[230px] max-h-[255px] overflow-auto scrollbar-thin">
+              <DropdownMenuContent className="w-[330px] max-h-[255px] overflow-auto scrollbar-thin">
                 <input
                   type="text"
                   className="w-full bg-light-100 border-b border-light-400 outline-none pl-2"
@@ -374,12 +367,12 @@ const ComposeButton = () => {
           </div>
 
           {recivers.length > 0 && (
-            <div className="w-full border p-1 rounded-sm">
+            <div className="w-full border p-1 rounded-sm bg-light-200">
               <div className="rounded-sm max-h-[4.5rem] scrollbar-thin overflow-auto flex flex-wrap gap-1">
                 {recivers.map((rec) => (
                   <div
                     key={rec}
-                    className="flex gap-1 border h-8 px-2 items-center rounded-full"
+                    className="flex gap-1 border h-8 px-2 items-center rounded-full bg-white"
                   >
                     <Avatar className="h-4 w-4">
                       <AvatarImage
@@ -428,7 +421,7 @@ const ComposeButton = () => {
         </div>
 
         {(notifcationType === "ALERT" || notifcationType === "ACTION ITEM") && (
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between my-4">
             <div className="bg-slate-300 flex-grow h-[0.5px]"></div>
             <p className="font-semibold border p-1 rounded-sm bg-light-200">
               {toTitleCase(notifcationType)}
@@ -474,7 +467,7 @@ const ComposeButton = () => {
                 </p>
                 <ChevronDown strokeWidth={1} />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[460px] max-h-[255px] overflow-auto scrollbar-thin">
+              <DropdownMenuContent className="w-[660px] max-h-[255px] overflow-auto scrollbar-thin">
                 <div
                   onClick={() => setActionItemStatus("NEW")}
                   className="flex justify-between px-2 items-center hover:bg-light-200 cursor-pointer"
@@ -530,7 +523,7 @@ const ComposeButton = () => {
           </div>
         )}
 
-        <DialogFooter className="flex">
+        <div className="flex mt-4 justify-end gap-2">
           {/* {recivers.length > 0 || body !== "" || subject !== "" ? ( */}
           <button
             disabled={recivers.length === 0 && body === "" && subject === ""}
@@ -583,9 +576,9 @@ const ComposeButton = () => {
             <p className="font-semibold ">Send</p>
           </button>
           {/* )} */}
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </div>
+      </div>
+    </CustomModal4>
   );
 };
 
