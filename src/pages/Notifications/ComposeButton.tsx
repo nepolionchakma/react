@@ -175,7 +175,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
         if (notifcationType === "ACTION ITEM") {
           const actionItemParams = {
             baseURL: flaskUrl,
-            url: "/def_action_items/upsert",
+            url: "/def_action_items",
             setLoading: setIsSending,
             payload: {
               action_item_name: actionItemName,
@@ -188,7 +188,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
 
           const actionItemResponse = await postData(actionItemParams);
           console.log(actionItemResponse, "actionItemResponse");
-          if (actionItemResponse.status === 200) {
+          if (actionItemResponse.status === 201) {
             setActionItemName("");
             setActionItemDescription("");
             setActionItemStatus("");

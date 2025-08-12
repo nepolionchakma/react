@@ -13,6 +13,7 @@ const Alerts = () => {
   const { token } = useGlobalContext();
   const { alerts, setAlerts } = useSocketContext();
   const [isloading, setIsLoading] = useState(true);
+  const [alertIds, setAlertIds] = useState<number[]>([]);
   const currentPage = 1;
   const limit = 8;
 
@@ -30,15 +31,22 @@ const Alerts = () => {
     fetchAlerts();
   }, [token.user_id, currentPage, setAlerts]);
 
-  const handleClick = async (
-    user_id: number,
-    alert_id: number,
-    data: Alerts
-  ) => {
+  const handleClick = async (user_id: number, alert_id: number) => {
     try {
-      await api.put(`/alerts/${user_id}/${alert_id}`, data);
+      await api.put(`/recepients/${alert_id}/${user_id}`, {
+        acknowledge: true,
+      });
     } catch (error) {
       console.log("errror", error);
+    }
+  };
+
+  const handleViewDetails = (alertId: number) => {
+    if (alertIds.includes(alertId)) {
+      const filterIds = alertIds.filter((id) => id !== alertId);
+      setAlertIds(filterIds);
+    } else {
+      setAlertIds((prev) => [...prev, alertId]);
     }
   };
 
@@ -51,12 +59,12 @@ const Alerts = () => {
       ) : (
         <>
           {alerts.length > 0 ? (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-4">
               {alerts.map((item: Alerts) => (
                 <Card
                   key={item.alert_id}
                   className={`flex gap-4 p-4 ${
-                    item.readers.includes(token.user_id) ? "bg-gray-200" : ""
+                    item.acknowledge === false ? "bg-gray-200" : ""
                   }`}
                 >
                   <div className="bg-red-600 w-[40px] h-[36px] flex justify-center items-center rounded-full">
@@ -70,16 +78,52 @@ const Alerts = () => {
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-600">{item.description}</p>
-                      <p className="text-blue-600 font-semibold">
-                        View Details
+                      <p className="text-gray-600">
+                        {alertIds.includes(item.alert_id) ? (
+                          <>
+                            {item.description}
+                            <span
+                              className="text-blue-600 cursor-pointer ml-1"
+                              onClick={() => handleViewDetails(item.alert_id)}
+                            >
+                              View Less
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            {item.description.length > 250 ? (
+                              <>
+                                {item.description.slice(0, 250)}
+                                <span
+                                  className="text-blue-600 cursor-pointer ml-1"
+                                  onClick={() =>
+                                    handleViewDetails(item.alert_id)
+                                  }
+                                >
+                                  ... View Details
+                                </span>
+                              </>
+                            ) : (
+                              item.description
+                            )}
+                          </>
+                        )}
+                        {/* {item.description.length > 100
+                          ? item.description.slice(0, 100) + "..."
+                          : item.description} */}
                       </p>
+                      {/* <button
+                        onClick={() => handleViewDetails(item.alert_id)}
+                        className="text-blue-600 font-semibold"
+                      >
+                        {alertIds.includes(item.alert_id)
+                          ? "See Less"
+                          : "View Details"}
+                      </button> */}
                     </div>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() =>
-                          handleClick(item.user_id, item.alert_id, item)
-                        }
+                        onClick={() => handleClick(item.user_id, item.alert_id)}
                         className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300"
                       >
                         <p>Button 1</p>
