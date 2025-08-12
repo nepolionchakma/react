@@ -32,17 +32,17 @@ export interface IActionItems {
   user_name: string;
 }
 
-type StatusType = "Completed" | "In Progress" | "New";
+type StatusType = "COMPLETED" | "IN PROGRESS" | "NEW";
 
 const statusIcons: Record<StatusType, JSX.Element> = {
-  Completed: <CircleCheckBig color="black" />,
-  "In Progress": <CircleCheck color="black" />,
-  New: <Circle color="black" />,
+  COMPLETED: <CircleCheckBig color="black" />,
+  "IN PROGRESS": <CircleCheck color="black" />,
+  NEW: <Circle color="black" />,
 };
 const statusColors: Record<StatusType, string> = {
-  Completed: "bg-green-100",
-  "In Progress": "bg-yellow-100",
-  New: "bg-orange-100",
+  COMPLETED: "bg-green-100",
+  "IN PROGRESS": "bg-yellow-100",
+  NEW: "bg-orange-100",
 };
 
 const ActionItems = () => {

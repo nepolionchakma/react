@@ -102,15 +102,15 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   }, []);
 
   /** fetch total alert */
-  useEffect(() => {
-    const fetchTotalAlert = async () => {
-      const res = await api.get(`/alerts/view/total/${token.user_id}`);
-      if (res.status === 200) {
-        setTotalAlert(res.data);
-      }
-    };
-    fetchTotalAlert();
-  }, [api, token.user_id, totalAlert]);
+  // useEffect(() => {
+  //   const fetchTotalAlert = async () => {
+  //     const res = await api.get(`/alerts/view/total/${token.user_id}`);
+  //     if (res.status === 200) {
+  //       setTotalAlert(res.data);
+  //     }
+  //   };
+  //   fetchTotalAlert();
+  // }, [api, token.user_id, totalAlert]);
 
   //Fetch Notification Messages
   useEffect(() => {
