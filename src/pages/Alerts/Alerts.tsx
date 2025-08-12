@@ -30,13 +30,11 @@ const Alerts = () => {
     fetchAlerts();
   }, [token.user_id, currentPage, setAlerts]);
 
-  const handleClick = async (
-    user_id: number,
-    alert_id: number,
-    data: Alerts
-  ) => {
+  const handleClick = async (user_id: number, alert_id: number) => {
     try {
-      await api.put(`/alerts/${user_id}/${alert_id}`, data);
+      await api.put(`/recepients/${alert_id}/${user_id}`, {
+        acknowledge: true,
+      });
     } catch (error) {
       console.log("errror", error);
     }
@@ -71,19 +69,17 @@ const Alerts = () => {
                     </div>
                     <div>
                       <p className="text-gray-600">
-                        {item.description.length > 50
-                          ? item.description.slice(0, 50) + "..."
+                        {item.description.length > 100
+                          ? item.description.slice(0, 100) + "..."
                           : item.description}
                       </p>
-                      <p className="text-blue-600 font-semibold">
+                      <button className="text-blue-600 font-semibold">
                         View Details
-                      </p>
+                      </button>
                     </div>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() =>
-                          handleClick(item.user_id, item.alert_id, item)
-                        }
+                        onClick={() => handleClick(item.user_id, item.alert_id)}
                         className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300"
                       >
                         <p>Button 1</p>
