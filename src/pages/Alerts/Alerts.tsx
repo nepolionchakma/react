@@ -70,7 +70,11 @@ const Alerts = () => {
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-600">{item.description}</p>
+                      <p className="text-gray-600">
+                        {item.description.length > 50
+                          ? item.description.slice(0, 50) + "..."
+                          : item.description}
+                      </p>
                       <p className="text-blue-600 font-semibold">
                         View Details
                       </p>

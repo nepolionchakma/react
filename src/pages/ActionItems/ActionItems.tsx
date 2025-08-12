@@ -53,7 +53,7 @@ const ActionItems = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const currentPage = 1;
   const limit = 8;
-
+  const [expanded, setExpanded] = useState(false);
   const actionItemsParams = {
     baseURL: FLASK_URL,
     url: `${flaskApi.DefActionItems}/${token.user_id}/${currentPage}/${limit}`,
@@ -155,7 +155,36 @@ const ActionItems = () => {
                       >
                         <p>{item.status}</p>
                       </div>
-                      <p className="text-gray-600">{item.description}</p>
+
+                      <p className="text-gray-600">
+                        {expanded ? (
+                          <>
+                            {item.description}
+                            <span
+                              className="text-blue-500 cursor-pointer ml-1"
+                              onClick={() => setExpanded(false)}
+                            >
+                              See less
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            {item.description.length > 100 ? (
+                              <>
+                                {item.description.slice(0, 100)}
+                                <span
+                                  className="text-blue-500 cursor-pointer ml-1"
+                                  onClick={() => setExpanded(true)}
+                                >
+                                  ...See more
+                                </span>
+                              </>
+                            ) : (
+                              item.description
+                            )}
+                          </>
+                        )}
+                      </p>
                     </div>
                     <div className="flex items-center gap-2">
                       <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
