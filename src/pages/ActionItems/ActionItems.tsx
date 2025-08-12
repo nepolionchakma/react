@@ -17,6 +17,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toTitleCase } from "@/Utility/general";
 
 export interface IActionItems {
   action_item_id: number;
@@ -52,6 +53,7 @@ const ActionItems = () => {
   const [query, setQuery] = useState({ isEmpty: true, value: "" });
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
+  const [actionItemIds, setActionItemIds] = useState<number[]>([]);
   const currentPage = 1;
   const limit = 8;
   const actionItemsParams = {
@@ -82,7 +84,20 @@ const ActionItems = () => {
 
   /** For handling fetch data by changing options */
   const handleSelectOption = (value: string) => {
-    setSelectedOption(value);
+    if (value === "all") {
+      setSelectedOption("");
+    } else {
+      setSelectedOption(value);
+    }
+  };
+
+  const handleViewDetails = (actionItemId: number) => {
+    if (actionItemIds.includes(actionItemId)) {
+      const filterIds = actionItemIds.filter((id) => id !== actionItemId);
+      setActionItemIds(filterIds);
+    } else {
+      setActionItemIds((prev) => [...prev, actionItemId]);
+    }
   };
 
   return (
@@ -110,9 +125,10 @@ const ActionItems = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
-                <SelectItem value="completed">Completed</SelectItem>
-                <SelectItem value="in progress">In Progress</SelectItem>
+                <SelectItem value="all">All</SelectItem>
                 <SelectItem value="new">New</SelectItem>
+                <SelectItem value="in progress">In Progress</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
@@ -153,13 +169,45 @@ const ActionItems = () => {
                           statusColors[item.status as StatusType]
                         } px-[2px] rounded-sm inline-block`}
                       >
-                        <p>{item.status}</p>
+                        <p>{toTitleCase(item.status)}</p>
                       </div>
 
                       <p className="text-gray-600">
-                        {item.description.length > 350
+                        {actionItemIds.includes(item.action_item_id) ? (
+                          <>
+                            {item.description}
+                            <span
+                              className="text-blue-600 cursor-pointer ml-1"
+                              onClick={() =>
+                                handleViewDetails(item.action_item_id)
+                              }
+                            >
+                              View Less
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            {item.description.length > 250 ? (
+                              <>
+                                {item.description.slice(0, 250)}
+                                <span
+                                  className="text-blue-600 cursor-pointer ml-1"
+                                  onClick={() =>
+                                    handleViewDetails(item.action_item_id)
+                                  }
+                                >
+                                  ... View Details
+                                </span>
+                              </>
+                            ) : (
+                              item.description
+                            )}
+                          </>
+                        )}
+
+                        {/* {item.description.length > 350
                           ? item.description.slice(0, 350) + "..."
-                          : item.description}
+                          : item.description} */}
                       </p>
                     </div>
                     <div className="flex items-center gap-2">

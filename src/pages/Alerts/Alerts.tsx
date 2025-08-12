@@ -13,6 +13,7 @@ const Alerts = () => {
   const { token } = useGlobalContext();
   const { alerts, setAlerts } = useSocketContext();
   const [isloading, setIsLoading] = useState(true);
+  const [alertIds, setAlertIds] = useState<number[]>([]);
   const currentPage = 1;
   const limit = 8;
 
@@ -40,6 +41,15 @@ const Alerts = () => {
     }
   };
 
+  const handleViewDetails = (alertId: number) => {
+    if (alertIds.includes(alertId)) {
+      const filterIds = alertIds.filter((id) => id !== alertId);
+      setAlertIds(filterIds);
+    } else {
+      setAlertIds((prev) => [...prev, alertId]);
+    }
+  };
+
   return (
     <div>
       {isloading ? (
@@ -49,7 +59,7 @@ const Alerts = () => {
       ) : (
         <>
           {alerts.length > 0 ? (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="flex flex-col gap-4">
               {alerts.map((item: Alerts) => (
                 <Card
                   key={item.alert_id}
@@ -69,13 +79,47 @@ const Alerts = () => {
                     </div>
                     <div>
                       <p className="text-gray-600">
-                        {item.description.length > 100
+                        {alertIds.includes(item.alert_id) ? (
+                          <>
+                            {item.description}
+                            <span
+                              className="text-blue-600 cursor-pointer ml-1"
+                              onClick={() => handleViewDetails(item.alert_id)}
+                            >
+                              View Less
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            {item.description.length > 250 ? (
+                              <>
+                                {item.description.slice(0, 250)}
+                                <span
+                                  className="text-blue-600 cursor-pointer ml-1"
+                                  onClick={() =>
+                                    handleViewDetails(item.alert_id)
+                                  }
+                                >
+                                  ... View Details
+                                </span>
+                              </>
+                            ) : (
+                              item.description
+                            )}
+                          </>
+                        )}
+                        {/* {item.description.length > 100
                           ? item.description.slice(0, 100) + "..."
-                          : item.description}
+                          : item.description} */}
                       </p>
-                      <button className="text-blue-600 font-semibold">
-                        View Details
-                      </button>
+                      {/* <button
+                        onClick={() => handleViewDetails(item.alert_id)}
+                        className="text-blue-600 font-semibold"
+                      >
+                        {alertIds.includes(item.alert_id)
+                          ? "See Less"
+                          : "View Details"}
+                      </button> */}
                     </div>
                     <div className="flex items-center gap-2">
                       <button
