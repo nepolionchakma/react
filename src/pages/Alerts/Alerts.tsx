@@ -56,7 +56,7 @@ const Alerts = () => {
                 <Card
                   key={item.alert_id}
                   className={`flex gap-4 p-4 ${
-                    item.readers.includes(token.user_id) ? "bg-gray-200" : ""
+                    item.acknowledge === false ? "bg-gray-200" : ""
                   }`}
                 >
                   <div className="bg-red-600 w-[40px] h-[36px] flex justify-center items-center rounded-full">

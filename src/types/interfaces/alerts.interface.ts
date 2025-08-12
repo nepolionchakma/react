@@ -5,5 +5,5 @@ export interface Alerts {
   description: string;
   last_update_by: number;
   last_update_date: Date;
-  readers: number[];
+  acknowledge: boolean;
 }
