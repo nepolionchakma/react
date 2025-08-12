@@ -1,4 +1,4 @@
-import { MailPlus, Send, Delete, Save } from "lucide-react";
+import { MailPlus, Send, Delete, Save, ChevronDown } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -26,6 +26,8 @@ import {
   renderSlicedUsername,
 } from "@/Utility/NotificationUtils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toTitleCase } from "@/Utility/general";
+import { postData, putData } from "@/Utility/funtion";
 
 // import { send } from "process";
 
@@ -35,16 +37,23 @@ const ComposeButton = () => {
   const { handlesendMessage, handleDraftMessage } = useSocketContext();
   const { toast } = useToast();
   const [recivers, setRecivers] = useState<number[]>([]);
-  const notifcationType = "REGULAR";
+  const [notifcationType, setNotificationType] = useState<string>("REGULAR");
   const [subject, setSubject] = useState<string>("");
   const [body, setBody] = useState<string>("");
   const [query, setQuery] = useState<string>("");
   const [isSending, setIsSending] = useState(false);
   const [isDrafting, setIsDrafting] = useState(false);
   const [isAllClicked, setIsAllClicked] = useState(true);
+  const [alertName, setAlertName] = useState<string>("");
+  const [alertDescription, setAlertDescription] = useState<string>("");
+  const [actionItemName, setActionItemName] = useState<string>("");
+  const [actionItemDescription, setActionItemDescription] =
+    useState<string>("");
+  const [actionItemStatus, setActionItemStatus] = useState<string>("NEW");
   const id = uuidv4();
   // const date = new Date();
-  const apiUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
+  const nodeUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
+  const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
 
   const totalusers = [...recivers, token.user_id];
   const involvedusers = [...new Set(totalusers)];
@@ -115,19 +124,102 @@ const ComposeButton = () => {
       body,
     };
     try {
-      setIsSending(true);
+      const sendNotificationParams = {
+        baseURL: nodeUrl,
+        url: "/notifications",
+        setLoading: setIsSending,
+        payload: notifcationData,
+        isToast: true,
+      };
 
-      const response = await api.post(`/notifications`, notifcationData);
+      const response = await postData(sendNotificationParams);
+      console.log(response, "response");
 
       if (response.status === 201) {
         handlesendMessage(notifcationData);
+
         await api.post(
           "/push-notification/send-notification",
           sendNotificationPayload
         );
-        toast({
-          title: `${response.data.message}`,
-        });
+        if (notifcationType === "ALERT") {
+          const alertParams = {
+            baseURL: nodeUrl,
+            url: "/alerts",
+            setLoading: setIsSending,
+            payload: {
+              alert_name: alertName,
+              description: alertDescription,
+              recepients: recivers,
+              notification_id: id,
+              created_by: token.user_id,
+              last_updated_by: token.user_id,
+            },
+            isToast: false,
+          };
+
+          const alertResponse = await postData(alertParams);
+          console.log(alertResponse, "alertresponse");
+          if (alertResponse.status === 201) {
+            setAlertName("");
+            setAlertDescription("");
+            const params = {
+              baseURL: nodeUrl,
+              url: `/notifications/${response.data.result.notification_id}`,
+              setLoading: setIsSending,
+              payload: {
+                alert_id: alertResponse.data.result.alert_id,
+              },
+              isToast: false,
+            };
+            await putData(params);
+          }
+        }
+
+        if (notifcationType === "ACTION ITEM") {
+          const actionItemParams = {
+            baseURL: flaskUrl,
+            url: "/def_action_items/upsert",
+            setLoading: setIsSending,
+            payload: {
+              action_item_name: actionItemName,
+              description: actionItemDescription,
+              status: actionItemStatus,
+              user_ids: recivers,
+            },
+            isToast: false,
+          };
+
+          const actionItemResponse = await postData(actionItemParams);
+          console.log(actionItemResponse, "actionItemResponse");
+          if (actionItemResponse.status === 200) {
+            setActionItemName("");
+            setActionItemDescription("");
+            setActionItemStatus("");
+
+            const params1 = {
+              baseURL: nodeUrl,
+              url: `/notifications/${response.data.result.notification_id}`,
+              setLoading: setIsSending,
+              payload: {
+                action_item_id: actionItemResponse.data.action_item_id,
+              },
+              isToast: false,
+            };
+            await putData(params1);
+
+            const params2 = {
+              baseURL: flaskUrl,
+              url: `/def_action_items/${actionItemResponse.data.action_item_id}`,
+              setLoading: setIsSending,
+              payload: {
+                notification_id: response.data.result.notification_id,
+              },
+              isToast: false,
+            };
+            await putData(params2);
+          }
+        }
       }
     } catch (error) {
       console.error("Error:", error);
@@ -193,17 +285,54 @@ const ComposeButton = () => {
           <p className="font-semibold ">Compose</p>
         </button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[90vh] overflow-auto scrollbar-thin">
         <DialogHeader>
           <DialogTitle className=" font-bold">New Message</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col gap-4">
-          <div className="flex gap-4">
+          <div className="grid grid-cols-2 gap-2">
             <DropdownMenu>
-              <DropdownMenuTrigger className="bg-dark-100 text-white w-44 h-8 rounded-sm font-semibold ">
-                Select Recipients
+              <DropdownMenuTrigger className="w-full border-b border-light-400 h-8 rounded-sm border flex justify-between items-center px-2">
+                <p>{`${toTitleCase(notifcationType)}` || "Select Type"}</p>
+                <ChevronDown strokeWidth={1} />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-60 max-h-[255px] overflow-auto scrollbar-thin ml-16">
+              <DropdownMenuContent className="w-[230px] max-h-[255px] overflow-auto scrollbar-thin">
+                <div
+                  onClick={() => setNotificationType("REGULAR")}
+                  className="flex justify-between px-2 items-center hover:bg-light-200 cursor-pointer"
+                >
+                  <p>Regular</p>
+                  {notifcationType === "REGULAR" && (
+                    <Check size={14} color="#038C5A" />
+                  )}
+                </div>
+                <div
+                  onClick={() => setNotificationType("ACTION ITEM")}
+                  className="flex justify-between px-2 items-center hover:bg-light-200 cursor-pointer"
+                >
+                  <p>Action Item</p>
+                  {notifcationType === "ACTION ITEM" && (
+                    <Check size={14} color="#038C5A" />
+                  )}
+                </div>
+                <div
+                  onClick={() => setNotificationType("ALERT")}
+                  className="flex justify-between px-2 items-center hover:bg-light-200 cursor-pointer"
+                >
+                  <p>Alert</p>
+                  {notifcationType === "ALERT" && (
+                    <Check size={14} color="#038C5A" />
+                  )}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <DropdownMenu>
+              <DropdownMenuTrigger className="w-full border-b border-light-400 h-8 rounded-sm border flex justify-between items-center px-2">
+                <p>Select Recipients</p>
+                <ChevronDown strokeWidth={1} />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[230px] max-h-[255px] overflow-auto scrollbar-thin">
                 <input
                   type="text"
                   className="w-full bg-light-100 border-b border-light-400 outline-none pl-2"
@@ -226,7 +355,7 @@ const ComposeButton = () => {
                     <div className="flex flex-row gap-1 items-center">
                       <Avatar className="h-4 w-4">
                         <AvatarImage
-                          src={`${apiUrl}/${user.profile_picture?.thumbnail}`}
+                          src={`${nodeUrl}/${user.profile_picture?.thumbnail}`}
                         />
                         <AvatarFallback>
                           {user.user_name.slice(0, 1)}
@@ -242,17 +371,19 @@ const ComposeButton = () => {
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
+          </div>
 
-            <div className="w-[calc(100%-11rem)]">
-              <div className="rounded-sm max-h-[4.5rem] scrollbar-thin overflow-auto flex flex-wrap gap-1 justify-end">
+          {recivers.length > 0 && (
+            <div className="w-full border p-1 rounded-sm">
+              <div className="rounded-sm max-h-[4.5rem] scrollbar-thin overflow-auto flex flex-wrap gap-1">
                 {recivers.map((rec) => (
                   <div
                     key={rec}
-                    className="flex gap-1 border h-8 px-2 items-center rounded-sm"
+                    className="flex gap-1 border h-8 px-2 items-center rounded-full"
                   >
                     <Avatar className="h-4 w-4">
                       <AvatarImage
-                        src={`${apiUrl}/${renderProfilePicture(rec, users)}`}
+                        src={`${nodeUrl}/${renderProfilePicture(rec, users)}`}
                       />
                       <AvatarFallback>
                         {renderSlicedUsername(rec, users, 1)}
@@ -271,7 +402,7 @@ const ComposeButton = () => {
                 ))}
               </div>
             </div>
-          </div>
+          )}
 
           <div className="flex flex-col gap-2 w-full text-dark-400">
             <label className="font-semibold ">Subject</label>
@@ -295,6 +426,110 @@ const ComposeButton = () => {
             />
           </div>
         </div>
+
+        {(notifcationType === "ALERT" || notifcationType === "ACTION ITEM") && (
+          <div className="flex items-center justify-between">
+            <div className="bg-slate-300 flex-grow h-[0.5px]"></div>
+            <p className="font-semibold border p-1 rounded-sm bg-light-200">
+              {toTitleCase(notifcationType)}
+            </p>
+            <div className="bg-slate-300 flex-grow h-[0.5px]"></div>
+          </div>
+        )}
+
+        {notifcationType === "ALERT" && (
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2 w-full text-dark-400">
+              <label className="font-semibold ">Alert Name</label>
+              <input
+                type="text"
+                className="rounded-sm outline-none border pl-2 h-8 w-full text-sm"
+                value={alertName}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setAlertName(e.target.value)
+                }
+              />
+            </div>
+
+            <div className="flex flex-col gap-2 w-full text-dark-400">
+              <label className="font-semibold ">Alert Description</label>
+              <textarea
+                className="rounded-sm outline-none border pl-2 h-20 w-full scrollbar-thin text-sm"
+                value={alertDescription}
+                onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                  setAlertDescription(e.target.value)
+                }
+              />
+            </div>
+          </div>
+        )}
+
+        {notifcationType === "ACTION ITEM" && (
+          <div className="flex flex-col gap-4">
+            <DropdownMenu>
+              <DropdownMenuTrigger className="w-full border-b border-light-400 h-8 rounded-sm border flex justify-between items-center px-2">
+                <p>
+                  {`${toTitleCase(actionItemStatus)}` ||
+                    "Select Action Item Status"}
+                </p>
+                <ChevronDown strokeWidth={1} />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-[460px] max-h-[255px] overflow-auto scrollbar-thin">
+                <div
+                  onClick={() => setActionItemStatus("NEW")}
+                  className="flex justify-between px-2 items-center hover:bg-light-200 cursor-pointer"
+                >
+                  <p>New</p>
+                  {actionItemStatus === "NEW" && (
+                    <Check size={14} color="#038C5A" />
+                  )}
+                </div>
+                <div
+                  onClick={() => setActionItemStatus("IN PROGRESS")}
+                  className="flex justify-between px-2 items-center hover:bg-light-200 cursor-pointer"
+                >
+                  <p>In Progress</p>
+                  {actionItemStatus === "IN PROGRESS" && (
+                    <Check size={14} color="#038C5A" />
+                  )}
+                </div>
+                <div
+                  onClick={() => setActionItemStatus("COMPLETED")}
+                  className="flex justify-between px-2 items-center hover:bg-light-200 cursor-pointer"
+                >
+                  <p>Completed</p>
+                  {actionItemStatus === "COMPLETED" && (
+                    <Check size={14} color="#038C5A" />
+                  )}
+                </div>
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            <div className="flex flex-col gap-2 w-full text-dark-400">
+              <label className="font-semibold ">Action Item Name</label>
+              <input
+                type="text"
+                className="rounded-sm outline-none border pl-2 h-8 w-full text-sm"
+                value={actionItemName}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setActionItemName(e.target.value)
+                }
+              />
+            </div>
+
+            <div className="flex flex-col gap-2 w-full text-dark-400">
+              <label className="font-semibold ">Action Item Description</label>
+              <textarea
+                className="rounded-sm outline-none border pl-2 h-20 w-full scrollbar-thin text-sm"
+                value={actionItemDescription}
+                onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                  setActionItemDescription(e.target.value)
+                }
+              />
+            </div>
+          </div>
+        )}
+
         <DialogFooter className="flex">
           {/* {recivers.length > 0 || body !== "" || subject !== "" ? ( */}
           <button
@@ -316,10 +551,26 @@ const ComposeButton = () => {
           {/* ) : null}
            {recivers.length === 0 || body === "" ? null : ( */}
           <button
-            disabled={recivers.length === 0 || body === "" || subject === ""}
+            disabled={
+              recivers.length === 0 ||
+              body === "" ||
+              subject === "" ||
+              (notifcationType === "ALERT" && alertName === "") ||
+              (notifcationType === "ALERT" && alertDescription === "") ||
+              (notifcationType === "ACTION ITEM" && actionItemName === "") ||
+              (notifcationType === "ACTION ITEM" &&
+                actionItemDescription === "")
+            }
             onClick={handleSend}
             className={`${
-              recivers.length === 0 || body === "" || subject === ""
+              recivers.length === 0 ||
+              body === "" ||
+              subject === "" ||
+              (notifcationType === "ALERT" && alertName === "") ||
+              (notifcationType === "ALERT" && alertDescription === "") ||
+              (notifcationType === "ACTION ITEM" && actionItemName === "") ||
+              (notifcationType === "ACTION ITEM" &&
+                actionItemDescription === "")
                 ? "cursor-not-allowed bg-dark-400"
                 : "cursor-pointer bg-dark-100"
             } flex gap-1 items-center px-4 py-1 rounded-r-full rounded-l-md text-white hover:scale-95 duration-300`}

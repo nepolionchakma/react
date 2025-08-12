@@ -52,16 +52,11 @@ export async function postData(params: postDataParams) {
     const res = await api.post(`${params.url}`, params.payload, {
       baseURL: params.baseURL,
     });
-    if (res.status === 201) {
-      toast({ title: res.data.message });
-      return res as any;
-    }
-    if (res.status === 200) {
+    if (res.status === 201 || res.status === 200) {
       if (params.isToast) {
-        toast({ title: res.data[0].message });
+        toast({ title: res.data.message });
       }
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return res;
+      return res as any;
     }
   } catch (error) {
     if (error instanceof Error) {

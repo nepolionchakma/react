@@ -239,11 +239,6 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       }
     });
     socket.on("sentMessage", (data: Notification) => {
-      console.log(
-        "recieving sentMessage event",
-        data.sender,
-        data.notification_id
-      );
       const sentMessageId = sentMessages.map((msg) => msg.notification_id);
       if (sentMessageId.includes(data.notification_id)) {
         return;
