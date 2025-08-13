@@ -30,10 +30,12 @@ interface ComposeButtonProps {
 const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
   const api = useAxiosPrivate();
   const { users, token } = useGlobalContext();
-  const { handlesendMessage, handleDraftMessage } = useSocketContext();
+  const { handlesendMessage, handleDraftMessage, handleSendAlert } =
+    useSocketContext();
   const { toast } = useToast();
   const [recivers, setRecivers] = useState<number[]>([]);
-  const [notifcationType, setNotificationType] = useState<string>("REGULAR");
+  const [notifcationType, setNotificationType] =
+    useState<string>("NOTIFICATION");
   const [subject, setSubject] = useState<string>("");
   const [body, setBody] = useState<string>("");
   const [query, setQuery] = useState<string>("");
@@ -129,7 +131,6 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
       };
 
       const response = await postData(sendNotificationParams);
-      console.log(response, "response");
 
       if (response.status === 201) {
         handlesendMessage(notifcationData);
@@ -155,7 +156,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
           };
 
           const alertResponse = await postData(alertParams);
-          console.log(alertResponse, "alertresponse");
+
           if (alertResponse.status === 201) {
             setAlertName("");
             setAlertDescription("");
@@ -168,6 +169,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
               },
               isToast: false,
             };
+            handleSendAlert(alertResponse.data.result.alert_id, recivers);
             await putData(params);
           }
         }
@@ -291,11 +293,11 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-[330px] max-h-[255px] overflow-auto scrollbar-thin">
                 <div
-                  onClick={() => setNotificationType("REGULAR")}
+                  onClick={() => setNotificationType("NOTIFICATION")}
                   className="flex justify-between px-2 items-center hover:bg-light-200 cursor-pointer"
                 >
-                  <p>Regular</p>
-                  {notifcationType === "REGULAR" && (
+                  <p>Notification</p>
+                  {notifcationType === "NOTIFICATION" && (
                     <Check size={14} color="#038C5A" />
                   )}
                 </div>
@@ -325,7 +327,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
                 <p>Select Recipients</p>
                 <ChevronDown strokeWidth={1} />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[330px] max-h-[255px] overflow-auto scrollbar-thin">
+              <DropdownMenuContent className="w-[330px] max-h-[280px] overflow-auto scrollbar-thin">
                 <input
                   type="text"
                   className="w-full bg-light-100 border-b border-light-400 outline-none pl-2"

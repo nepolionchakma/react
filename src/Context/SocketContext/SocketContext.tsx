@@ -50,9 +50,10 @@ interface SocketContext {
   setLinkedDevices: React.Dispatch<React.SetStateAction<IUserLinkedDevices[]>>;
   alerts: Alerts[];
   setAlerts: React.Dispatch<React.SetStateAction<Alerts[]>>;
-  totalAlert: Alerts[];
-  setTotalAlert: React.Dispatch<React.SetStateAction<Alerts[]>>;
+  unreadTotalAlert: Alerts[];
+  setUnreadTotalAlert: React.Dispatch<React.SetStateAction<Alerts[]>>;
   handleRestoreMessage: (id: string, user: number) => void;
+  handleSendAlert: (alertId: number, recipients: number[]) => void;
 }
 
 const SocketContext = createContext({} as SocketContext);
@@ -76,7 +77,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   const [totalRecycleBinMsg, setTotalRecycleBinMsg] = useState<number>(0);
   // alerts
   const [alerts, setAlerts] = useState<Alerts[]>([]);
-  const [totalAlert, setTotalAlert] = useState<Alerts[]>([]);
+  const [unreadTotalAlert, setUnreadTotalAlert] = useState<Alerts[]>([]);
   const socket_url = import.meta.env.VITE_SOCKET_URL;
   const [linkedDevices, setLinkedDevices] = useState<IUserLinkedDevices[]>([]);
   const [geoPermissionState, setGeoPermissionState] =
@@ -103,14 +104,14 @@ export function SocketContextProvider({ children }: SocketContextProps) {
 
   /** fetch total alert */
   useEffect(() => {
-    const fetchTotalAlert = async () => {
+    const fetchUnreadTotalAlert = async () => {
       const res = await api.get(`/alerts/view/total/${token.user_id}`);
       if (res.status === 200) {
-        setTotalAlert(res.data);
+        setUnreadTotalAlert(res.data);
       }
     };
-    fetchTotalAlert();
-  }, [api, token.user_id, totalAlert]);
+    fetchUnreadTotalAlert();
+  }, [api, token.user_id, unreadTotalAlert]);
 
   //Fetch Notification Messages
   useEffect(() => {
@@ -419,6 +420,22 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       });
     });
 
+    socket.on("SentAlert", (alert: Alerts) => {
+      const existingAlert = alerts.find(
+        (item) => item.alert_id === alert.alert_id
+      );
+
+      if (existingAlert) {
+        const newExistingAlerts = alerts.filter(
+          (item) => item.alert_id !== existingAlert.alert_id
+        );
+        setAlerts([alert, ...newExistingAlerts]);
+      } else {
+        setAlerts((prev) => [alert, ...prev]);
+        setUnreadTotalAlert((prev) => [alert, ...prev]);
+      }
+    });
+
     return () => {
       socket.off("receivedMessage");
       socket.off("sentMessage");
@@ -429,6 +446,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       socket.off("addDevice");
       socket.off("inactiveDevice");
       socket.off("restoreMessage");
+      socket.off("SentAlert");
       // socket.off("connect");
       // socket.disconnect();
     };
@@ -483,6 +501,10 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     socket.emit("inactiveDevice", { data: data, user: user });
   };
 
+  const handleSendAlert = (alertId: number, recipients: number[]) => {
+    socket.emit("SendAlert", { alertId, recipients });
+  };
+
   return (
     <SocketContext.Provider
       value={{
@@ -516,8 +538,9 @@ export function SocketContextProvider({ children }: SocketContextProps) {
         handleRestoreMessage,
         alerts,
         setAlerts,
-        totalAlert,
-        setTotalAlert,
+        unreadTotalAlert,
+        setUnreadTotalAlert,
+        handleSendAlert,
       }}
     >
       {children}
