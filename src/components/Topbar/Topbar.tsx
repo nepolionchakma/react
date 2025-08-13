@@ -7,7 +7,7 @@ import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 
 const Topbar = () => {
   const { open, setOpen } = useGlobalContext();
-  const { socketMessage, totalAlert } = useSocketContext();
+  const { socketMessage, unreadTotalAlert } = useSocketContext();
   const uniquMessages = socketMessage.filter(
     (item, index) =>
       index ===
@@ -72,9 +72,9 @@ const Topbar = () => {
           }
         >
           <Bell className="text-2xl" />
-          {totalAlert.length > 0 ? (
+          {unreadTotalAlert.length > 0 ? (
             <p className="w-5 h-5 flex justify-center items-center rounded-full bg-Red-100 text-white text-sm absolute left-[28px] top-0">
-              {totalAlert.length}
+              {unreadTotalAlert.length}
             </p>
           ) : null}
           <p className="font-semibold hidden lg:block transition duration-300 ease-in-out">
