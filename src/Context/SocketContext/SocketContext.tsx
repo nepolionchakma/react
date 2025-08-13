@@ -53,6 +53,7 @@ interface SocketContext {
   unreadTotalAlert: Alerts[];
   setUnreadTotalAlert: React.Dispatch<React.SetStateAction<Alerts[]>>;
   handleRestoreMessage: (id: string, user: number) => void;
+  handleSendAlert: (alertId: number, recipients: number[]) => void;
 }
 
 const SocketContext = createContext({} as SocketContext);
@@ -103,13 +104,13 @@ export function SocketContextProvider({ children }: SocketContextProps) {
 
   /** fetch total alert */
   useEffect(() => {
-    const fetchTotalUnreadAlert = async () => {
+    const fetchUnreadTotalAlert = async () => {
       const res = await api.get(`/alerts/view/total/${token.user_id}`);
       if (res.status === 200) {
         setUnreadTotalAlert(res.data);
       }
     };
-    fetchTotalUnreadAlert();
+    fetchUnreadTotalAlert();
   }, [api, token.user_id, unreadTotalAlert]);
 
   //Fetch Notification Messages
@@ -419,6 +420,22 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       });
     });
 
+    socket.on("SentAlert", (alert: Alerts) => {
+      const existingAlert = alerts.find(
+        (item) => item.alert_id === alert.alert_id
+      );
+
+      if (existingAlert) {
+        const newExistingAlerts = alerts.filter(
+          (item) => item.alert_id !== existingAlert.alert_id
+        );
+        setAlerts([alert, ...newExistingAlerts]);
+      } else {
+        setAlerts((prev) => [alert, ...prev]);
+        setUnreadTotalAlert((prev) => [alert, ...prev]);
+      }
+    });
+
     return () => {
       socket.off("receivedMessage");
       socket.off("sentMessage");
@@ -429,6 +446,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       socket.off("addDevice");
       socket.off("inactiveDevice");
       socket.off("restoreMessage");
+      socket.off("SentAlert");
       // socket.off("connect");
       // socket.disconnect();
     };
@@ -483,6 +501,10 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     socket.emit("inactiveDevice", { data: data, user: user });
   };
 
+  const handleSendAlert = (alertId: number, recipients: number[]) => {
+    socket.emit("SendAlert", { alertId, recipients });
+  };
+
   return (
     <SocketContext.Provider
       value={{
@@ -518,6 +540,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
         setAlerts,
         unreadTotalAlert,
         setUnreadTotalAlert,
+        handleSendAlert,
       }}
     >
       {children}
