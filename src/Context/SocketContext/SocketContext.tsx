@@ -111,7 +111,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       }
     };
     fetchUnreadTotalAlert();
-  }, [api, token.user_id, unreadTotalAlert]);
+  }, [api, token.user_id]);
 
   //Fetch Notification Messages
   useEffect(() => {
@@ -424,17 +424,42 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       const existingAlert = alerts.find(
         (item) => item.alert_id === alert.alert_id
       );
-
       if (existingAlert) {
         const newExistingAlerts = alerts.filter(
           (item) => item.alert_id !== existingAlert.alert_id
         );
         setAlerts([alert, ...newExistingAlerts]);
+        // setAlerts((prev) =>
+        //   prev.map((item) => (item.alert_id === alert.alert_id ? alert : item))
+        // );
+        setUnreadTotalAlert((prev) =>
+          prev.filter((item) => item.alert_id !== alert.alert_id)
+        );
       } else {
         setAlerts((prev) => [alert, ...prev]);
         setUnreadTotalAlert((prev) => [alert, ...prev]);
       }
     });
+
+    // socket.on("SentAlert", (alert: Alerts) => {
+    //   setAlerts((prev) => {
+    //     const exists = prev.some((item) => item.alert_id === alert.alert_id);
+    //     if (exists) {
+    //       return prev.map((item) =>
+    //         item.alert_id === alert.alert_id ? alert : item
+    //       );
+    //     }
+    //     return [alert, ...prev];
+    //   });
+
+    //   setUnreadTotalAlert((prev) => {
+    //     const exists = prev.some((item) => item.alert_id === alert.alert_id);
+    //     if (!exists) {
+    //       return [alert, ...prev];
+    //     }
+    //     return prev.filter((item) => item.alert_id !== alert.alert_id);
+    //   });
+    // });
 
     return () => {
       socket.off("receivedMessage");

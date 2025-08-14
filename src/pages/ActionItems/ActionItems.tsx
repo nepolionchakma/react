@@ -18,6 +18,21 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toTitleCase } from "@/Utility/general";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export interface IActionItems {
   action_item_id: number;
@@ -54,6 +69,12 @@ const ActionItems = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const [actionItemIds, setActionItemIds] = useState<number[]>([]);
+  const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
+  // const [openDialogId, setOpenDialogId] = useState<number | null>(null);
+  const [activeDialog, setActiveDialog] = useState<{
+    itemId: number;
+    status: string;
+  } | null>(null);
   const currentPage = 1;
   const limit = 8;
   const actionItemsParams = {
@@ -214,9 +235,67 @@ const ActionItems = () => {
                       <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
                         <p>ITEM 1</p>
                       </button>
-                      <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
-                        <p>ITEM 2</p>
-                      </button>
+                      <DropdownMenu
+                        open={openDropdownId === item.action_item_id}
+                        onOpenChange={(isOpen) =>
+                          setOpenDropdownId(isOpen ? item.action_item_id : null)
+                        }
+                      >
+                        <DropdownMenuTrigger asChild>
+                          <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
+                            <p>Update Status</p>
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent side="top">
+                          {["In Progress", "Completed"].map((status, index) => (
+                            <DropdownMenuCheckboxItem
+                              key={index}
+                              onSelect={(e) => {
+                                e.preventDefault();
+                                setActiveDialog({
+                                  itemId: item.action_item_id,
+                                  status,
+                                });
+                              }}
+                            >
+                              {status}
+                            </DropdownMenuCheckboxItem>
+                          ))}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      {activeDialog?.itemId === item.action_item_id && (
+                        <AlertDialog
+                          open={true}
+                          onOpenChange={() => setActiveDialog(null)}
+                        >
+                          <AlertDialogContent className="bg-white shadow-lg">
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>
+                                Are you sure you want to change to{" "}
+                                {activeDialog.status}?
+                              </AlertDialogTitle>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel
+                                onClick={() => {
+                                  setActiveDialog(null);
+                                  setOpenDropdownId(null);
+                                }}
+                              >
+                                No
+                              </AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => {
+                                  setActiveDialog(null);
+                                  setOpenDropdownId(null);
+                                }}
+                              >
+                                Yes
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      )}
                     </div>
                   </div>
                 </Card>

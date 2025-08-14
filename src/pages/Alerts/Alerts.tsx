@@ -11,7 +11,7 @@ import type { Alerts } from "@/types/interfaces/alerts.interface";
 
 const Alerts = () => {
   const { token } = useGlobalContext();
-  const { alerts, setAlerts } = useSocketContext();
+  const { alerts, setAlerts, handleSendAlert } = useSocketContext();
   const [isloading, setIsLoading] = useState(true);
   const [alertIds, setAlertIds] = useState<number[]>([]);
   const currentPage = 1;
@@ -31,11 +31,14 @@ const Alerts = () => {
     fetchAlerts();
   }, [token.user_id, currentPage, setAlerts]);
 
-  const handleClick = async (user_id: number, alert_id: number) => {
+  const handleAcknowledge = async (user_id: number, alert_id: number) => {
     try {
-      await api.put(`/recepients/${alert_id}/${user_id}`, {
+      const res = await api.put(`/recepients/${alert_id}/${user_id}`, {
         acknowledge: true,
       });
+      if (res.status === 200) {
+        handleSendAlert(alert_id, [user_id]);
+      }
     } catch (error) {
       console.log("errror", error);
     }
@@ -123,10 +126,18 @@ const Alerts = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       <button
-                        onClick={() => handleClick(item.user_id, item.alert_id)}
-                        className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300"
+                        onClick={() =>
+                          handleAcknowledge(item.user_id, item.alert_id)
+                        }
+                        disabled={item.acknowledge === true}
+                        className={`w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300
+                          ${
+                            item.acknowledge === true
+                              ? "cursor-not-allowed opacity-50"
+                              : ""
+                          }`}
                       >
-                        <p>Button 1</p>
+                        <p>Acknowledge</p>
                       </button>
                     </div>
                   </div>
