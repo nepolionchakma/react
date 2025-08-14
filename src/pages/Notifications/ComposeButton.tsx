@@ -170,7 +170,11 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
               isToast: false,
             };
             await putData(params);
-            handleSendAlert(alertResponse.data.result.alert_id, recivers);
+            handleSendAlert(
+              alertResponse.data.result.alert_id,
+              recivers,
+              false
+            );
           }
         }
 

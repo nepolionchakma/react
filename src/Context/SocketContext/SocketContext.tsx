@@ -53,7 +53,11 @@ interface SocketContext {
   unreadTotalAlert: Alerts[];
   setUnreadTotalAlert: React.Dispatch<React.SetStateAction<Alerts[]>>;
   handleRestoreMessage: (id: string, user: number) => void;
-  handleSendAlert: (alertId: number, recipients: number[]) => void;
+  handleSendAlert: (
+    alertId: number,
+    recipients: number[],
+    isAcknowledge: boolean
+  ) => void;
 }
 
 const SocketContext = createContext({} as SocketContext);
@@ -111,7 +115,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       }
     };
     fetchUnreadTotalAlert();
-  }, [api, token.user_id, unreadTotalAlert]);
+  }, [api, token.user_id]);
 
   //Fetch Notification Messages
   useEffect(() => {
@@ -420,21 +424,46 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       });
     });
 
-    socket.on("SentAlert", (alert: Alerts) => {
-      const existingAlert = alerts.find(
-        (item) => item.alert_id === alert.alert_id
-      );
+    socket.on(
+      "SentAlert",
+      ({ alert, isAcknowledge }: { alert: Alerts; isAcknowledge: boolean }) => {
+        if (isAcknowledge) {
+          setAlerts((prev) => {
+            const newExistingAlerts = prev.filter(
+              (item) => item.alert_id !== alert.alert_id
+            );
+            return [alert, ...newExistingAlerts];
+          });
 
-      if (existingAlert) {
-        const newExistingAlerts = alerts.filter(
-          (item) => item.alert_id !== existingAlert.alert_id
-        );
-        setAlerts([alert, ...newExistingAlerts]);
-      } else {
-        setAlerts((prev) => [alert, ...prev]);
-        setUnreadTotalAlert((prev) => [alert, ...prev]);
+          setUnreadTotalAlert((prev) =>
+            prev.filter((item) => item.alert_id !== alert.alert_id)
+          );
+        } else {
+          setAlerts((prev) => [alert, ...prev]);
+          setUnreadTotalAlert((prev) => [alert, ...prev]);
+        }
       }
-    });
+    );
+
+    // socket.on("SentAlert", (alert: Alerts) => {
+    //   setAlerts((prev) => {
+    //     const exists = prev.some((item) => item.alert_id === alert.alert_id);
+    //     if (exists) {
+    //       return prev.map((item) =>
+    //         item.alert_id === alert.alert_id ? alert : item
+    //       );
+    //     }
+    //     return [alert, ...prev];
+    //   });
+
+    //   setUnreadTotalAlert((prev) => {
+    //     const exists = prev.some((item) => item.alert_id === alert.alert_id);
+    //     if (!exists) {
+    //       return [alert, ...prev];
+    //     }
+    //     return prev.filter((item) => item.alert_id !== alert.alert_id);
+    //   });
+    // });
 
     return () => {
       socket.off("receivedMessage");
@@ -501,8 +530,12 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     socket.emit("inactiveDevice", { data: data, user: user });
   };
 
-  const handleSendAlert = (alertId: number, recipients: number[]) => {
-    socket.emit("SendAlert", { alertId, recipients });
+  const handleSendAlert = (
+    alertId: number,
+    recipients: number[],
+    isAcknowledge: boolean
+  ) => {
+    socket.emit("SendAlert", { alertId, recipients, isAcknowledge });
   };
 
   return (
