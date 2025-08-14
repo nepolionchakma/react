@@ -24,17 +24,8 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
-import { AlertDialogDescription } from "@radix-ui/react-alert-dialog";
 import Pagination5 from "@/components/Pagination/Pagination5";
+import Alert from "@/components/Alert/Alert";
 
 export interface IActionItems {
   action_item_id: number;
@@ -271,61 +262,92 @@ const ActionItems = () => {
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent side="top">
-                          {["In Progress", "Completed"].map((status, index) => (
-                            <DropdownMenuCheckboxItem
-                              checked={
-                                item.status.toLowerCase() ===
-                                status.toLowerCase()
-                              }
-                              key={index}
-                              onSelect={(e) => {
-                                e.preventDefault();
-                                setActiveDialog({
-                                  itemId: item.action_item_id,
-                                  status,
-                                });
-                              }}
-                            >
-                              {status}
-                            </DropdownMenuCheckboxItem>
-                          ))}
+                          {["In Progress", "Completed"].map((status, index) => {
+                            const formatStatus = item.status
+                              .trim()
+                              .toLowerCase();
+                            const isCompleted = formatStatus === "completed";
+                            const isInProgress = formatStatus === "in progress";
+
+                            return (
+                              <DropdownMenuCheckboxItem
+                                key={index}
+                                checked={
+                                  isCompleted ||
+                                  (isInProgress &&
+                                    status.toLowerCase() === "in progress")
+                                }
+                                disabled={
+                                  isCompleted ||
+                                  (isInProgress &&
+                                    status.toLowerCase() === "in progress")
+                                }
+                                onSelect={(e) => {
+                                  e.preventDefault();
+                                  setActiveDialog({
+                                    itemId: item.action_item_id,
+                                    status,
+                                  });
+                                }}
+                              >
+                                {status}
+                              </DropdownMenuCheckboxItem>
+                            );
+                          })}
                         </DropdownMenuContent>
                       </DropdownMenu>
                       {activeDialog?.itemId === item.action_item_id && (
-                        <AlertDialog
+                        <Alert
+                          actionName="update status"
+                          onContinue={() =>
+                            handleUpdateStatus(
+                              item.user_id,
+                              item.action_item_id
+                            )
+                          }
+                          disabled={false}
                           open={true}
                           onOpenChange={() => setActiveDialog(null)}
-                        >
-                          <AlertDialogContent className="bg-white shadow-lg">
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>
-                                Are you sure you want to change to{" "}
-                                {activeDialog.status}?
-                              </AlertDialogTitle>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel
-                                onClick={() => {
-                                  setActiveDialog(null);
-                                  setOpenDropdownId(null);
-                                }}
-                              >
-                                No
-                              </AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() =>
-                                  handleUpdateStatus(
-                                    item.user_id,
-                                    item.action_item_id
-                                  )
-                                }
-                              >
-                                Yes
-                              </AlertDialogAction>
-                              <AlertDialogDescription />
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                          onCancel={() => {
+                            setActiveDialog(null);
+                            setOpenDropdownId(null);
+                          }}
+                        />
+
+                        // <AlertDialog
+                        //   open={true}
+                        //   onOpenChange={() => setActiveDialog(null)}
+                        // >
+                        //   <AlertDialogContent className="bg-white shadow-lg">
+                        //     <AlertDialogHeader>
+                        //       <AlertDialogTitle>
+                        //         Are you sure you want to change to{" "}
+                        //         {activeDialog.status}?
+                        //       </AlertDialogTitle>
+                        //     </AlertDialogHeader>
+                        //     <AlertDialogFooter>
+                        //       <AlertDialogCancel
+                        //         onClick={() => {
+                        //           setActiveDialog(null);
+                        //           setOpenDropdownId(null);
+                        //         }}
+                        //       >
+                        //         No
+                        //       </AlertDialogCancel>
+                        //       <AlertDialogAction
+                        //         onClick={() =>
+                        //           handleUpdateStatus(
+                        //             item.user_id,
+                        //             item.action_item_id
+                        //           )
+                        //         }
+                        //       >
+                        //         Yes
+                        //       </AlertDialogAction>
+                        //       <AlertDialogDescription />
+                        //     </AlertDialogFooter>
+                        //   </AlertDialogContent>
+                        // </AlertDialog>
                       )}
                     </div>
                   </div>

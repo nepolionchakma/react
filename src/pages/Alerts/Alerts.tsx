@@ -31,13 +31,18 @@ const Alerts = () => {
     fetchAlerts();
   }, [token.user_id, currentPage, setAlerts]);
 
+  const sortedAlerts = alerts.sort(
+    (a, b) =>
+      new Date(b.creation_date).getTime() - new Date(a.creation_date).getTime()
+  );
+
   const handleAcknowledge = async (user_id: number, alert_id: number) => {
     try {
       const res = await api.put(`/recepients/${alert_id}/${user_id}`, {
         acknowledge: true,
       });
       if (res.status === 200) {
-        handleSendAlert(alert_id, [user_id]);
+        handleSendAlert(alert_id, [user_id], true);
       }
     } catch (error) {
       console.log("errror", error);
@@ -63,7 +68,7 @@ const Alerts = () => {
         <>
           {alerts.length > 0 ? (
             <div className="flex flex-col gap-4">
-              {alerts.map((item: Alerts) => (
+              {sortedAlerts?.map((item: Alerts) => (
                 <Card
                   key={item.alert_id}
                   className={`flex gap-4 p-4 ${

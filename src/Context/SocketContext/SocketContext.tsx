@@ -53,7 +53,11 @@ interface SocketContext {
   unreadTotalAlert: Alerts[];
   setUnreadTotalAlert: React.Dispatch<React.SetStateAction<Alerts[]>>;
   handleRestoreMessage: (id: string, user: number) => void;
-  handleSendAlert: (alertId: number, recipients: number[]) => void;
+  handleSendAlert: (
+    alertId: number,
+    recipients: number[],
+    isAcknowledge: boolean
+  ) => void;
 }
 
 const SocketContext = createContext({} as SocketContext);
@@ -420,26 +424,26 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       });
     });
 
-    socket.on("SentAlert", (alert: Alerts) => {
-      const existingAlert = alerts.find(
-        (item) => item.alert_id === alert.alert_id
-      );
-      if (existingAlert) {
-        const newExistingAlerts = alerts.filter(
-          (item) => item.alert_id !== existingAlert.alert_id
-        );
-        setAlerts([alert, ...newExistingAlerts]);
-        // setAlerts((prev) =>
-        //   prev.map((item) => (item.alert_id === alert.alert_id ? alert : item))
-        // );
-        setUnreadTotalAlert((prev) =>
-          prev.filter((item) => item.alert_id !== alert.alert_id)
-        );
-      } else {
-        setAlerts((prev) => [alert, ...prev]);
-        setUnreadTotalAlert((prev) => [alert, ...prev]);
+    socket.on(
+      "SentAlert",
+      ({ alert, isAcknowledge }: { alert: Alerts; isAcknowledge: boolean }) => {
+        if (isAcknowledge) {
+          setAlerts((prev) => {
+            const newExistingAlerts = prev.filter(
+              (item) => item.alert_id !== alert.alert_id
+            );
+            return [alert, ...newExistingAlerts];
+          });
+
+          setUnreadTotalAlert((prev) =>
+            prev.filter((item) => item.alert_id !== alert.alert_id)
+          );
+        } else {
+          setAlerts((prev) => [alert, ...prev]);
+          setUnreadTotalAlert((prev) => [alert, ...prev]);
+        }
       }
-    });
+    );
 
     // socket.on("SentAlert", (alert: Alerts) => {
     //   setAlerts((prev) => {
@@ -526,8 +530,12 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     socket.emit("inactiveDevice", { data: data, user: user });
   };
 
-  const handleSendAlert = (alertId: number, recipients: number[]) => {
-    socket.emit("SendAlert", { alertId, recipients });
+  const handleSendAlert = (
+    alertId: number,
+    recipients: number[],
+    isAcknowledge: boolean
+  ) => {
+    socket.emit("SendAlert", { alertId, recipients, isAcknowledge });
   };
 
   return (
