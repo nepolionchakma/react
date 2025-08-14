@@ -8,13 +8,15 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import Spinner from "@/components/Spinner/Spinner";
 import type { Alerts } from "@/types/interfaces/alerts.interface";
+import Pagination5 from "@/components/Pagination/Pagination5";
 
 const Alerts = () => {
   const { token } = useGlobalContext();
   const { alerts, setAlerts, handleSendAlert } = useSocketContext();
   const [isloading, setIsLoading] = useState(true);
   const [alertIds, setAlertIds] = useState<number[]>([]);
-  const currentPage = 1;
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(0);
   const limit = 8;
 
   useEffect(() => {
@@ -27,6 +29,7 @@ const Alerts = () => {
 
       const res = await loadData(alertDataParams);
       setAlerts(res.items);
+      setTotalPage(res.pages);
     };
     fetchAlerts();
   }, [token.user_id, currentPage, setAlerts]);
@@ -156,6 +159,15 @@ const Alerts = () => {
           )}
         </>
       )}
+      {alerts.length > 0 ? (
+        <div className="flex justify-end mt-3">
+          <Pagination5
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            totalPageNumbers={totalPage}
+          />
+        </div>
+      ) : null}
     </div>
   );
 };
