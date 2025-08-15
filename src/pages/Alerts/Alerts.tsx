@@ -9,6 +9,7 @@ import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import Spinner from "@/components/Spinner/Spinner";
 import type { Alerts } from "@/types/interfaces/alerts.interface";
 import Pagination5 from "@/components/Pagination/Pagination5";
+import { useToast } from "@/components/ui/use-toast";
 
 const Alerts = () => {
   const { token } = useGlobalContext();
@@ -18,6 +19,7 @@ const Alerts = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(0);
   const limit = 8;
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchAlerts = async () => {
@@ -45,6 +47,9 @@ const Alerts = () => {
         acknowledge: true,
       });
       if (res.status === 200) {
+        toast({
+          title: `Alert acknowledged.`,
+        });
         handleSendAlert(alert_id, [user_id], true);
       }
     } catch (error) {

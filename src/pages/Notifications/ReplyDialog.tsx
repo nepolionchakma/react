@@ -33,7 +33,7 @@ const ReplyDialog = ({
   setTotalMessages,
 }: ReplyDialogProps) => {
   const api = useAxiosPrivate();
-  const { users, user, token } = useGlobalContext();
+  const { users, userId, token } = useGlobalContext();
   const { handlesendMessage, handleDraftMessage } = useSocketContext();
   const [subject, setSubject] = useState<string>("");
   const [body, setBody] = useState<string>("");
@@ -46,7 +46,7 @@ const ReplyDialog = ({
 
   const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const totalInvolved = [...parrentMessage.recipients, parrentMessage.sender];
-  const recivers = totalInvolved.filter((rcvr) => rcvr !== user);
+  const recivers = totalInvolved.filter((rcvr) => rcvr !== userId);
 
   useEffect(() => {
     setSubject(`Re: ${parrentMessage.subject}`);
@@ -56,7 +56,7 @@ const ReplyDialog = ({
     const data = {
       notification_id: id,
       notification_type: parrentMessage.notification_type,
-      sender: user,
+      sender: userId,
       recipients: recivers,
       subject: subject,
       notification_body: body,
@@ -85,7 +85,7 @@ const ReplyDialog = ({
       const response = await api.post(`/notifications`, data);
 
       if (response.status === 201) {
-        handlesendMessage(data);
+        handlesendMessage(data.notification_id, data.sender);
         setTotalMessages((prev) => [data, ...prev]);
         await api.post(
           "/push-notification/send-notification",
@@ -113,7 +113,7 @@ const ReplyDialog = ({
     const data = {
       notification_id: id,
       notification_type: parrentMessage.notification_type,
-      sender: user,
+      sender: userId,
       recipients: recivers,
       subject: `${subject}`,
       notification_body: body,
@@ -122,7 +122,7 @@ const ReplyDialog = ({
       parent_notification_id: parrentMessage.parent_notification_id,
       involved_users: parrentMessage.involved_users,
       readers: recivers,
-      holders: [user],
+      holders: [userId],
       recycle_bin: [],
       action_item_id: parrentMessage.action_item_id,
       alert_id: parrentMessage.alert_id,
@@ -131,7 +131,7 @@ const ReplyDialog = ({
       setIsDrafting(true);
       const response = await api.post(`/notifications`, data);
       if (response.status === 201) {
-        handleDraftMessage(data);
+        handleDraftMessage(data.notification_id, data.sender);
         toast({
           title: `${response.data.message}`,
         });

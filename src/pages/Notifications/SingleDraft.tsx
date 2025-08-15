@@ -37,7 +37,7 @@ interface IOldMsgTypes {
 }
 const SingleDraft = () => {
   const api = useAxiosPrivate();
-  const { users, user, token } = useGlobalContext();
+  const { users, userId, token } = useGlobalContext();
   const {
     handlesendMessage,
     handleDraftMessage,
@@ -60,9 +60,9 @@ const SingleDraft = () => {
   const [saveDraftLoading, setSaveDraftLoading] = useState(false);
   const [oldMsgState, setOldMsgState] = useState<IOldMsgTypes | undefined>({});
   const [userChanged, setuserChanged] = useState<boolean>(false);
-  const notifcationType = "REGULAR";
+  const notifcationType = "NOTIFICATION";
 
-  const totalusers = [...recivers, user];
+  const totalusers = [...recivers, userId];
   const involvedusers = [...new Set(totalusers)];
 
   useEffect(() => {
@@ -88,9 +88,9 @@ const SingleDraft = () => {
     };
 
     fetchMessage();
-  }, [id, api]);
+  }, [id, api, toast]);
 
-  const actualUsers = users.filter((usr) => usr.user_id !== user);
+  const actualUsers = users.filter((usr) => usr.user_id !== userId);
 
   const handleQueryChange = (e: ChangeEvent<HTMLInputElement>) => {
     setQuery(e.target.value);
@@ -132,7 +132,7 @@ const SingleDraft = () => {
     const data = {
       notification_id: id as string,
       notification_type: notifcationType,
-      sender: user,
+      sender: userId,
       recipients: recivers,
       subject: subject,
       notification_body: body,
@@ -164,7 +164,10 @@ const SingleDraft = () => {
       const newMsg = await api.post(`/notifications`, data);
       if (newMsg.data && deletedMsg.data) {
         handleDraftMsgId(id as string);
-        handlesendMessage(data);
+        handlesendMessage(
+          newMsg.data.result.notification_id,
+          newMsg.data.result.sender
+        );
         await api.post(
           "/push-notification/send-notification",
           sendNotificationPayload
@@ -192,7 +195,7 @@ const SingleDraft = () => {
     const data = {
       notification_id: id as string,
       notification_type: notifcationType,
-      sender: user,
+      sender: userId,
       recipients: recivers,
       subject: subject,
       notification_body: body,
@@ -201,7 +204,7 @@ const SingleDraft = () => {
       parent_notification_id: id as string,
       involved_users: involvedusers,
       readers: recivers,
-      holders: [user],
+      holders: [userId],
       recycle_bin: [],
       action_item_id: null,
       alert_id: null,
@@ -212,7 +215,7 @@ const SingleDraft = () => {
       setSaveDraftLoading(true);
       const response = await api.put(`/notifications/${id}`, data);
       if (response.status === 200) {
-        handleDraftMessage(data);
+        handleDraftMessage(data.notification_id, data.sender);
         toast({
           title: "Notification saved to Drafts",
         });
@@ -233,7 +236,7 @@ const SingleDraft = () => {
   const handleDelete = async () => {
     try {
       const response = await api.put(
-        `/notifications/move-to-recyclebin/${id}/${user}`
+        `/notifications/move-to-recyclebin/${id}/${userId}`
       );
       if (response.status === 200) {
         handleDeleteMessage(id as string);
@@ -364,7 +367,7 @@ const SingleDraft = () => {
                 <div className="flex gap-2 w-[calc(100%-11rem)] justify-end">
                   <div className="rounded-sm max-h-[4.5rem] scrollbar-thin overflow-auto flex flex-wrap gap-1">
                     {recivers
-                      .filter((usr) => usr !== user)
+                      .filter((usr) => usr !== userId)
                       .map((rec) => (
                         <div
                           key={rec}

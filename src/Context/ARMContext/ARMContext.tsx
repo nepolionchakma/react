@@ -87,13 +87,15 @@ interface ARMContext {
   ) => Promise<void>;
   getViewRequests: (
     page: number,
-    limit: number
-  ) => Promise<IARMViewRequestsTypes[] | undefined>;
-  getSearchViewRequests: (
-    page: number,
     limit: number,
-    query: string
+    days: number,
+    task_name: string
   ) => Promise<IARMViewRequestsTypes[] | undefined>;
+  // getSearchViewRequests: (
+  //   page: number,
+  //   limit: number,
+  //   query: string
+  // ) => Promise<IARMViewRequestsTypes[] | undefined>;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components
@@ -448,10 +450,15 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       setIsLoading(false);
     }
   };
-  const getViewRequests = async (page: number, limit: number) => {
+  const getViewRequests = async (
+    page: number,
+    limit: number,
+    days: number,
+    task_name: string
+  ) => {
     const params = {
       baseURL: import.meta.env.VITE_FLASK_ENDPOINT_URL,
-      url: `/view_requests/${page}/${limit}`,
+      url: `/view_requests/${page}/${limit}?days=${days}&task_name=${task_name}`,
       setLoading: setIsLoading,
     };
     const result = await loadData<{
@@ -465,27 +472,27 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     }
   };
 
-  const getSearchViewRequests = async (
-    page: number,
-    limit: number,
-    task_name: string
-  ) => {
-    try {
-      setIsLoading(true);
-      const resultLazyLoading = await api.get(
-        `/asynchronous-requests-and-task-schedules/view_requests/search/${page}/${limit}?task_name=${task_name}`
-      );
+  // const getSearchViewRequests = async (
+  //   page: number,
+  //   limit: number,
+  //   task_name: string
+  // ) => {
+  //   try {
+  //     setIsLoading(true);
+  //     const resultLazyLoading = await api.get(
+  //       `/asynchronous-requests-and-task-schedules/view_requests/search/${page}/${limit}?task_name=${task_name}`
+  //     );
 
-      setTotalPage(resultLazyLoading.data.pages);
-      return resultLazyLoading.data.items;
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  //     setTotalPage(resultLazyLoading.data.pages);
+  //     return resultLazyLoading.data.items;
+  //   } catch (error) {
+  //     if (error instanceof Error) {
+  //       toast({ title: error.message, variant: "destructive" });
+  //     }
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // };
 
   const values = {
     totalPage,
@@ -514,7 +521,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     cancelScheduledTask,
     rescheduleTask,
     getViewRequests,
-    getSearchViewRequests,
+    // getSearchViewRequests,
     getSearchAsyncTasksLazyLoading,
     cancelAsyncTasks,
   };
