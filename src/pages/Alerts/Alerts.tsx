@@ -159,7 +159,7 @@ const Alerts = () => {
           )}
         </>
       )}
-      {alerts.length > 0 ? (
+      {!isloading && sortedAlerts.length > 0 ? (
         <div className="flex justify-end mt-3">
           <Pagination5
             currentPage={currentPage}
