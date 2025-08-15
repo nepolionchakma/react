@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Circle, CircleCheck, CircleCheckBig, RefreshCw } from "lucide-react";
 import { useEffect, useState } from "react";
-import { loadData } from "@/Utility/funtion";
+import { loadData, putData } from "@/Utility/funtion";
 import { flaskApi, FLASK_URL } from "@/Api/Api";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import Spinner from "@/components/Spinner/Spinner";
@@ -18,6 +18,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toTitleCase } from "@/Utility/general";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import Pagination5 from "@/components/Pagination/Pagination5";
+import Alert from "@/components/Alert/Alert";
 
 export interface IActionItems {
   action_item_id: number;
@@ -50,11 +58,18 @@ const ActionItems = () => {
   const { token } = useGlobalContext();
   const [actionItems, setActionItems] = useState<IActionItems[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState({ isEmpty: true, value: "" });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const [actionItemIds, setActionItemIds] = useState<number[]>([]);
-  const currentPage = 1;
+  const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
+  const [activeDialog, setActiveDialog] = useState<{
+    itemId: number;
+    status: string;
+  } | null>(null);
   const limit = 8;
   const actionItemsParams = {
     baseURL: FLASK_URL,
@@ -64,14 +79,16 @@ const ActionItems = () => {
   const fetchActionItems = async () => {
     const res = await loadData(actionItemsParams);
     if (res.items) {
+      console.log(res);
       setActionItems(res.items);
+      setTotalPage(res.pages);
       return res;
     }
   };
 
   useEffect(() => {
     fetchActionItems();
-  }, [token.user_id, selectedOption]);
+  }, [token.user_id, selectedOption, loading]);
 
   /** reload data by clicking refresh button */
   const handleRefresh = async () => {
@@ -97,6 +114,25 @@ const ActionItems = () => {
       setActionItemIds(filterIds);
     } else {
       setActionItemIds((prev) => [...prev, actionItemId]);
+    }
+  };
+
+  const handleUpdateStatus = async (userId: number, actionItemId: number) => {
+    const actionItemParams = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefActionItemAssignment}/${userId}/${actionItemId}`,
+      setLoading: setLoading,
+      payload: {
+        status: activeDialog?.status.toUpperCase(),
+      },
+      isToast: true,
+    };
+
+    const res = await putData(actionItemParams);
+    if (res.status === 200) {
+      console.log(res.data);
+      setActiveDialog(null);
+      setOpenDropdownId(null);
     }
   };
 
@@ -140,9 +176,9 @@ const ActionItems = () => {
         </div>
       ) : (
         <div className="flex flex-col gap-4">
-          {actionItems.length > 0 ? (
+          {actionItems?.length > 0 ? (
             <>
-              {actionItems.map((item: IActionItems) => (
+              {actionItems?.map((item: IActionItems) => (
                 <Card key={item.action_item_id} className="flex gap-4 p-4">
                   <div
                     className={`${
@@ -214,9 +250,105 @@ const ActionItems = () => {
                       <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
                         <p>ITEM 1</p>
                       </button>
-                      <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
-                        <p>ITEM 2</p>
-                      </button>
+                      <DropdownMenu
+                        open={openDropdownId === item.action_item_id}
+                        onOpenChange={(isOpen) =>
+                          setOpenDropdownId(isOpen ? item.action_item_id : null)
+                        }
+                      >
+                        <DropdownMenuTrigger asChild>
+                          <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
+                            <p>Update Status</p>
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent side="top">
+                          {["In Progress", "Completed"].map((status, index) => {
+                            const formatStatus = item.status
+                              .trim()
+                              .toLowerCase();
+                            const isCompleted = formatStatus === "completed";
+                            const isInProgress = formatStatus === "in progress";
+
+                            return (
+                              <DropdownMenuCheckboxItem
+                                key={index}
+                                checked={
+                                  isCompleted ||
+                                  (isInProgress &&
+                                    status.toLowerCase() === "in progress")
+                                }
+                                disabled={
+                                  isCompleted ||
+                                  (isInProgress &&
+                                    status.toLowerCase() === "in progress")
+                                }
+                                onSelect={(e) => {
+                                  e.preventDefault();
+                                  setActiveDialog({
+                                    itemId: item.action_item_id,
+                                    status,
+                                  });
+                                }}
+                              >
+                                {status}
+                              </DropdownMenuCheckboxItem>
+                            );
+                          })}
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                      {activeDialog?.itemId === item.action_item_id && (
+                        <Alert
+                          actionName="update status"
+                          onContinue={() =>
+                            handleUpdateStatus(
+                              item.user_id,
+                              item.action_item_id
+                            )
+                          }
+                          disabled={false}
+                          open={true}
+                          onOpenChange={() => setActiveDialog(null)}
+                          onCancel={() => {
+                            setActiveDialog(null);
+                            setOpenDropdownId(null);
+                          }}
+                        />
+
+                        // <AlertDialog
+                        //   open={true}
+                        //   onOpenChange={() => setActiveDialog(null)}
+                        // >
+                        //   <AlertDialogContent className="bg-white shadow-lg">
+                        //     <AlertDialogHeader>
+                        //       <AlertDialogTitle>
+                        //         Are you sure you want to change to{" "}
+                        //         {activeDialog.status}?
+                        //       </AlertDialogTitle>
+                        //     </AlertDialogHeader>
+                        //     <AlertDialogFooter>
+                        //       <AlertDialogCancel
+                        //         onClick={() => {
+                        //           setActiveDialog(null);
+                        //           setOpenDropdownId(null);
+                        //         }}
+                        //       >
+                        //         No
+                        //       </AlertDialogCancel>
+                        //       <AlertDialogAction
+                        //         onClick={() =>
+                        //           handleUpdateStatus(
+                        //             item.user_id,
+                        //             item.action_item_id
+                        //           )
+                        //         }
+                        //       >
+                        //         Yes
+                        //       </AlertDialogAction>
+                        //       <AlertDialogDescription />
+                        //     </AlertDialogFooter>
+                        //   </AlertDialogContent>
+                        // </AlertDialog>
+                      )}
                     </div>
                   </div>
                 </Card>
@@ -227,76 +359,19 @@ const ActionItems = () => {
               <span>No Data Found.</span>
             </div>
           )}
-
-          {/* <Card className="flex gap-4 p-4">
-        <div className="bg-green-100 w-[40px] h-[40px] flex justify-center items-center rounded-full">
-          <CircleCheckBig color="black" />
         </div>
-        <div className="flex flex-col gap-2 w-full">
-          <div className="flex justify-between w-full">
-            <div>
-              <p className="font-semibold mb-1">
-                Lorem ipsum lorem ipsum lorem lorem lorem 1
-              </p>
-            </div>
-            <p className="text-gray-700">7/1/2025, 5:50:24 PM</p>
-          </div>
-
-          <div>
-            <div className="bg-green-100 px-[2px] rounded-sm inline-block">
-              <p>Completed</p>
-            </div>
-            <p className="text-gray-600">
-              Lorem ipsum dolor sit amet consectetur. Eget lobortis tristique
-              amet urna. Posuere semper nunc malesuada non massa blandit sit
-              posuere. Elit duis neque nec tincidunt est lacus vitae id non.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
-              <p>ITEM 1</p>
-            </button>
-            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
-              <p>ITEM 2</p>
-            </button>
-          </div>
+      )}
+      {actionItems.length > 0 ? (
+        <div className="flex justify-end mt-3">
+          <Pagination5
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            totalPageNumbers={totalPage}
+          />
         </div>
-      </Card> */}
+      ) : null}
 
-          {/* <Card className="flex gap-4 p-4">
-        <div className="bg-blue-500 w-[40px] h-[40px] flex justify-center items-center rounded-full">
-          <LoaderCircle color="white" />
-        </div>
-        <div className="flex flex-col gap-2 w-full">
-          <div className="flex justify-between w-full">
-            <div>
-              <p>Action Item 2</p>
-              <p className="text-gray-600">Lorem ipsum dolor</p>
-            </div>
-            <p className="text-blue-600">Time</p>
-          </div>
-          <div>
-            <p className="font-semibold mb-1">
-              Lorem ipsum lorem ipsum lorem lorem lorem
-            </p>
-            <p className="text-gray-600">
-              Lorem ipsum dolor sit amet consectetur. Eget lobortis tristique
-              amet urna. Posuere semper nunc malesuada non massa blandit sit
-              posuere. Elit duis neque nec tincidunt est lacus vitae id non.
-            </p>
-          </div>
-          <div className="flex justify-between gap-1">
-            <button className="w-[49%] h-10 rounded-sm flex justify-center items-center bg-gray-300">
-              <p>ITEM 1</p>
-            </button>
-            <button className="w-[49%] h-10 rounded-sm flex justify-center items-center bg-gray-300">
-              <p>ITEM 2</p>
-            </button>
-          </div>
-        </div>
-      </Card> */}
-
-          {/* <Card className="flex gap-4 p-4">
+      {/* <Card className="flex gap-4 p-4">
         <div className="bg-yellow-100 w-[40px] h-[40px] flex justify-center items-center rounded-full">
           <CircleCheck color="black" />
         </div>
@@ -363,8 +438,6 @@ const ActionItems = () => {
           </div>
         </div>
       </Card> */}
-        </div>
-      )}
     </div>
   );
 };

@@ -28,6 +28,9 @@ interface AlertProps {
   tooltipAdjustmentStyle?: string | undefined;
   iconColor?: string;
   customButton?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?(open: boolean): void;
+  onCancel?: React.MouseEventHandler<HTMLButtonElement> | undefined;
 }
 
 const Alert = ({
@@ -40,9 +43,12 @@ const Alert = ({
   tooltipAdjustmentStyle,
   iconColor = "black",
   customButton,
+  open,
+  onOpenChange,
+  onCancel,
 }: AlertProps) => {
   return (
-    <AlertDialog>
+    <AlertDialog open={open} onOpenChange={onOpenChange}>
       <AlertDialogTrigger asChild>
         {customButton ? (
           customButton
@@ -83,7 +89,10 @@ const Alert = ({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <span className="flex justify-end gap-6 w-full">
-            <AlertDialogCancel className="w-[140px] h-[40px]">
+            <AlertDialogCancel
+              className="w-[140px] h-[40px]"
+              onClick={onCancel}
+            >
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction

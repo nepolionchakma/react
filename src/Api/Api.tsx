@@ -21,6 +21,7 @@ export const flaskApi = {
   DefAccessModelLogics: "/def_access_model_logics",
   DefAccessModelLogicAttributes: "/def_access_model_logic_attributes",
   DefActionItems: "/def_action_items_view",
+  DefActionItemAssignment: "/def_action_item_assignments",
 };
 
 // All Node api
