@@ -44,7 +44,7 @@ interface GlobalContex {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   token: Token;
-  user: number;
+  userId: number;
   setToken: React.Dispatch<React.SetStateAction<Token>>;
   users: Users[];
   loadData<T>(params: lazyLoadingParams): Promise<T | undefined>;
@@ -152,7 +152,7 @@ export function GlobalContextProvider({
   const [isOpenScheduleModal, setIsOpenScheduleModal] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [updateProfileImage, setUpdateProfileImage] = useState(0);
-  const user = token?.user_id || 0;
+  const userId = token?.user_id || 0;
 
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(8);
@@ -598,7 +598,7 @@ export function GlobalContextProvider({
         open,
         setOpen,
         token,
-        user,
+        userId,
         setToken,
         users,
         loadData,

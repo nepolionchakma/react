@@ -44,7 +44,7 @@ interface SocketContext {
   setTotalDraftMessages: React.Dispatch<React.SetStateAction<number>>;
   totalRecycleBinMsg: number;
   handleDraftMsgId: (id: string) => void;
-  addDevice: (data: IUserLinkedDevices) => void;
+  addDevice: (deviceId: number) => void;
   inactiveDevice: (data: IUserLinkedDevices[]) => void;
   linkedDevices: IUserLinkedDevices[];
   setLinkedDevices: React.Dispatch<React.SetStateAction<IUserLinkedDevices[]>>;
@@ -69,7 +69,7 @@ export function useSocketContext() {
 
 export function SocketContextProvider({ children }: SocketContextProps) {
   const api = useAxiosPrivate();
-  const { user, token, setToken, presentDevice } = useGlobalContext();
+  const { userId, token, setToken, presentDevice } = useGlobalContext();
   const [receivedMessages, setReceivedMessages] = useState<Notification[]>([]);
   const [totalReceivedMessages, setTotalReceivedMessages] = useState<number>(0);
   const [sentMessages, setSentMessages] = useState<Notification[]>([]);
@@ -92,12 +92,12 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     return io(socket_url, {
       path: "/socket.io/",
       query: {
-        key: user,
+        key: userId,
         device_id: presentDevice.id,
       },
       transports: ["websocket"],
     });
-  }, [socket_url, user, presentDevice.id]);
+  }, [socket_url, userId, presentDevice.id]);
 
   useEffect(() => {
     watchGeoPermission(
@@ -121,7 +121,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   useEffect(() => {
     const fetchCounterMessages = async () => {
       try {
-        if (!user) return;
+        if (!userId) return;
         const [
           notificationTotal,
           receivedTotal,
@@ -129,11 +129,11 @@ export function SocketContextProvider({ children }: SocketContextProps) {
           draftTotal,
           recyclebinTotal,
         ] = await Promise.all([
-          api.get(`/notifications/unread/${user}`),
-          api.get(`/notifications/total-received/${user}`),
-          api.get(`/notifications/total-sent/${user}`),
-          api.get(`/notifications/total-draft/${user}`),
-          api.get(`/notifications/total-recyclebin/${user}`),
+          api.get(`/notifications/unread/${userId}`),
+          api.get(`/notifications/total-received/${userId}`),
+          api.get(`/notifications/total-sent/${userId}`),
+          api.get(`/notifications/total-draft/${userId}`),
+          api.get(`/notifications/total-recyclebin/${userId}`),
         ]);
         setSocketMessages(notificationTotal.data);
         setTotalReceivedMessages(receivedTotal.data.total);
@@ -146,7 +146,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     };
 
     fetchCounterMessages();
-  }, [user, api]);
+  }, [userId, api]);
 
   // device Action
   useEffect(() => {
@@ -395,7 +395,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
           setDraftMessages((prev) => [message, ...prev]);
           setTotalDraftMessages((prev) => prev + 1);
         } else {
-          if (message.sender === user) {
+          if (message.sender === userId) {
             setSentMessages((prev) => [message, ...prev]);
             setTotalSentMessages((prev) => prev + 1);
           } else {
@@ -415,17 +415,18 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     });
 
     // device Action
-    socket.on("addDevice", (data) => {
+    socket.on("addDevice", (device: IUserLinkedDevices) => {
       setLinkedDevices((prev) => {
         if (
           prev.some(
-            (item) => item.id === data.id && item.is_active === data.is_active
+            (item) =>
+              item.id === device.id && item.is_active === device.is_active
           )
         ) {
           return prev;
         } else {
-          const removed = prev.filter((item) => item.id !== data.id);
-          return [data, ...removed];
+          const removed = prev.filter((item) => item.id !== device.id);
+          return [device, ...removed];
         }
       });
     });
@@ -492,7 +493,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     socketMessage,
     totalRecycleBinMsg,
     presentDevice,
-    user,
+    userId,
   ]);
 
   // messages Action
@@ -505,10 +506,10 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   };
 
   const handleRead = (parentID: string) => {
-    socket.emit("read", { parentID, sender: user });
+    socket.emit("read", { parentID, sender: userId });
   };
   const handleDeleteMessage = (notificationId: string) => {
-    socket.emit("deleteMessage", { notificationId, sender: user });
+    socket.emit("deleteMessage", { notificationId, sender: userId });
   };
 
   const handleDraftMessage = (notificationId: string, sender: number) => {
@@ -516,7 +517,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   };
 
   const handleDraftMsgId = (notificationId: string) => {
-    socket.emit("draftMsgId", { notificationId, sender: user });
+    socket.emit("draftMsgId", { notificationId, sender: userId });
   };
 
   const handleRestoreMessage = (notificationId: string, sender: number) => {
@@ -524,13 +525,13 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   };
 
   // device Action
-  const addDevice = (data: IUserLinkedDevices) => {
-    socket.emit("addDevice", { ...data, user });
+  const addDevice = (deviceId: number) => {
+    socket.emit("addDevice", { deviceId, userId: userId });
   };
 
-  const inactiveDevice = (data: IUserLinkedDevices[]) => {
-    if (!token || token.user_id === 0 || !data?.length) return;
-    socket.emit("inactiveDevice", { data: data, user: user });
+  const inactiveDevice = (inactiveDevices: IUserLinkedDevices[]) => {
+    if (!token || token.user_id === 0 || !inactiveDevice?.length) return;
+    socket.emit("inactiveDevice", { inactiveDevices, userId });
   };
 
   const handleSendAlert = (

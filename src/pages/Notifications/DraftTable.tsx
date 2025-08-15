@@ -40,7 +40,7 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
     handleDeleteMessage,
     setDraftMessages,
   } = useSocketContext();
-  const { user, users } = useGlobalContext();
+  const { userId, users } = useGlobalContext();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -53,7 +53,7 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
       try {
         setIsLoading(true);
         const response = await api.get<Notification[]>(
-          `/notifications/draft/${user}/${currentPage}/50`
+          `/notifications/draft/${userId}/${currentPage}/50`
         );
         const result = response.data;
         setDraftMessages(result);
@@ -67,7 +67,7 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
     };
 
     fetchSentMessages();
-  }, [currentPage, setDraftMessages, setIsLoading, user, toast, api]);
+  }, [currentPage, setDraftMessages, setIsLoading, userId, toast, api]);
 
   const totalDisplayedMessages = 50;
   const totalPageNumbers = Math.ceil(
@@ -89,7 +89,7 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
   const handleDelete = async (notification_id: string) => {
     try {
       const response = await api.put(
-        `/notifications/move-to-recyclebin/${notification_id}/${user}`
+        `/notifications/move-to-recyclebin/${notification_id}/${userId}`
       );
       if (response.status === 200) {
         handleDeleteMessage(notification_id);

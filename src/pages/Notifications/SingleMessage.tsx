@@ -26,7 +26,7 @@ import {
 const SingleMessage = () => {
   const api = useAxiosPrivate();
   const { handleDeleteMessage } = useSocketContext();
-  const { user, users } = useGlobalContext();
+  const { userId, users } = useGlobalContext();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -56,7 +56,7 @@ const SingleMessage = () => {
     const fetchMessage = async () => {
       try {
         const response = await api.get<Notification[]>(
-          `/notifications/reply/${id}/${user}`
+          `/notifications/reply/${id}/${userId}`
         );
         if (response) {
           const result = response.data;
@@ -77,7 +77,7 @@ const SingleMessage = () => {
     };
 
     fetchMessage();
-  }, [id, toast, api, user]);
+  }, [id, toast, api, userId]);
 
   //Fetch SingleMessage
   useEffect(() => {
@@ -99,7 +99,7 @@ const SingleMessage = () => {
     };
 
     fetchMessage();
-  }, [id, toast, api, user]);
+  }, [id, toast, api, userId]);
 
   useEffect(() => {
     if (totalMessages.length === 0 && isLoaded) {
@@ -112,7 +112,7 @@ const SingleMessage = () => {
   const handleDelete = async (msgId: string) => {
     try {
       const response = await api.put(
-        `/notifications/move-to-recyclebin/${msgId}/${user}`
+        `/notifications/move-to-recyclebin/${msgId}/${userId}`
       );
       if (response.status === 200) {
         handleDeleteMessage(msgId as string);

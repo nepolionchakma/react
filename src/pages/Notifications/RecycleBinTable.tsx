@@ -44,7 +44,7 @@ interface RecycleBinTableProps {
 }
 const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
   const api = useAxiosPrivate();
-  const { user, token, users } = useGlobalContext();
+  const { userId, token, users } = useGlobalContext();
   const {
     handleDeleteMessage,
     recycleBinMsg,
@@ -61,7 +61,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
       try {
         setIsLoading(true);
         const response = await api.get<Notification[]>(
-          `/notifications/recyclebin/${user}/${currentPage}/50`
+          `/notifications/recyclebin/${userId}/${currentPage}/50`
         );
         setRecycleBinMsg(response.data);
       } catch (error) {
@@ -73,7 +73,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
       }
     };
     fetchRecycleBinMsg();
-  }, [api, currentPage, setIsLoading, setRecycleBinMsg, user]);
+  }, [api, currentPage, setIsLoading, setRecycleBinMsg, userId]);
 
   const totalDisplayedMessages = 50;
   const totalPageNumbers = Math.ceil(
@@ -98,7 +98,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
   const handleDelete = async (msg: Notification) => {
     try {
       const response = await api.put(
-        `/notifications/remove-from-recyclebin/${msg.notification_id}/${user}`
+        `/notifications/remove-from-recyclebin/${msg.notification_id}/${userId}`
       );
       if (response.status === 200) {
         handleDeleteMessage(msg.notification_id);
@@ -164,7 +164,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
   const restoreMessage = async (notificationId: string) => {
     try {
       const response = await api.put(
-        `/notifications/restore/${notificationId}/${user}`
+        `/notifications/restore/${notificationId}/${userId}`
       );
       if (response.status === 200) {
         handleRestoreMessage(notificationId, token.user_id);
@@ -183,7 +183,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
     if (msg.status === "DRAFT") {
       return "Drafts";
     } else {
-      if (msg.sender === user) {
+      if (msg.sender === userId) {
         return "Sent";
       } else {
         return "Inbox";
@@ -263,7 +263,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
                       <TableCell className="py-2">
                         {msg.recipients.length === 0
                           ? "(no user)"
-                          : msg.recipients.includes(user)
+                          : msg.recipients.includes(userId)
                           ? renderUserName(msg.sender, users)
                           : renderUserName(msg.recipients[0], users)}
                         {msg.recipients.length > 1 && ", ..."}

@@ -26,7 +26,7 @@ import {
 
 const SingleRecycleBin = () => {
   const api = useAxiosPrivate();
-  const { user, token, users } = useGlobalContext();
+  const { userId, token, users } = useGlobalContext();
   const { handleDeleteMessage, handleRestoreMessage } = useSocketContext();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -72,7 +72,7 @@ const SingleRecycleBin = () => {
   const handleDelete = async () => {
     try {
       const response = await api.put(
-        `/notifications/remove-from-recyclebin/${id}/${user}`
+        `/notifications/remove-from-recyclebin/${id}/${userId}`
       );
       if (response.status === 200) {
         handleDeleteMessage(id as string);
@@ -96,7 +96,7 @@ const SingleRecycleBin = () => {
 
   const restoreMessage = async () => {
     try {
-      const response = await api.put(`/notifications/restore/${id}/${user}`);
+      const response = await api.put(`/notifications/restore/${id}/${userId}`);
       if (response.status === 200) {
         handleRestoreMessage(id as string, token.user_id);
         toast({
