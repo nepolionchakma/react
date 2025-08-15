@@ -289,7 +289,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
           <X />
         </button>
       </div>
-      <div className="max-h-[90vh] overflow-auto scrollbar-thin p-4">
+      <div className="max-h-[80vh] overflow-auto scrollbar-thin p-4">
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-2">
             <DropdownMenu>

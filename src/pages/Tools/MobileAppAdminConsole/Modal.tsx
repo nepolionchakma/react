@@ -280,7 +280,7 @@ const Modal = ({
               <X size={20} />
             </button>
           </div>
-          <div className="max-h-[90vh] overflow-auto scrollbar-thin p-4">
+          <div className="max-h-[80vh] overflow-auto scrollbar-thin p-4">
             <div className="flex gap-2 px-4 py-2">
               <p>Name:</p>
               <input
