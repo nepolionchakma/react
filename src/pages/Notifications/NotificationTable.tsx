@@ -34,7 +34,7 @@ interface NotificationTableProps {
 
 const NotificationTable = ({ path, person }: NotificationTableProps) => {
   const api = useAxiosPrivate();
-  const { user, users } = useGlobalContext();
+  const { userId, users } = useGlobalContext();
   const {
     socketMessage,
     receivedMessages,
@@ -53,7 +53,7 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
       try {
         setIsLoading(true);
         const response = await api.get<Notification[]>(
-          `/notifications/received/${user}/${currentPage}/50`
+          `/notifications/received/${userId}/${currentPage}/50`
         );
 
         const result = response.data;
@@ -68,7 +68,7 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
     };
 
     fetchReceivedMessages();
-  }, [currentPage, setIsLoading, setReceivedMessages, user, toast, api]);
+  }, [currentPage, setIsLoading, setReceivedMessages, userId, toast, api]);
 
   const totalDisplayedMessages = 50;
   const totalPageNumbers = Math.ceil(
@@ -92,7 +92,7 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
   const handleUniqueMessages = async (parentid: string) => {
     try {
       const res = await api.put(
-        `/notifications/update-readers/${parentid}/${user}`
+        `/notifications/update-readers/${parentid}/${userId}`
       );
       if (res) {
         navigate(`/notifications/inbox/${parentid}`);
@@ -108,7 +108,7 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
   const handleDelete = async (notification_id: string) => {
     try {
       const response = await api.put(
-        `/notifications/move-to-recyclebin/${notification_id}/${user}`
+        `/notifications/move-to-recyclebin/${notification_id}/${userId}`
       );
       if (response.status === 200) {
         handleDeleteMessage(notification_id);

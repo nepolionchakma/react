@@ -3,23 +3,19 @@ import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 // import useUserInfo from "@/hooks/useUserInfo";
 import { useEffect, useState } from "react";
-// import Desktop from "/icons/device-icon/desktop.svg";
-// import Laptop from "/icons/device-icon/laptop.svg";
-// import Mac from "/icons/device-icon/mac.svg";
-// import Mobile from "/icons/device-icon/android.svg";
-// import Tablet from "/icons/device-icon/tablet.svg";
-import iOS from "/icons/os-icon/mac.svg";
-import Windows from "/icons/os-icon/windows.svg";
-import MacOS from "/icons/os-icon/mac.svg";
-import Linux from "/icons/os-icon/linux.svg";
-import Android from "/icons/os-icon/android.svg";
-import Edge from "/icons/browser-icon/edge.svg";
-import Chrome from "/icons/browser-icon/chrome.svg";
-import Safari from "/icons/browser-icon/safari.svg";
-import Firefox from "/icons/browser-icon/mozila.svg";
-import Opera from "/icons/browser-icon/opera.svg";
+
+import iOS from "/icons/device/apple.png";
+import Windows from "/icons/device/windows.png";
+import MacOS from "/icons/device/apple.png";
+import Linux from "/icons/device/linux.png";
+import Android from "/icons/device/android.png";
+import Edge from "/icons/device/microsoft.png";
+import Chrome from "/icons/device/chrome.png";
+import Safari from "/icons/device/safari.png";
+import Firefox from "/icons/device/firefox.png";
+import Opera from "/icons/device/opera.png";
 import Undefined from "/icons/undefined.svg";
-import App from "/favicon-black.svg";
+import App from "/favicon.svg";
 import { Switch } from "@/components/ui/switch";
 import { IUserLinkedDevices } from "@/types/interfaces/users.interface";
 
@@ -178,7 +174,7 @@ const YourDevices = () => {
                         <span> - </span>
                         <span className="font-medium">{device.ip_address}</span>
                       </span>
-                      <div className="flex gap-1">
+                      <div className="flex gap-1 items-center">
                         <img
                           src={
                             device.browser_name === "Microsoft Edge"
@@ -196,10 +192,19 @@ const YourDevices = () => {
                               : Undefined
                           }
                           alt="image"
-                          className="w-6"
+                          className="w-4 h-4"
                         />
                         <p>{device.browser_version}</p>
                       </div>
+                      <p
+                        className="text-blue-600 font-semibold cursor-pointer"
+                        onClick={() => {
+                          setShowModal(true);
+                          setSelectedDevice(device);
+                        }}
+                      >
+                        View Singon Audit
+                      </p>
                     </div>
                   </div>
                   <div className="flex flex-col items-end gap-1">
@@ -211,15 +216,6 @@ const YourDevices = () => {
                         switchFunc(device);
                       }}
                     />
-                    <p
-                      className="text-blue-600 font-semibold cursor-pointer"
-                      onClick={() => {
-                        setShowModal(true);
-                        setSelectedDevice(device);
-                      }}
-                    >
-                      Show Singon Audit
-                    </p>
                   </div>
                 </div>
               ))}

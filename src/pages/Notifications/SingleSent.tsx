@@ -27,7 +27,7 @@ import CustomTooltip from "@/components/Tooltip/Tooltip";
 const SingleSent = () => {
   const api = useAxiosPrivate();
   const { handleDeleteMessage } = useSocketContext();
-  const { user, users } = useGlobalContext();
+  const { userId, users } = useGlobalContext();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
@@ -57,7 +57,7 @@ const SingleSent = () => {
     const fetchMessage = async () => {
       try {
         const response = await api.get<Notification[]>(
-          `/notifications/reply/${id}/${user}`
+          `/notifications/reply/${id}/${userId}`
         );
         const result = response.data;
         setTotalMessages(result);
@@ -75,7 +75,7 @@ const SingleSent = () => {
     };
 
     fetchMessage();
-  }, [id, toast, api, user]);
+  }, [id, toast, api, userId]);
 
   useEffect(() => {
     if (totalMessages.length === 0 && isLoaded) {
@@ -110,7 +110,7 @@ const SingleSent = () => {
   const handleDelete = async (msgId: string) => {
     try {
       const response = await api.put(
-        `/notifications/move-to-recyclebin/${msgId}/${user}`
+        `/notifications/move-to-recyclebin/${msgId}/${userId}`
       );
       if (response.status === 200) {
         handleDeleteMessage(msgId as string);

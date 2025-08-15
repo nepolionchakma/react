@@ -39,7 +39,7 @@ const SentTable = ({ path, person }: SentTableProps) => {
     handleDeleteMessage,
     setSentMessages,
   } = useSocketContext();
-  const { user, users } = useGlobalContext();
+  const { userId, users } = useGlobalContext();
   const navigate = useNavigate();
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -51,7 +51,7 @@ const SentTable = ({ path, person }: SentTableProps) => {
       try {
         setIsLoading(true);
         const response = await api.get<Notification[]>(
-          `/notifications/sent/${user}/${currentPage}/50`
+          `/notifications/sent/${userId}/${currentPage}/50`
         );
         const result = response.data;
         setSentMessages(result);
@@ -65,7 +65,7 @@ const SentTable = ({ path, person }: SentTableProps) => {
     };
 
     fetchSentMessages();
-  }, [currentPage, user, setIsLoading, setSentMessages, toast, api]);
+  }, [currentPage, userId, setIsLoading, setSentMessages, toast, api]);
 
   const totalDisplayedMessages = 50;
   const totalPageNumbers = Math.ceil(
@@ -87,7 +87,7 @@ const SentTable = ({ path, person }: SentTableProps) => {
   const handleDelete = async (notification_id: string) => {
     try {
       const response = await api.put(
-        `/notifications/move-to-recyclebin/${notification_id}/${user}`
+        `/notifications/move-to-recyclebin/${notification_id}/${userId}`
       );
       if (response.status === 200) {
         handleDeleteMessage(notification_id);

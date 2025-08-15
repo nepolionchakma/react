@@ -14,7 +14,7 @@ const Layout = () => {
     const hasDevice = localStorage.getItem("presentDevice");
 
     if (presentDevice.id !== 0 && hasDevice === "true") {
-      addDevice(presentDevice);
+      addDevice(presentDevice.id);
 
       localStorage.removeItem("presentDevice");
     }
