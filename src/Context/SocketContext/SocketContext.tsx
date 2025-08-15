@@ -22,7 +22,7 @@ interface SocketContextProps {
 
 interface SocketContext {
   receivedMessages: Notification[];
-  handlesendMessage: (data: Notification) => void;
+  handlesendMessage: (notificationId: string, sender: number) => void;
   handleDisconnect: () => void;
   handleRead: (id: string) => void;
   handleDeleteMessage: (id: string) => void;
@@ -35,7 +35,7 @@ interface SocketContext {
   setDraftMessages: React.Dispatch<React.SetStateAction<Notification[]>>;
   recycleBinMsg: Notification[];
   setRecycleBinMsg: React.Dispatch<React.SetStateAction<Notification[]>>;
-  handleDraftMessage: (data: Notification) => void;
+  handleDraftMessage: (notificationId: string, sender: number) => void;
   totalReceivedMessages: number;
   setTotalReceivedMessages: React.Dispatch<React.SetStateAction<number>>;
   totalSentMessages: number;
@@ -227,7 +227,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   // Listen to socket events
 
   useEffect(() => {
-    socket.on("receivedMessage", (data) => {
+    socket.on("receivedMessage", (data: Notification) => {
       const receivedMessagesId = receivedMessages.map(
         (msg) => msg.notification_id
       );
@@ -240,6 +240,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       }
     });
     socket.on("sentMessage", (data: Notification) => {
+      console.log("recieving sentMessage event", data.notification_id);
       const sentMessageId = sentMessages.map((msg) => msg.notification_id);
       if (sentMessageId.includes(data.notification_id)) {
         return;
@@ -248,44 +249,58 @@ export function SocketContextProvider({ children }: SocketContextProps) {
         setTotalSentMessages((prev) => prev + 1);
       }
     });
-    socket.on("draftMessage", (data) => {
-      const draftMessagesId = draftMessages.map((msg) => msg.notification_id);
-      if (draftMessagesId.includes(data.notification_id)) {
-        // remove message match id
+    socket.on("draftMessage", (data: Notification) => {
+      const existingDraft = draftMessages.find(
+        (msg) => msg.notification_id === data.notification_id
+      );
+
+      if (existingDraft) {
         const newDraftMessages = draftMessages.filter(
           (msg) => msg.notification_id !== data.notification_id
         );
-        // For state call
-        return setDraftMessages(() => [data, ...newDraftMessages]);
+        if (data.recipients === undefined) {
+          setDraftMessages(() => [
+            { ...data, recipients: [] },
+            ...newDraftMessages,
+          ]);
+        } else {
+          setDraftMessages(() => [data, ...newDraftMessages]);
+        }
       } else {
-        setDraftMessages((prev) => [data, ...prev]);
+        if (data.recipients === undefined) {
+          setDraftMessages((prev) => [{ ...data, recipients: [] }, ...prev]);
+        } else {
+          setDraftMessages((prev) => [data, ...prev]);
+        }
         setTotalDraftMessages((prev) => prev + 1);
       }
     });
 
-    socket.on("draftMessageId", (id) => {
+    socket.on("draftMessageId", (notificationId: string) => {
       // for sync socket draft messages
       const draftMessageId = draftMessages.map((msg) => msg.notification_id);
-      if (draftMessageId.includes(id)) {
+      if (draftMessageId.includes(notificationId)) {
         setDraftMessages((prev) =>
-          prev.filter((item) => item.notification_id !== id)
+          prev.filter((item) => item.notification_id !== notificationId)
         );
         setTotalDraftMessages((prev) => prev - 1);
       }
     });
 
-    socket.on("sync", (id) => {
+    socket.on("sync", (parrentId: string) => {
       const synedSocketMessages = socketMessage.filter(
-        (msg) => msg.parent_notification_id !== id
+        (msg) => msg.parent_notification_id !== parrentId
       );
       setSocketMessages(synedSocketMessages);
     });
-    socket.on("deletedMessage", (id) => {
-      if (receivedMessages.some((msg) => msg.notification_id === id)) {
+    socket.on("deletedMessage", (notificationId: string) => {
+      if (
+        receivedMessages.some((msg) => msg.notification_id === notificationId)
+      ) {
         // add to recycleBinMsg
         setRecycleBinMsg((prev) => {
           const deletedMessages = receivedMessages.find(
-            (msg) => msg.notification_id === id
+            (msg) => msg.notification_id === notificationId
           );
           if (!deletedMessages) return prev;
           return [deletedMessages, ...prev];
@@ -294,17 +309,19 @@ export function SocketContextProvider({ children }: SocketContextProps) {
 
         // if receive message includes the id then remove it
         setReceivedMessages((prev) =>
-          prev.filter((msg) => msg.notification_id !== id)
+          prev.filter((msg) => msg.notification_id !== notificationId)
         );
         setTotalReceivedMessages((prev) => prev - 1);
         setSocketMessages((prev) =>
-          prev.filter((msg) => msg.notification_id !== id)
+          prev.filter((msg) => msg.notification_id !== notificationId)
         );
-      } else if (sentMessages.some((msg) => msg.notification_id === id)) {
+      } else if (
+        sentMessages.some((msg) => msg.notification_id === notificationId)
+      ) {
         // add to recycleBinMsg
         setRecycleBinMsg((prev) => {
           const deletedMessages = sentMessages.find(
-            (msg) => msg.notification_id === id
+            (msg) => msg.notification_id === notificationId
           );
           if (!deletedMessages) return prev;
           return [deletedMessages, ...prev];
@@ -314,7 +331,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
         // Check if the message is already deleted before updating
         setSentMessages((prev) => {
           const filteredMessages = prev.filter(
-            (msg) => msg.notification_id !== id
+            (msg) => msg.notification_id !== notificationId
           );
           // Only update total if the message was actually removed
           if (filteredMessages.length < prev.length) {
@@ -322,11 +339,13 @@ export function SocketContextProvider({ children }: SocketContextProps) {
           }
           return filteredMessages;
         });
-      } else if (draftMessages.some((msg) => msg.notification_id === id)) {
+      } else if (
+        draftMessages.some((msg) => msg.notification_id === notificationId)
+      ) {
         // add to recycleBinMsg
         setRecycleBinMsg((prev) => {
           const deletedMessages = draftMessages.find(
-            (msg) => msg.notification_id === id
+            (msg) => msg.notification_id === notificationId
           );
           if (!deletedMessages) return prev;
           return [deletedMessages, ...prev];
@@ -336,7 +355,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
         // Check if the message is already deleted before updating
         setDraftMessages((prev) => {
           const filteredMessages = prev.filter(
-            (msg) => msg.notification_id !== id
+            (msg) => msg.notification_id !== notificationId
           );
           // Only update total if the message was actually removed
           if (filteredMessages.length < prev.length) {
@@ -344,11 +363,13 @@ export function SocketContextProvider({ children }: SocketContextProps) {
           }
           return filteredMessages;
         });
-      } else if (recycleBinMsg.some((msg) => msg.notification_id === id)) {
+      } else if (
+        recycleBinMsg.some((msg) => msg.notification_id === notificationId)
+      ) {
         // Check if the message is already deleted before updating
         setRecycleBinMsg((prev) => {
           const filteredMessages = prev.filter(
-            (msg) => msg.notification_id !== id
+            (msg) => msg.notification_id !== notificationId
           );
           // Only update total if the message was actually removed
           if (filteredMessages.length < prev.length) {
@@ -359,8 +380,10 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       }
     });
 
-    socket.on("restoreMessage", (id) => {
-      const message = recycleBinMsg.find((msg) => msg.notification_id === id);
+    socket.on("restoreMessage", (notificationId: string) => {
+      const message = recycleBinMsg.find(
+        (msg) => msg.notification_id === notificationId
+      );
 
       try {
         if (!message) return;
@@ -380,7 +403,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
         console.log(error);
       } finally {
         const newRecycle = recycleBinMsg.filter(
-          (msg) => msg.notification_id !== id
+          (msg) => msg.notification_id !== notificationId
         );
         setRecycleBinMsg(newRecycle);
         setTotalRecycleBinMsg((prev) => prev - 1);
@@ -464,31 +487,31 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   ]);
 
   // messages Action
-  const handlesendMessage = (data: Notification) => {
-    socket.emit("sendMessage", data);
+  const handlesendMessage = (notificationId: string, sender: number) => {
+    socket.emit("sendMessage", { notificationId, sender });
   };
 
   const handleDisconnect = () => {
     socket.disconnect();
   };
 
-  const handleRead = (id: string) => {
-    socket.emit("read", { id, user });
+  const handleRead = (parentID: string) => {
+    socket.emit("read", { parentID, sender: user });
   };
-  const handleDeleteMessage = (id: string) => {
-    socket.emit("deleteMessage", { id, user });
-  };
-
-  const handleDraftMessage = (data: Notification) => {
-    socket.emit("sendDraft", data);
+  const handleDeleteMessage = (notificationId: string) => {
+    socket.emit("deleteMessage", { notificationId, sender: user });
   };
 
-  const handleDraftMsgId = (id: string) => {
-    socket.emit("draftMsgId", { id, user });
+  const handleDraftMessage = (notificationId: string, sender: number) => {
+    socket.emit("sendDraft", { notificationId, sender });
   };
 
-  const handleRestoreMessage = (id: string, user: number) => {
-    socket.emit("restoreMessage", { id, user });
+  const handleDraftMsgId = (notificationId: string) => {
+    socket.emit("draftMsgId", { notificationId, sender: user });
+  };
+
+  const handleRestoreMessage = (notificationId: string, sender: number) => {
+    socket.emit("restoreMessage", { notificationId, sender });
   };
 
   // device Action
