@@ -468,26 +468,6 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       }
     );
 
-    // socket.on("SentAlert", (alert: Alerts) => {
-    //   setAlerts((prev) => {
-    //     const exists = prev.some((item) => item.alert_id === alert.alert_id);
-    //     if (exists) {
-    //       return prev.map((item) =>
-    //         item.alert_id === alert.alert_id ? alert : item
-    //       );
-    //     }
-    //     return [alert, ...prev];
-    //   });
-
-    //   setUnreadTotalAlert((prev) => {
-    //     const exists = prev.some((item) => item.alert_id === alert.alert_id);
-    //     if (!exists) {
-    //       return [alert, ...prev];
-    //     }
-    //     return prev.filter((item) => item.alert_id !== alert.alert_id);
-    //   });
-    // });
-
     return () => {
       socket.off("receivedMessage");
       socket.off("sentMessage");
