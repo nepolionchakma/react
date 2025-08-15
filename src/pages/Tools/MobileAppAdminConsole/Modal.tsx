@@ -273,16 +273,15 @@ const Modal = ({
   return (
     <>
       {showModal && (
-        <CustomModal4>
-          <div className="min-w-[700px] max-h-[80vh] overflow-y-auto overflow-x-auto pb-4 scrollbar-thin">
-            <div className="bg-[#CEDEF2] px-4 py-2 w-full flex justify-between items-center fixed z-50">
-              <p>Menu Structure</p>
-              <button onClick={handleX}>
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="flex gap-2 px-4 py-2 mt-12">
+        <CustomModal4 className="w-[700px]">
+          <div className="flex justify-between px-2 items-center bg-[#CEDEF2] h-[41px]">
+            <p>Menu Structure</p>
+            <button onClick={handleX}>
+              <X size={20} />
+            </button>
+          </div>
+          <div className="max-h-[90vh] overflow-auto scrollbar-thin p-4">
+            <div className="flex gap-2 px-4 py-2">
               <p>Name:</p>
               <input
                 required
