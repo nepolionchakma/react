@@ -284,7 +284,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
   return (
     <CustomModal4 className="w-[700px]">
       <div className="flex justify-between px-2 items-center bg-[#CEDEF2] h-[41px]">
-        <p className="font-semibold">New Notification</p>
+        <p className="font-semibold">New {toTitleCase(notifcationType)}</p>
         <button onClick={() => setShowModal(false)}>
           <X />
         </button>
