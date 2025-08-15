@@ -105,13 +105,13 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (notification_id: string) => {
     try {
       const response = await api.put(
-        `/notifications/move-to-recyclebin/${id}/${user}`
+        `/notifications/move-to-recyclebin/${notification_id}/${user}`
       );
       if (response.status === 200) {
-        handleDeleteMessage(id);
+        handleDeleteMessage(notification_id);
         toast({
           title: `${response.data.message}`,
         });

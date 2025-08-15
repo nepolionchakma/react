@@ -60,7 +60,7 @@ const SingleDraft = () => {
   const [saveDraftLoading, setSaveDraftLoading] = useState(false);
   const [oldMsgState, setOldMsgState] = useState<IOldMsgTypes | undefined>({});
   const [userChanged, setuserChanged] = useState<boolean>(false);
-  const notifcationType = "REGULAR";
+  const notifcationType = "NOTIFICATION";
 
   const totalusers = [...recivers, user];
   const involvedusers = [...new Set(totalusers)];
@@ -164,7 +164,10 @@ const SingleDraft = () => {
       const newMsg = await api.post(`/notifications`, data);
       if (newMsg.data && deletedMsg.data) {
         handleDraftMsgId(id as string);
-        handlesendMessage(data);
+        handlesendMessage(
+          newMsg.data.result.notification_id,
+          newMsg.data.result.sender
+        );
         await api.post(
           "/push-notification/send-notification",
           sendNotificationPayload
@@ -212,7 +215,7 @@ const SingleDraft = () => {
       setSaveDraftLoading(true);
       const response = await api.put(`/notifications/${id}`, data);
       if (response.status === 200) {
-        handleDraftMessage(data);
+        handleDraftMessage(data.notification_id, data.sender);
         toast({
           title: "Notification saved to Drafts",
         });

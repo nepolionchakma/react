@@ -85,7 +85,7 @@ const ReplyDialog = ({
       const response = await api.post(`/notifications`, data);
 
       if (response.status === 201) {
-        handlesendMessage(data);
+        handlesendMessage(data.notification_id, data.sender);
         setTotalMessages((prev) => [data, ...prev]);
         await api.post(
           "/push-notification/send-notification",
@@ -131,7 +131,7 @@ const ReplyDialog = ({
       setIsDrafting(true);
       const response = await api.post(`/notifications`, data);
       if (response.status === 201) {
-        handleDraftMessage(data);
+        handleDraftMessage(data.notification_id, data.sender);
         toast({
           title: `${response.data.message}`,
         });

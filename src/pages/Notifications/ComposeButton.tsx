@@ -47,7 +47,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
   const [actionItemName, setActionItemName] = useState<string>("");
   const [actionItemDescription, setActionItemDescription] =
     useState<string>("");
-  const [actionItemStatus, setActionItemStatus] = useState<string>("NEW");
+  const actionItemStatus = "NEW";
   const id = uuidv4();
   // const date = new Date();
   const nodeUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
@@ -133,7 +133,10 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
       const response = await postData(sendNotificationParams);
 
       if (response.status === 201) {
-        handlesendMessage(notifcationData);
+        handlesendMessage(
+          notifcationData.notification_id,
+          notifcationData.sender
+        );
 
         await api.post(
           "/push-notification/send-notification",
@@ -197,7 +200,6 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
           if (actionItemResponse.status === 201) {
             setActionItemName("");
             setActionItemDescription("");
-            setActionItemStatus("");
 
             const params1 = {
               baseURL: nodeUrl,
@@ -262,7 +264,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
       const response = await api.post(`/notifications`, data);
       console.log(response);
       if (response.status === 201) {
-        handleDraftMessage(data);
+        handleDraftMessage(data.notification_id, data.sender);
         toast({
           title: `${response.data.message}`,
         });
@@ -465,45 +467,6 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
 
         {notifcationType === "ACTION ITEM" && (
           <div className="flex flex-col gap-4">
-            <DropdownMenu>
-              <DropdownMenuTrigger className="w-full border-b border-light-400 h-8 rounded-sm border flex justify-between items-center px-2">
-                <p>
-                  {`${toTitleCase(actionItemStatus)}` ||
-                    "Select Action Item Status"}
-                </p>
-                <ChevronDown strokeWidth={1} />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-[660px] max-h-[255px] overflow-auto scrollbar-thin">
-                <div
-                  onClick={() => setActionItemStatus("NEW")}
-                  className="flex justify-between px-2 items-center hover:bg-light-200 cursor-pointer"
-                >
-                  <p>New</p>
-                  {actionItemStatus === "NEW" && (
-                    <Check size={14} color="#038C5A" />
-                  )}
-                </div>
-                <div
-                  onClick={() => setActionItemStatus("IN PROGRESS")}
-                  className="flex justify-between px-2 items-center hover:bg-light-200 cursor-pointer"
-                >
-                  <p>In Progress</p>
-                  {actionItemStatus === "IN PROGRESS" && (
-                    <Check size={14} color="#038C5A" />
-                  )}
-                </div>
-                <div
-                  onClick={() => setActionItemStatus("COMPLETED")}
-                  className="flex justify-between px-2 items-center hover:bg-light-200 cursor-pointer"
-                >
-                  <p>Completed</p>
-                  {actionItemStatus === "COMPLETED" && (
-                    <Check size={14} color="#038C5A" />
-                  )}
-                </div>
-              </DropdownMenuContent>
-            </DropdownMenu>
-
             <div className="flex flex-col gap-2 w-full text-dark-400">
               <label className="font-semibold ">Action Item Name</label>
               <input

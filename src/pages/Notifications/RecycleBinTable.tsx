@@ -161,11 +161,13 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
     navigate(`/notifications/recycle-bin/${id}`);
   };
 
-  const restoreMessage = async (id: string) => {
+  const restoreMessage = async (notificationId: string) => {
     try {
-      const response = await api.put(`/notifications/restore/${id}/${user}`);
+      const response = await api.put(
+        `/notifications/restore/${notificationId}/${user}`
+      );
       if (response.status === 200) {
-        handleRestoreMessage(id, token.user_id);
+        handleRestoreMessage(notificationId, token.user_id);
         toast({
           title: `${response.data.message}`,
         });

@@ -72,7 +72,9 @@ const useUserInfo = () => {
         deviceInfo: deviceData,
       });
 
-      addDevice(response.data);
+      if (response.status === 201) {
+        addDevice(response.data);
+      }
     } catch (error) {
       console.log(error);
     }

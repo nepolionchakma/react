@@ -35,18 +35,20 @@ import { IARMViewRequestsTypes } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import PopUp from "./PopUp/PopUp";
 import Rows from "@/components/Rows/Rows";
+import Days from "@/components/Days/Days";
 
 export function ViewRequestTable() {
   const {
     totalPage,
     getViewRequests,
-    getSearchViewRequests,
+
     isLoading,
     setIsLoading,
   } = useARMContext();
   const [data, setData] = React.useState<IARMViewRequestsTypes[] | []>([]);
   const [page, setPage] = React.useState(1);
   const [limit, setLimit] = React.useState(8);
+  const [days, setDays] = React.useState(7);
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
   const [expandedRow, setExpandedRow] = React.useState<string | null>(null);
   const [viewParameters, setViewParameters] = React.useState<any | undefined>(
@@ -83,18 +85,10 @@ export function ViewRequestTable() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!query.isEmpty) {
-          const res = await getSearchViewRequests(page, limit, query.value);
-          if (res) {
-            setData(res);
-            setExpandedRow(null);
-          }
-        } else {
-          const res = await getViewRequests(page, limit);
-          if (res) {
-            setData(res);
-            setExpandedRow(null);
-          }
+        const res = await getViewRequests(page, limit, days, query.value);
+        if (res) {
+          setData(res);
+          setExpandedRow(null);
         }
       } catch (error) {
         console.log(error);
@@ -112,7 +106,7 @@ export function ViewRequestTable() {
     }, 1000);
 
     return () => clearTimeout(delayDebounce); // Cleanup timeout
-  }, [query, page, limit]); // Run on query and page change
+  }, [query, page, limit, days]); // Run on query and page change
 
   const table = useReactTable({
     data,
@@ -192,6 +186,7 @@ export function ViewRequestTable() {
           className="w-[24rem] px-4 py-2"
         />
         <div className="flex gap-2">
+          <Days days={days} setDays={setDays} />
           <Rows limit={limit} setLimit={setLimit} />
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

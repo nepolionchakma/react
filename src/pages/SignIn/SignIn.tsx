@@ -10,7 +10,7 @@ import Spinner from "@/components/Spinner/Spinner";
 // import github from "/social-icon/github.svg";
 
 const SignIn = () => {
-  const { token, isUserLoading } = useGlobalContext();
+  const { token, isUserLoading, isLoading } = useGlobalContext();
   const [isWrongCredential, setIsWrongCredential] = useState(false);
 
   if (isUserLoading) {
@@ -41,7 +41,7 @@ const SignIn = () => {
           <button className="w-full py-2 rounded-md bg-dark-400 hover:bg-dark-400/90 text-white mt-4 ">
             Continue with SSO
           </button>
-          {isWrongCredential ? (
+          {isWrongCredential && !isLoading ? (
             <Alert variant="destructive" className="mt-4 bg-slate-100">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Unable to login</AlertTitle>
