@@ -58,7 +58,6 @@ const ActionItems = () => {
   const { token } = useGlobalContext();
   const [actionItems, setActionItems] = useState<IActionItems[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [loading, setLoading] = useState(false);
   const [query, setQuery] = useState({ isEmpty: true, value: "" });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(0);
@@ -88,7 +87,7 @@ const ActionItems = () => {
 
   useEffect(() => {
     fetchActionItems();
-  }, [token.user_id, selectedOption, loading]);
+  }, [token.user_id, selectedOption]);
 
   /** reload data by clicking refresh button */
   const handleRefresh = async () => {
@@ -121,7 +120,7 @@ const ActionItems = () => {
     const actionItemParams = {
       baseURL: FLASK_URL,
       url: `${flaskApi.DefActionItemAssignment}/${userId}/${actionItemId}`,
-      setLoading: setLoading,
+      setLoading: setIsLoading,
       payload: {
         status: activeDialog?.status.toUpperCase(),
       },
@@ -130,7 +129,7 @@ const ActionItems = () => {
 
     const res = await putData(actionItemParams);
     if (res.status === 200) {
-      console.log(res.data);
+      fetchActionItems();
       setActiveDialog(null);
       setOpenDropdownId(null);
     }
@@ -263,11 +262,8 @@ const ActionItems = () => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent side="top">
                           {["In Progress", "Completed"].map((status, index) => {
-                            const formatStatus = item.status
-                              .trim()
-                              .toLowerCase();
-                            const isCompleted = formatStatus === "completed";
-                            const isInProgress = formatStatus === "in progress";
+                            const isCompleted = item.status === "COMPLETED";
+                            const isInProgress = item.status === "IN PROGRESS";
 
                             return (
                               <DropdownMenuCheckboxItem
@@ -313,41 +309,6 @@ const ActionItems = () => {
                             setOpenDropdownId(null);
                           }}
                         />
-
-                        // <AlertDialog
-                        //   open={true}
-                        //   onOpenChange={() => setActiveDialog(null)}
-                        // >
-                        //   <AlertDialogContent className="bg-white shadow-lg">
-                        //     <AlertDialogHeader>
-                        //       <AlertDialogTitle>
-                        //         Are you sure you want to change to{" "}
-                        //         {activeDialog.status}?
-                        //       </AlertDialogTitle>
-                        //     </AlertDialogHeader>
-                        //     <AlertDialogFooter>
-                        //       <AlertDialogCancel
-                        //         onClick={() => {
-                        //           setActiveDialog(null);
-                        //           setOpenDropdownId(null);
-                        //         }}
-                        //       >
-                        //         No
-                        //       </AlertDialogCancel>
-                        //       <AlertDialogAction
-                        //         onClick={() =>
-                        //           handleUpdateStatus(
-                        //             item.user_id,
-                        //             item.action_item_id
-                        //           )
-                        //         }
-                        //       >
-                        //         Yes
-                        //       </AlertDialogAction>
-                        //       <AlertDialogDescription />
-                        //     </AlertDialogFooter>
-                        //   </AlertDialogContent>
-                        // </AlertDialog>
                       )}
                     </div>
                   </div>
