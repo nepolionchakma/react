@@ -4,7 +4,7 @@ import Inbox from "@/pages/Notifications/Inbox";
 import Sent from "@/pages/Notifications/Sent";
 import Drafts from "@/pages/Notifications/Drafts";
 import SingleMessage from "@/pages/Notifications/SingleMessage";
-import SingleDraft from "@/pages/Notifications/SingleDraft";
+// import SingleDraft from "@/pages/Notifications/SingleDraft";
 import ActionItems from "@/pages/ActionItems/ActionItems";
 import Home from "@/pages/Home/Home";
 import SingleSent from "@/pages/Notifications/SingleSent";
@@ -114,10 +114,10 @@ const routes = createBrowserRouter([
             path: "drafts",
             element: <Drafts />,
           },
-          {
-            path: "draft/:id",
-            element: <SingleDraft />,
-          },
+          // {
+          //   path: "draft/:id",
+          //   element: <SingleDraft />,
+          // },
           {
             path: "sent/:id",
             element: <SingleSent />,

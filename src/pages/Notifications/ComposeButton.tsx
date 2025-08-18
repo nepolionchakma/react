@@ -350,10 +350,14 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
         toast({ title: error.message, variant: "destructive" });
       }
     } finally {
-      setIsDrafting(false);
+      setIsSending(false);
       setRecivers([]);
       setSubject("");
       setBody("");
+      setAlertName("");
+      setAlertDescription("");
+      setActionItemName("");
+      setActionItemDescription("");
     }
   };
 

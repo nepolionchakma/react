@@ -232,10 +232,12 @@ export function SocketContextProvider({ children }: SocketContextProps) {
 
   useEffect(() => {
     socket.on("receivedMessage", (data: Notification) => {
+      console.log(data);
       const receivedMessagesId = receivedMessages.map(
         (msg) => msg.notification_id
       );
       if (receivedMessagesId.includes(data.notification_id)) {
+        console.log("return");
         return;
       } else {
         setSocketMessages((prevArray) => [data, ...prevArray]);

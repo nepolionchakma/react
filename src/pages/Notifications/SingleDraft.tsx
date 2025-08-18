@@ -98,18 +98,16 @@ const SingleDraft = ({
         };
 
         const alertResponse = await loadData(params);
-        setOldMsgState((prev) => ({
-          ...prev,
-          alertName: alertResponse.alert_name,
-          alertDescription: alertResponse.description,
-        }));
-        setAlertName(alertResponse.alert_name);
-        setAlertDescription(alertResponse.description);
-        setOldMsgState((prev) => ({
-          ...prev,
-          alertName: alertResponse.alert_name,
-          alertDescription: alertResponse.description,
-        }));
+        console.log(alertResponse, `/alerts/${draftNotification.alert_id}`);
+        if (alertResponse) {
+          setOldMsgState((prev) => ({
+            ...prev,
+            alertName: alertResponse.alert_name,
+            alertDescription: alertResponse.description,
+          }));
+          setAlertName(alertResponse.alert_name);
+          setAlertDescription(alertResponse.description);
+        }
       } else if (notifcationType === "ACTION ITEM") {
         const params = {
           baseURL: flaskUrl,
@@ -118,13 +116,15 @@ const SingleDraft = ({
         };
 
         const actionItemResponse = await loadData(params);
-        setActionItemName(actionItemResponse.action_item_name);
-        setActionItemDescription(actionItemResponse.description);
-        setOldMsgState((prev) => ({
-          ...prev,
-          actionItemName: actionItemResponse.action_item_name,
-          actionItemDescription: actionItemResponse.description,
-        }));
+        if (actionItemResponse) {
+          setOldMsgState((prev) => ({
+            ...prev,
+            actionItemName: actionItemResponse.action_item_name,
+            actionItemDescription: actionItemResponse.description,
+          }));
+          setActionItemName(actionItemResponse.action_item_name);
+          setActionItemDescription(actionItemResponse.description);
+        }
       }
     };
 
@@ -286,11 +286,11 @@ const SingleDraft = ({
 
           await putData(actionItemParams);
         }
-        handleDraftMsgId(draftNotification.notification_id as string);
         handlesendMessage(
           draftNotification.notification_id,
           notifcationData.sender
         );
+        handleDraftMsgId(draftNotification.notification_id as string);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -330,9 +330,9 @@ const SingleDraft = ({
       const sendNotificationParams = {
         baseURL: nodeUrl,
         url: `/notifications/${draftNotification.notification_id}`,
-        setLoading: setIsSending,
+        setLoading: setIsDrafting,
         payload: data,
-        isToast: true,
+        isToast: false,
       };
       const response = await putData(sendNotificationParams);
       if (response.status === 200) {
@@ -344,8 +344,8 @@ const SingleDraft = ({
             payload: {
               alert_name: alertName,
               description: alertDescription,
-              recepients: recivers,
               last_updated_by: token.user_id,
+              recipients: recivers,
             },
             isToast: false,
           };
@@ -390,7 +390,7 @@ const SingleDraft = ({
   return (
     <CustomModal4 className="w-[700px]">
       <div className="flex justify-between px-2 items-center bg-[#CEDEF2] h-[41px]">
-        <p className="font-semibold">New {toTitleCase(notifcationType)}</p>
+        <p className="font-semibold">Edit {toTitleCase(notifcationType)}</p>
         <button onClick={() => setShowModal(false)}>
           <X />
         </button>
@@ -625,6 +625,32 @@ const SingleDraft = ({
                     ? "cursor-not-allowed bg-dark-400"
                     : "cursor-pointer bg-dark-100"
                 } flex gap-1 items-center px-4 py-1 rounded-l-full rounded-r-md  text-white hover:scale-95 duration-300`}
+              >
+                {isDrafting ? (
+                  <Spinner size="20" color="#ffffff" />
+                ) : (
+                  <Save size={18} />
+                )}
+                <p className="font-semibold ">Save</p>
+              </button>
+            )}
+
+            {notifcationType === "NOTIFICATION" && (
+              <button
+                //if receivers, subject, body change by any how then enabled button
+                disabled={
+                  !userChanged &&
+                  oldMsgState?.subject === subject &&
+                  oldMsgState?.body === body
+                }
+                onClick={handleDraft}
+                className={`${
+                  !userChanged &&
+                  oldMsgState?.subject === subject &&
+                  oldMsgState?.body === body
+                    ? " bg-dark-400 cursor-not-allowed"
+                    : " bg-dark-100 cursor-pointer"
+                } flex gap-1 items-center px-5 py-2 rounded-l-full rounded-r-md text-white hover:scale-95 duration-300`}
               >
                 {isDrafting ? (
                   <Spinner size="20" color="#ffffff" />
