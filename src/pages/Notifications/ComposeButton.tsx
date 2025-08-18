@@ -133,11 +133,6 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
       const response = await postData(sendNotificationParams);
 
       if (response.status === 201) {
-        handlesendMessage(
-          notifcationData.notification_id,
-          notifcationData.sender
-        );
-
         await api.post(
           "/push-notification/send-notification",
           sendNotificationPayload
@@ -161,8 +156,6 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
           const alertResponse = await postData(alertParams);
 
           if (alertResponse.status === 201) {
-            setAlertName("");
-            setAlertDescription("");
             const params = {
               baseURL: nodeUrl,
               url: `/notifications/${response.data.result.notification_id}`,
@@ -198,9 +191,6 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
           const actionItemResponse = await postData(actionItemParams);
           console.log(actionItemResponse, "actionItemResponse");
           if (actionItemResponse.status === 201) {
-            setActionItemName("");
-            setActionItemDescription("");
-
             const params1 = {
               baseURL: nodeUrl,
               url: `/notifications/${response.data.result.notification_id}`,
@@ -224,6 +214,10 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
             await putData(params2);
           }
         }
+        handlesendMessage(
+          notifcationData.notification_id,
+          notifcationData.sender
+        );
       }
     } catch (error) {
       console.error("Error:", error);
@@ -238,6 +232,10 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
       setRecivers([]);
       setSubject("");
       setBody("");
+      setAlertName("");
+      setAlertDescription("");
+      setActionItemName("");
+      setActionItemDescription("");
     }
   };
 
@@ -262,12 +260,90 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
     try {
       setIsDrafting(true);
       const response = await api.post(`/notifications`, data);
-      console.log(response);
+
       if (response.status === 201) {
-        handleDraftMessage(data.notification_id, data.sender);
+        if (notifcationType === "ALERT") {
+          const alertParams = {
+            baseURL: nodeUrl,
+            url: "/alerts",
+            setLoading: setIsDrafting,
+            payload: {
+              alert_name: alertName,
+              description: alertDescription,
+              recepients: recivers,
+              notification_id: id,
+              created_by: token.user_id,
+              last_updated_by: token.user_id,
+            },
+            isToast: false,
+          };
+
+          const alertResponse = await postData(alertParams);
+
+          if (alertResponse.status === 201) {
+            const params = {
+              baseURL: nodeUrl,
+              url: `/notifications/${response.data.result.notification_id}`,
+              setLoading: setIsDrafting,
+              payload: {
+                alert_id: alertResponse.data.result.alert_id,
+              },
+              isToast: false,
+            };
+            await putData(params);
+            handleSendAlert(
+              alertResponse.data.result.alert_id,
+              recivers,
+              false
+            );
+          }
+        }
+
+        if (notifcationType === "ACTION ITEM") {
+          const actionItemParams = {
+            baseURL: flaskUrl,
+            url: "/def_action_items",
+            setLoading: setIsDrafting,
+            payload: {
+              action_item_name: actionItemName,
+              description: actionItemDescription,
+              status: actionItemStatus,
+              user_ids: recivers,
+            },
+            isToast: false,
+          };
+
+          const actionItemResponse = await postData(actionItemParams);
+
+          if (actionItemResponse.status === 201) {
+            const params1 = {
+              baseURL: nodeUrl,
+              url: `/notifications/${response.data.result.notification_id}`,
+              setLoading: setIsDrafting,
+              payload: {
+                action_item_id: actionItemResponse.data.action_item_id,
+              },
+              isToast: false,
+            };
+            await putData(params1);
+
+            const params2 = {
+              baseURL: flaskUrl,
+              url: `/def_action_items/${actionItemResponse.data.action_item_id}`,
+              setLoading: setIsDrafting,
+              payload: {
+                notification_id: response.data.result.notification_id,
+              },
+              isToast: false,
+            };
+            await putData(params2);
+          }
+        }
+
         toast({
           title: `${response.data.message}`,
         });
+        handleDraftMessage(data.notification_id, data.sender);
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -508,7 +584,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
             ) : (
               <Save size={18} />
             )}
-            <p className="font-semibold ">Save as drafts</p>
+            <p className="font-semibold ">Save as draft</p>
           </button>
           {/* ) : null}
            {recivers.length === 0 || body === "" ? null : ( */}

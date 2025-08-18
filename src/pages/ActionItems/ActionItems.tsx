@@ -37,6 +37,7 @@ export interface IActionItems {
   last_updated_by: number;
   notification_id: string;
   status: string;
+  notification_status: string;
   user_id: number;
   user_name: string;
 }
