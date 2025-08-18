@@ -53,7 +53,12 @@ const Alerts = () => {
         handleSendAlert(alert_id, [user_id], true);
       }
     } catch (error) {
-      console.log("errror", error);
+      if (error instanceof Error) {
+        toast({
+          title: error.message,
+          variant: "destructive",
+        });
+      }
     }
   };
 
