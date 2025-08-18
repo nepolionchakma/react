@@ -9,7 +9,6 @@ import { ChangeEvent, useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useToast } from "@/components/ui/use-toast";
-import { v4 as uuidv4 } from "uuid";
 import Spinner from "@/components/Spinner/Spinner";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
@@ -75,7 +74,7 @@ const SingleDraft = ({
     body: draftNotification.notification_body,
   });
   const actionItemStatus = "NEW";
-  const id = uuidv4();
+
   // const date = new Date();
   const nodeUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
@@ -216,7 +215,6 @@ const SingleDraft = ({
       notification_body: body,
       status: "SENT",
       creation_date: new Date(),
-      parent_notification_id: id,
       involved_users: involvedusers,
       readers: recivers,
       holders: involvedusers,
