@@ -85,7 +85,6 @@ const ReplyDialog = ({
       const response = await api.post(`/notifications`, data);
 
       if (response.status === 201) {
-        handlesendMessage(data.notification_id, data.sender);
         setTotalMessages((prev) => [data, ...prev]);
         await api.post(
           "/push-notification/send-notification",
@@ -94,6 +93,7 @@ const ReplyDialog = ({
         toast({
           title: `${response.data.message}`,
         });
+        handlesendMessage(data.notification_id, data.sender);
       }
     } catch (error) {
       console.error("Error:", error);
