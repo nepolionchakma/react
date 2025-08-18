@@ -35,11 +35,10 @@ function Rows({ limit, setLimit }: RowsProps) {
         placeholder="Rows"
         value={limit}
         min={1}
-        // max={20}
         ref={inputRef}
         onClick={handleClick}
         onChange={(e) => handleRow(Number(e.target.value))}
-        className="w-14 border rounded p-2"
+        className="w-20 border rounded p-2"
       />
     </div>
   );

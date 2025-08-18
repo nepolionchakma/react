@@ -39,7 +39,7 @@ function Days({ days, setDays }: DaysProps) {
         ref={inputRef}
         onClick={handleClick}
         onChange={(e) => handleRow(Number(e.target.value))}
-        className="w-14 border rounded p-2"
+        className="w-20 border rounded p-2"
       />
     </div>
   );
