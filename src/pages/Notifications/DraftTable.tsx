@@ -15,7 +15,7 @@ import {
 
 import { useToast } from "@/components/ui/use-toast";
 import { Edit } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+// import { useNavigate } from "react-router-dom";
 import TableRowCounter from "@/components/TableCounter/TableRowCounter";
 import Spinner from "@/components/Spinner/Spinner";
 import Pagination5 from "@/components/Pagination/Pagination5";
@@ -26,6 +26,7 @@ import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import Alert from "@/components/Alert/Alert";
 import { renderUserName } from "@/Utility/NotificationUtils";
+import SingleDraft from "./SingleDraft";
 
 interface DraftTableProps {
   path: string;
@@ -41,11 +42,27 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
     setDraftMessages,
   } = useSocketContext();
   const { userId, users } = useGlobalContext();
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
   const { toast } = useToast();
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showSingleDraft, setShowSingleDraft] = useState(false);
+  const [selectedDraft, setSelectedDraft] = useState<Notification>({
+    notification_id: "",
+    notification_type: "",
+    sender: userId,
+    recipients: [],
+    subject: "",
+    notification_body: "",
+    creation_date: new Date(),
+    status: "",
+    parent_notification_id: "",
+    involved_users: [],
+    readers: [],
+    holders: [],
+    recycle_bin: [],
+  });
 
   //Fetch Draft Messages
   useEffect(() => {
@@ -110,8 +127,18 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
     return formattedDate;
   };
 
-  const handleNavigate = (id: string) => {
-    navigate(`/notifications/draft/${id}`);
+  // const handleNavigate = (id: string) => {
+  //   navigate(`/notifications/draft/${id}`);
+  // };
+
+  const handleEditButton = (notificationId: string) => {
+    const notification = draftMessages.find(
+      (item) => item.notification_id === notificationId
+    );
+    if (notification) {
+      setSelectedDraft(notification);
+      setShowSingleDraft(true);
+    }
   };
 
   return (
@@ -176,7 +203,7 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
                               <span>
                                 <Edit
                                   onClick={() =>
-                                    handleNavigate(msg.notification_id)
+                                    handleEditButton(msg.notification_id)
                                   }
                                   className="cursor-pointer"
                                 />
@@ -222,6 +249,13 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
           />
         </div>
       </div>
+
+      {showSingleDraft && (
+        <SingleDraft
+          setShowModal={setShowSingleDraft}
+          draftNotification={selectedDraft}
+        />
+      )}
     </>
   );
 };

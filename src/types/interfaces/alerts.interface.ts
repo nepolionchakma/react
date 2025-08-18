@@ -6,7 +6,7 @@ export interface Alerts {
   alert_name: string;
   description: string;
   acknowledge: boolean;
-  status: string;
+  notification_status: string;
   created_by: number;
   creation_date: Date;
   last_update_by: number;
