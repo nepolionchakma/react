@@ -74,7 +74,13 @@ const Topbar = () => {
           <Bell className="text-2xl" />
           {unreadTotalAlert.length > 0 ? (
             <p className="w-5 h-5 flex justify-center items-center rounded-full bg-Red-100 text-white text-sm absolute left-[28px] top-0">
-              {unreadTotalAlert.length}
+              {unreadTotalAlert.length > 9 ? (
+                <span className="relative">
+                  9<span className="text-[0.5rem] absolute top-0">+</span>
+                </span>
+              ) : (
+                <span>{unreadTotalAlert.length}</span>
+              )}
             </p>
           ) : null}
           <p className="font-semibold hidden lg:block transition duration-300 ease-in-out">
