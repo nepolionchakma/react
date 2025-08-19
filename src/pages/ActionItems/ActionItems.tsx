@@ -84,7 +84,6 @@ const ActionItems = () => {
   const fetchActionItems = async () => {
     const res = await loadData(actionItemsParams);
     if (res.items) {
-      console.log(res);
       setActionItems(res.items);
       setTotalPage(res.pages);
       return res;
