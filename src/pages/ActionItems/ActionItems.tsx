@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Circle, CircleCheck, CircleCheckBig, RefreshCw } from "lucide-react";
-import { useEffect, useState } from "react";
-import { loadData, putData } from "@/Utility/funtion";
+import { useEffect, useRef, useState } from "react";
+import { loadData } from "@/Utility/funtion";
 import { flaskApi, FLASK_URL } from "@/Api/Api";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import Spinner from "@/components/Spinner/Spinner";
@@ -18,14 +18,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toTitleCase } from "@/Utility/general";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import Alert from "@/components/Alert/Alert";
+import axios from "axios";
+import { toast } from "@/components/ui/use-toast";
 
 export interface IActionItems {
   action_item_id: number;
@@ -57,7 +53,7 @@ const statusColors: Record<StatusType, string> = {
 
 const ActionItems = () => {
   const { token } = useGlobalContext();
-  const [status, setStatus] = useState("NEW");
+
   const [actionItems, setActionItems] = useState<IActionItems[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [query, setQuery] = useState({ isEmpty: true, value: "" });
@@ -66,11 +62,19 @@ const ActionItems = () => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [selectedOption, setSelectedOption] = useState("");
   const [actionItemIds, setActionItemIds] = useState<number[]>([]);
-  const [openDropdownId, setOpenDropdownId] = useState<number | null>(null);
+  const [openProgressBarId, setOpenProgressBarId] = useState<number | null>(
+    null
+  );
   const [activeDialog, setActiveDialog] = useState<{
     itemId: number;
     status: string;
   } | null>(null);
+  const popupRefs = useRef<{
+    [key: number]: {
+      button: HTMLButtonElement | null;
+      popup: HTMLDivElement | null;
+    };
+  }>({});
   const limit = 8;
   const actionItemsParams = {
     baseURL: FLASK_URL,
@@ -91,6 +95,30 @@ const ActionItems = () => {
     fetchActionItems();
   }, [token.user_id, selectedOption]);
 
+  /** close progressbar */
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (openProgressBarId !== null) {
+        if (activeDialog) return;
+
+        const refs = popupRefs.current[openProgressBarId];
+        if (
+          refs?.button &&
+          !refs.button.contains(event.target as Node) &&
+          refs?.popup &&
+          !refs.popup.contains(event.target as Node)
+        ) {
+          setOpenProgressBarId(null);
+        }
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [openProgressBarId, activeDialog]);
+
   /** reload data by clicking refresh button */
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -109,6 +137,7 @@ const ActionItems = () => {
     }
   };
 
+  /** View Long text */
   const handleViewDetails = (actionItemId: number) => {
     if (actionItemIds.includes(actionItemId)) {
       const filterIds = actionItemIds.filter((id) => id !== actionItemId);
@@ -119,22 +148,49 @@ const ActionItems = () => {
   };
 
   const handleUpdateStatus = async (userId: number, actionItemId: number) => {
-    const actionItemParams = {
-      baseURL: FLASK_URL,
-      url: `${flaskApi.DefActionItemAssignment}/${userId}/${actionItemId}`,
-      setLoading: setIsLoading,
-      payload: {
-        status: activeDialog?.status.toUpperCase(),
-      },
-      isToast: true,
-    };
-
-    const res = await putData(actionItemParams);
-    if (res.status === 200) {
-      fetchActionItems();
+    try {
+      const res = await axios.put(
+        `${FLASK_URL}/${flaskApi.DefActionItemAssignment}/${userId}/${actionItemId}`,
+        { status: activeDialog?.status.toUpperCase() },
+        {
+          headers: {
+            Authorization: `Bearer ${token.access_token}`,
+          },
+        }
+      );
+      if (res.status === 200) {
+        setActionItems((prev) =>
+          prev.map((item) =>
+            item.action_item_id === activeDialog?.itemId
+              ? { ...item, status: activeDialog.status }
+              : item
+          )
+        );
+        toast({
+          title: res.data.message,
+        });
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast({
+          title: error.message,
+          variant: "destructive",
+        });
+      }
+    } finally {
       setActiveDialog(null);
-      setOpenDropdownId(null);
     }
+  };
+
+  const handleOpenProgressBar = (id: number) => {
+    if (id === openProgressBarId) {
+      setOpenProgressBarId(null);
+    } else {
+      setOpenProgressBarId(id);
+    }
+  };
+  const handleStatusChange = (id: number, status: string) => {
+    setActiveDialog({ itemId: id, status: status });
   };
 
   return (
@@ -209,79 +265,7 @@ const ActionItems = () => {
                         >
                           <p>{toTitleCase(item.status)}</p>
                         </div>
-
-                        <div className="flex flex-col items-center px-6 py-3 bg-light-200 shadow-md rounded-md">
-                          <div className="flex items-center ">
-                            {status === "NEW" ||
-                            status === "IN PROGRESS" ||
-                            status === "COMPLETED" ? (
-                              <div className="flex flex-col gap-1">
-                                <button onClick={() => setStatus("NEW")}>
-                                  <CircleCheck color="#16a34a" />
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="flex flex-col gap-1">
-                                <button>
-                                  <Circle color="#cbd5e1" />
-                                </button>
-                              </div>
-                            )}
-                            <div
-                              className={`w-20 h-[2px] ${
-                                status === "IN PROGRESS" ||
-                                status === "COMPLETED"
-                                  ? "bg-[#16a34a]"
-                                  : "bg-slate-300"
-                              }`}
-                            />
-                            {status === "IN PROGRESS" ||
-                            status === "COMPLETED" ? (
-                              <div className="flex flex-col gap-1">
-                                <button
-                                  onClick={() => setStatus("IN PROGRESS")}
-                                >
-                                  <CircleCheck color="#16a34a" />
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="flex flex-col gap-1">
-                                <button
-                                  onClick={() => setStatus("IN PROGRESS")}
-                                >
-                                  <Circle color="#cbd5e1" />
-                                </button>
-                              </div>
-                            )}
-                            <div
-                              className={`w-20 h-[2px] ${
-                                status === "COMPLETED"
-                                  ? "bg-[#16a34a]"
-                                  : "bg-slate-300"
-                              }`}
-                            />
-                            {status === "COMPLETED" ? (
-                              <div className="flex flex-col gap-1">
-                                <button onClick={() => setStatus("COMPLETED")}>
-                                  <CircleCheck color="#16a34a" />
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="flex flex-col gap-1">
-                                <button onClick={() => setStatus("COMPLETED")}>
-                                  <Circle color="#cbd5e1" />
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                          <div className="flex">
-                            <p className="ml-8">New</p>
-                            <p className="ml-10">In Progress</p>
-                            <p className="ml-8">Completed</p>
-                          </div>
-                        </div>
                       </div>
-
                       <p className="text-gray-600">
                         {actionItemIds.includes(item.action_item_id) ? (
                           <>
@@ -314,74 +298,142 @@ const ActionItems = () => {
                             )}
                           </>
                         )}
-
-                        {/* {item.description.length > 350
-                          ? item.description.slice(0, 350) + "..."
-                          : item.description} */}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 relative">
+                      {openProgressBarId === item.action_item_id && (
+                        <div
+                          ref={(el) =>
+                            (popupRefs.current[item.action_item_id] = {
+                              ...popupRefs.current[item.action_item_id],
+                              popup: el,
+                            })
+                          }
+                          className="absolute -top-20 left-16 flex flex-col items-center px-6 py-3 bg-light-200 shadow-md rounded-md"
+                        >
+                          <div className="flex items-center ">
+                            <div className="flex flex-col gap-1">
+                              <button disabled={true}>
+                                <CircleCheck color="#16a34a" />
+                              </button>
+                            </div>
+                            <div
+                              className={`w-20 h-[2px] ${
+                                item.status === "IN PROGRESS" ||
+                                item.status === "COMPLETED"
+                                  ? "bg-[#16a34a]"
+                                  : "bg-slate-300"
+                              }`}
+                            />
+                            {item.status === "IN PROGRESS" ||
+                            item.status === "COMPLETED" ? (
+                              <div className="flex flex-col gap-1">
+                                <button
+                                  disabled={item.status === "IN PROGRESS"}
+                                  onClick={() =>
+                                    handleStatusChange(
+                                      item.action_item_id,
+                                      "IN PROGRESS"
+                                    )
+                                  }
+                                >
+                                  <CircleCheck color="#16a34a" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col gap-1">
+                                <button
+                                  onClick={() =>
+                                    handleStatusChange(
+                                      item.action_item_id,
+                                      "IN PROGRESS"
+                                    )
+                                  }
+                                >
+                                  <Circle color="#cbd5e1" />
+                                </button>
+                              </div>
+                            )}
+                            <div
+                              className={`w-20 h-[2px] ${
+                                item.status === "COMPLETED"
+                                  ? "bg-[#16a34a]"
+                                  : "bg-slate-300"
+                              }`}
+                            />
+                            {item.status === "COMPLETED" ? (
+                              <div className="flex flex-col gap-1">
+                                <button
+                                  disabled={item.status === "COMPLETED"}
+                                  onClick={() =>
+                                    handleStatusChange(
+                                      item.action_item_id,
+                                      "COMPLETED"
+                                    )
+                                  }
+                                >
+                                  <CircleCheck color="#16a34a" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col gap-1">
+                                <button
+                                  disabled={
+                                    item.status === "NEW" ||
+                                    item.status === "COMPLETED"
+                                  }
+                                  onClick={() =>
+                                    handleStatusChange(
+                                      item.action_item_id,
+                                      "COMPLETED"
+                                    )
+                                  }
+                                >
+                                  <Circle color="#cbd5e1" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex">
+                            <p className="ml-6">New</p>
+                            <p className="ml-10">In Progress</p>
+                            <p className="ml-8">Completed</p>
+                          </div>
+                        </div>
+                      )}
                       <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
                         <p>ITEM 1</p>
                       </button>
-                      <DropdownMenu
-                        open={openDropdownId === item.action_item_id}
-                        onOpenChange={(isOpen) =>
-                          setOpenDropdownId(isOpen ? item.action_item_id : null)
+                      <button
+                        ref={(el) =>
+                          (popupRefs.current[item.action_item_id] = {
+                            ...popupRefs.current[item.action_item_id],
+                            button: el,
+                          })
                         }
+                        onClick={() =>
+                          handleOpenProgressBar(item.action_item_id)
+                        }
+                        className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300"
                       >
-                        <DropdownMenuTrigger asChild>
-                          <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
-                            <p>Update Status</p>
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent side="top">
-                          {["In Progress", "Completed"].map((status, index) => {
-                            const isCompleted = item.status === "COMPLETED";
-                            const isInProgress = item.status === "IN PROGRESS";
-
-                            return (
-                              <DropdownMenuCheckboxItem
-                                key={index}
-                                checked={
-                                  isCompleted ||
-                                  (isInProgress &&
-                                    status.toLowerCase() === "in progress")
-                                }
-                                disabled={
-                                  isCompleted ||
-                                  (isInProgress &&
-                                    status.toLowerCase() === "in progress")
-                                }
-                                onSelect={(e) => {
-                                  e.preventDefault();
-                                  setActiveDialog({
-                                    itemId: item.action_item_id,
-                                    status,
-                                  });
-                                }}
-                              >
-                                {status}
-                              </DropdownMenuCheckboxItem>
-                            );
-                          })}
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                        <p>Update Status</p>
+                      </button>
                       {activeDialog?.itemId === item.action_item_id && (
                         <Alert
                           actionName="update status"
-                          onContinue={() =>
+                          onContinue={() => {
                             handleUpdateStatus(
                               item.user_id,
                               item.action_item_id
-                            )
-                          }
+                            );
+                            setOpenProgressBarId(null);
+                          }}
                           disabled={false}
                           open={true}
                           onOpenChange={() => setActiveDialog(null)}
                           onCancel={() => {
                             setActiveDialog(null);
-                            setOpenDropdownId(null);
+                            setOpenProgressBarId(null);
                           }}
                         />
                       )}
@@ -406,74 +458,6 @@ const ActionItems = () => {
           />
         </div>
       ) : null}
-
-      {/* <Card className="flex gap-4 p-4">
-        <div className="bg-yellow-100 w-[40px] h-[40px] flex justify-center items-center rounded-full">
-          <CircleCheck color="black" />
-        </div>
-        <div className="flex flex-col gap-2 w-full">
-          <div className="flex justify-between w-full">
-            <div>
-              <p className="font-semibold mb-1">
-                Lorem ipsum lorem ipsum lorem lorem lorem 2
-              </p>
-            </div>
-            <p className="text-gray-700">7/1/2025, 5:50:24 PM</p>
-          </div>
-          <div>
-            <div className="bg-yellow-100 px-[2px] rounded-sm inline-block">
-              <p>In Progress</p>
-            </div>
-            <p className="text-gray-600">
-              Lorem ipsum dolor sit amet consectetur. Eget lobortis tristique
-              amet urna. Posuere semper nunc malesuada non massa blandit sit
-              posuere. Elit duis neque nec tincidunt est lacus vitae id non.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
-              <p>ITEM 1</p>
-            </button>
-            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
-              <p>ITEM 2</p>
-            </button>
-          </div>
-        </div>
-      </Card>
-
-      <Card className="flex gap-4 p-4">
-        <div className="bg-orange-100 w-[40px] h-[40px] flex justify-center items-center rounded-full">
-          <Circle color="black" />
-        </div>
-        <div className="flex flex-col gap-2 w-full">
-          <div className="flex justify-between w-full">
-            <div>
-              <p className="font-semibold mb-1">
-                Lorem ipsum lorem ipsum lorem lorem lorem 3
-              </p>
-            </div>
-            <p className="text-gray-700">7/1/2025, 5:50:24 PM</p>
-          </div>
-          <div>
-            <div className="bg-orange-100 px-[2px] rounded-sm inline-block">
-              <p>New</p>
-            </div>
-            <p className="text-gray-600">
-              Lorem ipsum dolor sit amet consectetur. Eget lobortis tristique
-              amet urna. Posuere semper nunc malesuada non massa blandit sit
-              posuere. Elit duis neque nec tincidunt est lacus vitae id non.
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
-              <p>ITEM 1</p>
-            </button>
-            <button className="w-32 h-10 rounded-sm flex justify-center items-center bg-gray-300">
-              <p>ITEM 2</p>
-            </button>
-          </div>
-        </div>
-      </Card> */}
     </div>
   );
 };
