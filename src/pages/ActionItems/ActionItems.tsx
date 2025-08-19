@@ -57,6 +57,7 @@ const statusColors: Record<StatusType, string> = {
 
 const ActionItems = () => {
   const { token } = useGlobalContext();
+  const [status, setStatus] = useState("NEW");
   const [actionItems, setActionItems] = useState<IActionItems[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [query, setQuery] = useState({ isEmpty: true, value: "" });
@@ -200,12 +201,85 @@ const ActionItems = () => {
                     </div>
 
                     <div>
-                      <div
-                        className={`${
-                          statusColors[item.status as StatusType]
-                        } px-[2px] rounded-sm inline-block`}
-                      >
-                        <p>{toTitleCase(item.status)}</p>
+                      <div className="flex items-center gap-4">
+                        <div
+                          className={`${
+                            statusColors[item.status as StatusType]
+                          } px-[2px] rounded-sm inline-block`}
+                        >
+                          <p>{toTitleCase(item.status)}</p>
+                        </div>
+
+                        <div className="flex flex-col items-center px-6 py-3 bg-light-200 shadow-md rounded-md">
+                          <div className="flex items-center ">
+                            {status === "NEW" ||
+                            status === "IN PROGRESS" ||
+                            status === "COMPLETED" ? (
+                              <div className="flex flex-col gap-1">
+                                <button onClick={() => setStatus("NEW")}>
+                                  <CircleCheck color="#16a34a" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col gap-1">
+                                <button>
+                                  <Circle color="#cbd5e1" />
+                                </button>
+                              </div>
+                            )}
+                            <div
+                              className={`w-20 h-[2px] ${
+                                status === "IN PROGRESS" ||
+                                status === "COMPLETED"
+                                  ? "bg-[#16a34a]"
+                                  : "bg-slate-300"
+                              }`}
+                            />
+                            {status === "IN PROGRESS" ||
+                            status === "COMPLETED" ? (
+                              <div className="flex flex-col gap-1">
+                                <button
+                                  onClick={() => setStatus("IN PROGRESS")}
+                                >
+                                  <CircleCheck color="#16a34a" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col gap-1">
+                                <button
+                                  onClick={() => setStatus("IN PROGRESS")}
+                                >
+                                  <Circle color="#cbd5e1" />
+                                </button>
+                              </div>
+                            )}
+                            <div
+                              className={`w-20 h-[2px] ${
+                                status === "COMPLETED"
+                                  ? "bg-[#16a34a]"
+                                  : "bg-slate-300"
+                              }`}
+                            />
+                            {status === "COMPLETED" ? (
+                              <div className="flex flex-col gap-1">
+                                <button onClick={() => setStatus("COMPLETED")}>
+                                  <CircleCheck color="#16a34a" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col gap-1">
+                                <button onClick={() => setStatus("COMPLETED")}>
+                                  <Circle color="#cbd5e1" />
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex">
+                            <p className="ml-8">New</p>
+                            <p className="ml-10">In Progress</p>
+                            <p className="ml-8">Completed</p>
+                          </div>
+                        </div>
                       </div>
 
                       <p className="text-gray-600">
