@@ -93,10 +93,14 @@ const ActionItems = () => {
   }, [currentPage, selectedOption, token.user_id]);
 
   /** Search Functionality */
-  const fetchSearchActionItems = async (q: string, page = currentPage) => {
+  const fetchSearchActionItems = async (
+    q: string,
+    page = currentPage,
+    status = selectedOption
+  ) => {
     const searchQueryParams = {
       baseURL: FLASK_URL,
-      url: `${flaskApi.DefActionItems}/${token.user_id}/${page}/${limit}?action_item_name=${q}`,
+      url: `${flaskApi.DefActionItems}/${token.user_id}/${page}/${limit}?status=${status}&action_item_name=${q}`,
       setLoading: setIsLoading,
     };
     const res = await loadData(searchQueryParams);
@@ -108,14 +112,19 @@ const ActionItems = () => {
 
   // Debounced search function
   const debouncedSearch = useRef(
-    debounce((q: string, page: number) => fetchSearchActionItems(q, page), 1000)
+    debounce(
+      (q: string, page: number, status: string) =>
+        fetchSearchActionItems(q, page, status),
+      1000
+    )
   ).current;
 
   useEffect(() => {
     if (query.isEmpty) {
       fetchActionItems();
     } else {
-      debouncedSearch(query.value, currentPage);
+      console.log("debounce running");
+      debouncedSearch(query.value, currentPage, selectedOption);
     }
   }, [
     query,
@@ -314,9 +323,9 @@ const ActionItems = () => {
                           </>
                         ) : (
                           <>
-                            {item.description.length > 250 ? (
+                            {item.description.length > 150 ? (
                               <>
-                                {item.description.slice(0, 250)}
+                                {item.description.slice(0, 150)}
                                 <span
                                   className="text-blue-600 cursor-pointer ml-1"
                                   onClick={() =>
