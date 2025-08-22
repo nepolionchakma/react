@@ -323,9 +323,9 @@ const ActionItems = () => {
                           </>
                         ) : (
                           <>
-                            {item.description.length > 150 ? (
+                            {item.description.length > 250 ? (
                               <>
-                                {item.description.slice(0, 150)}
+                                {item.description.slice(0, 250)}
                                 <span
                                   className="text-blue-600 cursor-pointer ml-1"
                                   onClick={() =>
