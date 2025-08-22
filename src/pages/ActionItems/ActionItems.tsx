@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { Circle, CircleCheck, CircleCheckBig, RefreshCw } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { loadData } from "@/Utility/funtion";
 import { flaskApi, FLASK_URL } from "@/Api/Api";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
@@ -77,19 +77,20 @@ const ActionItems = () => {
     };
   }>({});
   const limit = 8;
-  const actionItemsParams = {
-    baseURL: FLASK_URL,
-    url: `${flaskApi.DefActionItems}/${token.user_id}/${currentPage}/${limit}?status=${selectedOption}`,
-    setLoading: setIsLoading,
-  };
-  const fetchActionItems = async () => {
+
+  const fetchActionItems = useCallback(async () => {
+    const actionItemsParams = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefActionItems}/${token.user_id}/${currentPage}/${limit}?status=${selectedOption}`,
+      setLoading: setIsLoading,
+    };
     const res = await loadData(actionItemsParams);
     if (res.items) {
       setActionItems(res.items);
       setTotalPage(res.pages);
       return res;
     }
-  };
+  }, [currentPage, selectedOption, token.user_id]);
 
   /** Search Functionality */
   const fetchSearchActionItems = async (q: string, page = currentPage) => {
@@ -116,7 +117,15 @@ const ActionItems = () => {
     } else {
       debouncedSearch(query.value, currentPage);
     }
-  }, [query, token.user_id, selectedOption, currentPage, query.isEmpty]);
+  }, [
+    query,
+    token.user_id,
+    selectedOption,
+    currentPage,
+    query.isEmpty,
+    fetchActionItems,
+    debouncedSearch,
+  ]);
 
   /** close progressbar */
   useEffect(() => {
