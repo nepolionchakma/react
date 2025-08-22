@@ -15,7 +15,11 @@ export const renderSlicedUsername = (
 
   if (user) {
     const userName = user?.user_name;
-    return userName.slice(0, limit);
+    if (userName.length > 8) {
+      return userName.slice(0, 8) + "...";
+    } else {
+      return userName.slice(0, limit);
+    }
   }
 };
 
