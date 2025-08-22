@@ -12,18 +12,22 @@ interface SearchInputProps {
     }>
   >;
   placeholder: string;
+  setPage: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export default function SearchInput({
   placeholder,
   query,
   setQuery,
+  setPage,
 }: SearchInputProps) {
   const handleQuery = (e: string) => {
     if (e === "") {
       setQuery({ isEmpty: true, value: e });
+      setPage(1);
     } else {
       setQuery({ isEmpty: false, value: e });
+      setPage(1);
     }
   };
 
