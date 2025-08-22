@@ -22,6 +22,7 @@ import Pagination5 from "@/components/Pagination/Pagination5";
 import Alert from "@/components/Alert/Alert";
 import axios from "axios";
 import { toast } from "@/components/ui/use-toast";
+import { debounce } from "@/Utility/debounce";
 
 export interface IActionItems {
   action_item_id: number;
@@ -90,9 +91,32 @@ const ActionItems = () => {
     }
   };
 
+  /** Search Functionality */
+  const fetchSearchActionItems = async (q: string, page = currentPage) => {
+    const searchQueryParams = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefActionItems}/${token.user_id}/${page}/${limit}?action_item_name=${q}`,
+      setLoading: setIsLoading,
+    };
+    const res = await loadData(searchQueryParams);
+    if (res) {
+      setActionItems(res.items);
+      setTotalPage(res.pages);
+    }
+  };
+
+  // Debounced search function
+  const debouncedSearch = useRef(
+    debounce((q: string, page: number) => fetchSearchActionItems(q, page), 1000)
+  ).current;
+
   useEffect(() => {
-    fetchActionItems();
-  }, [token.user_id, selectedOption]);
+    if (query.isEmpty) {
+      fetchActionItems();
+    } else {
+      debouncedSearch(query.value, currentPage);
+    }
+  }, [query, token.user_id, selectedOption, currentPage, query.isEmpty]);
 
   /** close progressbar */
   useEffect(() => {
@@ -199,6 +223,7 @@ const ActionItems = () => {
           placeholder="Search Action Items"
           query={query}
           setQuery={setQuery}
+          setPage={setCurrentPage}
         />
         <div className="flex items-center gap-4">
           <ActionButtons>

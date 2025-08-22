@@ -109,6 +109,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   /** fetch total alert */
   useEffect(() => {
     const fetchUnreadTotalAlert = async () => {
+      if (!token || token?.user_id === 0) return;
       const res = await api.get(`/alerts/view/total/${token.user_id}`);
       if (res.status === 200) {
         setUnreadTotalAlert(res.data);

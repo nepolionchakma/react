@@ -86,13 +86,6 @@ const ManageDataSources = () => {
   const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
   const [isSelectAll, setIsSelectAll] = React.useState(false);
 
-  // When query changes, reset page to 1
-  React.useEffect(() => {
-    if (!query.isEmpty) {
-      setPage(1);
-    }
-  }, [query]);
-
   React.useEffect(() => {
     const fetchData = async () => {
       try {
@@ -568,6 +561,7 @@ const ManageDataSources = () => {
           placeholder="Search Datasource Name"
           query={query}
           setQuery={setQuery}
+          setPage={setPage}
         />
 
         <div className="flex gap-2 items-center ml-auto">
