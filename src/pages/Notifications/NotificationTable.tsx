@@ -145,7 +145,7 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
             <TableHeader>
               <TableRow className="bg-slate-200 hover:bg-slate-200">
                 <TableHead className="w-[7rem] font-bold">{person}</TableHead>
-                <TableHead className="font-bold">Subject</TableHead>
+                <TableHead className="font-bold min-w-[40%]">Subject</TableHead>
                 <TableHead className="min-w-[5rem] font-bold">Date</TableHead>
                 <TableHead className="w-[5rem] font-bold">Action</TableHead>
               </TableRow>
@@ -174,7 +174,7 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
                   >
                     <>
                       <TableCell className="py-2">
-                        {renderSlicedUsername(msg.sender, users, 10)}
+                        {renderSlicedUsername(msg.sender, users, 8)}
                       </TableCell>
                       <TableCell className="py-2">
                         <span className="mr-1">{msg.subject}</span>
