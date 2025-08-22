@@ -123,7 +123,6 @@ const ActionItems = () => {
     if (query.isEmpty) {
       fetchActionItems();
     } else {
-      console.log("debounce running");
       debouncedSearch(query.value, currentPage, selectedOption);
     }
   }, [
