@@ -24,7 +24,7 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import Alert from "@/components/Alert/Alert";
-import { renderUserName } from "@/Utility/NotificationUtils";
+import { renderSlicedUsername } from "@/Utility/NotificationUtils";
 import { toTitleCase } from "@/Utility/general";
 
 interface SentTableProps {
@@ -128,9 +128,11 @@ const SentTable = ({ path, person }: SentTableProps) => {
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-200 hover:bg-slate-200">
-                <TableHead className="font-bold w-8">Type</TableHead>
-                <TableHead className="font-bold ">{person}</TableHead>
-                <TableHead className="font-bold min-w-[40%]">Subject</TableHead>
+                <TableHead className="font-bold min-w-8">Type</TableHead>
+                <TableHead className="font-bold min-w-8">{person}</TableHead>
+                <TableHead className="font-bold min-w-[40%] ">
+                  Subject
+                </TableHead>
                 <TableHead className="min-w-[5rem] font-bold">Date</TableHead>
                 <TableHead className="w-[5rem] font-bold">Action</TableHead>
               </TableRow>
@@ -154,7 +156,7 @@ const SentTable = ({ path, person }: SentTableProps) => {
                       {toTitleCase(msg.notification_type)}
                     </TableCell>
                     <TableCell className="py-2">
-                      {renderUserName(msg.recipients[0], users)}
+                      {renderSlicedUsername(msg.recipients[0], users, 8)}
 
                       {(msg.recipients || []).length > 1 && ", ..."}
                     </TableCell>

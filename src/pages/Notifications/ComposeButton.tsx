@@ -628,10 +628,22 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
         <div className="flex mt-4 justify-end gap-2">
           {/* {recivers.length > 0 || body !== "" || subject !== "" ? ( */}
           <button
-            disabled={recivers.length === 0 && body === "" && subject === ""}
+            disabled={
+              (recivers.length === 0 && body === "" && subject === "") ||
+              (notifcationType === "ALERT" && alertName === "") ||
+              (notifcationType === "ALERT" && alertDescription === "") ||
+              (notifcationType === "ACTION ITEM" && actionItemName === "") ||
+              (notifcationType === "ACTION ITEM" &&
+                actionItemDescription === "")
+            }
             onClick={handleDraft}
             className={`${
-              recivers.length === 0 && body === "" && subject === ""
+              (recivers.length === 0 && body === "" && subject === "") ||
+              (notifcationType === "ALERT" && alertName === "") ||
+              (notifcationType === "ALERT" && alertDescription === "") ||
+              (notifcationType === "ACTION ITEM" && actionItemName === "") ||
+              (notifcationType === "ACTION ITEM" &&
+                actionItemDescription === "")
                 ? "cursor-not-allowed bg-dark-400"
                 : "cursor-pointer bg-dark-100 hover:bg-dark-100/80"
             } flex gap-1 items-center px-6 py-2 rounded-md text-white`}

@@ -36,7 +36,7 @@ import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import { useNavigate } from "react-router-dom";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import Alert from "@/components/Alert/Alert";
-import { renderUserName } from "@/Utility/NotificationUtils";
+import { renderSlicedUsername } from "@/Utility/NotificationUtils";
 import { toTitleCase } from "@/Utility/general";
 
 interface RecycleBinTableProps {
@@ -234,9 +234,9 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-200 hover:bg-slate-200">
-                <TableHead className="font-bold w-8">Type</TableHead>
-                <TableHead className="font-bold w-6">Origin</TableHead>
-                <TableHead className="font-bold w-28">{person}</TableHead>
+                <TableHead className="font-bold min-w-8">Type</TableHead>
+                <TableHead className="font-bold min-w-6">Origin</TableHead>
+                <TableHead className="font-bold min-w-8">{person}</TableHead>
                 <TableHead className="font-bold min-w-[40%]">Subject</TableHead>
                 <TableHead className="min-w-[5rem] font-bold">Date</TableHead>
                 <TableHead className="w-[5rem] font-bold">Action</TableHead>
@@ -267,8 +267,8 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
                         {msg.recipients.length === 0
                           ? "(no user)"
                           : msg.recipients.includes(userId)
-                          ? renderUserName(msg.sender, users)
-                          : renderUserName(msg.recipients[0], users)}
+                          ? renderSlicedUsername(msg.sender, users, 8)
+                          : renderSlicedUsername(msg.recipients[0], users, 8)}
                         {msg.recipients.length > 1 && ", ..."}
                       </TableCell>
                       <TableCell className="py-2">
