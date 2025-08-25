@@ -145,8 +145,8 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-200 hover:bg-slate-200">
-                <TableHead className="font-bold w-8">Type</TableHead>
-                <TableHead className="font-bold">{person}</TableHead>
+                <TableHead className="font-bold min-w-8">Type</TableHead>
+                <TableHead className="font-bold min-w-8">{person}</TableHead>
                 <TableHead className="font-bold min-w-[40%]">Subject</TableHead>
                 <TableHead className="min-w-[5rem] font-bold">Date</TableHead>
                 <TableHead className="w-[5rem] font-bold">Action</TableHead>

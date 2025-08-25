@@ -631,19 +631,23 @@ const SingleDraft = ({
             {notifcationType === "ALERT" && (
               <button
                 disabled={
-                  !userChanged &&
-                  oldMsgState?.subject === subject &&
-                  oldMsgState?.body === body &&
-                  oldMsgState?.alertDescription === alertDescription &&
-                  oldMsgState?.alertName === alertName
+                  (!userChanged &&
+                    oldMsgState?.subject === subject &&
+                    oldMsgState?.body === body &&
+                    oldMsgState?.alertDescription === alertDescription &&
+                    oldMsgState?.alertName === alertName) ||
+                  alertName === "" ||
+                  alertDescription === ""
                 }
                 onClick={handleDraft}
                 className={`${
-                  !userChanged &&
-                  oldMsgState?.subject === subject &&
-                  oldMsgState?.body === body &&
-                  oldMsgState?.alertDescription === alertDescription &&
-                  oldMsgState?.alertName === alertName
+                  (!userChanged &&
+                    oldMsgState?.subject === subject &&
+                    oldMsgState?.body === body &&
+                    oldMsgState?.alertDescription === alertDescription &&
+                    oldMsgState?.alertName === alertName) ||
+                  alertName === "" ||
+                  alertDescription === ""
                     ? "cursor-not-allowed bg-dark-400"
                     : "cursor-pointer bg-dark-100 hover:bg-dark-100/80"
                 } flex gap-1 items-center px-6 py-2 rounded-md text-white`}
@@ -660,19 +664,25 @@ const SingleDraft = ({
             {notifcationType === "ACTION ITEM" && (
               <button
                 disabled={
-                  !userChanged &&
-                  oldMsgState?.subject === subject &&
-                  oldMsgState?.body === body &&
-                  oldMsgState?.actionItemName === actionItemName &&
-                  oldMsgState?.actionItemDescription === actionItemDescription
+                  (!userChanged &&
+                    oldMsgState?.subject === subject &&
+                    oldMsgState?.body === body &&
+                    oldMsgState?.actionItemName === actionItemName &&
+                    oldMsgState?.actionItemDescription ===
+                      actionItemDescription) ||
+                  actionItemName === "" ||
+                  actionItemDescription === ""
                 }
                 onClick={handleDraft}
                 className={`${
-                  !userChanged &&
-                  oldMsgState?.subject === subject &&
-                  oldMsgState?.body === body &&
-                  oldMsgState?.actionItemName === actionItemName &&
-                  oldMsgState?.actionItemDescription === actionItemDescription
+                  (!userChanged &&
+                    oldMsgState?.subject === subject &&
+                    oldMsgState?.body === body &&
+                    oldMsgState?.actionItemName === actionItemName &&
+                    oldMsgState?.actionItemDescription ===
+                      actionItemDescription) ||
+                  actionItemName === "" ||
+                  actionItemDescription === ""
                     ? "cursor-not-allowed bg-dark-400"
                     : "cursor-pointer bg-dark-100 hover:bg-dark-100/80"
                 } flex gap-1 items-center px-6 py-2 rounded-md text-white`}
