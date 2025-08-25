@@ -37,6 +37,7 @@ import { useNavigate } from "react-router-dom";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import Alert from "@/components/Alert/Alert";
 import { renderUserName } from "@/Utility/NotificationUtils";
+import { toTitleCase } from "@/Utility/general";
 
 interface RecycleBinTableProps {
   path: string;
@@ -233,8 +234,9 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-200 hover:bg-slate-200">
-                <TableHead className="w-[3rem] font-bold">Origin</TableHead>
-                <TableHead className="w-[7rem] font-bold">{person}</TableHead>
+                <TableHead className="font-bold w-8">Type</TableHead>
+                <TableHead className="font-bold w-6">Origin</TableHead>
+                <TableHead className="font-bold w-28">{person}</TableHead>
                 <TableHead className="font-bold min-w-[40%]">Subject</TableHead>
                 <TableHead className="min-w-[5rem] font-bold">Date</TableHead>
                 <TableHead className="w-[5rem] font-bold">Action</TableHead>
@@ -257,9 +259,10 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
                 {recycleBinMsg.map((msg) => (
                   <TableRow key={msg.notification_id}>
                     <>
-                      <TableCell className="py-2 font-bold">
-                        {findOrigin(msg)}
+                      <TableCell className="py-2">
+                        {toTitleCase(msg.notification_type)}
                       </TableCell>
+                      <TableCell className="py-2">{findOrigin(msg)}</TableCell>
                       <TableCell className="py-2">
                         {msg.recipients.length === 0
                           ? "(no user)"

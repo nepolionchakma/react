@@ -1,19 +1,11 @@
 import Spinner from "@/components/Spinner/Spinner";
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 import { useToast } from "@/components/ui/use-toast";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { Notification } from "@/types/interfaces/users.interface";
-import { MessageCircleReply, Reply, Save } from "lucide-react";
+import { Reply, Save, X } from "lucide-react";
 import { ChangeEvent, useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -22,15 +14,18 @@ import {
   renderProfilePicture,
   renderSlicedUsername,
 } from "@/Utility/NotificationUtils";
+import CustomModal4 from "@/components/CustomModal/CustomModal4";
 
 interface ReplyDialogProps {
   parrentMessage: Notification;
   setTotalMessages: React.Dispatch<React.SetStateAction<Notification[]>>;
+  setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ReplyDialog = ({
   parrentMessage,
   setTotalMessages,
+  setShowModal,
 }: ReplyDialogProps) => {
   const api = useAxiosPrivate();
   const { users, userId, token } = useGlobalContext();
@@ -53,6 +48,13 @@ const ReplyDialog = ({
   }, [parrentMessage.subject]);
 
   const handleSend = async () => {
+    if (subject.length > 100) {
+      toast({
+        title: "The subject should not exceed 100 characters.",
+        variant: "destructive",
+      });
+      return;
+    }
     const data = {
       notification_id: id,
       notification_type: parrentMessage.notification_type,
@@ -110,6 +112,13 @@ const ReplyDialog = ({
   };
 
   const handleDraft = async () => {
+    if (subject.length > 100) {
+      toast({
+        title: "The subject should not exceed 100 characters.",
+        variant: "destructive",
+      });
+      return;
+    }
     const data = {
       notification_id: id,
       notification_type: parrentMessage.notification_type,
@@ -145,101 +154,104 @@ const ReplyDialog = ({
   };
 
   return (
-    <Dialog>
-      <DialogTrigger className="p-1 rounded-md">
-        <MessageCircleReply size={20} />
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className=" font-bold">
-            Reply
-            {/* <p className="text-sm text-dark-400">To: {recivers.join(", ")}</p> */}
-          </DialogTitle>
-        </DialogHeader>
-        <div className="flex flex-col gap-4">
-          <div className="flex gap-4 items-center">
-            <label className="font-semibold text-dark-400">To</label>
-            <div className="rounded-sm max-h-[4.5rem] scrollbar-thin overflow-auto flex flex-wrap gap-1 justify-end">
-              {recivers.map((rec) => (
-                <div
-                  key={rec}
-                  className="flex gap-1 border h-8 px-2 items-center rounded-sm"
-                >
-                  <Avatar className="h-4 w-4">
-                    <AvatarImage
-                      src={`${url}/${renderProfilePicture(rec, users)}`}
-                    />
-                    <AvatarFallback>
-                      {renderSlicedUsername(rec, users, 1)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <p className="font-semibold ">{renderUserName(rec, users)}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+    <>
+      <CustomModal4 className="w-[700px]">
+        <div className="flex justify-between px-2 items-center bg-[#CEDEF2] h-[41px]">
+          <p className="font-semibold">Reply</p>
+          <button onClick={() => setShowModal(false)}>
+            <X />
+          </button>
+        </div>
 
-          <div className="flex flex-col gap-2 w-full text-dark-400">
-            <label className="font-semibold ">Subject</label>
-            <div className="rounded-sm outline-none border pl-2 h-8 w-full text-sm flex items-center">
-              <input
-                type="text"
-                value={subject}
-                className="outline-none pl-1 w-full text-sm"
-                onChange={(e: ChangeEvent<HTMLInputElement>) =>
-                  setSubject(e.target.value)
+        <div className="max-h-[80vh] overflow-auto scrollbar-thin p-4">
+          <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-2">
+              <label className="font-semibold text-dark-400">Recipients</label>
+              <div className="w-full border p-1 rounded-sm bg-gray-100 max-h-[4.5rem] scrollbar-thin overflow-auto flex flex-wrap gap-1">
+                {recivers.map((rec) => (
+                  <div
+                    key={rec}
+                    className="flex gap-1 border h-8 px-2 items-center rounded-full bg-white"
+                  >
+                    <Avatar className="h-4 w-4">
+                      <AvatarImage
+                        src={`${url}/${renderProfilePicture(rec, users)}`}
+                      />
+                      <AvatarFallback>
+                        {renderSlicedUsername(rec, users, 1)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <p className="font-semibold ">
+                      {renderUserName(rec, users)}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-2 w-full text-dark-400">
+              <label className="font-semibold ">Subject</label>
+              <div className="rounded-sm outline-none border pl-2 h-8 w-full text-sm flex items-center bg-gray-100">
+                <input
+                  disabled={true}
+                  type="text"
+                  value={subject}
+                  className="outline-none pl-1 w-full text-sm"
+                  onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                    setSubject(e.target.value)
+                  }
+                />
+              </div>
+            </div>
+            <div className="flex flex-col gap-2 w-full text-dark-400">
+              <label className="font-semibold ">Body</label>
+              <textarea
+                className="rounded-sm outline-none border pl-2 h-40 w-full scrollbar-thin text-sm"
+                value={body}
+                onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
+                  setBody(e.target.value)
                 }
               />
             </div>
           </div>
-          <div className="flex flex-col gap-2 w-full text-dark-400">
-            <label className="font-semibold ">Body</label>
-            <textarea
-              className="rounded-sm outline-none border pl-2 h-40 w-full scrollbar-thin text-sm"
-              value={body}
-              onChange={(e: ChangeEvent<HTMLTextAreaElement>) =>
-                setBody(e.target.value)
-              }
-            />
+
+          <div className="flex mt-4 justify-end gap-2">
+            <button
+              disabled={body.length === 0 || body === ""}
+              onClick={handleDraft}
+              className={`${
+                body.length === 0 || body === ""
+                  ? "cursor-not-allowed bg-dark-400"
+                  : "cursor-pointer bg-dark-100 hover:bg-dark-100/80"
+              } flex gap-1 items-center px-6 py-2 rounded-md text-white`}
+            >
+              {isDrafting ? (
+                <Spinner size="20" color="#ffffff" />
+              ) : (
+                <Save size={18} />
+              )}
+              <p className="font-semibold ">Save as drafts</p>
+            </button>
+            <button
+              disabled={recivers.length === 0 || body === ""}
+              onClick={handleSend}
+              className={`${
+                body.length === 0 || body === "" || recivers.length === 0
+                  ? "cursor-not-allowed bg-dark-400"
+                  : "cursor-pointer bg-dark-100 hover:bg-dark-100/80"
+              } flex gap-1 items-center px-6 py-2 rounded-md text-white`}
+            >
+              {isSending ? (
+                <Spinner size="20" color="#ffffff" />
+              ) : (
+                <Reply size={18} />
+              )}
+              <p className="font-semibold ">Reply</p>
+            </button>
           </div>
         </div>
-
-        <DialogFooter>
-          <button
-            disabled={body.length === 0 || body === ""}
-            onClick={handleDraft}
-            className={`${
-              body.length === 0 || body === ""
-                ? "cursor-not-allowed bg-dark-400"
-                : "cursor-pointer bg-dark-100"
-            } flex gap-1 items-center px-4 py-1 rounded-l-full rounded-r-md  text-white hover:scale-95 duration-300`}
-          >
-            {isDrafting ? (
-              <Spinner size="20" color="#ffffff" />
-            ) : (
-              <Save size={18} />
-            )}
-            <p className="font-semibold ">Save as drafts</p>
-          </button>
-          <button
-            disabled={recivers.length === 0 || body === ""}
-            onClick={handleSend}
-            className={`${
-              body.length === 0 || body === "" || recivers.length === 0
-                ? "cursor-not-allowed bg-dark-400"
-                : "cursor-pointer bg-dark-100"
-            } flex gap-1 items-center px-4 py-1 rounded-r-full rounded-l-md text-white hover:scale-95 duration-300`}
-          >
-            {isSending ? (
-              <Spinner size="20" color="#ffffff" />
-            ) : (
-              <Reply size={18} />
-            )}
-            <p className="font-semibold ">Reply</p>
-          </button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+      </CustomModal4>
+    </>
   );
 };
 
