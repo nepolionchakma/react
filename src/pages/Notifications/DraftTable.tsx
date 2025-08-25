@@ -27,6 +27,7 @@ import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import Alert from "@/components/Alert/Alert";
 import { renderUserName } from "@/Utility/NotificationUtils";
 import SingleDraft from "./SingleDraft";
+import { toTitleCase } from "@/Utility/general";
 
 interface DraftTableProps {
   path: string;
@@ -156,7 +157,8 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-200 hover:bg-slate-200">
-                <TableHead className="w-[7rem] font-bold">{person}</TableHead>
+                <TableHead className="font-bold w-8">Type</TableHead>
+                <TableHead className="font-bold">{person}</TableHead>
                 <TableHead className="font-bold min-w-[40%]">Subject</TableHead>
                 <TableHead className="min-w-[5rem] font-bold">Date</TableHead>
                 <TableHead className="w-[5rem] font-bold">Action</TableHead>
@@ -178,6 +180,9 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
                 {draftMessages.map((msg) => (
                   <TableRow key={msg.notification_id}>
                     <>
+                      <TableCell className="py-2">
+                        {toTitleCase(msg.notification_type)}
+                      </TableCell>
                       <TableCell className="py-2">
                         {msg.recipients.length === 0
                           ? "(no user)"

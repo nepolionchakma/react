@@ -208,6 +208,29 @@ const SingleDraft = ({
   };
 
   const handleSend = async () => {
+    if (subject.length > 100) {
+      toast({
+        title: "The subject should not exceed 100 characters.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (actionItemName.length > 100) {
+      toast({
+        title: "The Action Item Name should not exceed 100 characters.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (alertName.length > 100) {
+      toast({
+        title: "The Alert Name should not exceed 100 characters.",
+        variant: "destructive",
+      });
+      return;
+    }
     const notifcationData = {
       sender: token.user_id,
       recipients: recivers,
@@ -311,6 +334,29 @@ const SingleDraft = ({
   };
 
   const handleDraft = async () => {
+    if (subject.length > 100) {
+      toast({
+        title: "The subject should not exceed 100 characters.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (actionItemName.length > 100) {
+      toast({
+        title: "The Action Item Name should not exceed 100 characters.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (alertName.length > 100) {
+      toast({
+        title: "The Alert Name should not exceed 100 characters.",
+        variant: "destructive",
+      });
+      return;
+    }
     const data = {
       sender: token.user_id,
       recipients: recivers,
@@ -402,54 +448,61 @@ const SingleDraft = ({
         <div className="max-h-[80vh] overflow-auto scrollbar-thin p-4">
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-2">
-              <div className="w-full border-b border-light-400 h-8 rounded-sm border flex justify-between items-center px-2">
-                <p>{toTitleCase(notifcationType)}</p>
+              <div className="flex flex-col gap-2">
+                <label className="font-semibold">Notification Type</label>
+                <div className="w-full border-b border-light-400 bg-gray-100 h-8 rounded-sm border flex justify-between items-center px-2 text-gray-400">
+                  <p>{toTitleCase(notifcationType)}</p>
+                  <ChevronDown strokeWidth={1} />
+                </div>
               </div>
 
-              <DropdownMenu>
-                <DropdownMenuTrigger className="w-full border-b border-light-400 h-8 rounded-sm border flex justify-between items-center px-2">
-                  <p>Select Recipients</p>
-                  <ChevronDown strokeWidth={1} />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-[330px] max-h-[280px] overflow-auto scrollbar-thin">
-                  <input
-                    type="text"
-                    className="w-full bg-light-100 border-b border-light-400 outline-none pl-2"
-                    placeholder="Search..."
-                    value={query}
-                    onChange={handleQueryChange}
-                  />
-                  <div
-                    onClick={handleSelectAll}
-                    className="flex justify-between px-2 items-center hover:bg-light-200 cursor-pointer"
-                  >
-                    <p>All</p>
-                  </div>
-                  {filterdUser.map((user) => (
+              <div className="flex flex-col gap-2">
+                <label className="font-semibold">Recipients</label>
+                <DropdownMenu>
+                  <DropdownMenuTrigger className="w-full border-b border-light-400 h-8 rounded-sm border flex justify-between items-center px-2">
+                    <p>Select Recipients</p>
+                    <ChevronDown strokeWidth={1} />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-[330px] max-h-[280px] overflow-auto scrollbar-thin">
+                    <input
+                      type="text"
+                      className="w-full bg-light-100 border-b border-light-400 outline-none pl-2"
+                      placeholder="Search..."
+                      value={query}
+                      onChange={handleQueryChange}
+                    />
                     <div
-                      onClick={() => handleReciever(user.user_id)}
-                      key={user.user_id}
+                      onClick={handleSelectAll}
                       className="flex justify-between px-2 items-center hover:bg-light-200 cursor-pointer"
                     >
-                      <div className="flex flex-row gap-1 items-center">
-                        <Avatar className="h-4 w-4">
-                          <AvatarImage
-                            src={`${nodeUrl}/${user.profile_picture?.thumbnail}`}
-                          />
-                          <AvatarFallback>
-                            {user.user_name.slice(0, 1)}
-                          </AvatarFallback>
-                        </Avatar>
-
-                        <p>{user.user_name}</p>
-                      </div>
-                      {recivers.includes(user.user_id) ? (
-                        <Check size={14} color="#038C5A" />
-                      ) : null}
+                      <p>All</p>
                     </div>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
+                    {filterdUser.map((user) => (
+                      <div
+                        onClick={() => handleReciever(user.user_id)}
+                        key={user.user_id}
+                        className="flex justify-between px-2 items-center hover:bg-light-200 cursor-pointer"
+                      >
+                        <div className="flex flex-row gap-1 items-center">
+                          <Avatar className="h-4 w-4">
+                            <AvatarImage
+                              src={`${nodeUrl}/${user.profile_picture?.thumbnail}`}
+                            />
+                            <AvatarFallback>
+                              {user.user_name.slice(0, 1)}
+                            </AvatarFallback>
+                          </Avatar>
+
+                          <p>{user.user_name}</p>
+                        </div>
+                        {recivers.includes(user.user_id) ? (
+                          <Check size={14} color="#038C5A" />
+                        ) : null}
+                      </div>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             </div>
 
             {recivers.length > 0 && (
@@ -592,8 +645,8 @@ const SingleDraft = ({
                   oldMsgState?.alertDescription === alertDescription &&
                   oldMsgState?.alertName === alertName
                     ? "cursor-not-allowed bg-dark-400"
-                    : "cursor-pointer bg-dark-100"
-                } flex gap-1 items-center px-4 py-1 rounded-l-full rounded-r-md  text-white hover:scale-95 duration-300`}
+                    : "cursor-pointer bg-dark-100 hover:bg-dark-100/80"
+                } flex gap-1 items-center px-6 py-2 rounded-md text-white`}
               >
                 {isDrafting ? (
                   <Spinner size="20" color="#ffffff" />
@@ -621,8 +674,8 @@ const SingleDraft = ({
                   oldMsgState?.actionItemName === actionItemName &&
                   oldMsgState?.actionItemDescription === actionItemDescription
                     ? "cursor-not-allowed bg-dark-400"
-                    : "cursor-pointer bg-dark-100"
-                } flex gap-1 items-center px-4 py-1 rounded-l-full rounded-r-md  text-white hover:scale-95 duration-300`}
+                    : "cursor-pointer bg-dark-100 hover:bg-dark-100/80"
+                } flex gap-1 items-center px-6 py-2 rounded-md text-white`}
               >
                 {isDrafting ? (
                   <Spinner size="20" color="#ffffff" />
@@ -647,8 +700,8 @@ const SingleDraft = ({
                   oldMsgState?.subject === subject &&
                   oldMsgState?.body === body
                     ? " bg-dark-400 cursor-not-allowed"
-                    : " bg-dark-100 cursor-pointer"
-                } flex gap-1 items-center px-5 py-2 rounded-l-full rounded-r-md text-white hover:scale-95 duration-300`}
+                    : "cursor-pointer bg-dark-100 hover:bg-dark-100/80"
+                } flex gap-1 items-center px-6 py-2 rounded-md text-white`}
               >
                 {isDrafting ? (
                   <Spinner size="20" color="#ffffff" />
@@ -683,8 +736,8 @@ const SingleDraft = ({
                 (notifcationType === "ACTION ITEM" &&
                   actionItemDescription === "")
                   ? "cursor-not-allowed bg-dark-400"
-                  : "cursor-pointer bg-dark-100"
-              } flex gap-1 items-center px-4 py-1 rounded-r-full rounded-l-md text-white hover:scale-95 duration-300`}
+                  : "cursor-pointer bg-dark-100 hover:bg-dark-100/80"
+              } flex gap-1 items-center px-6 py-2 rounded-md text-white`}
             >
               {isSending ? (
                 <Spinner size="20" color="#ffffff" />

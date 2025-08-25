@@ -11,7 +11,7 @@ const Inbox = () => {
       <NotificationCard />
       <NotificationTable path="Inbox" person="From" />
       <button
-        className="bg-black px-4 py-2 rounded-sm hover:bg-black/80 text-white fixed bottom-3 flex gap-1"
+        className="bg-black px-4 py-2 rounded-md hover:bg-black/80 text-white fixed bottom-3 flex gap-1"
         onClick={() => setShowModal(true)}
       >
         <MailPlus />

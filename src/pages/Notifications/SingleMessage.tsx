@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Ellipsis } from "lucide-react";
+import { ArrowLeft, Ellipsis, MessageCircleReply } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import ReplyDialog from "./ReplyDialog";
@@ -51,6 +51,7 @@ const SingleMessage = () => {
     recycle_bin: [],
   });
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
+  const [showModal, setShowModal] = useState(false);
   //Fetch TotalReplyMessages
   useEffect(() => {
     const fetchMessage = async () => {
@@ -178,7 +179,7 @@ const SingleMessage = () => {
         </div>
       ) : (
         <Card className="flex flex-col gap-4 w-full p-4">
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
             <CustomTooltip tooltipTitle="Back">
               <span>
                 <Link to="/notifications/inbox">
@@ -188,14 +189,14 @@ const SingleMessage = () => {
             </CustomTooltip>
 
             <CustomTooltip tooltipTitle="Reply">
-              <span>
-                <ReplyDialog
-                  setTotalMessages={setTotalMessages}
-                  parrentMessage={parrentMessage}
-                />
+              <span
+                className="cursor-pointer"
+                onClick={() => setShowModal(true)}
+              >
+                <MessageCircleReply size={20} />
               </span>
             </CustomTooltip>
-            <p className="font-bold ml-4">{parrentMessage?.subject}</p>
+            <p className="font-bold">{parrentMessage?.subject}</p>
           </div>
           <div className="flex flex-col gap-4 w-full ">
             {totalMessages.map((msg) => (
@@ -273,6 +274,13 @@ const SingleMessage = () => {
               </div>
             ))}
           </div>
+          {showModal && (
+            <ReplyDialog
+              setTotalMessages={setTotalMessages}
+              parrentMessage={parrentMessage}
+              setShowModal={setShowModal}
+            />
+          )}
         </Card>
       )}
     </div>

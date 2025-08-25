@@ -26,6 +26,7 @@ import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import Alert from "@/components/Alert/Alert";
 import { renderSlicedUsername } from "@/Utility/NotificationUtils";
+import { toTitleCase } from "@/Utility/general";
 
 interface NotificationTableProps {
   path: string;
@@ -144,7 +145,8 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-200 hover:bg-slate-200">
-                <TableHead className="w-[7rem] font-bold">{person}</TableHead>
+                <TableHead className="font-bold w-8">Type</TableHead>
+                <TableHead className="font-bold">{person}</TableHead>
                 <TableHead className="font-bold min-w-[40%]">Subject</TableHead>
                 <TableHead className="min-w-[5rem] font-bold">Date</TableHead>
                 <TableHead className="w-[5rem] font-bold">Action</TableHead>
@@ -173,6 +175,9 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
                     key={msg.notification_id}
                   >
                     <>
+                      <TableCell className="py-2">
+                        {toTitleCase(msg.notification_type)}
+                      </TableCell>
                       <TableCell className="py-2">
                         {renderSlicedUsername(msg.sender, users, 8)}
                       </TableCell>

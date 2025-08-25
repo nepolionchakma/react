@@ -1,5 +1,11 @@
 import { Card } from "@/components/ui/card";
-import { Circle, CircleCheck, CircleCheckBig, RefreshCw } from "lucide-react";
+import {
+  Check,
+  Circle,
+  CircleCheck,
+  CircleCheckBig,
+  RefreshCw,
+} from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { loadData } from "@/Utility/funtion";
 import { flaskApi, FLASK_URL } from "@/Api/Api";
@@ -350,9 +356,9 @@ const ActionItems = () => {
                               popup: el,
                             })
                           }
-                          className="absolute -top-20 left-16 flex flex-col items-center px-6 py-3 bg-light-200 shadow-md rounded-md"
+                          className="absolute -top-[5.7rem] left-[8.5rem] flex px-6 py-2 bg-white shadow-md rounded-md"
                         >
-                          <div className="flex items-center ">
+                          {/* <div className="flex items-center ">
                             <div className="flex flex-col gap-1">
                               <button disabled={true}>
                                 <CircleCheck color="#16a34a" />
@@ -434,11 +440,51 @@ const ActionItems = () => {
                                 </button>
                               </div>
                             )}
-                          </div>
-                          <div className="flex">
-                            <p className="ml-6">New</p>
-                            <p className="ml-10">In Progress</p>
-                            <p className="ml-8">Completed</p>
+                          </div> */}
+                          <div className="flex flex-col gap 1">
+                            <button
+                              disabled={item.status === "NEW"}
+                              className="flex w-full items-center justify-between gap-2"
+                              onClick={() =>
+                                handleStatusChange(item.action_item_id, "NEW")
+                              }
+                            >
+                              <p>New</p>
+                              {item.status === "NEW" && (
+                                <Check size={14} color="#038C5A" />
+                              )}
+                            </button>
+                            <button
+                              disabled={item.status === "IN PROGRESS"}
+                              className="flex w-full items-center justify-between gap-2"
+                              onClick={() =>
+                                handleStatusChange(
+                                  item.action_item_id,
+                                  "IN PROGRESS"
+                                )
+                              }
+                            >
+                              {" "}
+                              <p>In Progress</p>
+                              {item.status === "IN PROGRESS" && (
+                                <Check size={14} color="#038C5A" />
+                              )}
+                            </button>
+                            <button
+                              disabled={item.status === "COMPLETED"}
+                              className="flex w-full items-center justify-between gap-2"
+                              onClick={() =>
+                                handleStatusChange(
+                                  item.action_item_id,
+                                  "COMPLETED"
+                                )
+                              }
+                            >
+                              <p>Completed</p>
+                              {item.status === "COMPLETED" && (
+                                <Check size={14} color="#038C5A" />
+                              )}
+                            </button>
                           </div>
                         </div>
                       )}
