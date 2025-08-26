@@ -83,7 +83,11 @@ const EditEdge: FC<EditNodeProps> = ({
   return (
     <>
       {selectedEdge && (
-        <div className="mt-1 bg-slate-100 rounded p-4">
+        <div
+          className={`mt-1 rounded p-4 max-h-[60vh] overflow-y-auto scrollbar-thin ${
+            theme === "dark" ? "bg-[#1e293b] text-white" : "bg-[#f7f7f7]"
+          }`}
+        >
           {selectedEdge && (
             <div>
               <div className="flex items-center justify-between">
