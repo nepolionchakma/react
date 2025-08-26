@@ -223,6 +223,7 @@ const ShapesProExampleApp = ({
         newNode,
       ])
     );
+    setSelectedEdge(undefined);
   };
 
   const onNodeClick = useCallback(
