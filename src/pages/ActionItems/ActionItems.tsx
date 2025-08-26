@@ -296,6 +296,7 @@ const ActionItems = () => {
                       <div>
                         <p className="font-semibold mb-1">
                           {item.action_item_name}
+                          {` (ID: ${item.action_item_id})`}
                         </p>
                       </div>
                       <p className="text-gray-700">

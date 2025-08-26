@@ -93,7 +93,9 @@ const Alerts = () => {
                   </div>
                   <div className="flex flex-col gap-2 w-full">
                     <div className="flex justify-between w-full">
-                      <p className="font-semibold mb-1">{item.alert_name}</p>
+                      <p className="font-semibold mb-1">
+                        {item.alert_name} {` (ID: ${item.alert_id})`}
+                      </p>
                       <p className="text-gray-700">
                         {convertDate(new Date(item.last_update_date))}
                       </p>
