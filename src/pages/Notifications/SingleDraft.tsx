@@ -449,15 +449,17 @@ const SingleDraft = ({
           <div className="flex flex-col gap-4">
             <div className="grid grid-cols-2 gap-2">
               <div className="flex flex-col gap-2">
-                <label className="font-semibold">Notification Type</label>
-                <div className="w-full border-b border-light-400 bg-gray-100 h-8 rounded-sm border flex justify-between items-center px-2 text-gray-400">
+                <label className="font-semibold text-dark-400 ">Type</label>
+                <div className="w-full border-b border-light-400 bg-gray-100 h-8 rounded-sm border flex justify-between items-center px-2 text-gray-400 cursor-not-allowed">
                   <p>{toTitleCase(notifcationType)}</p>
                   <ChevronDown strokeWidth={1} />
                 </div>
               </div>
 
               <div className="flex flex-col gap-2">
-                <label className="font-semibold">Recipients</label>
+                <label className="font-semibold text-dark-400">
+                  Recipients
+                </label>
                 <DropdownMenu>
                   <DropdownMenuTrigger className="w-full border-b border-light-400 h-8 rounded-sm border flex justify-between items-center px-2">
                     <p>Select Recipients</p>

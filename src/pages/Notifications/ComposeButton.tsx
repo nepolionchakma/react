@@ -418,9 +418,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
         <div className="flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-2">
             <div className="flex flex-col gap-2 ">
-              <label className="font-semibold text-dark-400">
-                Notification Type
-              </label>
+              <label className="font-semibold text-dark-400">Type</label>
               <DropdownMenu>
                 <DropdownMenuTrigger className="w-full border-b border-light-400 h-8 rounded-sm border flex justify-between items-center px-2">
                   <p>{`${toTitleCase(notifcationType)}` || "Select Type"}</p>

@@ -294,9 +294,8 @@ const ActionItems = () => {
                   <div className="flex flex-col gap-2 w-full">
                     <div className="flex justify-between w-full">
                       <div>
-                        <p className="font-semibold mb-1">
-                          {item.action_item_name}
-                          {` (ID: ${item.action_item_id})`}
+                        <p className="font-semibold text-lg">
+                          {`ID: ${item.action_item_id}`}
                         </p>
                       </div>
                       <p className="text-gray-700">
@@ -314,6 +313,10 @@ const ActionItems = () => {
                           <p>{toTitleCase(item.status)}</p>
                         </div>
                       </div>
+                      <p className="font-semibold text-md">
+                        {" "}
+                        {item.action_item_name}
+                      </p>
                       <p className="text-gray-600">
                         {actionItemIds.includes(item.action_item_id) ? (
                           <>
