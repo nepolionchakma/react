@@ -210,6 +210,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   }, [api, token?.user_id, idStateChange]);
 
   useEffect(() => {
+    if (token.user_id === 0) return;
     const maxLogicId = async () => {
       const result = await api.get("/def-access-model-logics");
       if (result && result.data > 0) {
@@ -228,6 +229,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   }, []);
 
   useEffect(() => {
+    if (token.user_id === 0) return;
     const maxAttrId = async () => {
       const result = await api.get("/def-access-model-logic-attributes");
       if (result && result.data.length > 0) {

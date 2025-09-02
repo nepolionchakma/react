@@ -233,7 +233,6 @@ export function SocketContextProvider({ children }: SocketContextProps) {
 
   useEffect(() => {
     socket.on("receivedMessage", (data: Notification) => {
-      console.log(data);
       const receivedMessagesId = receivedMessages.map(
         (msg) => msg.notification_id
       );
@@ -451,26 +450,45 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       });
     });
 
-    socket.on(
-      "SentAlert",
-      ({ alert, isAcknowledge }: { alert: Alerts; isAcknowledge: boolean }) => {
-        if (isAcknowledge) {
-          setAlerts((prev) => {
-            const newExistingAlerts = prev.filter(
-              (item) => item.alert_id !== alert.alert_id
-            );
-            return [alert, ...newExistingAlerts];
-          });
+    // socket.on(
+    //   "SentAlert",
+    //   ({ alert, isAcknowledge }: { alert: Alerts; isAcknowledge: boolean }) => {
+    //     if (isAcknowledge) {
+    //       setAlerts((prev) => {
+    //         const newExistingAlerts = prev.filter(
+    //           (item) => item.alert_id !== alert.alert_id
+    //         );
+    //         return [alert, ...newExistingAlerts];
+    //       });
 
-          setUnreadTotalAlert((prev) =>
-            prev.filter((item) => item.alert_id !== alert.alert_id)
+    //       setUnreadTotalAlert((prev) =>
+    //         prev.filter((item) => item.alert_id !== alert.alert_id)
+    //       );
+    //     } else {
+    //       setAlerts((prev) => [alert, ...prev]);
+    //       setUnreadTotalAlert((prev) => [alert, ...prev]);
+    //     }
+    //   }
+    // );
+
+    socket.on("SentAlert", ({ alert }: { alert: Alerts }) => {
+      const alertIds = alerts.map((item) => item.alert_id);
+      if (alertIds.includes(alert.alert_id)) {
+        setAlerts((prev) => {
+          const newExistingAlerts = prev.filter(
+            (item) => item.alert_id !== alert.alert_id
           );
-        } else {
-          setAlerts((prev) => [alert, ...prev]);
-          setUnreadTotalAlert((prev) => [alert, ...prev]);
-        }
+          return [alert, ...newExistingAlerts];
+        });
+        setUnreadTotalAlert((prev) =>
+          prev.filter((item) => item.alert_id !== alert.alert_id)
+        );
+        return;
+      } else {
+        setAlerts((prev) => [alert, ...prev]);
+        setUnreadTotalAlert((prev) => [alert, ...prev]);
       }
-    );
+    });
 
     return () => {
       socket.off("receivedMessage");
