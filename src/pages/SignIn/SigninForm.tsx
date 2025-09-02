@@ -75,6 +75,7 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
             signon_id: newSignonID,
             login: new Date(),
             logout: "",
+            session_log: [],
           },
         });
 
