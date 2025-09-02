@@ -19,7 +19,8 @@ import App from "/favicon.svg";
 import { Switch } from "@/components/ui/switch";
 import { IUserLinkedDevices } from "@/types/interfaces/users.interface";
 
-import SignonAudit from "./Modals/SignonAudit";
+// import SignonAudit from "./Modals/SignonAudit";
+import SignonAuditTwo from "./Modals/SignonAuditTwo";
 
 const YourDevices = () => {
   const api = useAxiosPrivate();
@@ -222,7 +223,7 @@ const YourDevices = () => {
             </>
           )}
         </div>
-        <SignonAudit
+        <SignonAuditTwo
           showModal={showModal}
           setShowModal={setShowModal}
           selectedDevice={selectedDevice}

@@ -123,10 +123,17 @@ export interface IUserPasswordResetTypes {
   new_password: string;
 }
 
+export interface SessionLog {
+  session_id: string;
+  connect_time?: Date;
+  disconnect_time?: Date;
+}
+
 export interface audit {
   signon_id: string;
   login?: Date;
   logout?: Date;
+  session_log?: SessionLog[];
 }
 
 export interface IUserLinkedDevices {

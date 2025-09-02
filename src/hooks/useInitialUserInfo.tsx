@@ -27,6 +27,7 @@ const useInitialUserInfo = () => {
           signon_id: newSignonID,
           login: new Date(),
           logout: "",
+          session_log: [],
         },
       });
       if (response.status === 200) {
