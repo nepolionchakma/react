@@ -57,7 +57,7 @@ const ReplyDialog = ({
     }
     const data = {
       notification_id: id,
-      notification_type: parrentMessage.notification_type,
+      notification_type: "NOTIFICATION",
       sender: userId,
       recipients: recivers,
       subject: subject,
@@ -121,7 +121,7 @@ const ReplyDialog = ({
     }
     const data = {
       notification_id: id,
-      notification_type: parrentMessage.notification_type,
+      notification_type: "NOTIFICATION",
       sender: userId,
       recipients: recivers,
       subject: `${subject}`,
