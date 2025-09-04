@@ -30,7 +30,7 @@ export default function SignonAudit({
     <>
       {showModal && (
         <CustomModal4>
-          <div className="w-[500px]">
+          <div className="w-[700px]">
             <div className="flex justify-between items-center bg-[#CEDEF2] p-2">
               <h3 className="font-semibold">
                 IP Address: {selectedDevice?.ip_address}
