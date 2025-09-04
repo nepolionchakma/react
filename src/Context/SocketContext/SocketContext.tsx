@@ -87,6 +87,8 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   const [geoPermissionState, setGeoPermissionState] =
     useState<PermissionState>("prompt");
 
+  console.log(alerts, "alerts", unreadTotalAlert, "unread");
+
   // Memoize the socket connection so that it's created only once
   const socket = useMemo(() => {
     return io(socket_url, {
