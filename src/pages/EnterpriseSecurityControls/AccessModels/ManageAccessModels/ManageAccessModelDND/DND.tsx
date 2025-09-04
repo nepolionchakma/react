@@ -311,6 +311,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       setLoading: setIsActionLoading,
       payload: upsertLogics,
     };
+
     const postAccessModelAttributeParams = {
       baseURL: FLASK_URL,
       url: `${flaskApi.DefAccessModelLogicAttributes}/upsert`,
@@ -318,53 +319,67 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       payload: upsertAttributes,
     };
 
-    if (isChangedAccessAccessModel) {
-      const res = await putData(putParams);
-      if (res) {
-        setIsActionLoading(false);
-        setStateChange((prev) => prev + 1);
-        setOpenEditModal(false);
-      }
-    }
-    if (items.length > 0) {
-      const res1 = await postData(postAccessModelLogicsParams);
-      if (res1.status === 200) {
-        const res2 = await postData(postAccessModelAttributeParams);
-        if (res2.status === 200) {
-          setOriginalData([...rightWidgets]);
-          setIdStateChange((prev) => prev + 1);
+    try {
+      if (isChangedAccessAccessModel) {
+        const res = await putData(putParams);
+
+        if (res) {
+          setIsActionLoading(false);
+          setStateChange((prev) => prev + 1);
+          setOpenEditModal(false);
+          toast({
+            description: res.data.message,
+          });
         }
       }
-      // Promise.all([
-      //   api.post(`/def-access-model-logics/upsert`, upsertLogics),
-      //   api.post(
-      //     `/def-access-model-logic-attributes/upsert`,
-      //     upsertAttributes
-      //   ),
-      // ])
-      //   .then(([logicResult, attributeResult]) => {
-      //     if (logicResult.status === 200 && attributeResult.status === 200) {
-      //       toast({
-      //         description: "Save data successfully.",
-      //       });
-      //       setOriginalData([...rightWidgets]);
-      //     }
-      //   })
-      //   .catch((error) => {
-      //     console.error("Error occurred:", error);
-      //   })
-      //   .finally(() => {
-      //     setIsActionLoading(false);
-      //     setIdStateChange((prev) => prev + 1);
-      //     // setOpenEditModal(false);
-      //   });
+      if (items.length > 0) {
+        const res1 = await postData(postAccessModelLogicsParams);
+
+        if (res1.status === 200 || res1.status === 201) {
+          const res2 = await postData(postAccessModelAttributeParams);
+
+          if (res2.status === 200 || res2.status === 201) {
+            setOriginalData([...rightWidgets]);
+            setIdStateChange((prev) => prev + 1);
+            toast({
+              description: res2.data[0].message,
+            });
+            setIsActionLoading(false);
+          }
+        }
+        // Promise.all([
+        //   api.post(`/def-access-model-logics/upsert`, upsertLogics),
+        //   api.post(
+        //     `/def-access-model-logic-attributes/upsert`,
+        //     upsertAttributes
+        //   ),
+        // ])
+        //   .then(([logicResult, attributeResult]) => {
+        //     if (logicResult.status === 200 && attributeResult.status === 200) {
+        //       toast({
+        //         description: "Save data successfully.",
+        //       });
+        //       setOriginalData([...rightWidgets]);
+        //     }
+        //   })
+        //   .catch((error) => {
+        //     console.error("Error occurred:", error);
+        //   })
+        //   .finally(() => {
+        //     setIsActionLoading(false);
+        //     setIdStateChange((prev) => prev + 1);
+        //     // setOpenEditModal(false);
+        //   });
+      }
+    } catch (error) {
+      console.error("Error occurred:", error);
     }
   };
 
   return (
     <div>
-      <div className="flex justify-between sticky top-0 p-2 bg-slate-300 z-50 overflow-hidden">
-        <h2 className="font-bold">Edit Access Model</h2>
+      <div className="flex justify-between sticky top-0 p-1 bg-slate-300 z-[9999999]">
+        <h2 className="font-bold self-center">Edit Access Model</h2>
         <div className="flex gap-2 rounded-lg ">
           {isActionLoading ? (
             <div className="flex items-center rounded p-1 duration-300 z-50 cursor-not-allowed">
@@ -403,7 +418,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
           />
         </div>
       </div>
-      <div className="p-4">
+      <div className="px-4 py-2">
         <DndContext
           sensors={sensors}
           collisionDetection={pointerWithin}
@@ -412,7 +427,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
           onDragEnd={handleDragEnd}
           autoScroll
         >
-          <div className="flex gap-4 mt-3">
+          <div className="flex gap-4 mt-1">
             <div className="w-1/3">
               <DraggableList id="left" items={leftWidgets} />
             </div>
@@ -456,7 +471,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
                     ? setLeftWidgets
                     : setRightWidgets
                 }
-                index={0}
+                index={activeItem.widget_position}
               />
             ) : null}
           </DragOverlay>

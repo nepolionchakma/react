@@ -35,7 +35,7 @@ const DroppableList: FC<DroppableListProps> = ({
       strategy={verticalListSortingStrategy}
     >
       <div
-        className="flex flex-col gap-2 p-4"
+        className="flex flex-col gap-2 h-[70vh] overflow-auto scrollbar-thin p-4"
         // ref={items.length === 0 ? setNodeRef : null}
         ref={setNodeRef}
       >
