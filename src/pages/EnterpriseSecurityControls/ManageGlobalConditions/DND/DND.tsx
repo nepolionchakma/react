@@ -25,6 +25,7 @@ import { Save, X } from "lucide-react";
 import DragOverlayComponent from "./DragOverlayComponent";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { putData, postData } from "@/Utility/funtion";
+import { AxiosError } from "axios";
 
 const DND: FC = () => {
   const {
@@ -300,29 +301,44 @@ const DND: FC = () => {
       payload: upsertAttributes,
     };
 
-    if (isChangedAccessGlobalCondition) {
-      const res = await putData(putParams);
-      if (res) {
-        setStateChange((prev) => prev + 1);
-        setIsEditModalOpen(false);
-        setSelectedManageGlobalConditionItem([]);
-        // form.reset(form.getValues());
-      }
-    }
-    if (items.length > 0) {
-      const res1 = await postData(postGlobalConditionLogicsParams);
-      if (res1.status === 200) {
-        const res2 = await postData(postGlobalConditionAttributeParams);
-        if (res2.status === 200) {
-          setOriginalData([...rightWidgets]);
-          setIdStateChange((prev) => prev + 1);
+    try {
+      if (isChangedAccessGlobalCondition) {
+        const res = await putData(putParams);
+        if (res) {
+          setStateChange((prev) => prev + 1);
+          setIsEditModalOpen(false);
+          setSelectedManageGlobalConditionItem([]);
+          toast({
+            description: res.data.message,
+          });
         }
+      }
+      if (items.length > 0) {
+        const res1 = await postData(postGlobalConditionLogicsParams);
+        if (res1.status === 200 || res1.status === 201) {
+          const res2 = await postData(postGlobalConditionAttributeParams);
+          if (res2.status === 200 || res2.status === 201) {
+            setOriginalData([...rightWidgets]);
+            setIdStateChange((prev) => prev + 1);
+            res2.data.forEach((element: { message: string }) => {
+              toast({
+                description: element.message,
+              });
+            });
+          }
+        }
+      }
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast({
+          description: error.response?.data.message,
+        });
       }
     }
   };
   return (
     <div>
-      <div className="flex justify-between sticky top-0 p-2 bg-slate-300 z-50 overflow-hidden">
+      <div className="flex justify-between sticky top-0 p-1 bg-slate-300 z-[9999999]">
         <h2 className="font-bold">Edit Global Conditions</h2>
         <div className="flex gap-2 rounded-lg ">
           {isActionLoading ? (
@@ -338,13 +354,21 @@ const DND: FC = () => {
           ) : (
             <Save
               onClick={
-                items.length > 0 || isChangedAccessGlobalCondition
+                isChangedAccessGlobalCondition ||
+                (items.length > 0 && !findEmptyInput.length) ||
+                (items.length > 0 &&
+                  originalData.length !== rightWidgets.length &&
+                  !findEmptyInput.length)
                   ? handleSave
                   : undefined
               }
               size={30}
               className={`rounded p-1 duration-300 z-50 ${
-                items.length > 0 || isChangedAccessGlobalCondition
+                isChangedAccessGlobalCondition ||
+                (items.length > 0 && !findEmptyInput.length) ||
+                (items.length > 0 &&
+                  originalData.length !== rightWidgets.length &&
+                  !findEmptyInput.length)
                   ? "bg-slate-300 hover:text-white hover:bg-slate-500 hover:scale-110 cursor-pointer"
                   : "opacity-40 cursor-not-allowed"
               }`}
@@ -362,7 +386,7 @@ const DND: FC = () => {
           />
         </div>
       </div>
-      <div className="p-4">
+      <div className="p-2">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -415,7 +439,7 @@ const DND: FC = () => {
                     ? setLeftWidgets
                     : setRightWidgets
                 }
-                index={0}
+                index={activeItem.widget_position}
               />
             ) : null}
           </DragOverlay>

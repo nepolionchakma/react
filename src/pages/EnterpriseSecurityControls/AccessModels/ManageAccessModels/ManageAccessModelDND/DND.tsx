@@ -29,6 +29,7 @@ import ManageAccessModelUpdate from "../Update/ManageAccessModelUpdate";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { postData, putData } from "@/Utility/funtion";
+import { AxiosError } from "axios";
 
 interface IManageAccessModelDNDProps {
   setOpenEditModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -341,38 +342,22 @@ const DND: FC<IManageAccessModelDNDProps> = ({
           if (res2.status === 200 || res2.status === 201) {
             setOriginalData([...rightWidgets]);
             setIdStateChange((prev) => prev + 1);
-            toast({
-              description: res2.data[0].message,
+            res2.data.forEach((element: { message: string }) => {
+              toast({
+                description: element.message,
+              });
             });
             setIsActionLoading(false);
           }
         }
-        // Promise.all([
-        //   api.post(`/def-access-model-logics/upsert`, upsertLogics),
-        //   api.post(
-        //     `/def-access-model-logic-attributes/upsert`,
-        //     upsertAttributes
-        //   ),
-        // ])
-        //   .then(([logicResult, attributeResult]) => {
-        //     if (logicResult.status === 200 && attributeResult.status === 200) {
-        //       toast({
-        //         description: "Save data successfully.",
-        //       });
-        //       setOriginalData([...rightWidgets]);
-        //     }
-        //   })
-        //   .catch((error) => {
-        //     console.error("Error occurred:", error);
-        //   })
-        //   .finally(() => {
-        //     setIsActionLoading(false);
-        //     setIdStateChange((prev) => prev + 1);
-        //     // setOpenEditModal(false);
-        //   });
       }
     } catch (error) {
       console.error("Error occurred:", error);
+      if (error instanceof AxiosError) {
+        toast({
+          description: error.response?.data.message,
+        });
+      }
     }
   };
 
@@ -394,13 +379,21 @@ const DND: FC<IManageAccessModelDNDProps> = ({
           ) : (
             <Save
               onClick={
-                items.length > 0 || isChangedAccessAccessModel
+                isChangedAccessAccessModel ||
+                (items.length > 0 && !findEmptyInput.length) ||
+                (items.length > 0 &&
+                  originalData.length !== rightWidgets.length &&
+                  !findEmptyInput.length)
                   ? handleSave
                   : undefined
               }
               size={30}
               className={`rounded p-1 duration-300 z-50 ${
-                items.length > 0 || isChangedAccessAccessModel
+                isChangedAccessAccessModel ||
+                (items.length > 0 && !findEmptyInput.length) ||
+                (items.length > 0 &&
+                  originalData.length !== rightWidgets.length &&
+                  !findEmptyInput.length)
                   ? "bg-slate-300 hover:text-white hover:bg-slate-500 hover:scale-110 cursor-pointer"
                   : "opacity-40 cursor-not-allowed"
               }`}
