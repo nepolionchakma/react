@@ -22,7 +22,7 @@ import {
   VisibilityState,
 } from "@tanstack/react-table";
 import { ChevronDown, FileEdit, Plus } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { columns } from "./Columns";
 import {
   Table,
@@ -69,6 +69,18 @@ const ManageControlEnvironments = () => {
       rowSelection,
     },
   });
+
+  // default hidden columns
+  const hiddenColumns = useMemo(() => ["created_by", "last_updated_by"], []);
+
+  useEffect(() => {
+    table.getAllColumns().forEach((column) => {
+      if (hiddenColumns.includes(column.id)) {
+        column.toggleVisibility(false);
+      }
+    });
+  }, [table, hiddenColumns]);
+
   const fetchControlEnvironments = useCallback(async () => {
     const actionItemsParams = {
       baseURL: FLASK_URL,
@@ -172,7 +184,16 @@ const ManageControlEnvironments = () => {
                         key={header.id}
                         className="relative border h-9 py-0 px-1 border-slate-400 bg-slate-200"
                         style={{
-                          width: `${header.getSize()}px`,
+                          // width: `${header.getSize()}px`,
+                          // maxWidth: header.id === "select" ? "24px" : "",
+                          width:
+                            header.column.id === "select"
+                              ? 24
+                              : `${header.getSize()}px`,
+                          minWidth:
+                            header.column.id === "select"
+                              ? 24
+                              : header.column.columnDef.minSize,
                         }}
                       >
                         {header.isPlaceholder
@@ -227,8 +248,14 @@ const ManageControlEnvironments = () => {
                         key={cell.id}
                         className="border py-0 px-1"
                         style={{
-                          width: cell.column.getSize(),
-                          minWidth: cell.column.columnDef.minSize,
+                          width:
+                            cell.column.id === "select"
+                              ? 24
+                              : cell.column.getSize(),
+                          minWidth:
+                            cell.column.id === "select"
+                              ? 24
+                              : cell.column.columnDef.minSize,
                         }}
                       >
                         {flexRender(
