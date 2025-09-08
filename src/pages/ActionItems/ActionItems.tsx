@@ -281,7 +281,7 @@ const ActionItems = () => {
       ) : (
         <div className="flex flex-col gap-4">
           {actionItems?.length > 0 ? (
-            <>
+            <div className="max-h-[62vh] overflow-auto scrollbar-thin">
               {actionItems?.map((item: IActionItems) => (
                 <Card key={item.action_item_id} className="flex gap-4 p-4">
                   <div
@@ -532,7 +532,7 @@ const ActionItems = () => {
                   </div>
                 </Card>
               ))}
-            </>
+            </div>
           ) : (
             <div className="flex items-center justify-center h-96">
               <span>No Data Found.</span>
