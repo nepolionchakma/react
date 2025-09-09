@@ -19,12 +19,11 @@ import ControlManagement from "@/pages/Finance/ControlManagement/ControlManageme
 import IssueManagement from "@/pages/Finance/IssueManagement/IssueManagement";
 import ResultManagement from "@/pages/ContinuousMonitoring/ResultManagement/ResultManagement";
 import ContinuousControlManagement from "@/pages/ContinuousMonitoring/ContinuousControlManagement/ContinuousControlManagement";
-import ManageControls from "@/pages/EnterpriseSecurityControls/Controls/ManageControls/ManageControls";
 import ManageAccessModels from "@/pages/EnterpriseSecurityControls/AccessModels/ManageAccessModels/ManageAccessModels";
 import ManageAccessEntitlements from "@/pages/EnterpriseSecurityControls/ManageAccessEntitlements/ManageAccessEntitlements";
 import Security from "@/pages/Security/Security";
 import Settings from "@/pages/Settings/Settings";
-import ManageResults from "@/pages/EnterpriseSecurityControls/Controls/ManageResults/ManageResults";
+import ManageResults from "@/pages/EnterpriseSecurityControls/AccessControls/ManageAccessControls/ManageAccessControls";
 import RecycleBin from "@/pages/Notifications/RecycleBin";
 import SingleRecycleBin from "@/pages/Notifications/SingleRecycleBin";
 import SignIn from "@/pages/SignIn/SignIn";
@@ -38,7 +37,7 @@ import RunAHocRequest from "@/pages/AsynchronousRequestsAndTaskSchedules/RunAReq
 import ViewRequests from "@/pages/AsynchronousRequestsAndTaskSchedules/ViewRequests";
 import EnterpriseSecurityControls from "@/pages/EnterpriseSecurityControls/EnterpriseSecurityControls";
 import AccessModels from "@/pages/EnterpriseSecurityControls/AccessModels/AccessModels";
-import Controls from "@/pages/EnterpriseSecurityControls/Controls/Controls";
+import Controls from "@/pages/EnterpriseSecurityControls/AccessControls/Controls";
 import AsynchronousRequestsAndTaskSchedules from "@/pages/AsynchronousRequestsAndTaskSchedules/AsynchronousRequestsAndTaskSchedules";
 import AsynchronousRequestManager from "@/pages/AsynchronousRequestManager/AsynchronousRequestManager";
 import Administration from "@/pages/AsynchronousRequestManager/Administration/Administration";
@@ -256,18 +255,14 @@ const routes = createBrowserRouter([
             ],
           },
           {
-            path: "controls",
+            path: "access-controls",
             children: [
               {
                 path: "",
                 element: <Controls />,
               },
               {
-                path: "manage-controls",
-                element: <ManageControls />,
-              },
-              {
-                path: "manage-results",
+                path: "manage-access-controls",
                 element: <ManageResults />,
               },
             ],
