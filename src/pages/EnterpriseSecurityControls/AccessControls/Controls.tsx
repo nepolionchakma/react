@@ -14,7 +14,7 @@ const Controls = () => {
                 return (
                   <div key={menu.name}>
                     {/* Change menu name here */}
-                    {menu.name === "Controls" && menu.subMenus && (
+                    {menu.name === "Access Controls" && menu.subMenus && (
                       <SubSubMenuItem {...menu} />
                     )}
                   </div>
