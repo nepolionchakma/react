@@ -80,7 +80,7 @@ const Alerts = () => {
       ) : (
         <>
           {alerts.length > 0 ? (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-4 max-h-[62vh] overflow-auto scrollbar-thin">
               {sortedAlerts?.map((item: Alerts) => (
                 <Card
                   key={item.alert_id}
