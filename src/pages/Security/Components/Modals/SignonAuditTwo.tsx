@@ -86,9 +86,9 @@ const SignonAuditTwo = ({ showModal, setShowModal, selectedDevice }: Props) => {
                                   key={session.session_id}
                                   className="flex items-center w-full p-2"
                                 >
-                                  <p className="w-[10%] text-end pr-8">
+                                  <p className="w-[10%] pl-3">
                                     {" "}
-                                    {sessionIndex + 1}
+                                    {index + 1}.{sessionIndex + 1}
                                   </p>
                                   {session.connect_time ? (
                                     <p className="w-[45%]">
