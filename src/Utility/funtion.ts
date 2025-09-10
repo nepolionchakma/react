@@ -1,12 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "@/Api/Api";
 import { toast } from "@/components/ui/use-toast";
+import { RawAxiosRequestHeaders } from "axios";
 import { Dispatch, SetStateAction } from "react";
 
 interface loadDataParams {
   baseURL: string;
   url: string;
   setLoading: Dispatch<SetStateAction<boolean>>;
+  headers?: RawAxiosRequestHeaders;
 }
 
 interface postDataParams {
@@ -16,6 +18,7 @@ interface postDataParams {
   payload: any;
   isConsole?: boolean;
   isToast?: boolean;
+  headers?: RawAxiosRequestHeaders;
 }
 
 interface putDataParams {
@@ -25,6 +28,15 @@ interface putDataParams {
   payload: any;
   isConsole?: boolean;
   isToast?: boolean;
+  headers?: RawAxiosRequestHeaders;
+}
+
+interface deleteDataParams {
+  url: string;
+  baseURL?: string;
+  payload?: any;
+  headers?: Record<string, string>;
+  isToast?: boolean;
 }
 
 export async function loadData(params: loadDataParams) {
@@ -32,6 +44,7 @@ export async function loadData(params: loadDataParams) {
     params.setLoading(true);
     const res = await api.get(`${params.url}`, {
       baseURL: params.baseURL,
+      ...(params.headers && { headers: params.headers }),
     });
     if (res) {
       return res.data;
@@ -51,6 +64,7 @@ export async function postData(params: postDataParams) {
     params.setLoading(true);
     const res = await api.post(`${params.url}`, params.payload, {
       baseURL: params.baseURL,
+      ...(params.headers && { headers: params.headers }),
     });
     if (res.status === 201 || res.status === 200) {
       if (params.isToast) {
@@ -75,6 +89,7 @@ export async function putData(params: putDataParams) {
     params.setLoading(true);
     const res = await api.put(`${params.url}`, params.payload, {
       baseURL: params.baseURL,
+      ...(params.headers && { headers: params.headers }),
     });
     if (res.status === 200) {
       if (params.isToast) {
@@ -91,5 +106,29 @@ export async function putData(params: putDataParams) {
     }
   } finally {
     params.setLoading(false);
+  }
+}
+
+export async function deleteData(params: deleteDataParams) {
+  try {
+    const res = await api.delete(`${params.url}`, {
+      baseURL: params.baseURL,
+      data: params.payload,
+      ...(params.headers && { headers: params.headers }),
+    });
+
+    if (res.status === 200) {
+      if (params.isToast) {
+        toast({ title: res.data.message });
+      }
+      return res as any;
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      if (params.isToast) {
+        toast({ title: error.message, variant: "destructive" });
+      }
+      return error.message;
+    }
   }
 }

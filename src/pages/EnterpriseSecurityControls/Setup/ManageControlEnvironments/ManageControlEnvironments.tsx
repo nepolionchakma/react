@@ -34,21 +34,34 @@ import {
 } from "@/components/ui/table";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
-import { loadData } from "@/Utility/funtion";
+import { deleteData, loadData } from "@/Utility/funtion";
 import { IManageControlEnvironments } from "@/types/interfaces/manageControlEnvironments.interface";
+import AddControlEnvironment from "./AddControlEnvironment";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 
 const ManageControlEnvironments = () => {
+  const { token } = useGlobalContext();
   const [controlEnvironments, setControlEnvironments] = useState<
     IManageControlEnvironments[]
   >([]);
   const [query, setQuery] = useState({ isEmpty: true, value: "" });
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState(8);
+  const [totalPage, setTotalPage] = useState(1);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [isOpenAddModal, setIsOpenAddModal] = useState<boolean>(false);
+  const [action, setAction] = useState("");
+  const [selectedItems, setSelectedItems] = useState<
+    IManageControlEnvironments[]
+  >([]);
+  const [isSelectAll, setIsSelectAll] = useState(false);
+  const [selectedIds, setIsSelectedIds] = useState<number[]>([]);
+  const [stateChange, setStateChange] = useState(1);
 
   const table = useReactTable({
     data: controlEnvironments,
@@ -74,6 +87,13 @@ const ManageControlEnvironments = () => {
   const hiddenColumns = useMemo(() => ["created_by", "last_updated_by"], []);
 
   useEffect(() => {
+    const selectedRow = table
+      .getSelectedRowModel()
+      .rows.map((row) => row.original as IManageControlEnvironments);
+    setSelectedItems(selectedRow);
+  }, [rowSelection, table]);
+
+  useEffect(() => {
     table.getAllColumns().forEach((column) => {
       if (hiddenColumns.includes(column.id)) {
         column.toggleVisibility(false);
@@ -84,48 +104,130 @@ const ManageControlEnvironments = () => {
   const fetchControlEnvironments = useCallback(async () => {
     const actionItemsParams = {
       baseURL: FLASK_URL,
-      url: `${flaskApi.DefControlEnvironments}`,
+      url: `${flaskApi.DefControlEnvironments}?name=${query.value}&page=${page}&limit=${limit}`,
       setLoading: setIsLoading,
+      headers: {
+        Authorization: `Bearer ${token.access_token}`,
+      },
     };
     const res = await loadData(actionItemsParams);
     if (res) {
-      setControlEnvironments(res);
+      setControlEnvironments(res.items);
+      setTotalPage(res.pages);
       return res;
     }
-  }, []);
+  }, [token.access_token, limit, query.value, page]);
 
   useEffect(() => {
     fetchControlEnvironments();
-  }, [fetchControlEnvironments]);
+  }, [fetchControlEnvironments, stateChange]);
 
-  const handleEditClick = () => {
-    console.log("clicked edit");
+  useEffect(() => {
+    if (controlEnvironments.length > 0) {
+      if (selectedItems.length !== controlEnvironments.length) {
+        setIsSelectAll(false);
+      } else {
+        setIsSelectAll(true);
+      }
+    }
+    const ids = selectedItems.map((item) => item.control_environment_id);
+    setIsSelectedIds(ids);
+  }, [controlEnvironments.length, selectedItems]);
+
+  const handleSelectAll = () => {
+    if (isSelectAll) {
+      setIsSelectAll(false);
+      setSelectedItems([]);
+    } else {
+      setIsSelectAll(true);
+      setSelectedItems(controlEnvironments);
+    }
+  };
+
+  const handleRowSelection = (rowData: IManageControlEnvironments) => {
+    if (selectedIds.includes(rowData.control_environment_id)) {
+      const filterItem = selectedItems.filter(
+        (item) => item.control_environment_id !== rowData.control_environment_id
+      );
+      setSelectedItems(filterItem);
+    } else {
+      setSelectedItems((prev) => [...prev, rowData]);
+    }
+  };
+
+  const handleDelete = async () => {
+    const dataToDelete = {
+      control_environment_ids: selectedItems.map(
+        (item) => item.control_environment_id
+      ),
+    };
+    const deleteDataParams = {
+      baseURL: FLASK_URL,
+      url: flaskApi.DefControlEnvironments,
+      payload: dataToDelete,
+      headers: {
+        Authorization: `Bearer ${token.access_token}`,
+      },
+      isToast: true,
+    };
+
+    const res = await deleteData(deleteDataParams);
+    if (res.status === 200) {
+      setSelectedItems([]);
+      setStateChange((prev) => prev + Math.random());
+    }
   };
 
   return (
     <div>
+      {isOpenAddModal && (
+        <AddControlEnvironment
+          setOpenAddModal={setIsOpenAddModal}
+          action={action}
+          selectedItem={selectedItems[0]}
+          setSelectedItem={setSelectedItems}
+          setStateChange={setStateChange}
+        />
+      )}
       <div className="flex gap-3 items-center py-2">
         <ActionButtons>
           <CustomTooltip tooltipTitle="Add">
             <Plus
               className="cursor-pointer"
               onClick={() => {
-                console.log("Clicked");
+                setIsOpenAddModal(true);
+                setAction("Add");
               }}
             />
           </CustomTooltip>
           <CustomTooltip tooltipTitle="Edit">
-            <FileEdit className="cursor-pointer" onClick={handleEditClick} />
+            <FileEdit
+              className={`${
+                selectedItems.length === 1
+                  ? "text-black cursor-pointer"
+                  : "text-slate-200 cursor-not-allowed"
+              }`}
+              onClick={() => {
+                setIsOpenAddModal(true);
+                setAction("Edit");
+              }}
+            />
           </CustomTooltip>
           <Alert
             actionName="delete"
-            disabled={true}
-            onContinue={() => console.log("continue")}
-            onClick={() => console.log("clicked")}
+            disabled={selectedItems.length === 0}
+            onContinue={() => handleDelete()}
             tooltipTitle="Delete"
           >
-            <span className="flex flex-col items-start gap-1">
-              1. Delete item
+            <span className="flex flex-col items-start">
+              {selectedItems.map((row, i) => (
+                <span
+                  key={row.control_environment_id}
+                  className="flex flex-col text-black"
+                >
+                  {i + 1}. Control Environment Name: {row.name}
+                </span>
+              ))}
             </span>
           </Alert>
         </ActionButtons>
@@ -202,6 +304,13 @@ const ManageControlEnvironments = () => {
                               header.column.columnDef.header,
                               header.getContext()
                             )}
+                        {header.id === "select" && (
+                          <Checkbox
+                            checked={isSelectAll}
+                            onClick={handleSelectAll}
+                            aria-label="Select all"
+                          />
+                        )}
                         {header.id !== "select" && (
                           <div
                             {...{
@@ -243,7 +352,7 @@ const ManageControlEnvironments = () => {
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
                   >
-                    {row.getVisibleCells().map((cell) => (
+                    {row.getVisibleCells().map((cell, index) => (
                       <TableCell
                         key={cell.id}
                         className="border py-0 px-1"
@@ -258,9 +367,19 @@ const ManageControlEnvironments = () => {
                               : cell.column.columnDef.minSize,
                         }}
                       >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
+                        {index === 0 ? (
+                          <Checkbox
+                            className="mt-1"
+                            checked={selectedIds.includes(
+                              row.original.control_environment_id
+                            )}
+                            onClick={() => handleRowSelection(row.original)}
+                          />
+                        ) : (
+                          flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )
                         )}
                       </TableCell>
                     ))}
@@ -296,13 +415,13 @@ const ManageControlEnvironments = () => {
           {/* Pagination and Status */}
           <div className="flex justify-between p-1">
             <div className="flex-1 text-sm text-gray-600">
-              {table.getFilteredSelectedRowModel().rows.length} of{" "}
-              {table.getFilteredRowModel().rows.length} row(s) selected.
+              {selectedIds.length} of {table.getFilteredRowModel().rows.length}{" "}
+              row(s) selected.
             </div>
             <Pagination5
               currentPage={page}
               setCurrentPage={setPage}
-              totalPageNumbers={1}
+              totalPageNumbers={totalPage}
             />
           </div>
         </div>
