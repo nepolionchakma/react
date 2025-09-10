@@ -1,4 +1,3 @@
-import { Checkbox } from "@/components/ui/checkbox";
 import { IManageControlEnvironments } from "@/types/interfaces/manageControlEnvironments.interface";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
@@ -9,24 +8,24 @@ export const columns: ColumnDef<IManageControlEnvironments>[] = [
     size: 24,
     minSize: 24,
     maxSize: 24,
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        className="mt-1"
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
+    // header: ({ table }) => (
+    //   <Checkbox
+    //     checked={
+    //       table.getIsAllPageRowsSelected() ||
+    //       (table.getIsSomePageRowsSelected() && "indeterminate")
+    //     }
+    //     onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+    //     aria-label="Select all"
+    //   />
+    // ),
+    // cell: ({ row }) => (
+    //   <Checkbox
+    //     className="mt-1"
+    //     checked={row.getIsSelected()}
+    //     onCheckedChange={(value) => row.toggleSelected(!!value)}
+    //     aria-label="Select row"
+    //   />
+    // ),
     enableSorting: false,
     enableHiding: false,
     enableResizing: false,
