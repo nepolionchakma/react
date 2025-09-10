@@ -61,7 +61,6 @@ export function TenancyDataTable({
   const [data, setData] = React.useState<ITenantsTypes[]>([]);
   const [page, setPage] = React.useState<number>(1);
   const [totalPage, setTotalPage] = React.useState<number>(1);
-
   const [stateChanged, setStateChanged] = React.useState<number>(0);
   const [isSelectAll, setIsSelectAll] = React.useState(false);
   const [sorting, setSorting] = React.useState<SortingState>([]);
