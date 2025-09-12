@@ -55,7 +55,7 @@ const ManageControlEnvironments = () => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [query, setQuery] = useState({ isEmpty: true, value: "" });
   const [isSelectAll, setIsSelectAll] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
