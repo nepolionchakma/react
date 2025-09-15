@@ -28,7 +28,6 @@ import Pagination5 from "@/components/Pagination/Pagination5";
 import Alert from "@/components/Alert/Alert";
 import axios from "axios";
 import { toast } from "@/components/ui/use-toast";
-import { debounce } from "@/Utility/debounce";
 
 export interface IActionItems {
   action_item_id: number;
@@ -62,7 +61,7 @@ const ActionItems = () => {
   const { token } = useGlobalContext();
 
   const [actionItems, setActionItems] = useState<IActionItems[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [query, setQuery] = useState({ isEmpty: true, value: "" });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(0);
@@ -89,6 +88,7 @@ const ActionItems = () => {
       baseURL: FLASK_URL,
       url: `${flaskApi.DefActionItems}/${token.user_id}/${currentPage}/${limit}?status=${selectedOption}`,
       setLoading: setIsLoading,
+      accessToken: token.access_token,
     };
     const res = await loadData(actionItemsParams);
     if (res.items) {
@@ -96,40 +96,35 @@ const ActionItems = () => {
       setTotalPage(res.pages);
       return res;
     }
-  }, [currentPage, selectedOption, token.user_id]);
+  }, [currentPage, selectedOption, token.user_id, token.access_token]);
 
   /** Search Functionality */
-  const fetchSearchActionItems = async (
-    q: string,
-    page = currentPage,
-    status = selectedOption
-  ) => {
-    const searchQueryParams = {
-      baseURL: FLASK_URL,
-      url: `${flaskApi.DefActionItems}/${token.user_id}/${page}/${limit}?status=${status}&action_item_name=${q}`,
-      setLoading: setIsLoading,
-    };
-    const res = await loadData(searchQueryParams);
-    if (res) {
-      setActionItems(res.items);
-      setTotalPage(res.pages);
-    }
-  };
-
-  // Debounced search function
-  const debouncedSearch = useRef(
-    debounce(
-      (q: string, page: number, status: string) =>
-        fetchSearchActionItems(q, page, status),
-      1000
-    )
-  ).current;
+  const fetchSearchActionItems = useCallback(
+    async (q: string) => {
+      const searchQueryParams = {
+        baseURL: FLASK_URL,
+        url: `${flaskApi.DefActionItems}/${token.user_id}/${currentPage}/${limit}?status=${selectedOption}&action_item_name=${q}`,
+        setLoading: setIsLoading,
+        accessToken: token.access_token,
+      };
+      const res = await loadData(searchQueryParams);
+      if (res) {
+        setActionItems(res.items);
+        setTotalPage(res.pages);
+      }
+    },
+    [currentPage, selectedOption, token.user_id, token.access_token]
+  );
 
   useEffect(() => {
     if (query.isEmpty) {
       fetchActionItems();
     } else {
-      debouncedSearch(query.value, currentPage, selectedOption);
+      const delayDebounce = setTimeout(() => {
+        fetchSearchActionItems(query.value);
+      }, 1000);
+
+      return () => clearTimeout(delayDebounce);
     }
   }, [
     query,
@@ -138,7 +133,7 @@ const ActionItems = () => {
     currentPage,
     query.isEmpty,
     fetchActionItems,
-    debouncedSearch,
+    fetchSearchActionItems,
   ]);
 
   /** close progressbar */
@@ -168,6 +163,7 @@ const ActionItems = () => {
   /** reload data by clicking refresh button */
   const handleRefresh = async () => {
     setIsRefreshing(true);
+    setQuery({ isEmpty: true, value: "" });
     const result = await fetchActionItems();
     if (result.items) {
       setIsRefreshing(false);

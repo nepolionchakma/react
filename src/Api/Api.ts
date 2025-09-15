@@ -10,6 +10,7 @@ axios.defaults.withCredentials = true;
 export const api = axios.create({
   baseURL: url,
   headers: { "Content-Type": "application/json" },
+
   withCredentials: true,
 });
 
