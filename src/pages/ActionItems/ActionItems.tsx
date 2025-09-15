@@ -61,7 +61,7 @@ const ActionItems = () => {
   const { token } = useGlobalContext();
 
   const [actionItems, setActionItems] = useState<IActionItems[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [query, setQuery] = useState({ isEmpty: true, value: "" });
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(0);
