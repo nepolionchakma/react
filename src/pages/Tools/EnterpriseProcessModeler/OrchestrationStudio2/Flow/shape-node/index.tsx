@@ -49,7 +49,7 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
   };
   const renderHandles = useMemo(() => {
     const handles: JSX.Element[] = [];
-    edge_connection_position.forEach((position: string) => {
+    edge_connection_position?.forEach((position: string) => {
       handles.push(
         <Handle
           key={position.toLocaleLowerCase()}
