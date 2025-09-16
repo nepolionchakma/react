@@ -109,9 +109,10 @@ interface GlobalContex {
   setSignonId: Dispatch<SetStateAction<string>>;
   isActive: boolean;
   setIsActive: Dispatch<SetStateAction<boolean>>;
+  edgeConnectionPosition: string[];
+  setEdgeConnectionPosition: Dispatch<SetStateAction<string[]>>;
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
 export const userExample = {
   isLoggedIn: false,
   user_id: 0,
@@ -127,7 +128,6 @@ export const userExample = {
 
 const GlobalContex = createContext({} as GlobalContex);
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function useGlobalContext() {
   return useContext(GlobalContex);
 }
@@ -160,6 +160,10 @@ export function GlobalContextProvider({
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [signonId, setSignonId] = useState("");
   const [isActive, setIsActive] = useState(true);
+
+  const [edgeConnectionPosition, setEdgeConnectionPosition] = useState<
+    string[]
+  >([]);
 
   const [presentDevice, setPresentDevice] = useState<IUserLinkedDevices>(
     userDevice()
@@ -643,6 +647,8 @@ export function GlobalContextProvider({
         setSignonId,
         isActive,
         setIsActive,
+        edgeConnectionPosition,
+        setEdgeConnectionPosition,
       }}
     >
       <SocketContextProvider>

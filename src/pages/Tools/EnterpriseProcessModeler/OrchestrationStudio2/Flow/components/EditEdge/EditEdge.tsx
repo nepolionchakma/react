@@ -19,15 +19,20 @@ import { X } from "lucide-react";
 import { Dispatch, FC, SetStateAction, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { ShapeNode } from "../../shape/types";
 
 interface EditNodeProps {
   theme: string;
+  setNodes: (
+    payload: ShapeNode[] | ((nodes: ShapeNode[]) => ShapeNode[])
+  ) => void;
   setEdges: (payload: Edge[] | ((edges: Edge[]) => Edge[])) => void;
   selectedEdge: any;
   setSelectedEdge: Dispatch<SetStateAction<Edge | undefined>>;
 }
 const EditEdge: FC<EditNodeProps> = ({
   theme,
+  setNodes,
   setEdges,
   selectedEdge,
   setSelectedEdge,
@@ -78,6 +83,20 @@ const EditEdge: FC<EditNodeProps> = ({
         prevEdges.filter((edge: Edge) => edge.id !== selectedEdge.id)
       );
       setSelectedEdge(undefined);
+      setNodes((prevNodes: ShapeNode[]) =>
+        prevNodes.map((node) => {
+          if (node.data.edges.includes(selectedEdge.id)) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                edges: node.data.edges.filter((edg) => edg !== selectedEdge.id),
+              },
+            };
+          }
+          return node;
+        })
+      );
     }
   }, []);
   return (
