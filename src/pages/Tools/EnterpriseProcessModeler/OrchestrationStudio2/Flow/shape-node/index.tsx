@@ -12,6 +12,7 @@ import Shape from "../shape";
 import ShapeNodeToolbar from "../toolbar";
 import { type ShapeNode } from "../shape/types";
 import NodeData from "./label";
+import { useMemo } from "react";
 
 // this will return the current dimensions of the node (measured internally by react flow)
 function useNodeDimensions(id: string) {
@@ -23,12 +24,11 @@ function useNodeDimensions(id: string) {
 }
 
 function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
-  const { label, attributes, color, type } = data;
+  const { label, attributes, color, type, edge_connection_position } = data;
   const { setNodes } = useReactFlow();
-
   const { width, height } = useNodeDimensions(id);
   const shiftKeyPressed = useKeyPress("Shift");
-  const handleStyle = { backgroundColor: color };
+  // const handleStyle = { backgroundColor: color };
 
   const onColorChange = (color: string) => {
     setNodes((nodes) =>
@@ -47,6 +47,22 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
       })
     );
   };
+  const renderHandles = useMemo(() => {
+    const handles: JSX.Element[] = [];
+    edge_connection_position.forEach((position: string) => {
+      handles.push(
+        <Handle
+          key={position.toLocaleLowerCase()}
+          style={{ backgroundColor: color }}
+          id={position.toLocaleLowerCase()}
+          type="source"
+          position={Position[position as keyof typeof Position]}
+        />
+      );
+    });
+
+    return handles;
+  }, [color, edge_connection_position]);
 
   return (
     <>
@@ -67,45 +83,20 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
       />
       {type === "Start" ? (
         <Handle
-          style={handleStyle}
+          style={{ backgroundColor: color }}
           id="bottom"
           type="source"
           position={Position.Bottom}
         />
       ) : type === "Stop" ? (
         <Handle
-          style={handleStyle}
+          style={{ backgroundColor: color }}
           id="top"
           type="source"
           position={Position.Top}
         />
       ) : (
-        <>
-          <Handle
-            style={handleStyle}
-            id="top"
-            type="source"
-            position={Position.Top}
-          />
-          <Handle
-            style={handleStyle}
-            id="right"
-            type="source"
-            position={Position.Right}
-          />
-          <Handle
-            style={handleStyle}
-            id="bottom"
-            type="source"
-            position={Position.Bottom}
-          />
-          <Handle
-            style={handleStyle}
-            id="left"
-            type="source"
-            position={Position.Left}
-          />
-        </>
+        renderHandles
       )}
       <NodeData label={label} attributes={attributes} />
     </>

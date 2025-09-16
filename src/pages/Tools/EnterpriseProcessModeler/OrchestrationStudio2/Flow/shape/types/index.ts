@@ -40,4 +40,6 @@ export type ShapeNode = Node<{
   attributes: AttributesProps[];
   type: ShapeType;
   color: string;
+  edge_connection_position: string[];
+  edges: string[];
 }>;

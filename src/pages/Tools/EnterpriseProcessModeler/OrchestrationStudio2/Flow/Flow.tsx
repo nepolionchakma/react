@@ -61,6 +61,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 // import Alert from "@/components/Alert/Alert";
 
 const nodeTypes: NodeTypes = {
@@ -91,6 +92,7 @@ const ShapesProExampleApp = ({
   const api = useAxiosPrivate();
   const reactFlowWrapper = useRef(null);
   const { screenToFlowPosition } = useReactFlow();
+  const { setEdgeConnectionPosition } = useGlobalContext();
   const [nodes, setNodes, onNodesChange] = useNodesState<ShapeNode>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [selectedFlowData, setSelectedFlowData] =
@@ -166,6 +168,28 @@ const ShapesProExampleApp = ({
       animated: false,
     };
     setEdges((eds) => addEdge(edge, eds));
+    setNodes((nds) => {
+      return nds.map((node) => {
+        if (node.id === params.source) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              edges: [...node.data.edges, edge.id],
+            },
+          };
+        } else if (node.id === params.target) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              edges: [...node.data.edges, edge.id],
+            },
+          };
+        }
+        return node;
+      });
+    });
   }, []);
 
   const onDragOver = (evt: DragEvent<HTMLDivElement>) => {
@@ -213,10 +237,23 @@ const ShapesProExampleApp = ({
         attributes: [],
         type,
         color: colorType(),
+        edge_connection_position:
+          type === "Start"
+            ? ["Bottom"]
+            : type === "Stop"
+            ? ["Top"]
+            : ["Top", "Bottom", "Left", "Right"],
+        edges: [],
       },
       selected: true,
     };
-
+    setEdgeConnectionPosition(
+      type === "Start"
+        ? ["Top"]
+        : type === "Stop"
+        ? ["Bottom"]
+        : ["Top", "Bottom", "Left", "Right"]
+    );
     setSelectedNode(newNode);
     setNodes((nodes) =>
       (nodes.map((n) => ({ ...n, selected: false })) as ShapeNode[]).concat([
@@ -231,6 +268,7 @@ const ShapesProExampleApp = ({
       console.log(event, "Node event");
       setSelectedEdge(undefined);
       setSelectedNode(node);
+      setEdgeConnectionPosition(node.data.edge_connection_position);
     },
     []
   );
@@ -340,7 +378,36 @@ const ShapesProExampleApp = ({
       }
     }
   };
+  const [isConnectionCompleted, setIsConnectionCompleted] = useState(false);
+  useEffect(() => {
+    const conectionCompleted = () => {
+      const res = nodes.map((node) => {
+        if (!node.data.edges.length) {
+          return false;
+        } else {
+          if (
+            node.data.edges.length ===
+              node.data.edge_connection_position.length ||
+            node.data.edges.length > node.data.edge_connection_position.length
+          ) {
+            return true;
+          } else {
+            return false;
+          }
+        }
+        // return true;
+      });
+      console.log(res, "res");
+      if (res.includes(false)) {
+        setIsConnectionCompleted(false);
+      } else {
+        setIsConnectionCompleted(true);
+      }
+    };
+    conectionCompleted();
+  }, [edges.length, nodes.length]);
   console.log(edges, "edges");
+  console.log(nodes, "nodes");
   return (
     <div className="dndflow h-[calc(100vh-6rem)]">
       <div className="reactflow-wrapper" ref={reactFlowWrapper}>
@@ -497,27 +564,29 @@ const ShapesProExampleApp = ({
                   </TooltipProvider>
                 )}
                 {/* Save Icon */}
-                {nodes.length > 0 && edges.length > 0 && (
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div
-                          onClick={handleSave}
-                          className={`cursor-pointer p-1 border rounded-full ${
-                            theme === "dark"
-                              ? "bg-[#1e293b] hover:bg-[#415069] border-[#1e293b]"
-                              : "bg-[#abafb5] hover:bg-slate-400 border-[#abafb5]"
-                          }`}
-                        >
-                          <Save size={15} />
-                        </div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Save Flow</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                )}
+                {nodes.length > 0 &&
+                  edges.length > 0 &&
+                  isConnectionCompleted && (
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <div
+                            onClick={handleSave}
+                            className={`cursor-pointer p-1 border rounded-full ${
+                              theme === "dark"
+                                ? "bg-[#1e293b] hover:bg-[#415069] border-[#1e293b]"
+                                : "bg-[#abafb5] hover:bg-slate-400 border-[#abafb5]"
+                            }`}
+                          >
+                            <Save size={15} />
+                          </div>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>Save Flow</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  )}
               </div>
             </div>
             {/* Select Flow */}
@@ -579,6 +648,7 @@ const ShapesProExampleApp = ({
                 <>
                   <EditEdge
                     theme={theme}
+                    setNodes={setNodes}
                     setEdges={setEdges}
                     selectedEdge={selectedEdge}
                     setSelectedEdge={setSelectedEdge}

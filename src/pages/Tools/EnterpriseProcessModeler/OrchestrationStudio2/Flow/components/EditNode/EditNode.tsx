@@ -29,6 +29,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ShapeNode } from "../../shape/types";
 import { Edge } from "@xyflow/react";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 
 interface EditNodeProps {
   theme: string;
@@ -36,7 +37,7 @@ interface EditNodeProps {
     payload: ShapeNode[] | ((nodes: ShapeNode[]) => ShapeNode[])
   ) => void;
   setEdges: (payload: Edge[] | ((edges: Edge[]) => Edge[])) => void;
-  selectedNode: any;
+  selectedNode: ShapeNode | undefined;
   setSelectedNode: Dispatch<SetStateAction<ShapeNode | undefined>>;
   setIsAddAttribute: Dispatch<SetStateAction<boolean>>;
 }
@@ -52,6 +53,8 @@ const EditNode: FC<EditNodeProps> = ({
   const [stepFunctionTasks, setStepFunctionTasks] = useState<
     IARMAsynchronousTasksTypes[]
   >([]);
+  const { edgeConnectionPosition, setEdgeConnectionPosition } =
+    useGlobalContext();
 
   useEffect(() => {
     const fetchAsyncTasks = async () => {
@@ -70,7 +73,8 @@ const EditNode: FC<EditNodeProps> = ({
   const FormSchema = z.object(
     selectedNode
       ? Object.keys(selectedNode.data).reduce((acc, key) => {
-          const value = selectedNode.data[key];
+          const value =
+            selectedNode.data[key as keyof typeof selectedNode.data];
           if (key === "label") {
             acc[key] = z.string();
           } else if (key === "step_function") {
@@ -121,6 +125,7 @@ const EditNode: FC<EditNodeProps> = ({
                 label: data.label,
                 step_function: data.step_function,
                 attributes: data.attributes,
+                edge_connection_position: edgeConnectionPosition,
               },
             };
           }
@@ -164,13 +169,67 @@ const EditNode: FC<EditNodeProps> = ({
     }
   };
   const displayOrder = [
+    "edge_connection_position",
     "label",
     "step_function",
     "attributes",
     "color",
     "type",
   ];
+  const handlePositionClick = (position: string) => {
+    let positons: string[] = [];
+    if (edgeConnectionPosition.includes(position)) {
+      setEdgeConnectionPosition((prev) => {
+        const pos = prev.filter((pos) => pos !== position);
+        positons = pos;
+        return pos;
+      });
+    } else {
+      setEdgeConnectionPosition((prev) => {
+        positons = [...prev, position];
+        return [...prev, position];
+      });
+    }
+    selectedNode?.data.edges.map((ed: string) => {
+      const nds = () => {
+        // return array nodes id like ["node-9hsfuqeyc", "node-loh1sxkfm"]
+        const regex = /node-[a-z0-9]+/g;
+        return ed.match(regex) ?? [];
+      };
+      nds().forEach((n) => {
+        setNodes((prevNodes) =>
+          prevNodes.map((node) => {
+            if (node.id === n) {
+              return {
+                ...node,
+                data: {
+                  ...node.data,
+                  edges: node.data.edges.filter((edg) => edg !== ed),
+                },
+              };
+            }
+            return node;
+          })
+        );
+      });
 
+      setEdges((prevEdges) => prevEdges.filter((edge) => edge.id !== ed));
+    });
+    setNodes((nds) => {
+      return nds.map((node) => {
+        if (node.id === selectedNode?.id) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              edge_connection_position: positons,
+            },
+          };
+        }
+        return node;
+      });
+    });
+  };
   return (
     <>
       {selectedNode && (
@@ -221,6 +280,62 @@ const EditNode: FC<EditNodeProps> = ({
                           key
                         )
                       ) {
+                        if (key === "edge_connection_position") {
+                          return (
+                            <FormField
+                              key={key}
+                              control={form.control}
+                              name={key}
+                              render={() => (
+                                <FormItem>
+                                  <FormLabel>
+                                    <span className="flex justify-between">
+                                      <span>Edge Connection Position</span>
+                                    </span>
+                                  </FormLabel>
+                                  <FormControl>
+                                    <div className="flex flex-row gap-1 justify-center">
+                                      {["Top", "Bottom", "Left", "Right"].map(
+                                        (item: string, index: number) => (
+                                          <div
+                                            onClick={() => {
+                                              if (
+                                                selectedNode?.data.type ===
+                                                  "Start" ||
+                                                selectedNode?.data.type ===
+                                                  "Stop"
+                                              ) {
+                                                return;
+                                              } else {
+                                                handlePositionClick(item);
+                                              }
+                                            }}
+                                            key={index}
+                                            className={`${
+                                              edgeConnectionPosition.includes(
+                                                item
+                                              )
+                                                ? "bg-[#697b97] text-white"
+                                                : "bg-[#f7f7f7] text-[#1e293b]"
+                                            } border border-[#697b97] pl-2 pr-2 rounded ${
+                                              selectedNode?.data.type ===
+                                                "Start" ||
+                                              selectedNode?.data.type === "Stop"
+                                                ? "cursor-not-allowed"
+                                                : "cursor-pointer"
+                                            } `}
+                                          >
+                                            {item}
+                                          </div>
+                                        )
+                                      )}
+                                    </div>
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+                          );
+                        }
                         if (key === "label") {
                           return (
                             <FormField
