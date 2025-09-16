@@ -351,7 +351,7 @@ const ShapesProExampleApp = ({
   ) => {
     e.stopPropagation();
     // const id = Math.floor(Math.random() * 1000);
-    if (edges.length > 0 && nodes.length > 0) {
+    if (edges?.length > 0 && nodes?.length > 0) {
       const putData = {
         process_structure: {
           nodes,
@@ -382,13 +382,13 @@ const ShapesProExampleApp = ({
   useEffect(() => {
     const conectionCompleted = () => {
       const res = nodes.map((node) => {
-        if (!node.data.edges.length) {
+        if (!node.data.edges?.length) {
           return false;
         } else {
           if (
-            node.data.edges.length ===
-              node.data.edge_connection_position.length ||
-            node.data.edges.length > node.data.edge_connection_position.length
+            node.data.edges?.length ===
+              node.data.edge_connection_position?.length ||
+            node.data.edges?.length > node.data.edge_connection_position?.length
           ) {
             return true;
           } else {
