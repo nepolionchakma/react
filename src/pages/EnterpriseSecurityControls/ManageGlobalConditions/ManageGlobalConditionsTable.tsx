@@ -106,13 +106,6 @@ const ManageGlobalConditionsTable = ({
     fetchDataSource();
   }, []);
 
-  // useEffect(() => {
-  //   const selectedRowsData = table
-  //     .getSelectedRowModel()
-  //     .rows.map((row) => row.original as IManageGlobalConditionTypes);
-  //   setSelectedManageGlobalConditionItem(selectedRowsData);
-  // }, [rowSelection, data]);
-
   useEffect(() => {
     if (data.length > 0) {
       if (selectedManageGlobalConditionItem?.length !== data.length) {
