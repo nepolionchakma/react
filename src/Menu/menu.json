@@ -59,8 +59,7 @@
       "/enterprise-security-controls/create-access-global-conditions",
       "/enterprise-security-controls/manage-access-path-conditions",
       "/enterprise-security-controls/manage-user-defined-objects",
-      "/enterprise-security-controls/manage-global-conditions",
-      "/enterprise-security-controls/manage-local-conditions"
+      "/enterprise-security-controls/manage-global-and-local-conditions"
     ],
     "subMenus": [
       {
@@ -114,12 +113,8 @@
         "path": "/enterprise-security-controls/manage-access-entitlements"
       },
       {
-        "name": "Manage Global Conditions",
-        "path": "/enterprise-security-controls/manage-global-conditions"
-      },
-      {
-        "name": "Manage Local Conditions",
-        "path": "/enterprise-security-controls/manage-local-conditions"
+        "name": "Manage Global and Local Conditions",
+        "path": "/enterprise-security-controls/manage-global-and-local-conditions"
       }
     ]
   },
@@ -193,9 +188,7 @@
         "_comment": "This is for the nested menu",
         "name": "Enterprise Process Modeler",
         "path": "/tools/enterprise-process-modeler",
-        "paths": [
-          "/tools/enterprise-process-modeler/orchestration-studio"
-        ],
+        "paths": ["/tools/enterprise-process-modeler/orchestration-studio"],
         "subMenus": [
           {
             "name": "Orchestration Studio",
@@ -207,9 +200,7 @@
         "_comment": "This is for the nested menu",
         "name": "Enterprise System Integrations",
         "path": "/tools/enterprise-system-integrations",
-        "paths": [
-          "/tools/enterprise-system-integrations/manage-data-sources"
-        ],
+        "paths": ["/tools/enterprise-system-integrations/manage-data-sources"],
         "subMenus": [
           {
             "name": "Manage Datasources",
