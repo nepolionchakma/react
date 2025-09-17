@@ -7,7 +7,19 @@ import CustomModal3 from "@/components/CustomModal/CustomModal3";
 // import DND from "./DND copy/DND";
 import DND from "./DND/DND";
 
-const ManageGlobalConditions = () => {
+interface Props {
+  globalLimit: number;
+  setGlobalLimit: React.Dispatch<React.SetStateAction<number>>;
+  selectedGlobalIds: number[];
+  setSelecteGlobalIds: React.Dispatch<React.SetStateAction<number[]>>;
+}
+
+const ManageGlobalConditions = ({
+  globalLimit,
+  setGlobalLimit,
+  selectedGlobalIds,
+  setSelecteGlobalIds,
+}: Props) => {
   const {
     isEditModalOpen,
     isOpenManageGlobalConditionModal,
@@ -16,7 +28,12 @@ const ManageGlobalConditions = () => {
 
   return (
     <div>
-      <ManageGlobalConditionsTable />
+      <ManageGlobalConditionsTable
+        globalLimit={globalLimit}
+        setGlobalLimit={setGlobalLimit}
+        selectedGlobalIds={selectedGlobalIds}
+        setSelecteGlobalIds={setSelecteGlobalIds}
+      />
       <div>
         {isEditModalOpen && (
           <CustomModal1>

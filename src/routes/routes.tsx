@@ -10,8 +10,8 @@ import Home from "@/pages/Home/Home";
 import SingleSent from "@/pages/Notifications/SingleSent";
 import ManageDataSources from "@/pages/Tools/EnterpriseSystemIntegrations/ManageDataSources/ManageDataSources";
 import Users from "@/pages/Tools/SecurityConsole/ManageUsers/SetupAndAdministration";
-import ManageGlobaConditions from "@/pages/EnterpriseSecurityControls/ManageGlobalConditions/ManageGlobalConditions";
-import ManageLocalConditions from "@/pages/EnterpriseSecurityControls/ManageLocalConditions/ManageLocalConditions";
+// import ManageGlobaConditions from "@/pages/EnterpriseSecurityControls/ManageGlobalConditions/ManageGlobalConditions";
+// import ManageLocalConditions from "@/pages/EnterpriseSecurityControls/ManageLocalConditions/ManageLocalConditions";
 import Alerts from "@/pages/Alerts/Alerts";
 import Error from "@/pages/Error/Error";
 import RiskManagement from "@/pages/Finance/RiskManagement/RiskManagement";
@@ -63,6 +63,7 @@ import EnterpriseSystemIntegrations from "@/pages/Tools/EnterpriseSystemIntegrat
 import OrchestrationStudio2 from "@/pages/Tools/EnterpriseProcessModeler/OrchestrationStudio2/OrchestrationStudio2";
 import ManageTenancyandEnterpriseSetup from "@/pages/Tools/ManageTenancyandEnterpriseSetup/ManageTenancyandEnterpriseSetup";
 import MobileAppAdminConsole from "@/pages/Tools/MobileAppAdminConsole/MobileAppAdminConsole";
+import ManageGlobalAndLocalCondition from "@/pages/EnterpriseSecurityControls/ManageGlobalAndLocalConditions/ManageGlobalAndLocalCondition";
 
 const routes = createBrowserRouter([
   {
@@ -285,12 +286,8 @@ const routes = createBrowserRouter([
             element: <ManageAccessEntitlements />,
           },
           {
-            path: "manage-global-conditions",
-            element: <ManageGlobaConditions />,
-          },
-          {
-            path: "manage-local-conditions",
-            element: <ManageLocalConditions />,
+            path: "manage-global-and-local-conditions",
+            element: <ManageGlobalAndLocalCondition />,
           },
         ],
       },

@@ -53,7 +53,19 @@ import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import Rows from "@/components/Rows/Rows";
 
-const ManageGlobalConditionsTable = () => {
+interface Props {
+  globalLimit: number;
+  setGlobalLimit: React.Dispatch<React.SetStateAction<number>>;
+  selectedGlobalIds: number[];
+  setSelecteGlobalIds: React.Dispatch<React.SetStateAction<number[]>>;
+}
+
+const ManageGlobalConditionsTable = ({
+  globalLimit,
+  setGlobalLimit,
+  selectedGlobalIds,
+  setSelecteGlobalIds,
+}: Props) => {
   const {
     isLoading,
     stateChange,
@@ -65,6 +77,7 @@ const ManageGlobalConditionsTable = () => {
     manageGlobalConditions: data,
     selectedManageGlobalConditionItem,
     setSelectedManageGlobalConditionItem,
+
     fetchManageGlobalConditionLogics,
     setManageGlobalConditionTopicData,
     manageGlobalConditionDeleteCalculate,
@@ -73,7 +86,7 @@ const ManageGlobalConditionsTable = () => {
     fetchDataSource,
   } = useAACContext();
   const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState(8);
+
   // Shadcn Form
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -82,21 +95,16 @@ const ManageGlobalConditionsTable = () => {
   const [query, setQuery] = useState({ isEmpty: true, value: "" });
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [isSelectAll, setIsSelectAll] = useState(false);
-  const [selectedIds, setIsSelectedIds] = useState<number[]>([]);
+
   const [willBeDelete, setWillBeDelete] = useState<
     IManageGlobalConditionLogicExtendTypes[]
   >([]);
 
+  console.log(selectedGlobalIds);
+
   useEffect(() => {
     fetchDataSource();
   }, []);
-
-  useEffect(() => {
-    const selectedRowsData = table
-      .getSelectedRowModel()
-      .rows.map((row) => row.original as IManageGlobalConditionTypes);
-    setSelectedManageGlobalConditionItem(selectedRowsData);
-  }, [rowSelection, data]);
 
   useEffect(() => {
     if (data.length > 0) {
@@ -109,11 +117,12 @@ const ManageGlobalConditionsTable = () => {
     const ids = selectedManageGlobalConditionItem.map(
       (item) => item.def_global_condition_id
     );
-    setIsSelectedIds(ids);
+    setSelecteGlobalIds(ids);
   }, [
     selectedManageGlobalConditionItem?.length,
     data.length,
     selectedManageGlobalConditionItem,
+    setSelecteGlobalIds,
   ]);
 
   const handleSelectAll = () => {
@@ -127,7 +136,7 @@ const ManageGlobalConditionsTable = () => {
   };
 
   const handleRowSelection = (rowData: IManageGlobalConditionTypes) => {
-    if (selectedIds.includes(rowData.def_global_condition_id)) {
+    if (selectedGlobalIds.includes(rowData.def_global_condition_id)) {
       const filterItem = selectedManageGlobalConditionItem.filter(
         (item) =>
           item.def_global_condition_id !== rowData.def_global_condition_id
@@ -167,11 +176,11 @@ const ManageGlobalConditionsTable = () => {
 
   useEffect(() => {
     if (debouncedQuery) {
-      getSearchGlobalConditions(page, limit, debouncedQuery);
+      getSearchGlobalConditions(page, globalLimit, debouncedQuery);
     } else {
-      getlazyLoadingGlobalConditions(page, limit);
+      getlazyLoadingGlobalConditions(page, globalLimit);
     }
-  }, [page, limit, debouncedQuery, stateChange]);
+  }, [page, globalLimit, debouncedQuery, stateChange]);
 
   // loader
   tailspin.register();
@@ -309,7 +318,7 @@ const ManageGlobalConditionsTable = () => {
       rowSelection,
       pagination: {
         pageIndex: 0,
-        pageSize: limit,
+        pageSize: globalLimit,
       },
     },
   });
@@ -395,41 +404,41 @@ const ManageGlobalConditionsTable = () => {
             tooltipTitle="Delete"
           >
             <span className="flex flex-col items-start gap-1">
-              {selectedManageGlobalConditionItem.map((globalItem) => (
-                <span
-                  className="flex flex-col items-start"
-                  key={globalItem.def_global_condition_id}
-                >
-                  <span className="font-medium">Name : {globalItem.name}</span>
-                  <span>
-                    {isLoading ? (
-                      <span className="block">
-                        <l-tailspin
-                          size="40"
-                          stroke="5"
-                          speed="0.9"
-                          color="black"
-                        ></l-tailspin>
-                      </span>
-                    ) : (
-                      <span>
-                        {willBeDelete
-                          .filter(
-                            (wb) =>
-                              wb.def_global_condition_id ===
-                              globalItem.def_global_condition_id
-                          )
-                          .map((item, index) => (
-                            <span key={index} className="flex items-center">
-                              {index + 1}. Object - {item.object}, Attribute -{" "}
-                              {item.attribute}
-                            </span>
-                          ))}
-                      </span>
-                    )}
-                  </span>
+              {isLoading ? (
+                <span className="block">
+                  <l-tailspin
+                    size="40"
+                    stroke="5"
+                    speed="0.9"
+                    color="black"
+                  ></l-tailspin>
                 </span>
-              ))}
+              ) : (
+                selectedManageGlobalConditionItem.map((globalItem) => (
+                  <span
+                    className="flex flex-col items-start"
+                    key={globalItem.def_global_condition_id}
+                  >
+                    <span className="font-medium">
+                      Name : {globalItem.name}
+                    </span>
+                    <span>
+                      {willBeDelete
+                        .filter(
+                          (wb) =>
+                            wb.def_global_condition_id ===
+                            globalItem.def_global_condition_id
+                        )
+                        .map((item, index) => (
+                          <span key={index} className="flex items-center">
+                            {index + 1}. Object - {item.object}, Attribute -{" "}
+                            {item.attribute}
+                          </span>
+                        ))}
+                    </span>
+                  </span>
+                ))
+              )}
             </span>
           </Alert>
         </ActionButtons>
@@ -440,7 +449,7 @@ const ManageGlobalConditionsTable = () => {
           className="w-[24rem] px-4 py-2"
         />
         <div className="flex gap-2 items-center ml-auto">
-          <Rows limit={limit} setLimit={setLimit} />
+          <Rows limit={globalLimit} setLimit={setGlobalLimit} />
           {/* Columns */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -557,7 +566,7 @@ const ManageGlobalConditionsTable = () => {
                       {index === 0 ? (
                         <Checkbox
                           className="mt-1"
-                          checked={selectedIds.includes(
+                          checked={selectedGlobalIds.includes(
                             row.original.def_global_condition_id
                           )} // Use react-table's selection state
                           onCheckedChange={() =>
@@ -604,8 +613,8 @@ const ManageGlobalConditionsTable = () => {
         {/* Pagination and Status */}
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
-            {selectedIds.length} of {table.getFilteredRowModel().rows.length}{" "}
-            row(s) selected.
+            {selectedGlobalIds.length} of{" "}
+            {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
           <Pagination5
             currentPage={page}

@@ -53,6 +53,7 @@ interface IAACContextTypes {
   setSelectedManageGlobalConditionItem: Dispatch<
     SetStateAction<IManageGlobalConditionTypes[]>
   >;
+
   createManageGlobalCondition: (
     postData: IManageGlobalConditionTypes
   ) => Promise<boolean>;
@@ -152,6 +153,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     selectedManageGlobalConditionItem,
     setSelectedManageGlobalConditionItem,
   ] = useState<IManageGlobalConditionTypes[]>([]);
+
   const [manageGlobalConditionTopicData, setManageGlobalConditionTopicData] =
     useState<IManageGlobalConditionLogicExtendTypes[]>([]);
   const [globalConditionAttrMaxId, setGlobalConditionAttrMaxId] =
@@ -691,6 +693,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     setManageGlobalConditions,
     selectedManageGlobalConditionItem,
     setSelectedManageGlobalConditionItem,
+
     createManageGlobalCondition,
     fetchManageGlobalConditionLogics,
     manageGlobalConditionTopicData,
