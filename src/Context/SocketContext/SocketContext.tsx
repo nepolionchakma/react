@@ -62,7 +62,6 @@ interface SocketContext {
 
 const SocketContext = createContext({} as SocketContext);
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function useSocketContext() {
   return useContext(SocketContext);
 }

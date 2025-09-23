@@ -36,7 +36,6 @@ const columns: ColumnDef<ICreateAccessPointsElementTypes>[] = [
     },
     cell: () => {
       const { selectedManageAccessEntitlements } =
-        // eslint-disable-next-line react-hooks/rules-of-hooks
         useManageAccessEntitlementsContext();
       return (
         <div className="capitalize min-w-[25rem]">
