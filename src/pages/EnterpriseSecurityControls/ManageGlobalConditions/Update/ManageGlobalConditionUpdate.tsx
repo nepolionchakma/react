@@ -18,7 +18,6 @@ import { FC } from "react";
 import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
 
 interface IManageGlobalConditionProps {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   form: any;
 }
 const ManageGlobalConditionUpdate: FC<IManageGlobalConditionProps> = ({

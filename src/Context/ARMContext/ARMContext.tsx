@@ -98,11 +98,8 @@ interface ARMContext {
   // ) => Promise<IARMViewRequestsTypes[] | undefined>;
 }
 
-// eslint-disable-next-line react-refresh/only-export-components
-
 const ARMContext = createContext({} as ARMContext);
 
-// eslint-disable-next-line react-refresh/only-export-components
 export function useARMContext() {
   return useContext(ARMContext);
 }
