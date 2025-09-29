@@ -12,7 +12,7 @@ import Shape from "../shape";
 import ShapeNodeToolbar from "../toolbar";
 import { type ShapeNode } from "../shape/types";
 import NodeData from "./label";
-import { useMemo } from "react";
+// import { useMemo } from "react";
 
 // this will return the current dimensions of the node (measured internally by react flow)
 function useNodeDimensions(id: string) {
@@ -47,22 +47,22 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
       })
     );
   };
-  const renderHandles = useMemo(() => {
-    const handles: JSX.Element[] = [];
-    edge_connection_position?.forEach((position: string) => {
-      handles.push(
-        <Handle
-          key={position.toLocaleLowerCase()}
-          style={{ backgroundColor: color }}
-          id={position.toLocaleLowerCase()}
-          type="source"
-          position={Position[position as keyof typeof Position]}
-        />
-      );
-    });
-
-    return handles;
-  }, [color, edge_connection_position]);
+  // const renderHandles = useMemo(() => {
+  //   const handles: JSX.Element[] = [];
+  //   edge_connection_position?.forEach((position: string) => {
+  //     handles.push(
+  //       <Handle
+  //         key={position.toLowerCase()}
+  //         style={{ backgroundColor: color }}
+  //         id={position.toLowerCase()}
+  //         type="source"
+  //         position={Position[position as keyof typeof Position]}
+  //       />
+  //     );
+  //   });
+  //   console.log(handles, "handles");
+  //   return handles;
+  // }, [color, edge_connection_position]);
 
   return (
     <>
@@ -92,11 +92,25 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
         <Handle
           style={{ backgroundColor: color }}
           id="top"
-          type="source"
+          type="target"
           position={Position.Top}
         />
       ) : (
-        renderHandles
+        <>
+          {edge_connection_position?.map((posStr) => {
+            const positionEnum = Position[posStr as keyof typeof Position];
+
+            return (
+              <Handle
+                key={posStr}
+                style={{ backgroundColor: color }}
+                id={posStr.toLowerCase()}
+                type="source"
+                position={positionEnum}
+              />
+            );
+          })}
+        </>
       )}
       <NodeData label={label} attributes={attributes} />
     </>
