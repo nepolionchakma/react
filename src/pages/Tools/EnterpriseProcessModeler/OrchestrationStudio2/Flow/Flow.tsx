@@ -249,9 +249,9 @@ const ShapesProExampleApp = ({
     };
     setEdgeConnectionPosition(
       type === "Start"
-        ? ["Top"]
-        : type === "Stop"
         ? ["Bottom"]
+        : type === "Stop"
+        ? ["Top"]
         : ["Top", "Bottom", "Left", "Right"]
     );
     setSelectedNode(newNode);
