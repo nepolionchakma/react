@@ -28,7 +28,7 @@ import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ShapeNode } from "../../shape/types";
-import { Edge } from "@xyflow/react";
+import { Edge, useUpdateNodeInternals } from "@xyflow/react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 
 interface EditNodeProps {
@@ -41,6 +41,7 @@ interface EditNodeProps {
   setSelectedNode: Dispatch<SetStateAction<ShapeNode | undefined>>;
   setIsAddAttribute: Dispatch<SetStateAction<boolean>>;
 }
+
 const EditNode: FC<EditNodeProps> = ({
   theme,
   setNodes,
@@ -55,6 +56,8 @@ const EditNode: FC<EditNodeProps> = ({
   >([]);
   const { edgeConnectionPosition, setEdgeConnectionPosition } =
     useGlobalContext();
+
+  const updateNodeInternals = useUpdateNodeInternals(); // Updating node internals dynamically
 
   useEffect(() => {
     const fetchAsyncTasks = async () => {
@@ -107,10 +110,6 @@ const EditNode: FC<EditNodeProps> = ({
     if (selectedNode?.data) {
       form.reset(selectedNode ? selectedNode.data : {});
     }
-    // form.reset({
-    //   label: selectedNode?.data?.label ?? selectedEdge?.label ?? "",
-    //   description: selectedNode?.data?.description ?? "",
-    // });
   }, [selectedNode, form]);
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
@@ -132,6 +131,9 @@ const EditNode: FC<EditNodeProps> = ({
           return node;
         });
       });
+
+      updateNodeInternals(selectedNode.id); // <-- force refresh
+
       setSelectedNode(undefined);
     }
   };
@@ -151,7 +153,8 @@ const EditNode: FC<EditNodeProps> = ({
       setSelectedNode(undefined);
     }
   };
-  const handleRemoveAttribute = (key: string) => {
+
+  const handleRemoveAttribute = (id: number) => {
     if (selectedNode) {
       setSelectedNode((prevNode: ShapeNode | undefined) =>
         prevNode
@@ -160,7 +163,7 @@ const EditNode: FC<EditNodeProps> = ({
               data: {
                 ...prevNode.data,
                 attributes: prevNode?.data?.attributes.filter(
-                  (attr: any) => attr.id !== key
+                  (attr: any) => attr.id !== id
                 ),
               },
             }
@@ -168,6 +171,7 @@ const EditNode: FC<EditNodeProps> = ({
       );
     }
   };
+
   const displayOrder = [
     "edge_connection_position",
     "label",
@@ -176,60 +180,49 @@ const EditNode: FC<EditNodeProps> = ({
     "color",
     "type",
   ];
-  const handlePositionClick = (position: string) => {
-    let positons: string[] = [];
-    if (edgeConnectionPosition.includes(position)) {
-      setEdgeConnectionPosition((prev) => {
-        const pos = prev.filter((pos) => pos !== position);
-        positons = pos;
-        return pos;
-      });
-    } else {
-      setEdgeConnectionPosition((prev) => {
-        positons = [...prev, position];
-        return [...prev, position];
-      });
-    }
-    selectedNode?.data.edges.map((ed: string) => {
-      const nds = () => {
-        // return array nodes id like ["node-9hsfuqeyc", "node-loh1sxkfm"]
-        const regex = /node-[a-z0-9]+/g;
-        return ed.match(regex) ?? [];
-      };
-      nds().forEach((n) => {
-        setNodes((prevNodes) =>
-          prevNodes.map((node) => {
-            if (node.id === n) {
-              return {
-                ...node,
-                data: {
-                  ...node.data,
-                  edges: node.data.edges.filter((edg) => edg !== ed),
-                },
-              };
-            }
-            return node;
-          })
-        );
-      });
 
-      setEdges((prevEdges) => prevEdges.filter((edge) => edge.id !== ed));
-    });
-    setNodes((nds) => {
-      return nds.map((node) => {
-        if (node.id === selectedNode?.id) {
+  const handlePositionClick = (position: string) => {
+    setEdgeConnectionPosition((prevPositions) => {
+      let updatedPositions: string[] = [];
+
+      if (prevPositions.includes(position)) {
+        updatedPositions = prevPositions.filter((pos) => pos !== position);
+      } else {
+        updatedPositions = [...prevPositions, position];
+      }
+
+      if (!selectedNode) return updatedPositions;
+
+      const edgesToRemove = selectedNode.data.edges;
+
+      setNodes((prevNodes) =>
+        prevNodes.map((node) => {
           return {
             ...node,
             data: {
               ...node.data,
-              edge_connection_position: positons,
+              edge_connection_position:
+                node.id === selectedNode.id
+                  ? updatedPositions
+                  : node.data.edge_connection_position,
             },
           };
-        }
-        return node;
-      });
+        })
+      );
+
+      setEdges((prevEdges) =>
+        prevEdges.filter((edge) => !edgesToRemove.includes(edge.id))
+      );
+
+      // Force React Flow to update the node's internal handles
+      setTimeout(() => {
+        updateNodeInternals(selectedNode.id);
+      }, 0);
+
+      return updatedPositions;
     });
   };
+
   return (
     <>
       {selectedNode && (
@@ -238,304 +231,271 @@ const EditNode: FC<EditNodeProps> = ({
             theme === "dark" ? "bg-[#1e293b] text-white" : "bg-[#f7f7f7]"
           }`}
         >
-          {selectedNode && (
-            <div>
-              <div className="flex items-center justify-between">
-                <div>Properties</div>
-
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button>
-                      <EllipsisVertical size={20} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-40">
-                    <span
-                      onClick={() => setIsAddAttribute(true)}
-                      className="cursor-pointer"
-                    >
-                      Add Attribute
-                    </span>
-                  </PopoverContent>
-                </Popover>
-                <X
-                  size={20}
+          <div className="flex items-center justify-between">
+            <div>Properties</div>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button>
+                  <EllipsisVertical size={20} />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-40">
+                <span
+                  onClick={() => setIsAddAttribute(true)}
                   className="cursor-pointer"
-                  onClick={() => {
-                    setSelectedNode(undefined);
-                  }}
-                />
-              </div>
-              <hr className="my-2" />
-              <Form {...form}>
-                <form
-                  onSubmit={form.handleSubmit(onSubmit)}
-                  className="space-y-2"
                 >
-                  <div className="flex flex-col gap-4">
-                    {displayOrder.map((key) => {
-                      if (
-                        Object.prototype.hasOwnProperty.call(
-                          selectedNode?.data,
-                          key
-                        )
-                      ) {
-                        if (key === "edge_connection_position") {
-                          return (
-                            <FormField
-                              key={key}
-                              control={form.control}
-                              name={key}
-                              render={() => (
-                                <FormItem>
-                                  <FormLabel>
-                                    <span className="flex justify-between">
-                                      <span>Edge Connection Position</span>
-                                    </span>
-                                  </FormLabel>
-                                  <FormControl>
-                                    <div className="flex flex-row gap-1 justify-center">
-                                      {["Top", "Bottom", "Left", "Right"].map(
-                                        (item: string, index: number) => (
-                                          <div
-                                            onClick={() => {
-                                              if (
-                                                selectedNode?.data.type ===
-                                                  "Start" ||
-                                                selectedNode?.data.type ===
-                                                  "Stop"
-                                              ) {
-                                                return;
-                                              } else {
-                                                handlePositionClick(item);
-                                              }
-                                            }}
-                                            key={index}
-                                            className={`${
-                                              edgeConnectionPosition.includes(
-                                                item
-                                              )
-                                                ? "bg-[#697b97] text-white"
-                                                : "bg-[#f7f7f7] text-[#1e293b]"
-                                            } border border-[#697b97] pl-2 pr-2 rounded ${
-                                              selectedNode?.data.type ===
-                                                "Start" ||
-                                              selectedNode?.data.type === "Stop"
-                                                ? "cursor-not-allowed"
-                                                : "cursor-pointer"
-                                            } `}
-                                          >
-                                            {item}
-                                          </div>
-                                        )
-                                      )}
-                                    </div>
-                                  </FormControl>
-                                </FormItem>
-                              )}
-                            />
-                          );
-                        }
-                        if (key === "label") {
-                          return (
-                            <FormField
-                              key={key}
-                              control={form.control}
-                              name={key}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>
-                                    <span className="flex justify-between">
-                                      <span>{key}</span>
-                                    </span>
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Input
-                                      {...field}
-                                      value={field.value ?? ""}
-                                      required
-                                      placeholder={key}
-                                      onBlur={() => {
-                                        setSelectedNode((prev) => {
-                                          if (prev) {
-                                            return {
-                                              ...prev,
-                                              data: {
-                                                ...prev.data,
-                                                [key]: field.value,
-                                              },
-                                            };
+                  Add Attribute
+                </span>
+              </PopoverContent>
+            </Popover>
+            <X
+              size={20}
+              className="cursor-pointer"
+              onClick={() => setSelectedNode(undefined)}
+            />
+          </div>
+          <hr className="my-2" />
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+              <div className="flex flex-col gap-4">
+                {displayOrder.map((key) => {
+                  if (
+                    Object.prototype.hasOwnProperty.call(
+                      selectedNode?.data,
+                      key
+                    )
+                  ) {
+                    if (key === "edge_connection_position") {
+                      return (
+                        <FormField
+                          key={key}
+                          control={form.control}
+                          name={key}
+                          render={() => (
+                            <FormItem>
+                              <FormLabel>Edge Connection Position</FormLabel>
+                              <FormControl>
+                                <div className="flex flex-row gap-1 justify-center">
+                                  {["Top", "Bottom", "Left", "Right"].map(
+                                    (item: string, index: number) => (
+                                      <div
+                                        key={index}
+                                        onClick={() => {
+                                          if (
+                                            selectedNode?.data.type ===
+                                              "Start" ||
+                                            selectedNode?.data.type === "Stop"
+                                          ) {
+                                            return;
+                                          } else {
+                                            handlePositionClick(item);
                                           }
-                                          return prev;
-                                        });
-                                      }}
-                                      className={`${
-                                        theme === "dark"
-                                          ? "border-white"
-                                          : "border-gray-400"
-                                      }`}
-                                    />
-                                  </FormControl>
-                                </FormItem>
-                              )}
-                            />
-                          );
-                        } else if (key === "step_function") {
-                          return (
-                            <FormField
-                              key={key}
-                              control={form.control}
-                              name={key}
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>
-                                    <span className="flex justify-between">
-                                      <span>Step Function</span>
-                                    </span>
-                                  </FormLabel>
-                                  <FormControl>
-                                    <Select
-                                      onValueChange={(value) => {
-                                        field.onChange(value);
-                                        setSelectedNode((prev) => {
-                                          if (prev) {
-                                            return {
-                                              ...prev,
-                                              data: {
-                                                ...prev.data,
-                                                [key]: value,
-                                              },
-                                            };
-                                          }
-                                          return prev;
-                                        });
-                                      }}
-                                      value={field.value}
-                                    >
-                                      <SelectTrigger
+                                        }}
                                         className={`${
-                                          theme === "dark"
-                                            ? "border-white"
-                                            : "border-gray-400"
+                                          edgeConnectionPosition.includes(item)
+                                            ? "bg-[#697b97] text-white"
+                                            : "bg-[#f7f7f7] text-[#1e293b]"
+                                        } border border-[#697b97] px-2 rounded ${
+                                          selectedNode?.data.type === "Start" ||
+                                          selectedNode?.data.type === "Stop"
+                                            ? "cursor-not-allowed"
+                                            : "cursor-pointer"
                                         }`}
                                       >
-                                        <SelectValue placeholder="Select an option" />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectGroup>
-                                          {stepFunctionTasks.map((task) => (
-                                            <SelectItem
-                                              key={task.def_task_id}
-                                              value={task.task_name}
-                                              className="cursor-pointer"
-                                            >
-                                              {task.user_task_name}
-                                            </SelectItem>
-                                          ))}
-                                        </SelectGroup>
-                                      </SelectContent>
-                                    </Select>
-                                  </FormControl>
-                                </FormItem>
-                              )}
-                            />
-                          );
-                        } else if (key === "attributes") {
-                          return selectedNode?.data?.attributes?.map(
-                            (attribute: any, index: number) => (
-                              <div key={index}>
-                                <FormField
-                                  key={index}
-                                  control={form.control}
-                                  name={`attributes.${index}.attribute_value`}
-                                  render={({ field }) => (
-                                    <FormItem>
-                                      <FormLabel>
-                                        <span className="flex justify-between">
-                                          <span>
-                                            {attribute.attribute_name}
-                                          </span>
-                                          <X
-                                            size={15}
-                                            className="cursor-pointer"
-                                            onClick={() =>
-                                              handleRemoveAttribute(
-                                                attribute.id
-                                              )
-                                            }
-                                          />
-                                        </span>
-                                      </FormLabel>
-                                      <FormControl>
-                                        <Input
-                                          {...field}
-                                          value={
-                                            field.value ??
-                                            attribute.attribute_value
-                                          }
-                                          required
-                                          placeholder="Enter value"
-                                          onBlur={() => {
-                                            setSelectedNode(
-                                              (prev: ShapeNode | undefined) => {
-                                                if (prev) {
-                                                  const updatedAttributes = [
-                                                    ...prev.data.attributes,
-                                                  ];
-                                                  updatedAttributes[index] = {
-                                                    ...updatedAttributes[index],
-                                                    attribute_value:
-                                                      field.value,
-                                                  };
-                                                  return {
-                                                    ...prev,
-                                                    data: {
-                                                      ...prev.data,
-                                                      attributes:
-                                                        updatedAttributes,
-                                                    },
-                                                  };
-                                                }
-                                                return prev;
-                                              }
-                                            );
-                                          }}
-                                          className={`${
-                                            theme === "dark"
-                                              ? "border-white"
-                                              : "border-gray-400"
-                                          }`}
-                                        />
-                                      </FormControl>
-                                    </FormItem>
+                                        {item}
+                                      </div>
+                                    )
                                   )}
+                                </div>
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      );
+                    }
+
+                    if (key === "label") {
+                      return (
+                        <FormField
+                          key={key}
+                          control={form.control}
+                          name={key}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>{key}</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  value={field.value ?? ""}
+                                  required
+                                  placeholder={key}
+                                  onBlur={() => {
+                                    setSelectedNode((prev) => {
+                                      if (prev) {
+                                        return {
+                                          ...prev,
+                                          data: {
+                                            ...prev.data,
+                                            [key]: field.value,
+                                          },
+                                        };
+                                      }
+                                      return prev;
+                                    });
+                                  }}
+                                  className={`${
+                                    theme === "dark"
+                                      ? "border-white"
+                                      : "border-gray-400"
+                                  }`}
                                 />
-                              </div>
-                            )
-                          );
-                        }
-                      }
-                    })}
-                  </div>
-                  <hr className="my-2" />
-                  <div className="flex justify-between gap-1">
-                    <button
-                      type="submit"
-                      className="cursor-pointer  p-1 flex justify-center rounded border border-green-500"
-                    >
-                      <h3>Save</h3>
-                    </button>
-                    <span
-                      onClick={handleDelete}
-                      className="cursor-pointer p-1 flex justify-center rounded border border-red-500"
-                    >
-                      <h3>Delete Node</h3>
-                    </span>
-                  </div>
-                </form>
-              </Form>
-            </div>
-          )}
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      );
+                    }
+
+                    if (key === "step_function") {
+                      return (
+                        <FormField
+                          key={key}
+                          control={form.control}
+                          name={key}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Step Function</FormLabel>
+                              <FormControl>
+                                <Select
+                                  onValueChange={(value) => {
+                                    field.onChange(value);
+                                    setSelectedNode((prev) => {
+                                      if (prev) {
+                                        return {
+                                          ...prev,
+                                          data: {
+                                            ...prev.data,
+                                            [key]: value,
+                                          },
+                                        };
+                                      }
+                                      return prev;
+                                    });
+                                  }}
+                                  value={field.value}
+                                >
+                                  <SelectTrigger
+                                    className={`${
+                                      theme === "dark"
+                                        ? "border-white"
+                                        : "border-gray-400"
+                                    }`}
+                                  >
+                                    <SelectValue placeholder="Select an option" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectGroup>
+                                      {stepFunctionTasks.map((task) => (
+                                        <SelectItem
+                                          key={task.def_task_id}
+                                          value={task.task_name}
+                                        >
+                                          {task.user_task_name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectGroup>
+                                  </SelectContent>
+                                </Select>
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      );
+                    }
+
+                    if (key === "attributes") {
+                      return selectedNode?.data?.attributes?.map(
+                        (attribute: any, index: number) => (
+                          <FormField
+                            key={index}
+                            control={form.control}
+                            name={`attributes.${index}.attribute_value`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="flex justify-between">
+                                  <span>{attribute.attribute_name}</span>
+                                  <X
+                                    size={15}
+                                    className="cursor-pointer"
+                                    onClick={() =>
+                                      handleRemoveAttribute(attribute.id)
+                                    }
+                                  />
+                                </FormLabel>
+                                <FormControl>
+                                  <Input
+                                    {...field}
+                                    value={
+                                      field.value ?? attribute.attribute_value
+                                    }
+                                    required
+                                    placeholder="Enter value"
+                                    onBlur={() => {
+                                      setSelectedNode(
+                                        (prev: ShapeNode | undefined) => {
+                                          if (prev) {
+                                            const updatedAttributes = [
+                                              ...prev.data.attributes,
+                                            ];
+                                            updatedAttributes[index] = {
+                                              ...updatedAttributes[index],
+                                              attribute_value: field.value,
+                                            };
+                                            return {
+                                              ...prev,
+                                              data: {
+                                                ...prev.data,
+                                                attributes: updatedAttributes,
+                                              },
+                                            };
+                                          }
+                                          return prev;
+                                        }
+                                      );
+                                    }}
+                                    className={`${
+                                      theme === "dark"
+                                        ? "border-white"
+                                        : "border-gray-400"
+                                    }`}
+                                  />
+                                </FormControl>
+                              </FormItem>
+                            )}
+                          />
+                        )
+                      );
+                    }
+                  }
+                })}
+              </div>
+              <hr className="my-2" />
+              <div className="flex justify-between gap-1">
+                <button
+                  type="submit"
+                  className="cursor-pointer p-1 flex justify-center rounded border border-green-500"
+                >
+                  <h3>Save</h3>
+                </button>
+                <span
+                  onClick={handleDelete}
+                  className="cursor-pointer p-1 flex justify-center rounded border border-red-500"
+                >
+                  <h3>Delete Node</h3>
+                </span>
+              </div>
+            </form>
+          </Form>
         </div>
       )}
     </>

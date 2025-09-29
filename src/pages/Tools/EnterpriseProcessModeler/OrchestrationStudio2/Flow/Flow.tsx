@@ -249,9 +249,9 @@ const ShapesProExampleApp = ({
     };
     setEdgeConnectionPosition(
       type === "Start"
-        ? ["Top"]
-        : type === "Stop"
         ? ["Bottom"]
+        : type === "Stop"
+        ? ["Top"]
         : ["Top", "Bottom", "Left", "Right"]
     );
     setSelectedNode(newNode);
@@ -267,7 +267,7 @@ const ShapesProExampleApp = ({
     (event: React.MouseEvent, node: ShapeNode) => {
       console.log(event, "Node event");
       setSelectedEdge(undefined);
-      setSelectedNode(node);
+      setSelectedNode({ ...node, selected: true });
       setEdgeConnectionPosition(node.data.edge_connection_position);
     },
     []
@@ -277,6 +277,10 @@ const ShapesProExampleApp = ({
     console.log(event, "Edge event");
     setSelectedNode(undefined);
     setSelectedEdge(edge);
+  };
+  const onPaneClick = () => {
+    setSelectedNode(undefined);
+    setSelectedEdge(undefined);
   };
 
   const closeAllProgress = () => {
@@ -378,36 +382,27 @@ const ShapesProExampleApp = ({
       }
     }
   };
+
   const [isConnectionCompleted, setIsConnectionCompleted] = useState(false);
   useEffect(() => {
-    const conectionCompleted = () => {
-      const res = nodes.map((node) => {
-        if (!node.data.edges?.length) {
-          return false;
-        } else {
-          if (
-            node.data.edges?.length ===
-              node.data.edge_connection_position?.length ||
-            node.data.edges?.length > node.data.edge_connection_position?.length
-          ) {
-            return true;
-          } else {
-            return false;
-          }
-        }
-        // return true;
+    const checkIfAllNodesConnected = () => {
+      const result = nodes.every((node) => {
+        const expected = node.data.edge_connection_position?.length || 0;
+
+        // Count how many edges are connected to this node
+        const connectedEdges = edges.filter(
+          (edge) => edge.source === node.id || edge.target === node.id
+        ).length;
+
+        return connectedEdges >= expected;
       });
-      console.log(res, "res");
-      if (res.includes(false)) {
-        setIsConnectionCompleted(false);
-      } else {
-        setIsConnectionCompleted(true);
-      }
+
+      setIsConnectionCompleted(result);
     };
-    conectionCompleted();
-  }, [edges.length, nodes.length]);
-  console.log(edges, "edges");
-  console.log(nodes, "nodes");
+
+    checkIfAllNodesConnected();
+  }, [nodes, edges]);
+
   return (
     <div className="dndflow h-[calc(100vh-6rem)]">
       <div className="reactflow-wrapper" ref={reactFlowWrapper}>
@@ -420,6 +415,7 @@ const ShapesProExampleApp = ({
           onConnect={onConnect}
           onNodeClick={onNodeClick}
           onEdgeClick={onEdgeClick}
+          onPaneClick={onPaneClick}
           proOptions={proOptions}
           // defaultNodes={defaultNodes}
           // defaultEdges={defaultEdges}
