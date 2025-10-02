@@ -3,10 +3,11 @@ import Sidbar from "@/components/Sidebar/Sidbar";
 import Topbar from "@/components/Topbar/Topbar";
 import { Toaster } from "@/components/ui/toaster";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import Invitation from "@/pages/Invitation/Invitation";
 import { Outlet } from "react-router-dom";
 
 const MainApp = () => {
-  const { open } = useGlobalContext();
+  const { open, isInvitationModalOpen } = useGlobalContext();
 
   return (
     <>
@@ -27,6 +28,8 @@ const MainApp = () => {
           <Toaster />
         </div>
       </div>
+
+      {isInvitationModalOpen && <Invitation />}
     </>
   );
 };
