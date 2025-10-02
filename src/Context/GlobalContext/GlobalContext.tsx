@@ -111,6 +111,8 @@ interface GlobalContex {
   setIsActive: Dispatch<SetStateAction<boolean>>;
   edgeConnectionPosition: string[];
   setEdgeConnectionPosition: Dispatch<SetStateAction<string[]>>;
+  isInvitationModalOpen: boolean;
+  setIsInvitationModalOpen: Dispatch<SetStateAction<boolean>>;
 }
 
 export const userExample = {
@@ -161,6 +163,8 @@ export function GlobalContextProvider({
   const [signonId, setSignonId] = useState("");
   const [isActive, setIsActive] = useState(true);
 
+  const [isInvitationModalOpen, setIsInvitationModalOpen] = useState(false);
+
   const [edgeConnectionPosition, setEdgeConnectionPosition] = useState<
     string[]
   >([]);
@@ -198,7 +202,7 @@ export function GlobalContextProvider({
     };
     getUser();
   }, [api, token?.user_id]);
-
+  console.log(isInvitationModalOpen, "invitation modal open");
   //Fetch Users
   useEffect(() => {
     const fetchUsers = async () => {
@@ -649,6 +653,8 @@ export function GlobalContextProvider({
         setIsActive,
         edgeConnectionPosition,
         setEdgeConnectionPosition,
+        isInvitationModalOpen,
+        setIsInvitationModalOpen,
       }}
     >
       <SocketContextProvider>
