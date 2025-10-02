@@ -64,6 +64,7 @@ import OrchestrationStudio2 from "@/pages/Tools/EnterpriseProcessModeler/Orchest
 import ManageTenancyandEnterpriseSetup from "@/pages/Tools/ManageTenancyandEnterpriseSetup/ManageTenancyandEnterpriseSetup";
 import MobileAppAdminConsole from "@/pages/Tools/MobileAppAdminConsole/MobileAppAdminConsole";
 import ManageGlobalAndLocalCondition from "@/pages/EnterpriseSecurityControls/ManageGlobalAndLocalConditions/ManageGlobalAndLocalCondition";
+import InvitationPage from "@/pages/Invitation/InvitationPage";
 
 const routes = createBrowserRouter([
   {
@@ -94,7 +95,6 @@ const routes = createBrowserRouter([
         path: "settings",
         element: <Settings />,
       },
-
       {
         path: "notifications",
         children: [
@@ -398,6 +398,10 @@ const routes = createBrowserRouter([
   {
     path: "login",
     element: <SignIn />,
+  },
+  {
+    path: "invitation",
+    element: <InvitationPage />,
   },
   {
     path: "*",
