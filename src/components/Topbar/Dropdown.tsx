@@ -25,10 +25,10 @@ const Dropdown = () => {
     combinedUser,
     presentDevice,
     setSignonId,
-    isInvitationModalOpen,
+    // isInvitationModalOpen,
     setIsInvitationModalOpen,
   } = useGlobalContext();
-  console.log(isInvitationModalOpen, "isInvitationModalOpen");
+  // console.log(isInvitationModalOpen, "isInvitationModalOpen");
   const { handleDisconnect, setLinkedDevices, inactiveDevice } =
     useSocketContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -79,9 +79,10 @@ const Dropdown = () => {
   const openInvitationModal = () => {
     setIsModalOpen(!isModalOpen);
   };
+
   useEffect(() => {
     setIsInvitationModalOpen(isModalOpen);
-  }, [isModalOpen]);
+  }, [isModalOpen, setIsInvitationModalOpen]);
 
   return (
     <DropdownMenu>

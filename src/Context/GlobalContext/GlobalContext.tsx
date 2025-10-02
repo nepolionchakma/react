@@ -202,7 +202,7 @@ export function GlobalContextProvider({
     };
     getUser();
   }, [api, token?.user_id]);
-  console.log(isInvitationModalOpen, "invitation modal open");
+
   //Fetch Users
   useEffect(() => {
     const fetchUsers = async () => {

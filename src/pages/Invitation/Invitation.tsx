@@ -18,7 +18,7 @@ function Invitation() {
   const [isLoading, setIsLoading] = useState(false);
 
   const nodeUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
-  const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
+  // const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
 
   const invitaionSchema = z.object({
     email: z.string().email("Invalid email"),
@@ -36,16 +36,17 @@ function Invitation() {
       url: "/invitation/via-email",
       setLoading: setIsLoading,
       payload: {
-        invite_by: token.user_id,
+        invited_by: token.user_id,
         invited_email: data.email,
       },
-      // isConsole: true,
+      isConsole: true,
     };
-    console.log(postParams, "postParams");
+
     const res = await postData(postParams);
-    console.log(res, "Send Invitaion");
+
     if (res.status === 200 || res.status === 201) {
       setGeneratedLink(res.data.invitation_link);
+      toast({ description: res.data.message });
     } else {
       setGeneratedLink(null);
       toast({ description: res });
@@ -56,7 +57,7 @@ function Invitation() {
     navigator.clipboard.writeText(generatedLink ?? "").then(
       () => {
         setIsCopyURL(true);
-        toast({ description: "Text copied to clipboard!" });
+        toast({ description: `Text copied to clipboard! ${generatedLink}` });
       },
       (err) => {
         setIsCopyURL(false);
@@ -72,16 +73,15 @@ function Invitation() {
       url: "/invitation/via-link",
       setLoading: setIsLoading,
       payload: {
-        invite_by: token.user_id,
+        invited_by: token.user_id,
       },
-      // isConsole: true,
     };
-    console.log(postParams, "postParams");
+
     const res = await postData(postParams);
-    // setGeneratedLink(res.data.invitation_link);
-    console.log(res, "Generate Link");
+
     if (res.status === 200 || res.status === 201) {
       setGeneratedLink(res.data.invitation_link);
+      toast({ description: res.data.message });
     } else {
       setGeneratedLink(null);
       toast({ description: res });
@@ -91,7 +91,7 @@ function Invitation() {
     <CustomModal4 className="w-1/2 h-1/2">
       <div>
         <div className="p-2 bg-slate-300 rounded-t mx-auto text-center font-bold flex justify-between">
-          <h2>Invitation Modal</h2>
+          <h2>Invitation</h2>
           <X
             onClick={() => setIsInvitationModalOpen(!isInvitationModalOpen)}
             className="cursor-pointer"
