@@ -45,7 +45,6 @@ function InvitationModal() {
     const res = await postData(postParams);
 
     if (res.status === 200 || res.status === 201) {
-      setGeneratedLink(res.data.invitation_link);
       toast({ description: res.data.message });
     } else {
       setGeneratedLink(null);
@@ -137,15 +136,17 @@ function InvitationModal() {
                     onSubmit={form.handleSubmit(handleSubmit)}
                     className="space-y-4"
                   >
-                    <div className="relative">
-                      <Input
-                        {...form.register("email")}
-                        placeholder="Enter email address"
-                        type="email"
-                      />
+                    <div className="flex gap-2">
+                      <div className="pr-7 w-2/3">
+                        <Input
+                          {...form.register("email")}
+                          placeholder="Enter email address"
+                          type="email"
+                        />
+                      </div>
                       <button
                         type="submit"
-                        className="bg-blue-600 text-white p-2 rounded absolute right-0 top-0 bottom-0"
+                        className="bg-blue-600 text-white p-2 rounded w-1/3"
                       >
                         {isLoading ? "Sending..." : "Send Invitation"}
                       </button>
@@ -153,31 +154,33 @@ function InvitationModal() {
                   </form>
                 ),
                 link: (
-                  <div className="flex relative">
-                    <Input
-                      value={generatedLink ?? ""}
-                      placeholder={generatedLink ?? "Generate Link"}
-                      readOnly
-                    />
-                    <button className="absolute right-32 top-0 bottom-0">
-                      {generatedLink && (
-                        <>
-                          {isCopyURL ? (
-                            <Check
-                              onClick={handleCopy}
-                              className="cursor-pointer text-green-500"
-                            />
-                          ) : (
-                            <Copy
-                              onClick={handleCopy}
-                              className="cursor-pointer text-red-500"
-                            />
-                          )}
-                        </>
-                      )}
-                    </button>
+                  <div className="flex gap-2">
+                    <div className="relative w-2/3 pr-7">
+                      <Input
+                        value={generatedLink ?? ""}
+                        placeholder={generatedLink ?? "Generate Link"}
+                        readOnly
+                      />
+                      <button className="absolute right-0 top-0 bottom-0">
+                        {generatedLink && (
+                          <>
+                            {isCopyURL ? (
+                              <Check
+                                onClick={handleCopy}
+                                className="cursor-pointer text-green-500"
+                              />
+                            ) : (
+                              <Copy
+                                onClick={handleCopy}
+                                className="cursor-pointer text-red-500"
+                              />
+                            )}
+                          </>
+                        )}
+                      </button>
+                    </div>
                     <button
-                      className="bg-blue-600 text-white p-2 rounded absolute right-0 top-0 bottom-0"
+                      className="bg-blue-600 text-white p-2 rounded w-1/3"
                       onClick={handleGenerateLink}
                     >
                       {isLoading ? "Generating..." : "Generate Link"}
