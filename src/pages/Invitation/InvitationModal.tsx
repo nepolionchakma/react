@@ -9,7 +9,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-function Invitation() {
+function InvitationModal() {
   const { isInvitationModalOpen, setIsInvitationModalOpen, token } =
     useGlobalContext();
   const [invitaionType, setInvitaionType] = useState("email");
@@ -193,4 +193,4 @@ function Invitation() {
   );
 }
 
-export default Invitation;
+export default InvitationModal;
