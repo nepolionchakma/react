@@ -406,7 +406,16 @@ const routes = createBrowserRouter([
   },
   {
     path: "invitation",
-    element: <InvitationRedirectPage />,
+    children: [
+      {
+        path: "",
+        element: <Error />,
+      },
+      {
+        path: ":user_invitation_id/:token",
+        element: <InvitationRedirectPage />,
+      },
+    ],
   },
   {
     path: "*",
