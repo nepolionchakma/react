@@ -1,7 +1,7 @@
 import { loadData } from "@/Utility/funtion";
 import { useEffect, useState } from "react";
 
-function InvitationPage() {
+function InvitationRedirectPage() {
   const [isLoading, setIsLoading] = useState(false);
   const nodeUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const [isValid, setIsValid] = useState(false);
@@ -62,4 +62,4 @@ function InvitationPage() {
   );
 }
 
-export default InvitationPage;
+export default InvitationRedirectPage;

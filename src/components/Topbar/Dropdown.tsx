@@ -7,31 +7,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { NavLink } from "react-router-dom";
-import { LogOut, Settings, ShieldBan, User, UserPlus } from "lucide-react";
+import { LogOut, Settings, ShieldBan, User } from "lucide-react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 // const Loading = "/public/profile/loading.gif";
-
-// import { useEffect } from "react";
 
 const Dropdown = () => {
   const api = useAxiosPrivate();
   const apiUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
-  const {
-    token,
-    setToken,
-    combinedUser,
-    presentDevice,
-    setSignonId,
-    // isInvitationModalOpen,
-    setIsInvitationModalOpen,
-  } = useGlobalContext();
-  // console.log(isInvitationModalOpen, "isInvitationModalOpen");
+  const { token, setToken, combinedUser, presentDevice, setSignonId } =
+    useGlobalContext();
+
   const { handleDisconnect, setLinkedDevices, inactiveDevice } =
     useSocketContext();
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   // const navigate = useNavigate();
 
@@ -76,13 +66,6 @@ const Dropdown = () => {
       handleDisconnect();
     }
   };
-  const openInvitationModal = () => {
-    setIsModalOpen(!isModalOpen);
-  };
-
-  useEffect(() => {
-    setIsInvitationModalOpen(isModalOpen);
-  }, [isModalOpen, setIsInvitationModalOpen]);
 
   return (
     <DropdownMenu>
@@ -140,15 +123,6 @@ const Dropdown = () => {
             <Settings size={18} />
             <p className="font-semibold font-workSans text-md">Settings</p>
           </NavLink>
-        </div>
-        <div className="p-2 rounded hover:bg-hover text-sm">
-          <button
-            onClick={openInvitationModal}
-            className="flex gap-2 items-center w-full"
-          >
-            <UserPlus size={18} />
-            <p className="font-semibold font-workSans text-md">invitation</p>
-          </button>
         </div>
         <DropdownMenuSeparator />
         <div className="p-2 rounded hover:bg-hover text-sm">
