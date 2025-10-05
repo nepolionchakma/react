@@ -38,7 +38,7 @@ function InvitationRedirectPage() {
       console.log("Invitation token:", token);
 
       // Deep link schema for mobile app
-      const appLink = `procgboardingpass://invitation?user_invitation_id=${user_invitation_id}&token=${token}`;
+      const appLink = `PROCG://invitation?user_invitation_id=${user_invitation_id}&token=${token}`;
 
       // Try opening mobile app
       window.location.href = appLink;
@@ -53,7 +53,7 @@ function InvitationRedirectPage() {
         }
       }, 1000);
     }
-  }, [isValid, token]);
+  }, [isValid, token, user_invitation_id]);
 
   return (
     <div className="flex justify-center items-center h-screen">
