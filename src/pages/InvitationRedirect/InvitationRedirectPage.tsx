@@ -36,17 +36,23 @@ function InvitationRedirectPage() {
     if (token && isValid) {
       const appLink = `PROCG://invitation/${user_invitation_id}/${token}`;
 
-      if (/android/i.test(navigator.userAgent)) {
+      const openApp = () => {
         window.location.href = appLink;
-      } else if (/iphone|ipad/i.test(navigator.userAgent)) {
-        window.location.href = appLink;
-      } else {
-        // For web, handle fallback or show an info page
-        setTimeout(() => {
+      };
+
+      openApp();
+
+      setTimeout(() => {
+        if (/android/i.test(navigator.userAgent)) {
           window.location.href =
             "https://play.google.com/store/apps/details?id=gov.bbg.voa";
-        }, 1000);
-      }
+        } else if (/iphone|ipad/i.test(navigator.userAgent)) {
+          window.location.href = "https://apps.apple.com/app/myapp/id123456789";
+        } else {
+          window.location.href =
+            "https://play.google.com/store/apps/details?id=gov.bbg.voa";
+        }
+      }, 1000);
     }
   }, [isValid, token, user_invitation_id]);
 
