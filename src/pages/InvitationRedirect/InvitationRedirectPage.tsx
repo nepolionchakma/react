@@ -34,24 +34,19 @@ function InvitationRedirectPage() {
 
   useEffect(() => {
     if (token && isValid) {
-      // Store token in localStorage or pass to backend
-      console.log("Invitation token:", token);
+      const appLink = `PROCG://invitation/${user_invitation_id}/${token}`;
 
-      // Deep link schema for mobile app
-      const appLink = `PROCG://invitation?user_invitation_id=${user_invitation_id}&token=${token}`;
-
-      // Try opening mobile app
-      window.location.href = appLink;
-
-      // Fallback: after 1s redirect to store
-      setTimeout(() => {
-        if (/android/i.test(navigator.userAgent)) {
+      if (/android/i.test(navigator.userAgent)) {
+        window.location.href = appLink;
+      } else if (/iphone|ipad/i.test(navigator.userAgent)) {
+        window.location.href = appLink;
+      } else {
+        // For web, handle fallback or show an info page
+        setTimeout(() => {
           window.location.href =
             "https://play.google.com/store/apps/details?id=gov.bbg.voa";
-        } else if (/iphone|ipad/i.test(navigator.userAgent)) {
-          window.location.href = "https://apps.apple.com/app/myapp/id123456789";
-        }
-      }, 1000);
+        }, 1000);
+      }
     }
   }, [isValid, token, user_invitation_id]);
 
