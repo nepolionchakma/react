@@ -28,7 +28,7 @@ const ReplyDialog = ({
   setShowModal,
 }: ReplyDialogProps) => {
   const api = useAxiosPrivate();
-  const { users, userId, token } = useGlobalContext();
+  const { users, userId, combinedUser } = useGlobalContext();
   const { handlesendMessage, handleDraftMessage } = useSocketContext();
   const [subject, setSubject] = useState<string>("");
   const [body, setBody] = useState<string>("");
@@ -77,7 +77,7 @@ const ReplyDialog = ({
       notificationID: id,
       parentId: parrentMessage.parent_notification_id,
       date: new Date(),
-      sender: token.user_name,
+      sender: combinedUser?.user_name,
       recipients: recivers,
       subject,
       body,

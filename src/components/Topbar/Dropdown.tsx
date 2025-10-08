@@ -28,14 +28,9 @@ const Dropdown = () => {
   const userExample = {
     isLoggedIn: false,
     user_id: 0,
-    user_name: "",
-    user_type: "",
-    tenant_id: 0,
+
     access_token: "",
-    issuedAt: "",
-    iat: 0,
-    exp: 0,
-    profile_picture: { original: "", thumbnail: "" },
+    refresh_token: "",
   };
   const handleSignOut = async () => {
     try {
@@ -75,12 +70,12 @@ const Dropdown = () => {
             className="object-cover object-center"
             src={`${apiUrl}/${combinedUser?.profile_picture.original}`}
           />
-          <AvatarFallback>{token.user_name.slice(0, 1)}</AvatarFallback>
+          <AvatarFallback>{combinedUser?.user_name.slice(0, 1)}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-48 mr-1">
         <DropdownMenuLabel className=" font-bold font-workSans text-lg text-center">
-          {token.user_name}
+          {combinedUser?.user_name}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <div className="p-2 rounded hover:bg-hover text-sm">

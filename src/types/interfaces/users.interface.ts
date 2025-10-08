@@ -6,15 +6,8 @@ export interface ProfilePicture {
 export interface Token {
   isLoggedIn: boolean;
   access_token: string;
-  tenant_id: number;
+  refresh_token: string;
   user_id: number;
-  sub?: string;
-  user_type: string;
-  user_name: string;
-  iat: number;
-  exp: number;
-  issuedAt: string;
-  profile_picture: ProfilePicture;
 }
 
 export interface Users {
@@ -29,6 +22,15 @@ export interface Users {
   tenant_id?: number;
   profile_picture: ProfilePicture;
 }
+
+export interface IPersonsTypes {
+  user_id: number;
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  job_title: string;
+}
+export interface IUsersInfoTypes extends Users, IPersonsTypes {}
 export interface IUpdateUserTypes {
   user_name: string;
   email_addresses: string[];
@@ -102,14 +104,7 @@ export interface IEnterprisesTypes {
   enterprise_name: string;
   enterprise_type: string;
 }
-export interface IPersonsTypes {
-  user_id: number;
-  first_name: string;
-  middle_name: string;
-  last_name: string;
-  job_title: string;
-}
-export interface IUsersInfoTypes extends Users, IPersonsTypes {}
+
 export interface IGetResponeUsersInfoTypes {
   items: IUsersInfoTypes[];
   total: number;

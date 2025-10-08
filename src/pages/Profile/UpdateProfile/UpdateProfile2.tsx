@@ -158,7 +158,9 @@ const UpdateProfile: React.FC = () => {
             <AvatarImage
               src={isCombinedUserLoading ? DefaultLogo : formData.profileImage}
             />
-            <AvatarFallback>{token.user_name.slice(0, 1)}</AvatarFallback>
+            <AvatarFallback>
+              {combinedUser?.user_name.slice(0, 1)}
+            </AvatarFallback>
           </Avatar>
 
           <label

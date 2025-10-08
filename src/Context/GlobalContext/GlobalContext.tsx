@@ -116,14 +116,9 @@ interface GlobalContex {
 export const userExample = {
   isLoggedIn: false,
   user_id: 0,
-  user_name: "",
-  user_type: "",
-  tenant_id: 0,
+
   access_token: "",
-  issuedAt: "",
-  iat: 0,
-  exp: 0,
-  profile_picture: { original: "", thumbnail: "" },
+  refresh_token: "",
 };
 
 const GlobalContex = createContext({} as GlobalContex);

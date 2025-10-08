@@ -38,7 +38,7 @@ const EditForm: FC<AddFormProps> = ({
   handleReset,
   onSubmit,
 }) => {
-  const { token } = useGlobalContext();
+  const { combinedUser } = useGlobalContext();
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
   return (
@@ -122,7 +122,9 @@ const EditForm: FC<AddFormProps> = ({
             )}
           />
           <FormField
-            disabled={token.user_type !== "system" && userType === "system"}
+            disabled={
+              combinedUser?.user_type !== "system" && userType === "system"
+            }
             control={form.control}
             name="email_addresses"
             render={({ field }) => (
@@ -141,7 +143,9 @@ const EditForm: FC<AddFormProps> = ({
             )}
           />
           <FormField
-            disabled={token.user_type !== "system" && userType === "system"}
+            disabled={
+              combinedUser?.user_type !== "system" && userType === "system"
+            }
             control={form.control}
             name="password"
             render={({ field }) => (
@@ -168,7 +172,9 @@ const EditForm: FC<AddFormProps> = ({
             )}
           />
           <FormField
-            disabled={token.user_type !== "system" && userType === "system"}
+            disabled={
+              combinedUser?.user_type !== "system" && userType === "system"
+            }
             control={form.control}
             name="confirm_password"
             render={({ field }) => (
