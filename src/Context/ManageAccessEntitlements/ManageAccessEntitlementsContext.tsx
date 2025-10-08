@@ -124,7 +124,7 @@ export const ManageAccessEntitlementsProvider = ({
   children,
 }: IManageAccessEntitlementsProviderProps) => {
   const api = useAxiosPrivate();
-  const { token } = useGlobalContext();
+  const { combinedUser } = useGlobalContext();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingAccessPoints, setIsLoadingAccessPoints] =
     useState<boolean>(false);
@@ -380,8 +380,8 @@ export const ManageAccessEntitlementsProvider = ({
             {
               entitlement_id: def_entitlement_id,
               access_point_id: id,
-              created_by: token.user_name,
-              last_updated_by: token.user_name,
+              created_by: combinedUser?.user_name,
+              last_updated_by: combinedUser?.user_name,
             }
           );
 

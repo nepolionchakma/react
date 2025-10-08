@@ -79,6 +79,7 @@ function NewUserInvitation() {
     if (res.status === 200 || res.status === 201) {
       setGeneratedLink(res.data.invitation_link);
       toast({ description: res.data.message });
+      setIsCopyURL(false);
     } else {
       setGeneratedLink(null);
       toast({ description: res });

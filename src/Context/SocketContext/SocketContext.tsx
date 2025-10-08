@@ -22,7 +22,10 @@ interface SocketContextProps {
 
 interface SocketContext {
   receivedMessages: Notification[];
-  handlesendMessage: (notificationId: string, sender: number) => void;
+  handlesendMessage: (
+    notificationId: string,
+    sender: number | undefined
+  ) => void;
   handleDisconnect: () => void;
   handleRead: (id: string) => void;
   handleDeleteMessage: (id: string) => void;
@@ -35,7 +38,10 @@ interface SocketContext {
   setDraftMessages: React.Dispatch<React.SetStateAction<Notification[]>>;
   recycleBinMsg: Notification[];
   setRecycleBinMsg: React.Dispatch<React.SetStateAction<Notification[]>>;
-  handleDraftMessage: (notificationId: string, sender: number) => void;
+  handleDraftMessage: (
+    notificationId: string,
+    sender: number | undefined
+  ) => void;
   totalReceivedMessages: number;
   setTotalReceivedMessages: React.Dispatch<React.SetStateAction<number>>;
   totalSentMessages: number;
@@ -517,7 +523,10 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   ]);
 
   // messages Action
-  const handlesendMessage = (notificationId: string, sender: number) => {
+  const handlesendMessage = (
+    notificationId: string,
+    sender: number | undefined
+  ) => {
     socket.emit("sendMessage", { notificationId, sender });
   };
 
@@ -532,7 +541,10 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     socket.emit("deleteMessage", { notificationId, sender: userId });
   };
 
-  const handleDraftMessage = (notificationId: string, sender: number) => {
+  const handleDraftMessage = (
+    notificationId: string,
+    sender: number | undefined
+  ) => {
     socket.emit("sendDraft", { notificationId, sender });
   };
 

@@ -52,18 +52,7 @@ function InvitationRedirectPage() {
       last_name: z.string().optional(),
       job_title: z.string(),
       tenant_id: z.string(),
-      email_address: z
-        .string() // Ensure it's a string
-        .transform((val) => val.split(",").map((email) => email.trim())) // Split by commas and trim spaces
-        .refine(
-          (emails) =>
-            emails.every(
-              (email) => z.string().email().safeParse(email).success // Validate each email
-            ),
-          {
-            message: "One or more emails are invalid.",
-          }
-        ),
+      email_address: z.string().email(),
       password: z.string().min(8, {
         message: "At least 8 characters.",
       }),
@@ -81,7 +70,7 @@ function InvitationRedirectPage() {
     defaultValues: {
       user_name: "",
       user_type: "person",
-      email_address: [],
+      email_address: "",
       tenant_id: "",
       first_name: "",
       middle_name: "",

@@ -31,8 +31,7 @@ const Layout = () => {
   if (
     token?.user_id === 0 &&
     token.access_token === "" &&
-    token.isLoggedIn === false &&
-    token.issuedAt === ""
+    token.isLoggedIn === false
   ) {
     return <Navigate state={location.pathname} to="/login" replace />;
   }

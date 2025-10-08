@@ -41,7 +41,7 @@ const AddForm: FC<AddFormProps> = ({
   handleReset,
   onSubmit,
 }) => {
-  const { token } = useGlobalContext();
+  const { combinedUser } = useGlobalContext();
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
 
@@ -211,7 +211,9 @@ const AddForm: FC<AddFormProps> = ({
           )}
 
           <FormField
-            disabled={token.user_type !== "system" && userType === "system"}
+            disabled={
+              combinedUser?.user_type !== "system" && userType === "system"
+            }
             control={form.control}
             name="email_addresses"
             render={({ field }) => (
@@ -230,7 +232,9 @@ const AddForm: FC<AddFormProps> = ({
             )}
           />
           <FormField
-            disabled={token.user_type !== "system" && userType === "system"}
+            disabled={
+              combinedUser?.user_type !== "system" && userType === "system"
+            }
             control={form.control}
             name="password"
             render={({ field }) => {
@@ -261,7 +265,9 @@ const AddForm: FC<AddFormProps> = ({
           />
 
           <FormField
-            disabled={token.user_type !== "system" && userType === "system"}
+            disabled={
+              combinedUser?.user_type !== "system" && userType === "system"
+            }
             control={form.control}
             name="confirm_password"
             render={({ field }) => (
@@ -289,7 +295,7 @@ const AddForm: FC<AddFormProps> = ({
             )}
           />
         </div>
-        {token.user_type !== "system" && userType === "system" ? (
+        {combinedUser?.user_type !== "system" && userType === "system" ? (
           <p className="text-red-500 text-center py-2 flex justify-center items-center gap-2">
             <l-hourglass
               size="20"
