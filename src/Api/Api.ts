@@ -25,6 +25,7 @@ export const flaskApi = {
   DefActionItems: "/def_action_items_view",
   DefActionItemAssignment: "/def_action_item_assignments",
   DefControlEnvironments: "/def_control_environments",
+  DefTenants: "/tenants ",
 };
 
 // All Node api
