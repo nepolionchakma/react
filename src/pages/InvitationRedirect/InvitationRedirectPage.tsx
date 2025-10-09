@@ -24,15 +24,15 @@ import { loadData, postData } from "@/Utility/funtion";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { ITenantsTypes } from "@/types/interfaces/users.interface";
-import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+
 import { Eye, EyeOff } from "lucide-react";
-import { FLASK_URL } from "@/Api/Api";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import CryptoJS from "crypto-js";
 
 function InvitationRedirectPage() {
-  const { fetchTenants } = useGlobalContext();
-
   const [isLoading, setIsLoading] = useState(false);
   const nodeUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
+  const crptoSecretKey = import.meta.env.VITE_CRYPTO_SECRET_KEY;
   const [isValid, setIsValid] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
@@ -42,6 +42,24 @@ function InvitationRedirectPage() {
   const [state, setState] = useState(0);
 
   const { user_invitation_id, token } = useParams();
+
+  const decrypt = (value: string) => {
+    try {
+      // Decode URL-safe string
+      const decoded = decodeURIComponent(value);
+
+      const bytes = CryptoJS.AES.decrypt(decoded, crptoSecretKey);
+      const plaintext = bytes.toString(CryptoJS.enc.Utf8);
+
+      return plaintext; // original string
+    } catch (error) {
+      console.error("Decryption failed:", error);
+      return null;
+    }
+  };
+
+  const decryptedUserInvitaitionId = decrypt(user_invitation_id as string);
+  const decryptedToken = decrypt(token as string);
 
   const FormSchema = z
     .object({
@@ -90,8 +108,14 @@ function InvitationRedirectPage() {
 
   useEffect(() => {
     const fetchTenantsData = async () => {
+      const params = {
+        baseURL: FLASK_URL,
+        url: flaskApi.DefTenants,
+        setLoading: setIsLoading,
+        accessToken: decryptedToken as string,
+      };
       try {
-        const res = await fetchTenants();
+        const res = await loadData(params);
         if (res) {
           setTenants(res);
         }
@@ -100,16 +124,23 @@ function InvitationRedirectPage() {
       }
     };
     fetchTenantsData();
-  }, []);
+  }, [decryptedToken]);
 
   useEffect(() => {
-    if (!token) return;
+    if (!decryptedToken) return;
     (async () => {
+      console.log(
+        `/invitation/verify?user_invitation_id=${Number(
+          decryptedUserInvitaitionId
+        )}&token=${decryptedToken}`
+      );
       const postParams = {
         baseURL: nodeUrl,
-        url: `/invitation/verify?user_invitation_id=${user_invitation_id}&token=${token}`,
+        url: `/invitation/verify?user_invitation_id=${Number(
+          decryptedUserInvitaitionId
+        )}&token=${decryptedToken}`,
         setLoading: setIsLoading,
-        accessToken: token,
+        accessToken: decryptedToken,
       };
 
       const res = await loadData(postParams);
@@ -119,7 +150,7 @@ function InvitationRedirectPage() {
         setResponse(res.message);
       }
     })();
-  }, [nodeUrl, token, user_invitation_id, state]);
+  }, [nodeUrl, decryptedToken, decryptedUserInvitaitionId, state]);
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     const postPayload = {
@@ -133,7 +164,7 @@ function InvitationRedirectPage() {
       last_name: data.last_name,
       job_title: data.job_title,
       password: data.password,
-      user_invitation_id: Number(user_invitation_id),
+      user_invitation_id: Number(decryptedUserInvitaitionId),
     };
 
     console.log(postPayload);
@@ -144,7 +175,7 @@ function InvitationRedirectPage() {
       payload: postPayload,
       // isConsole?: boolean;
       isToast: true,
-      accessToken: token,
+      accessToken: decryptedToken as string,
     };
 
     try {
