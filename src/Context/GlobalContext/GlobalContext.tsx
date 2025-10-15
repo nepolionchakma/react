@@ -11,7 +11,6 @@ import axios, { AxiosError } from "axios";
 import {
   Token,
   Users,
-  IAddUserTypes,
   ITenantsTypes,
   IUsersInfoTypes,
   IUpdateUserTypes,
@@ -69,7 +68,7 @@ interface GlobalContex {
     postData: IDataSourcePostTypes
   ) => Promise<void>;
   deleteDataSource: (id: number) => Promise<void>;
-  createUser: (postData: IAddUserTypes) => void;
+
   fetchTenants: () => Promise<ITenantsTypes[] | undefined>;
   combinedUser: IUsersInfoTypes | undefined;
   setCombinedUser: React.Dispatch<
@@ -253,57 +252,7 @@ export function GlobalContextProvider({
       setIsLoading(false);
     }
   };
-  const createUser = async (postData: IAddUserTypes) => {
-    setIsLoading(true);
-    const {
-      user_type,
-      user_name,
-      email_addresses,
-      created_by,
-      last_updated_by,
-      tenant_id,
-      first_name,
-      middle_name,
-      last_name,
-      job_title,
-      password,
-    } = postData;
-    try {
-      const res = await axios.post(`${FLASK_ENDPOINT_URL}/users`, {
-        user_type,
-        user_name,
-        email_addresses,
-        created_by,
-        last_updated_by,
-        tenant_id,
-        first_name,
-        middle_name,
-        last_name,
-        job_title,
-        password,
-      });
 
-      if (res.status === 201) {
-        setIsLoading(false);
-        toast({
-          description: `${res.data.message}`,
-        });
-      }
-    } catch (error) {
-      console.log(error);
-      if (error instanceof AxiosError && error.response) {
-        if (error.response.status) {
-          toast({
-            description: `${error.message}`,
-          });
-        }
-      }
-
-      console.log(error);
-    } finally {
-      setStateChange(Math.random() + 23 * 3000);
-    }
-  };
   const updateUser = async (user_id: number, userInfo: IUpdateUserTypes) => {
     setIsLoading(true);
     try {
@@ -611,7 +560,6 @@ export function GlobalContextProvider({
         createDataSource,
         updateDataSource,
         deleteDataSource,
-        createUser,
         fetchTenants,
         combinedUser,
         setCombinedUser,

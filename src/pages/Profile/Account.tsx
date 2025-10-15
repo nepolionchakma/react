@@ -41,7 +41,7 @@ const Account = () => {
           </div>
           <div className="space-y-1">
             <Label htmlFor="email">Email</Label>
-            <Input id="email" defaultValue={userInfo?.email_addresses[0]} />
+            <Input id="email" defaultValue={userInfo?.email_address} />
           </div>
         </CardContent>
         <CardFooter>

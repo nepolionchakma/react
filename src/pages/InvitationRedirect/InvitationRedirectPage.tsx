@@ -30,6 +30,8 @@ import { FLASK_URL, flaskApi } from "@/Api/Api";
 import CryptoJS from "crypto-js";
 
 function InvitationRedirectPage() {
+  // const fullUrl = window.location.origin + location.pathname + location.search;
+  // console.log(fullUrl);
   const [isLoading, setIsLoading] = useState(false);
   const nodeUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const crptoSecretKey = import.meta.env.VITE_CRYPTO_SECRET_KEY;
@@ -527,7 +529,7 @@ function InvitationRedirectPage() {
                   </form>
                 </Form>
 
-                <p>To register via mobile click the link given below</p>
+                <p>To downlod the mobile app</p>
                 <p>
                   Android:
                   <a

@@ -100,7 +100,7 @@ const Profile = () => {
                   <div className="font-semibold">Access Profiles</div>
                   <div className="bg-white flex items-center justify-center p-16  mt-4">
                     <QRCodeCanvas
-                      value={JSON.stringify(combinedUser?.email_addresses)}
+                      value={JSON.stringify(combinedUser?.email_address)}
                       title={"Access Profiles"}
                       size={150}
                       // imageSettings={{

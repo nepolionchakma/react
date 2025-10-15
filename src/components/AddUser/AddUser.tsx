@@ -4,9 +4,7 @@ import { z } from "zod";
 
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import {
-  IAddUserTypes,
   ITenantsTypes,
-  IUpdateUserTypes,
   IUsersInfoTypes,
 } from "@/types/interfaces/users.interface";
 import { FC, useEffect, useState } from "react";
@@ -14,28 +12,29 @@ import { hourglass } from "ldrs";
 import AddForm from "./AddForm";
 import { X } from "lucide-react";
 import EditForm from "./EditForm";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { loadData, postData, putData } from "@/Utility/funtion";
 interface IAddUserProps {
   selected: IUsersInfoTypes;
   handleCloseModal: () => void;
 }
 const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
-  const {
-    createUser,
-    token,
-    fetchTenants,
-    isLoading,
-    updateUser,
-    isOpenModal,
-    setStateChange,
-  } = useGlobalContext();
+  const { token, isOpenModal, setStateChange } = useGlobalContext();
   const [userType, setUserType] = useState<string>("person");
   const [tenants, setTenants] = useState<ITenantsTypes[] | undefined>([]);
+  const [isLoading, setIsLoading] = useState(false);
+
   hourglass.register();
 
   useEffect(() => {
     const fetchTenantsData = async () => {
+      const params = {
+        baseURL: FLASK_URL,
+        url: flaskApi.DefTenants,
+        accessToken: token.access_token as string,
+      };
       try {
-        const res = await fetchTenants();
+        const res = await loadData(params);
         if (res) {
           setTenants(res);
         }
@@ -44,7 +43,7 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
       }
     };
     fetchTenantsData();
-  }, []);
+  }, [token.access_token]);
 
   const FormSchema = z
     .object(
@@ -57,18 +56,7 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
             last_name: z.string().optional(),
             job_title: z.string(),
             tenant_id: z.string(),
-            email_addresses: z
-              .string() // Ensure it's a string
-              .transform((val) => val.split(",").map((email) => email.trim())) // Split by commas and trim spaces
-              .refine(
-                (emails) =>
-                  emails.every(
-                    (email) => z.string().email().safeParse(email).success // Validate each email
-                  ),
-                {
-                  message: "One or more emails are invalid.",
-                }
-              ),
+            email_address: z.string().email(),
             password: z.string().min(8, {
               message: "At least 8 characters.",
             }),
@@ -82,21 +70,7 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
             middle_name: z.string().optional(),
             last_name: z.string().optional(),
             job_title: z.string().optional(),
-            email_addresses: z
-              .string() // Ensure it's a string if provided
-              .optional() // Make it optional
-              .transform((val) =>
-                val ? val.split(",").map((email) => email.trim()) : []
-              ) // If there's a value, split and trim; otherwise, return an empty array
-              .refine(
-                (emails) =>
-                  emails.every(
-                    (email) => z.string().email().safeParse(email).success // Validate each email
-                  ),
-                {
-                  message: "One or more emails are invalid.",
-                }
-              ),
+            email_address: z.string().email(),
             password: z.string().optional(),
             confirm_password: z.string().optional(),
           }
@@ -113,7 +87,7 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
         ? {
             user_name: "",
             user_type: "person",
-            email_addresses: "",
+            email_address: "",
             tenant_id: "",
             first_name: "",
             middle_name: "",
@@ -125,16 +99,13 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
         : {
             user_name: selected.user_name,
             job_title: selected.job_title,
-            email_addresses: Array.isArray(selected.email_addresses)
-              ? selected.email_addresses.join(",")
-              : // If it's an array, join the emails into a string
-                selected.email_addresses,
-            // If it's already a string, just leave it
+            email_address: selected.email_address,
             password: "",
             confirm_password: "",
             first_name: selected.first_name,
             middle_name: selected.middle_name,
             last_name: selected.last_name,
+            tenant_id: selected.tenant_id,
           },
   });
   const { reset } = form;
@@ -142,15 +113,11 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
     reset();
   };
 
-  const onSubmit = (data: z.infer<typeof FormSchema>) => {
-    const postData: IAddUserTypes = {
+  const onSubmit = async (data: z.infer<typeof FormSchema>) => {
+    const postDataPayload = {
       user_type: data.user_type,
       user_name: data.user_name,
-      email_addresses: Array.isArray(data.email_addresses)
-        ? data.email_addresses
-        : [data.email_addresses],
-      created_by: token.user_id,
-      last_updated_by: token.user_id,
+      email_address: data.email_address,
       tenant_id: Number(data.tenant_id),
       first_name: data.first_name,
       middle_name: data.middle_name,
@@ -158,21 +125,41 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
       job_title: data.job_title,
       password: data.password,
     };
-    const putData: IUpdateUserTypes = {
+
+    console.log(postDataPayload);
+
+    const postDataParams = {
+      baseURL: FLASK_URL,
+      url: flaskApi.Users,
+      setLoading: setIsLoading,
+      payload: postDataPayload,
+      isConsole: true,
+      isToast: true,
+      accessToken: token.access_token,
+    };
+    const putDataPayload = {
       user_name: data.user_name,
       job_title: data.job_title,
-      email_addresses: Array.isArray(data.email_addresses)
-        ? data.email_addresses
-        : [data.email_addresses],
+      email_address: data.email_address,
       first_name: data.first_name,
       middle_name: data.middle_name,
       last_name: data.last_name,
       password: data.password,
     };
 
+    const putDataParams = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.Users}/${selected.user_id}`,
+      setLoading: setIsLoading,
+      payload: putDataPayload,
+      // isConsole?: boolean;
+      isToast: true,
+      accessToken: token.access_token,
+    };
+
     try {
-      isOpenModal === "add_user" && createUser(postData);
-      isOpenModal === "edit_user" && updateUser(selected.user_id, putData);
+      isOpenModal === "add_user" && (await postData(postDataParams));
+      isOpenModal === "edit_user" && (await putData(putDataParams));
     } catch (error) {
       console.log(error);
     } finally {
