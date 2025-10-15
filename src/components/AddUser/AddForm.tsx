@@ -16,12 +16,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import UserTypes from "@/pages/Tools/SecurityConsole/ManageUsers/user_type.json";
-import JobTitleTypes from "@/pages/Tools/SecurityConsole/ManageUsers/job_title.json";
-import { Dispatch, FC, SetStateAction, useState } from "react";
-import { ITenantsTypes } from "@/types/interfaces/users.interface";
+// import JobTitleTypes from "@/pages/Tools/SecurityConsole/ManageUsers/job_title.json";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
+import { IJobTitle, ITenantsTypes } from "@/types/interfaces/users.interface";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { FieldValues, UseFormReturn } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { loadData } from "@/Utility/funtion";
 interface AddFormProps {
   form: UseFormReturn<FieldValues>;
   isLoading: boolean;
@@ -41,9 +43,29 @@ const AddForm: FC<AddFormProps> = ({
   handleReset,
   onSubmit,
 }) => {
-  const { combinedUser } = useGlobalContext();
+  const { combinedUser, token } = useGlobalContext();
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
+  const [jobTitles, setJobTitles] = useState<IJobTitle[]>([]);
+  const [tenantId, setTenantId] = useState(0);
+
+  useEffect(() => {
+    const loadJobTitles = async () => {
+      const params = {
+        baseURL: FLASK_URL,
+        url: `${flaskApi.JobTitles}?tenant_id=${tenantId}`,
+        accessToken: token.access_token,
+      };
+
+      const res = await loadData(params);
+      if (res) {
+        setJobTitles(res);
+      } else {
+        setJobTitles([]);
+      }
+    };
+    loadJobTitles();
+  }, [token.access_token, tenantId]);
 
   return (
     <Form {...form}>
@@ -105,6 +127,42 @@ const AddForm: FC<AddFormProps> = ({
 
           <FormField
             control={form.control}
+            name="tenant_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-normal">Tenant ID</FormLabel>
+
+                <Select
+                  required
+                  onValueChange={(value) => {
+                    setTenantId(Number(value));
+                    field.onChange(value);
+                  }}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a Tenant" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {tenants?.map((tenant) => (
+                      <SelectItem
+                        value={String(tenant.tenant_id)}
+                        key={tenant.tenant_id}
+                        onChange={() => setTenantId(tenant.tenant_id)}
+                      >
+                        {tenant.tenant_name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="job_title"
             render={({ field }) => (
               <FormItem>
@@ -120,40 +178,12 @@ const AddForm: FC<AddFormProps> = ({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {JobTitleTypes.map((user) => (
-                      <SelectItem value={user.value} key={user.value}>
-                        {user.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
-          />
-
-          <FormField
-            control={form.control}
-            name="tenant_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-normal">Tenant ID</FormLabel>
-                <Select
-                  required
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a Tenant" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {tenants?.map((tenant) => (
+                    {jobTitles.map((job) => (
                       <SelectItem
-                        value={String(tenant.tenant_id)}
-                        key={tenant.tenant_id}
+                        value={job.job_title_name}
+                        key={job.job_title_id}
                       >
-                        {tenant.tenant_name}
+                        {job.job_title_name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -215,7 +245,7 @@ const AddForm: FC<AddFormProps> = ({
               combinedUser?.user_type !== "system" && userType === "system"
             }
             control={form.control}
-            name="email_addresses"
+            name="email_address"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="font-normal">Email</FormLabel>

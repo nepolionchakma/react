@@ -37,7 +37,7 @@ export const columns: ColumnDef<IUsersInfoTypes>[] = [
   },
 
   {
-    accessorKey: "email_addresses",
+    accessorKey: "email_address",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
       const a = rowA.getValue(columnId); // No need for 'as string' in JS
@@ -57,14 +57,7 @@ export const columns: ColumnDef<IUsersInfoTypes>[] = [
         </div>
       );
     },
-    cell: ({ row }) => {
-      const emailAddresses = row.getValue("email_addresses");
-
-      const splitedEmailAddresses = Array.isArray(emailAddresses)
-        ? emailAddresses.join(", ")
-        : "";
-      return <div className="lowercase">{splitedEmailAddresses}</div>;
-    },
+    cell: ({ row }) => <div>{row.getValue("email_address")}</div>,
   },
   {
     accessorKey: "first_name",

@@ -13,14 +13,15 @@ export interface Token {
 export interface Users {
   user_id: number;
   user_name: string;
-  user_type?: string;
-  email_addresses: string;
+  user_type: string;
+  email_address: string;
   created_by?: number;
   created_on?: string;
   last_updated_by?: number;
   last_updated_on?: string;
   tenant_id?: number;
   profile_picture: ProfilePicture;
+  user_invitation_id?: number;
 }
 
 export interface IPersonsTypes {
@@ -33,7 +34,7 @@ export interface IPersonsTypes {
 export interface IUsersInfoTypes extends Users, IPersonsTypes {}
 export interface IUpdateUserTypes {
   user_name: string;
-  email_addresses: string[];
+  email_address: string;
   first_name: string;
   middle_name: string | undefined;
   last_name: string;
@@ -84,7 +85,7 @@ export interface Notification {
 export interface IAddUserTypes {
   user_type: string;
   user_name: string;
-  email_addresses: string[];
+  email_address: string;
   created_by: number | undefined;
   last_updated_by: number | undefined;
   tenant_id: number;
@@ -154,4 +155,14 @@ export interface IProfilesType {
   profile_type: string;
   serial_number: number;
   user_id: number;
+}
+
+export interface IJobTitle {
+  job_title_id: number;
+  job_title_name: string;
+  tenant_id?: number;
+  created_by?: number;
+  created_on?: Date;
+  last_updated_by?: number;
+  last_updated_on?: Date;
 }

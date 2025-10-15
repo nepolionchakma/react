@@ -10,13 +10,11 @@ axios.defaults.withCredentials = true;
 export const api = axios.create({
   baseURL: url,
   headers: { "Content-Type": "application/json" },
-
   withCredentials: true,
 });
 
 export const flaskApi = {
   DefGlobalConditions: "/def_global_conditions",
-
   DefGlobalConditionLogics: "/def_global_condition_logics",
   DefGlobalConditionLogicAttributes: "/def_global_condition_logic_attributes",
   DefAccessModels: "/def_access_models",
@@ -26,11 +24,13 @@ export const flaskApi = {
   DefActionItemAssignment: "/def_action_item_assignments",
   DefControlEnvironments: "/def_control_environments",
   DefTenants: "/tenants ",
+  Users: "/users",
+  JobTitles: "/job_titles",
 };
 
 // All Node api
 export const nodeApi = {
   ViewEditScheduleTaskApi:
     "/asynchronous-requests-and-task-schedules/task-schedules",
-  alerts: "/alerts",
+  Alerts: "/alerts",
 };

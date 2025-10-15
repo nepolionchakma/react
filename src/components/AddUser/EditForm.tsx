@@ -15,12 +15,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import JobTitleTypes from "@/pages/Tools/SecurityConsole/ManageUsers/job_title.json";
-import { Dispatch, FC, SetStateAction, useState } from "react";
-import { ITenantsTypes } from "@/types/interfaces/users.interface";
+// import JobTitleTypes from "@/pages/Tools/SecurityConsole/ManageUsers/job_title.json";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
+import { IJobTitle, ITenantsTypes } from "@/types/interfaces/users.interface";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { FieldValues, UseFormReturn } from "react-hook-form";
 import { Eye, EyeOff } from "lucide-react";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { loadData } from "@/Utility/funtion";
 interface AddFormProps {
   form: UseFormReturn<FieldValues>;
   isLoading: boolean;
@@ -38,9 +40,31 @@ const EditForm: FC<AddFormProps> = ({
   handleReset,
   onSubmit,
 }) => {
-  const { combinedUser } = useGlobalContext();
+  const { combinedUser, token } = useGlobalContext();
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
+  const [jobTitles, setJobTitles] = useState<IJobTitle[]>([]);
+
+  const tenantId = form.getValues("tenant_id");
+  console.log(tenantId);
+
+  useEffect(() => {
+    const loadJobTitles = async () => {
+      const params = {
+        baseURL: FLASK_URL,
+        url: `${flaskApi.JobTitles}?tenant_id=${tenantId}`,
+        accessToken: token.access_token,
+      };
+
+      const res = await loadData(params);
+      if (res) {
+        setJobTitles(res);
+      } else {
+        setJobTitles([]);
+      }
+    };
+    loadJobTitles();
+  }, [token.access_token, tenantId]);
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -62,6 +86,7 @@ const EditForm: FC<AddFormProps> = ({
               </FormItem>
             )}
           />
+
           <FormField
             control={form.control}
             name="job_title"
@@ -75,9 +100,12 @@ const EditForm: FC<AddFormProps> = ({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {JobTitleTypes.map((item) => (
-                      <SelectItem value={item.value} key={item.value}>
-                        {item.name}
+                    {jobTitles.map((item) => (
+                      <SelectItem
+                        value={item.job_title_name}
+                        key={item.job_title_id}
+                      >
+                        {item.job_title_name}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -126,7 +154,7 @@ const EditForm: FC<AddFormProps> = ({
               combinedUser?.user_type !== "system" && userType === "system"
             }
             control={form.control}
-            name="email_addresses"
+            name="email_address"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="font-normal">Email</FormLabel>

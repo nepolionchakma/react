@@ -25,7 +25,7 @@ const Alerts = () => {
     const fetchAlerts = async () => {
       const alertDataParams = {
         baseURL: url,
-        url: `${nodeApi.alerts}/view/${token.user_id}/${currentPage}/${limit}`,
+        url: `${nodeApi.Alerts}/view/${token.user_id}/${currentPage}/${limit}`,
         setLoading: setIsLoading,
       };
 
