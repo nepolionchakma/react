@@ -32,6 +32,7 @@ interface AddFormProps {
   tenants: ITenantsTypes[] | undefined;
   handleReset: () => void;
   onSubmit: (data: any) => void;
+  // onSubmit: (data: z.infer<typeof FormSchema>) => void;
 }
 
 const AddForm: FC<AddFormProps> = ({
@@ -47,10 +48,11 @@ const AddForm: FC<AddFormProps> = ({
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
   const [jobTitles, setJobTitles] = useState<IJobTitle[]>([]);
-  const [tenantId, setTenantId] = useState(0);
+  const [tenantId, setTenantId] = useState<number | null>(null);
 
   useEffect(() => {
     const loadJobTitles = async () => {
+      if (!tenantId) return;
       const params = {
         baseURL: FLASK_URL,
         url: `${flaskApi.JobTitles}?tenant_id=${tenantId}`,
@@ -58,14 +60,16 @@ const AddForm: FC<AddFormProps> = ({
       };
 
       const res = await loadData(params);
-      if (res) {
+
+      if (res.length > 0) {
         setJobTitles(res);
       } else {
+        form.resetField("job_title");
         setJobTitles([]);
       }
     };
     loadJobTitles();
-  }, [token.access_token, tenantId]);
+  }, [token.access_token, tenantId, form]);
 
   return (
     <Form {...form}>
@@ -178,7 +182,7 @@ const AddForm: FC<AddFormProps> = ({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {jobTitles.map((job) => (
+                    {jobTitles?.map((job) => (
                       <SelectItem
                         value={job.job_title_name}
                         key={job.job_title_id}

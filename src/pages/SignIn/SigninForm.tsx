@@ -60,10 +60,11 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
       ip_address: ipAddress ? ipAddress : "Unknown",
       location: userLocation ? userLocation : "Unknown (Location off)",
     };
-
+    console.log(data, "data");
     try {
       setIsLoading(true);
       const response = await api.post(`/login`, data);
+      console.log(response, "response");
       if (!response.data) return;
 
       setToken(response.data);
@@ -93,6 +94,7 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
         }
       }
     } catch (error) {
+      console.log(error, "error");
       setIsWrongCredential(true);
       if (error instanceof AxiosError && error.response) {
         console.log(error);

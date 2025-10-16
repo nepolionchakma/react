@@ -158,14 +158,31 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
     };
 
     try {
-      isOpenModal === "add_user" && (await postData(postDataParams));
-      isOpenModal === "edit_user" && (await putData(putDataParams));
+      // isOpenModal === "add_user" && (await postData(postDataParams));
+      // isOpenModal === "edit_user" && (await putData(putDataParams));
+      if (isOpenModal === "add_user") {
+        const res = await postData(postDataParams);
+        if (res) {
+          handleCloseModal();
+          setStateChange(Math.random() + 23 * 3000);
+          reset();
+        }
+      }
+      if (isOpenModal === "edit_user") {
+        const res = await putData(putDataParams);
+        console.log(res, "edit_user");
+        if (res) {
+          handleCloseModal();
+          setStateChange(Math.random() + 23 * 3000);
+          reset();
+        }
+      }
     } catch (error) {
       console.log(error);
     } finally {
-      setStateChange(Math.random() + 23 * 3000);
-      reset();
-      handleCloseModal();
+      // setStateChange(Math.random() + 23 * 3000);
+      // reset();
+      // handleCloseModal();
     }
   };
   return (
