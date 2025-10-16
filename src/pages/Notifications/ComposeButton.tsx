@@ -29,7 +29,7 @@ interface ComposeButtonProps {
 
 const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
   const api = useAxiosPrivate();
-  const { users, token } = useGlobalContext();
+  const { users, combinedUser } = useGlobalContext();
   const { handlesendMessage, handleDraftMessage, handleSendAlert } =
     useSocketContext();
   const { toast } = useToast();
@@ -53,9 +53,11 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
   const nodeUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
 
-  const totalusers = [...recivers, token.user_id];
+  const totalusers = [...recivers, combinedUser?.user_id];
   const involvedusers = [...new Set(totalusers)];
-  const actualUsers = users.filter((usr) => usr.user_id !== token.user_id);
+  const actualUsers = users.filter(
+    (usr) => usr.user_id !== combinedUser?.user_id
+  );
 
   const filterdUser = actualUsers.filter((user) =>
     user.user_name.toLowerCase().includes(query.toLowerCase())
@@ -120,7 +122,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
     const notifcationData = {
       notification_id: id,
       notification_type: notifcationType,
-      sender: token.user_id,
+      sender: combinedUser?.user_id,
       recipients: recivers,
       subject: subject,
       notification_body: body,
@@ -139,7 +141,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
       notificationID: id,
       parentId: id,
       date: new Date(),
-      sender: token.user_name,
+      sender: combinedUser?.user_name,
       recipients: recivers,
       subject,
       body,
@@ -170,8 +172,8 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
               description: alertDescription,
               recepients: recivers,
               notification_id: id,
-              created_by: token.user_id,
-              last_updated_by: token.user_id,
+              created_by: combinedUser?.user_id,
+              last_updated_by: combinedUser?.user_id,
             },
             isToast: false,
           };
@@ -288,7 +290,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
     const data = {
       notification_id: id,
       notification_type: notifcationType,
-      sender: token.user_id,
+      sender: combinedUser?.user_id,
       recipients: recivers,
       subject: subject,
       notification_body: body,
@@ -317,8 +319,8 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
               description: alertDescription,
               recepients: recivers,
               notification_id: id,
-              created_by: token.user_id,
-              last_updated_by: token.user_id,
+              created_by: combinedUser?.user_id,
+              last_updated_by: combinedUser?.user_id,
             },
             isToast: false,
           };

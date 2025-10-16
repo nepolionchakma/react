@@ -47,7 +47,7 @@
     "subMenus": []
   },
   {
-    "submenu": "Settings",
+    "menu": "Settings",
     "submenuIcon": "/sidebar/asynchronous-manager.svg",
     "path": "/settings",
     "subMenus": []

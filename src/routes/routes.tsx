@@ -64,6 +64,8 @@ import OrchestrationStudio2 from "@/pages/Tools/EnterpriseProcessModeler/Orchest
 import ManageTenancyandEnterpriseSetup from "@/pages/Tools/ManageTenancyandEnterpriseSetup/ManageTenancyandEnterpriseSetup";
 import MobileAppAdminConsole from "@/pages/Tools/MobileAppAdminConsole/MobileAppAdminConsole";
 import ManageGlobalAndLocalCondition from "@/pages/EnterpriseSecurityControls/ManageGlobalAndLocalConditions/ManageGlobalAndLocalCondition";
+import InvitationRedirectPage from "@/pages/InvitationRedirect/InvitationRedirectPage";
+import NewUserInvitation from "@/pages/Tools/SecurityConsole/NewUserInvitation/NewUserInvitation";
 
 const routes = createBrowserRouter([
   {
@@ -94,7 +96,6 @@ const routes = createBrowserRouter([
         path: "settings",
         element: <Settings />,
       },
-
       {
         path: "notifications",
         children: [
@@ -195,6 +196,10 @@ const routes = createBrowserRouter([
               {
                 path: "manage-privileges-and-roles",
                 element: <ManagePriviedgesAndRoles />,
+              },
+              {
+                path: "new-user-invitation",
+                element: <NewUserInvitation />,
               },
             ],
           },
@@ -398,6 +403,19 @@ const routes = createBrowserRouter([
   {
     path: "login",
     element: <SignIn />,
+  },
+  {
+    path: "invitation",
+    children: [
+      {
+        path: "",
+        element: <Error />,
+      },
+      {
+        path: ":user_invitation_id/:token",
+        element: <InvitationRedirectPage />,
+      },
+    ],
   },
   {
     path: "*",

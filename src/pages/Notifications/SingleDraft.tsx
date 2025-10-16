@@ -43,7 +43,7 @@ const SingleDraft = ({
   draftNotification,
 }: ComposeButtonProps) => {
   const api = useAxiosPrivate();
-  const { users, token } = useGlobalContext();
+  const { users, combinedUser } = useGlobalContext();
   const {
     handlesendMessage,
     handleDraftMessage,
@@ -79,9 +79,11 @@ const SingleDraft = ({
   const nodeUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
 
-  const totalusers = [...recivers, token.user_id];
+  const totalusers = [...recivers, combinedUser?.user_id];
   const involvedusers = [...new Set(totalusers)];
-  const actualUsers = users.filter((usr) => usr.user_id !== token.user_id);
+  const actualUsers = users.filter(
+    (usr) => usr.user_id !== combinedUser?.user_id
+  );
 
   const filterdUser = actualUsers.filter((user) =>
     user.user_name.toLowerCase().includes(query.toLowerCase())
@@ -232,7 +234,7 @@ const SingleDraft = ({
       return;
     }
     const notifcationData = {
-      sender: token.user_id,
+      sender: combinedUser?.user_id,
       recipients: recivers,
       subject: subject,
       notification_body: body,
@@ -248,7 +250,7 @@ const SingleDraft = ({
       notificationID: draftNotification.notification_id,
       parentId: draftNotification.parent_notification_id,
       date: new Date(),
-      sender: token.user_name,
+      sender: combinedUser?.user_name,
       recipients: recivers,
       subject,
       body,
@@ -278,7 +280,7 @@ const SingleDraft = ({
               alert_name: alertName,
               description: alertDescription,
               recepients: recivers,
-              last_updated_by: token.user_id,
+              last_updated_by: combinedUser?.user_id,
             },
             isToast: false,
           };
@@ -358,7 +360,7 @@ const SingleDraft = ({
       return;
     }
     const data = {
-      sender: token.user_id,
+      sender: combinedUser?.user_id,
       recipients: recivers,
       subject: subject,
       notification_body: body,
@@ -388,7 +390,7 @@ const SingleDraft = ({
             payload: {
               alert_name: alertName,
               description: alertDescription,
-              last_updated_by: token.user_id,
+              last_updated_by: combinedUser?.user_id,
               recipients: recivers,
             },
             isToast: false,

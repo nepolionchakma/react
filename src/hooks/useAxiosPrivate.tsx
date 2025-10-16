@@ -29,10 +29,10 @@ const useAxiosPrivate = () => {
             prevRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
             return api(prevRequest);
           }
-        } catch (error) {
-          console.log(error, "axios private error");
-          return;
+        } catch (e) {
+          console.log(e, "axios private error");
         }
+        return Promise.reject(error);
       }
     );
 

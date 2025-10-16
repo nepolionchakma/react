@@ -18,6 +18,9 @@ import { toast } from "@/components/ui/use-toast";
 import Spinner from "@/components/Spinner/Spinner";
 import { IUsersInfoTypes } from "@/types/interfaces/users.interface";
 import CustomDropDown from "@/components/CustomDropDown/CustomDropDown";
+// import { postData } from "@/Utility/funtion";
+// import { FLASK_URL, flaskApi } from "@/Api/Api";
+// import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 
 interface ICreateAccessProfileTypes {
   setIsCreateNewProfile: React.Dispatch<React.SetStateAction<boolean>>;
@@ -33,6 +36,7 @@ const AddUserProfile = ({
   selectedUser,
 }: ICreateAccessProfileTypes) => {
   const api = useAxiosPrivate();
+  // const { token } = useGlobalContext();
   const [profileType, setProfileType] = useState("");
   const [profileId, setProfileId] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
@@ -47,6 +51,16 @@ const AddUserProfile = ({
         `/access-profiles/${selectedUser.user_id}`,
         data
       );
+      // const postDataParams = {
+      //   baseURL: FLASK_URL,
+      //   url: flaskApi.AccessProfiles,
+      //   setLoading: setIsLoading,
+      //   payload: data,
+      //   isConsole: true,
+      //   isToast: true,
+      //   accessToken: token.access_token,
+      // };
+      // const res = await postData(postDataParams);
 
       if (res) {
         setIsUpdated(Math.random() + 23 * 3000);

@@ -157,6 +157,7 @@
       "/tools/security-console",
       "/tools/security-console/manage-users",
       "/tools/security-console/manage-privileges-and-roles",
+      "/tools/security-console/new-user-invitation",
       "/tools/enterprise-process-modeler",
       "/tools/enterprise-process-modeler/orchestration-studio",
       "/tools/enterprise-system-integrations",
@@ -181,6 +182,10 @@
           {
             "name": "Manage Privileges and Roles",
             "path": "/tools/security-console/manage-privileges-and-roles"
+          },
+          {
+            "name": "New User Invitation",
+            "path": "/tools/security-console/new-user-invitation"
           }
         ]
       },
@@ -188,7 +193,9 @@
         "_comment": "This is for the nested menu",
         "name": "Enterprise Process Modeler",
         "path": "/tools/enterprise-process-modeler",
-        "paths": ["/tools/enterprise-process-modeler/orchestration-studio"],
+        "paths": [
+          "/tools/enterprise-process-modeler/orchestration-studio"
+        ],
         "subMenus": [
           {
             "name": "Orchestration Studio",
@@ -200,7 +207,9 @@
         "_comment": "This is for the nested menu",
         "name": "Enterprise System Integrations",
         "path": "/tools/enterprise-system-integrations",
-        "paths": ["/tools/enterprise-system-integrations/manage-data-sources"],
+        "paths": [
+          "/tools/enterprise-system-integrations/manage-data-sources"
+        ],
         "subMenus": [
           {
             "name": "Manage Datasources",

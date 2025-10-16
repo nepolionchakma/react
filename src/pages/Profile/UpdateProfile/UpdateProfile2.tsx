@@ -22,9 +22,7 @@ const UpdateProfile: React.FC = () => {
     user_name: combinedUser?.user_name || "",
     first_name: combinedUser?.first_name || "",
     last_name: combinedUser?.last_name || "",
-    email_addresses: Array.isArray(combinedUser?.email_addresses)
-      ? combinedUser.email_addresses.join(", ")
-      : "",
+    email_address: combinedUser?.email_address || "",
     profileImage: profileLogo,
   });
 
@@ -38,20 +36,7 @@ const UpdateProfile: React.FC = () => {
     first_name: z.string(),
     last_name: z.string(),
     profileImage: z.string().optional(),
-    email_addresses: z
-      .string()
-      .transform((val) =>
-        val.includes(",")
-          ? val.split(",").map((email) => email.trim())
-          : [val.trim()]
-      )
-      .refine(
-        (emails) =>
-          emails.every((email) => z.string().email().safeParse(email).success),
-        {
-          message: "One or more emails are invalid.",
-        }
-      ),
+    email_address: z.string().email(),
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -96,7 +81,7 @@ const UpdateProfile: React.FC = () => {
       // Validate the form data using Zod
       const validatedData = profileSchema.parse({
         ...formData,
-        email_addresses: formData.email_addresses.trim(),
+        email_address: formData.email_address.trim(),
       });
 
       // Prepare FormData for submission
@@ -104,9 +89,8 @@ const UpdateProfile: React.FC = () => {
       form.append("user_name", validatedData.user_name);
       form.append("first_name", validatedData.first_name);
       form.append("last_name", validatedData.last_name);
-      validatedData.email_addresses.forEach((email) =>
-        form.append("email_addresses[]", email)
-      );
+      form.append("email_address", validatedData.email_address);
+
       if (file) {
         form.append("profileImage", file);
       }
@@ -122,7 +106,7 @@ const UpdateProfile: React.FC = () => {
             user_name: formData.user_name,
             first_name: formData.first_name,
             last_name: formData.last_name,
-            email_addresses: formData.email_addresses,
+            email_address: formData.email_address,
             profile_picture: {
               original: `${url}/uploads/profiles/${combinedUser?.user_name}/${file?.name}`,
               thumbnail: `${url}/uploads/profiles/${combinedUser?.user_name}/thumbnail.jpg`,
@@ -158,7 +142,9 @@ const UpdateProfile: React.FC = () => {
             <AvatarImage
               src={isCombinedUserLoading ? DefaultLogo : formData.profileImage}
             />
-            <AvatarFallback>{token.user_name.slice(0, 1)}</AvatarFallback>
+            <AvatarFallback>
+              {combinedUser?.user_name.slice(0, 1)}
+            </AvatarFallback>
           </Avatar>
 
           <label
@@ -242,9 +228,9 @@ const UpdateProfile: React.FC = () => {
             </label>
             <input
               type="text"
-              name="email_addresses"
+              name="email_address"
               placeholder="Email - example@email.com, example2@email.com"
-              value={formData.email_addresses}
+              value={formData.email_address}
               onChange={handleChange}
               className="w-full px-4 py-2 border rounded focus:outline-none focus:ring focus:ring-blue-300"
             />

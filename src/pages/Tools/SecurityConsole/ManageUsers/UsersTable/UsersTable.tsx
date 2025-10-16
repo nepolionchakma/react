@@ -57,7 +57,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
     deleteCombinedUser,
     isOpenModal,
     setIsOpenModal,
-    token,
+    combinedUser,
     stateChange,
   } = useGlobalContext();
   const [data, setData] = React.useState<IUsersInfoTypes[] | []>([]);
@@ -214,7 +214,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
             <Alert
               disabled={
                 !selectedUser.user_id ||
-                token.user_type.toLocaleLowerCase() !== "system"
+                combinedUser?.user_type?.toLocaleLowerCase() !== "system"
               } // disable condition
               tooltipTitle="Delete" // tooltip title
               actionName="delete" // Cancel/Reschedule

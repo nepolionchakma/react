@@ -11,7 +11,6 @@ import axios, { AxiosError } from "axios";
 import {
   Token,
   Users,
-  IAddUserTypes,
   ITenantsTypes,
   IUsersInfoTypes,
   IUpdateUserTypes,
@@ -31,6 +30,7 @@ import { SocketContextProvider } from "../SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import useUserDevice from "@/hooks/useUserDevice";
 import { ARMContextProvider } from "../ARMContext/ARMContext";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
 
 interface GlobalContextProviderProps {
   children: ReactNode;
@@ -69,7 +69,7 @@ interface GlobalContex {
     postData: IDataSourcePostTypes
   ) => Promise<void>;
   deleteDataSource: (id: number) => Promise<void>;
-  createUser: (postData: IAddUserTypes) => void;
+
   fetchTenants: () => Promise<ITenantsTypes[] | undefined>;
   combinedUser: IUsersInfoTypes | undefined;
   setCombinedUser: React.Dispatch<
@@ -116,14 +116,9 @@ interface GlobalContex {
 export const userExample = {
   isLoggedIn: false,
   user_id: 0,
-  user_name: "",
-  user_type: "",
-  tenant_id: 0,
+
   access_token: "",
-  issuedAt: "",
-  iat: 0,
-  exp: 0,
-  profile_picture: { original: "", thumbnail: "" },
+  refresh_token: "",
 };
 
 const GlobalContex = createContext({} as GlobalContex);
@@ -160,7 +155,6 @@ export function GlobalContextProvider({
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [signonId, setSignonId] = useState("");
   const [isActive, setIsActive] = useState(true);
-
   const [edgeConnectionPosition, setEdgeConnectionPosition] = useState<
     string[]
   >([]);
@@ -206,11 +200,20 @@ export function GlobalContextProvider({
         setIsCombinedUserLoading(true);
         if (token?.user_id === 0) return;
         const [users, combinedUser] = await Promise.all([
-          api.get<Users[]>(`/users`),
-          api.get<IUsersInfoTypes>(`/combined-user/${token?.user_id}`),
+          loadData({
+            baseURL: FLASK_URL,
+            url: flaskApi.Users,
+            setLoading: setIsLoading,
+          }),
+          loadData({
+            baseURL: FLASK_URL,
+            url: `${flaskApi.Users}/${token?.user_id}`,
+            setLoading: setIsCombinedUserLoading,
+          }),
         ]);
-        setCombinedUser(combinedUser?.data);
-        setUsers(users.data);
+
+        setUsers(users);
+        setCombinedUser(combinedUser?.user);
       } catch (error) {
         console.log(error);
       } finally {
@@ -259,57 +262,7 @@ export function GlobalContextProvider({
       setIsLoading(false);
     }
   };
-  const createUser = async (postData: IAddUserTypes) => {
-    setIsLoading(true);
-    const {
-      user_type,
-      user_name,
-      email_addresses,
-      created_by,
-      last_updated_by,
-      tenant_id,
-      first_name,
-      middle_name,
-      last_name,
-      job_title,
-      password,
-    } = postData;
-    try {
-      const res = await axios.post(`${FLASK_ENDPOINT_URL}/users`, {
-        user_type,
-        user_name,
-        email_addresses,
-        created_by,
-        last_updated_by,
-        tenant_id,
-        first_name,
-        middle_name,
-        last_name,
-        job_title,
-        password,
-      });
 
-      if (res.status === 201) {
-        setIsLoading(false);
-        toast({
-          description: `${res.data.message}`,
-        });
-      }
-    } catch (error) {
-      console.log(error);
-      if (error instanceof AxiosError && error.response) {
-        if (error.response.status) {
-          toast({
-            description: `${error.message}`,
-          });
-        }
-      }
-
-      console.log(error);
-    } finally {
-      setStateChange(Math.random() + 23 * 3000);
-    }
-  };
   const updateUser = async (user_id: number, userInfo: IUpdateUserTypes) => {
     setIsLoading(true);
     try {
@@ -617,7 +570,6 @@ export function GlobalContextProvider({
         createDataSource,
         updateDataSource,
         deleteDataSource,
-        createUser,
         fetchTenants,
         combinedUser,
         setCombinedUser,

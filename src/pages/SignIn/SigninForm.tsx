@@ -24,7 +24,10 @@ interface SignInFormProps {
 }
 
 const loginSchema = z.object({
-  email: z.string().email("Invalid email"),
+  user: z.union([
+    z.string().email("Invalid email"), // valid email
+    z.string().min(1, "Username is required"), // non-empty string (for username)
+  ]),
   password: z.string().min(5, "Password must be at least 5 characters"),
 });
 
@@ -44,7 +47,7 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
+      user: "",
       password: "",
     },
   });
@@ -57,10 +60,11 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
       ip_address: ipAddress ? ipAddress : "Unknown",
       location: userLocation ? userLocation : "Unknown (Location off)",
     };
-
+    console.log(data, "data");
     try {
       setIsLoading(true);
       const response = await api.post(`/login`, data);
+      console.log(response, "response");
       if (!response.data) return;
 
       setToken(response.data);
@@ -90,6 +94,7 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
         }
       }
     } catch (error) {
+      console.log(error, "error");
       setIsWrongCredential(true);
       if (error instanceof AxiosError && error.response) {
         console.log(error);
@@ -105,10 +110,12 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
           <FormField
             control={form.control}
-            name="email"
+            name="user"
             render={({ field }) => (
               <FormItem className="flex flex-col">
-                <FormLabel className="text-dark-400 ">Email</FormLabel>
+                <FormLabel className="text-dark-400 ">
+                  Email or Username
+                </FormLabel>
                 <FormControl>
                   <input
                     type="text"
