@@ -18,12 +18,10 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-// import UserTypes from "@/pages/Tools/SecurityConsole/ManageUsers/user_type.json";
-import JobTitleTypes from "@/pages/Tools/SecurityConsole/ManageUsers/job_title.json";
 import { loadData, postData } from "@/Utility/funtion";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { ITenantsTypes } from "@/types/interfaces/users.interface";
+import { IJobTitle, ITenantsTypes } from "@/types/interfaces/users.interface";
 
 import { Eye, EyeOff } from "lucide-react";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
@@ -42,6 +40,8 @@ function InvitationRedirectPage() {
   const [tenants, setTenants] = useState<ITenantsTypes[] | undefined>([]);
   const [response, setResponse] = useState("");
   const [state, setState] = useState(0);
+  const [tenantId, setTenantId] = useState<number | null>(null);
+  const [jobTitles, setJobTitles] = useState<IJobTitle[] | undefined>([]);
 
   const { user_invitation_id, token } = useParams();
 
@@ -192,29 +192,50 @@ function InvitationRedirectPage() {
     }
   };
 
-  // useEffect(() => {
-  //   if (token && isValid) {
-  //     const appLink = `PROCG://invitation/${user_invitation_id}/${token}`;
+  useEffect(() => {
+    const loadJobTitles = async () => {
+      if (!tenantId) return;
+      const params = {
+        baseURL: FLASK_URL,
+        url: `${flaskApi.JobTitles}?tenant_id=${tenantId}`,
+        accessToken: decryptedToken as string,
+      };
 
-  //     const openApp = () => {
-  //       window.location.href = appLink;
-  //     };
+      const res = await loadData(params);
 
-  //     openApp();
+      if (res.length > 0) {
+        setJobTitles(res);
+      } else {
+        form.resetField("job_title");
+        setJobTitles([]);
+      }
+    };
+    loadJobTitles();
+  }, [decryptedToken, tenantId, form]);
 
-  //     setTimeout(() => {
-  //       if (/android/i.test(navigator.userAgent)) {
-  //         window.location.href =
-  //           "https://play.google.com/store/apps/details?id=gov.bbg.voa";
-  //       } else if (/iphone|ipad/i.test(navigator.userAgent)) {
-  //         window.location.href = "https://apps.apple.com/app/myapp/id123456789";
-  //       } else {
-  //         window.location.href =
-  //           "https://play.google.com/store/apps/details?id=gov.bbg.voa";
-  //       }
-  //     }, 1000);
-  //   }
-  // }, [isValid, token, user_invitation_id]);
+  useEffect(() => {
+    if (token && isValid) {
+      const appLink = `PROCG://invitation/${user_invitation_id}/${token}`;
+
+      const openApp = () => {
+        window.location.href = appLink;
+      };
+
+      openApp();
+
+      // setTimeout(() => {
+      //   if (/android/i.test(navigator.userAgent)) {
+      //     window.location.href =
+      //       "https://play.google.com/store/apps/details?id=gov.bbg.voa";
+      //   } else if (/iphone|ipad/i.test(navigator.userAgent)) {
+      //     window.location.href = "https://apps.apple.com/app/myapp/id123456789";
+      //   } else {
+      //     window.location.href =
+      //       "https://play.google.com/store/apps/details?id=gov.bbg.voa";
+      //   }
+      // }, 1000);
+    }
+  }, [isValid, token, user_invitation_id]);
 
   return (
     <div className="flex justify-center items-center h-screen">
@@ -285,6 +306,45 @@ function InvitationRedirectPage() {
                           </FormItem>
                         )}
                       />
+                      <FormField
+                        control={form.control}
+                        name="tenant_id"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="font-normal">
+                              Tenant ID
+                            </FormLabel>
+
+                            <Select
+                              required
+                              onValueChange={(value) => {
+                                setTenantId(Number(value));
+                                field.onChange(value);
+                              }}
+                              defaultValue={field.value}
+                            >
+                              <FormControl>
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a Tenant" />
+                                </SelectTrigger>
+                              </FormControl>
+                              <SelectContent>
+                                {tenants?.map((tenant) => (
+                                  <SelectItem
+                                    value={String(tenant.tenant_id)}
+                                    key={tenant.tenant_id}
+                                    onChange={() =>
+                                      setTenantId(tenant.tenant_id)
+                                    }
+                                  >
+                                    {tenant.tenant_name}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormItem>
+                        )}
+                      />
 
                       <FormField
                         control={form.control}
@@ -305,45 +365,12 @@ function InvitationRedirectPage() {
                                 </SelectTrigger>
                               </FormControl>
                               <SelectContent>
-                                {JobTitleTypes.map((user) => (
+                                {jobTitles?.map((job) => (
                                   <SelectItem
-                                    value={user.value}
-                                    key={user.value}
+                                    value={job.job_title_name}
+                                    key={job.job_title_id}
                                   >
-                                    {user.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        control={form.control}
-                        name="tenant_id"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="font-normal">
-                              Tenant ID
-                            </FormLabel>
-                            <Select
-                              required
-                              onValueChange={field.onChange}
-                              defaultValue={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a Tenant" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {tenants?.map((tenant) => (
-                                  <SelectItem
-                                    value={String(tenant.tenant_id)}
-                                    key={tenant.tenant_id}
-                                  >
-                                    {tenant.tenant_name}
+                                    {job.job_title_name}
                                   </SelectItem>
                                 ))}
                               </SelectContent>
@@ -552,7 +579,6 @@ function InvitationRedirectPage() {
               </div>
             ) : (
               <div>
-                <p>Invitation is invalid</p>
                 <p>{response}</p>
               </div>
             )}
