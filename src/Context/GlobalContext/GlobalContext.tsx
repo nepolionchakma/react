@@ -31,15 +31,12 @@ import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import useUserDevice from "@/hooks/useUserDevice";
 import { ARMContextProvider } from "../ARMContext/ARMContext";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { loadData } from "@/Utility/funtion";
 
 interface GlobalContextProviderProps {
   children: ReactNode;
 }
-interface lazyLoadingParams {
-  baseURL: string;
-  url: string;
-  setLoading: Dispatch<SetStateAction<boolean>>;
-}
+
 interface GlobalContex {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
@@ -47,7 +44,6 @@ interface GlobalContex {
   userId: number;
   setToken: React.Dispatch<React.SetStateAction<Token>>;
   users: Users[];
-  loadData<T>(params: lazyLoadingParams): Promise<T | undefined>;
   fetchDataSources: (
     page: number,
     limit: number
@@ -204,11 +200,13 @@ export function GlobalContextProvider({
             baseURL: FLASK_URL,
             url: flaskApi.Users,
             setLoading: setIsLoading,
+            accessToken: `${token.access_token}`,
           }),
           loadData({
             baseURL: FLASK_URL,
             url: `${flaskApi.Users}/${token?.user_id}`,
             setLoading: setIsCombinedUserLoading,
+            accessToken: `${token.access_token}`,
           }),
         ]);
 
@@ -346,29 +344,6 @@ export function GlobalContextProvider({
       setIsLoading(false);
     }
   };
-
-  // custom Common fetch Api
-  async function loadData(params: lazyLoadingParams) {
-    try {
-      params.setLoading(true);
-      const res = await api.get(`${params.url}`, {
-        baseURL: params.baseURL,
-        headers: {
-          Authorization: `Bearer ${token.access_token}`,
-        },
-      });
-      if (res) {
-        return res.data;
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
-      return undefined;
-    } finally {
-      params.setLoading(false);
-    }
-  }
 
   //Fetch DataSources
   const fetchDataSources = async (page: number, limit: number) => {
@@ -558,7 +533,6 @@ export function GlobalContextProvider({
         userId,
         setToken,
         users,
-        loadData,
         fetchDataSources,
         getSearchDataSources,
         fetchDataSource,
