@@ -268,7 +268,9 @@ export function ViewEditScheduledTasksTable() {
                       "text-slate-200 cursor-not-allowed"
                     : "cursor-pointer"
                 }`}
-                onClick={() => handleOpenModal("edit_task_schedule")}
+                onClick={() =>
+                  selected && handleOpenModal("edit_task_schedule")
+                }
               />
             </CustomTooltip>
             <Alert
