@@ -25,6 +25,7 @@ export const flaskApi = {
   DefControlEnvironments: "/def_control_environments",
   DefTenants: "/tenants ",
   Users: "/users",
+  AccessProfiles: "/access-profiles",
   JobTitles: "/job_titles",
 };
 

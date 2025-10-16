@@ -30,6 +30,7 @@ import { SocketContextProvider } from "../SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import useUserDevice from "@/hooks/useUserDevice";
 import { ARMContextProvider } from "../ARMContext/ARMContext";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
 
 interface GlobalContextProviderProps {
   children: ReactNode;
@@ -199,11 +200,20 @@ export function GlobalContextProvider({
         setIsCombinedUserLoading(true);
         if (token?.user_id === 0) return;
         const [users, combinedUser] = await Promise.all([
-          api.get<Users[]>(`/users`),
-          api.get<IUsersInfoTypes>(`/combined-user/${token?.user_id}`),
+          loadData({
+            baseURL: FLASK_URL,
+            url: flaskApi.Users,
+            setLoading: setIsLoading,
+          }),
+          loadData({
+            baseURL: FLASK_URL,
+            url: `${flaskApi.Users}/${token?.user_id}`,
+            setLoading: setIsCombinedUserLoading,
+          }),
         ]);
-        setCombinedUser(combinedUser?.data);
-        setUsers(users.data);
+
+        setUsers(users);
+        setCombinedUser(combinedUser?.user);
       } catch (error) {
         console.log(error);
       } finally {

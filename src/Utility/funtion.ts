@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { api } from "@/Api/Api";
 import { toast } from "@/components/ui/use-toast";
-// import { AxiosError, isAxiosError } from "axios";
+import { isAxiosError } from "axios";
 // import { RawAxiosRequestHeaders } from "axios";
 import { Dispatch, SetStateAction } from "react";
 
@@ -55,10 +55,18 @@ export async function loadData(params: loadDataParams) {
       return res.data;
     }
   } catch (error) {
-    if (error instanceof Error) {
-      toast({ title: error.message, variant: "destructive" });
+    if (isAxiosError(error)) {
+      const message =
+        (error.response?.data as any)?.message ||
+        (error.response?.data as any)?.error ||
+        error.message;
+      toast({ title: message, variant: "destructive" });
+      return error.response?.data;
+    } else {
+      toast({ title: error as any, variant: "destructive" });
+      return error;
+      // throw error;
     }
-    return undefined;
   } finally {
     if (params.setLoading) {
       params.setLoading(false);
@@ -82,11 +90,18 @@ export async function postData(params: postDataParams) {
       return res as any;
     }
   } catch (error) {
-    if (error instanceof Error) {
+    if (isAxiosError(error)) {
+      const message =
+        (error.response?.data as any)?.message ||
+        (error.response?.data as any)?.error ||
+        error.message;
       if (params.isToast) {
-        toast({ title: error.message, variant: "destructive" });
+        toast({ title: message, variant: "destructive" });
       }
-      return error.message;
+      throw error;
+    } else {
+      toast({ title: error as any, variant: "destructive" });
+      throw error;
     }
   } finally {
     params.setLoading(false);
@@ -107,19 +122,20 @@ export async function putData(params: putDataParams) {
         toast({ title: res.data.message });
       }
     }
-    console.log(res);
     return res as any;
   } catch (error: any) {
-    console.log(error, "error");
-    // if (params.isToast) {
-    //   toast({ title: error.response?.message, variant: "destructive" });
-    // }
-
-    if (error instanceof Error) {
-      console.log(error);
+    if (isAxiosError(error)) {
+      const message =
+        (error.response?.data as any)?.message ||
+        (error.response?.data as any)?.error ||
+        error.message;
       if (params.isToast) {
-        toast({ title: error.message, variant: "destructive" });
+        toast({ title: message, variant: "destructive" });
       }
+      throw error;
+    } else {
+      toast({ title: error as any, variant: "destructive" });
+      throw error;
     }
   } finally {
     params.setLoading(false);
@@ -142,12 +158,19 @@ export async function deleteData(params: deleteDataParams) {
       }
       return res as any;
     }
-  } catch (error) {
-    if (error instanceof Error) {
+  } catch (error: any) {
+    if (isAxiosError(error)) {
+      const message =
+        (error.response?.data as any)?.message ||
+        (error.response?.data as any)?.error ||
+        error.message;
       if (params.isToast) {
-        toast({ title: error.message, variant: "destructive" });
+        toast({ title: message, variant: "destructive" });
       }
-      return error.message;
+      throw error;
+    } else {
+      toast({ title: error as any, variant: "destructive" });
+      throw error;
     }
   }
 }
