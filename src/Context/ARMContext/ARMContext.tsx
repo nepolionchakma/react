@@ -12,6 +12,7 @@ import React, { ReactNode, createContext, useContext, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
 import axios from "axios";
 import { useGlobalContext } from "../GlobalContext/GlobalContext";
+import { loadData } from "@/Utility/funtion";
 interface ARMContextProviderProps {
   children: ReactNode;
 }
@@ -119,7 +120,6 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   // const [page, setPage] = useState<number>(1);
   const [totalPage, setTotalPage] = useState<number>(1);
   const [totalPage2, setTotalPage2] = useState<number>(1);
-  const { loadData } = useGlobalContext();
 
   // Asunchronous Tasks
   const getAsyncTasks = async () => {
@@ -345,10 +345,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       url: `/def_async_task_schedules/${page}/${limit}`,
       setLoading: setIsLoading,
     };
-    const result = await loadData<{
-      pages: number;
-      items: IAsynchronousRequestsAndTaskSchedulesTypes[];
-    }>(params);
+    const result = await loadData(params);
     if (result) {
       setTotalPage(result.pages);
       return result.items;
@@ -458,10 +455,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       url: `/view_requests/${page}/${limit}?days=${days}&task_name=${task_name}`,
       setLoading: setIsLoading,
     };
-    const result = await loadData<{
-      pages: number;
-      items: IARMViewRequestsTypes[];
-    }>(params);
+    const result = await loadData(params);
     if (result) {
       setTotalPage(result.pages);
 
