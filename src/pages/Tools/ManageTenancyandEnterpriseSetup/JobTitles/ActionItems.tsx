@@ -6,6 +6,7 @@ import { FileEdit, PlusIcon } from "lucide-react";
 import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
+import { FLASK_URL } from "@/Api/Api";
 
 interface ActionItemsProps {
   selectedJobTitlesRows: IJobTitle[];
@@ -21,13 +22,16 @@ const ActionItems = ({
   setSelectedJobTitlesRows,
 }: ActionItemsProps) => {
   const api = useAxiosPrivate();
-  const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
+
   const handleDelete = async () => {
     try {
-      for (const tenancy of selectedJobTitlesRows) {
-        const res = await api.delete(`/tenants/${tenancy.job_title_id}`, {
-          baseURL: flaskUrl,
-        });
+      for (const jobTitle of selectedJobTitlesRows) {
+        const res = await api.delete(
+          `/job_titles?job_title_id=${jobTitle.job_title_id}`,
+          {
+            baseURL: FLASK_URL,
+          }
+        );
         if (res) {
           toast({
             description: `${res.data.message}`,
@@ -80,7 +84,7 @@ const ActionItems = ({
           <span className="flex flex-col items-start">
             {selectedJobTitlesRows.map((item, index) => (
               <span key={item.job_title_id}>
-                {index + 1}. Tenant Name : {item.job_title_name}
+                {index + 1}. Job Title Name : {item.job_title_name}
               </span>
             ))}
           </span>

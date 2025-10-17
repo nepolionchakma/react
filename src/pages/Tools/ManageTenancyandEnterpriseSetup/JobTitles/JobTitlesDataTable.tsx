@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/table";
 import columns from "./Columns";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
-import { IJobTitle } from "@/types/interfaces/users.interface";
+import { IJobTitle, ITenantsTypes } from "@/types/interfaces/users.interface";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { Checkbox } from "@/components/ui/checkbox";
 import ActionItems from "./ActionItems";
@@ -75,6 +75,7 @@ export function JobTitlesDataTable({
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
   const [colSizing, setColSizing] = React.useState<ColumnSizingState>({});
+  const [tenants, setTenants] = React.useState<ITenantsTypes[]>([]);
 
   React.useEffect(() => {
     if (selectedJobTitlesRows.length !== data.length || data.length === 0) {
@@ -146,14 +147,15 @@ export function JobTitlesDataTable({
   React.useEffect(() => {
     const jobTitlesParams = {
       baseURL: FLASK_URL,
-      url: `${flaskApi.JobTitles}`,
+      url: `${flaskApi.JobTitles}?page=${page}&limit=${jobTitlesLimit}`,
       setLoading: setIsLoading,
       accessToken: `${token.access_token}`,
     };
 
     const fetch = async () => {
       const res = await loadData(jobTitlesParams);
-      console.log(res, "res");
+      setData(res.items);
+      setTotalPage(res.pages);
       // try {
       //   setIsLoading(true);
       //   const res = await api.get(`/def-tenants/${page}/${tenancyLimit}`);
@@ -169,7 +171,24 @@ export function JobTitlesDataTable({
       // }
     };
     fetch();
-  }, [api, page, stateChanged, token.access_token]);
+  }, [api, page, stateChanged, token.access_token, jobTitlesLimit]);
+
+  /** get tentants */
+  React.useEffect(() => {
+    const tenantDataParams = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefTenants}`,
+      accessToken: `${token.access_token}`,
+    };
+
+    const loadTenantData = async () => {
+      const res = await loadData(tenantDataParams);
+      if (res) {
+        setTenants(res);
+      }
+    };
+    loadTenantData();
+  }, [token.access_token]);
 
   return (
     <div className="w-full">
@@ -178,6 +197,7 @@ export function JobTitlesDataTable({
           <JobTitleCreateAndEditModal
             action={action}
             tabName={tabName}
+            tenants={tenants}
             selectedJobTitlesRows={selectedJobTitlesRows}
             setSelectedJobTitlesRows={setSelectedJobTitlesRows}
             setStateChanged={setStateChanged}
