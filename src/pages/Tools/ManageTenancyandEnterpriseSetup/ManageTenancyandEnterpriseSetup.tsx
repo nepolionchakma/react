@@ -23,7 +23,7 @@ const ManageTenancyandEnterpriseSetup = () => {
   return (
     <div>
       <Tabs defaultValue="tenancy" className="w-full">
-        <TabsList className="grid w-1/2  grid-cols-2 mb-1">
+        <TabsList className="grid w-1/2  grid-cols-3 mb-1">
           <TabsTrigger value="tenancy" onClick={() => setTabName("Tenancy")}>
             Tenancy
           </TabsTrigger>
@@ -32,6 +32,12 @@ const ManageTenancyandEnterpriseSetup = () => {
             onClick={() => setTabName("Enterprise")}
           >
             Enterprise Setup
+          </TabsTrigger>
+          <TabsTrigger
+            value="job_titles"
+            onClick={() => setTabName("Job Titles")}
+          >
+            Job Titles
           </TabsTrigger>
         </TabsList>
 

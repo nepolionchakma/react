@@ -211,7 +211,7 @@ export function GlobalContextProvider({
         ]);
 
         setUsers(users);
-        setCombinedUser(combinedUser?.user);
+        setCombinedUser(combinedUser);
       } catch (error) {
         console.log(error);
       } finally {
