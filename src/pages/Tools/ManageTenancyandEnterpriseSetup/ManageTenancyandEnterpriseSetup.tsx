@@ -4,20 +4,26 @@ import { TenancyDataTable } from "./Tenancy/TenancyDataTable";
 import { useState } from "react";
 import {
   IEnterprisesTypes,
+  IJobTitle,
   ITenantsTypes,
 } from "@/types/interfaces/users.interface";
+import { JobTitlesDataTable } from "./JobTitles/JobTitlesDataTable";
 
 const ManageTenancyandEnterpriseSetup = () => {
   // const api = useAxiosPrivate();
   const [tabName, setTabName] = useState<string>("Tenancy");
   const [tenancyLimit, setTenancyLimit] = useState<number>(8);
   const [enterpriseLimit, setEnterpriseLimit] = useState<number>(8);
+  const [jobTitlesLimit, setJobTitlesLimit] = useState<number>(8);
   const [action, setAction] = useState("");
   const [selectedTenancyRows, setSelectedTenancyRows] = useState<
     ITenantsTypes[]
   >([]);
   const [selectedEnterpriseRows, setSelectedEnterpriseRows] = useState<
     IEnterprisesTypes[]
+  >([]);
+  const [selectedJobTitlesRows, setSelectedJobTitlesRows] = useState<
+    IJobTitle[]
   >([]);
 
   return (
@@ -62,6 +68,17 @@ const ManageTenancyandEnterpriseSetup = () => {
             setSelectedEnterpriseRows={setSelectedEnterpriseRows}
             enterpriseLimit={enterpriseLimit}
             setEnterpriseLimit={setEnterpriseLimit}
+          />
+        </TabsContent>
+        <TabsContent value="job_titles">
+          <JobTitlesDataTable
+            tabName={tabName}
+            action={action}
+            setAction={setAction}
+            selectedJobTitlesRows={selectedJobTitlesRows}
+            setSelectedJobTitlesRows={setSelectedJobTitlesRows}
+            jobTitlesLimit={jobTitlesLimit}
+            setJobTitlesLimit={setJobTitlesLimit}
           />
         </TabsContent>
       </Tabs>
