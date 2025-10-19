@@ -27,6 +27,10 @@ export const flaskApi = {
   Users: "/users",
   AccessProfiles: "/access_profiles",
   JobTitles: "/job_titles",
+  ViewRequests: "/view_requests",
+  DefAsyncTaskSchedules: "/def_async_task_schedules",
+  DeleteTaskParameters: "/Delete_TaskParams",
+  ShowTaskParameters: "/Show_TaskParams",
 };
 
 // All Node api

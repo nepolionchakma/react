@@ -195,7 +195,7 @@ export function ViewRequestTable() {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="max-h-72 overflow-y-auto"
+              className="max-h-72 overflow-y-auto scrollbar-thin"
             >
               {table
                 .getAllColumns()
@@ -218,7 +218,7 @@ export function ViewRequestTable() {
       </div>
 
       {/* Table Section */}
-      <div>
+      <div className="rounded-md border overflow-x-auto scrollbar-thin">
         <Table
           style={{
             width: table.getTotalSize(),
@@ -368,7 +368,6 @@ export function ViewRequestTable() {
             )}
           </TableBody>
         </Table>
-
         {/* Pagination and Status */}
         <div className="flex justify-end p-1">
           {/* <div className="flex-1 text-sm text-gray-600">
