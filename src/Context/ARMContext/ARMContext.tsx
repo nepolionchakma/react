@@ -10,9 +10,9 @@ import {
 } from "@/types/interfaces/ARM.interface";
 import React, { ReactNode, createContext, useContext, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
-import axios from "axios";
 import { useGlobalContext } from "../GlobalContext/GlobalContext";
-import { loadData } from "@/Utility/funtion";
+import { deleteData, loadData } from "@/Utility/funtion";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
 interface ARMContextProviderProps {
   children: ReactNode;
 }
@@ -108,7 +108,6 @@ export function useARMContext() {
 export function ARMContextProvider({ children }: ARMContextProviderProps) {
   const api = useAxiosPrivate();
   const { token } = useGlobalContext();
-  const FLASK_ENDPOINT_URL = import.meta.env.VITE_FLASK_ENDPOINT_URL;
   const [changeState, setChangeState] = useState<number>(0);
   const [isLoading, setIsLoading] = React.useState(false);
   const [selectedTask, setSelectedTask] = useState<
@@ -282,14 +281,13 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   // Task Parameters
   const getTaskParametersLazyLoading = async (task_name: string) => {
     try {
-      const response = await axios.get<IARMTaskParametersTypes[]>(
-        `${FLASK_ENDPOINT_URL}/Show_TaskParams/${task_name}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token.access_token}`,
-          },
-        }
-      );
+      const params = {
+        baseURL: FLASK_URL,
+        url: `${flaskApi.ShowTaskParameters}/${task_name}`,
+        setLoading: setIsLoading,
+        accessToken: token.access_token,
+      };
+      const response = await loadData(params);
       // setTotalPage2(response.data.pages);
       return response.data ?? [];
     } catch (error) {
@@ -314,14 +312,13 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     def_param_id: number
   ) => {
     try {
-      const res = await axios.delete(
-        `${FLASK_ENDPOINT_URL}/Delete_TaskParams/${task_name}/${def_param_id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token.access_token}`,
-          },
-        }
-      );
+      const params = {
+        baseURL: FLASK_URL,
+        url: `${flaskApi.DeleteTaskParameters}/${task_name}/${def_param_id}`,
+        setLoading: setIsLoading,
+        accessToken: token.access_token,
+      };
+      const res = await deleteData(params);
       if (res.status === 200) {
         toast({
           description: `${res.data.message}`,
@@ -341,9 +338,10 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     limit: number
   ) => {
     const params = {
-      baseURL: import.meta.env.VITE_FLASK_ENDPOINT_URL,
-      url: `/def_async_task_schedules/${page}/${limit}`,
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefAsyncTaskSchedules}/${page}/${limit}`,
       setLoading: setIsLoading,
+      accessToken: token.access_token,
     };
     const result = await loadData(params);
     if (result) {
@@ -451,11 +449,13 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     task_name: string
   ) => {
     const params = {
-      baseURL: import.meta.env.VITE_FLASK_ENDPOINT_URL,
-      url: `/view_requests/${page}/${limit}?days=${days}&task_name=${task_name}`,
+      baseURL: FLASK_URL,
+      url: `${flaskApi.ViewRequests}/${page}/${limit}?days=${days}&task_name=${task_name}`,
       setLoading: setIsLoading,
+      accessToken: token.access_token,
     };
     const result = await loadData(params);
+
     if (result) {
       setTotalPage(result.pages);
 
