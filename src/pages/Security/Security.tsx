@@ -5,13 +5,13 @@ import YourDevices from "./Components/YourDevices";
 
 export default function Security() {
   return (
-    <div className="grid grid-cols-3 gap-2 pb-2">
+    <div className="grid grid-cols-3 gap-2 pb-2 overflow-y-auto scrollbar-thin ">
       <div className="col-span-1 flex flex-col gap-2">
         <Passwords />
         <TwoStep />
         <LinkADevice />
       </div>
-      <div className="col-span-2 ">
+      <div className="col-span-2">
         <YourDevices />
       </div>
     </div>

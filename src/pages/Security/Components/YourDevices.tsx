@@ -131,7 +131,7 @@ const YourDevices = () => {
         </div>
       </div>
       <div className="px-4 py-2 bg-[#f5f5f5]">
-        <div className="flex flex-col gap-2 overflow-y-auto min-h-[calc(100vh-17rem)] max-h-[calc(100vh-17rem)]">
+        <div className="flex flex-col gap-2 overflow-y-auto scrollbar-thin h-[calc(100vh)]">
           {isLoading ? (
             <span className="flex justify-center items-center h-full">
               <l-tailspin

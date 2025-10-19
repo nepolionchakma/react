@@ -271,13 +271,13 @@ const ActionItems = () => {
         </div>
       </div>
       {isLoading ? (
-        <div className="h-96 flex items-center justify-center">
+        <div className="h-[65vh] flex items-center justify-center">
           <Spinner size="80" color="#000000" />
         </div>
       ) : (
         <div className="flex flex-col gap-4">
           {actionItems?.length > 0 ? (
-            <div className="max-h-[62vh] overflow-auto scrollbar-thin">
+            <div className="max-h-[64vh] overflow-auto scrollbar-thin">
               {actionItems?.map((item: IActionItems) => (
                 <Card key={item.action_item_id} className="flex gap-4 p-4">
                   <div

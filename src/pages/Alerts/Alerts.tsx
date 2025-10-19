@@ -74,13 +74,13 @@ const Alerts = () => {
   return (
     <div>
       {isloading ? (
-        <div className="h-96 flex items-center justify-center">
+        <div className="h-[65vh] flex items-center justify-center">
           <Spinner size="80" color="#000000" />
         </div>
       ) : (
         <>
           {alerts.length > 0 ? (
-            <div className="flex flex-col gap-4 max-h-[62vh] overflow-auto scrollbar-thin">
+            <div className="flex flex-col gap-4 max-h-[74vh] overflow-auto scrollbar-thin">
               {sortedAlerts?.map((item: Alerts) => (
                 <Card
                   key={item.alert_id}
