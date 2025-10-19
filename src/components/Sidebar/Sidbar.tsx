@@ -67,7 +67,7 @@ const Sidbar = () => {
     <Sidebar
       collapsed={!open}
       transitionDuration={1000}
-      className="h-[calc(100vh-3rem)] text-[14px] z-40"
+      className="h-[calc(100vh-3rem)] text-[14px] z-50"
       style={{ position: "fixed" }}
       rootStyles={{
         ["." + sidebarClasses.container]: {

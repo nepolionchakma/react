@@ -9,25 +9,25 @@ const MainApp = () => {
   const { open } = useGlobalContext();
 
   return (
-    <>
-      <div className="font-workSans">
+    <div className="font-workSans">
+      <nav className="sticky top-0 z-50">
         <Topbar />
-        <div className="pt-[3rem]">
-          <Sidbar />
-          <div
-            className={
-              open
-                ? "ml-[18.5rem] w-[calc(100vw-19.5rem)] min-h-[calc(100vh-4rem)] duration-1000 pb-4"
-                : "ml-[5.5rem] w-[calc(100vw-7rem)] min-h-[calc(100vh-4rem)] duration-1000 pb-4"
-            }
-          >
-            <Breadcurmbs />
-            <Outlet />
-          </div>
-          <Toaster />
+      </nav>
+      <div className="pt-[3rem] overflow-y-auto scrollbar-thin h-[calc(100vh)]">
+        <Sidbar />
+        <div
+          className={
+            open
+              ? "ml-[18.5rem] w-[calc(100vw-19.5rem)] duration-1000 pb-4"
+              : "ml-[5.5rem] w-[calc(100vw-7rem)] duration-1000 pb-4"
+          }
+        >
+          <Breadcurmbs />
+          <Outlet />
         </div>
+        <Toaster />
       </div>
-    </>
+    </div>
   );
 };
 

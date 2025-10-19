@@ -141,7 +141,7 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
             totalNumber={totalReceivedMessages}
           />
         </div>
-        <div className="max-h-[60vh] overflow-auto scrollbar-thin">
+        <div className="max-h-[58vh] overflow-auto scrollbar-thin">
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-200 hover:bg-slate-200">
