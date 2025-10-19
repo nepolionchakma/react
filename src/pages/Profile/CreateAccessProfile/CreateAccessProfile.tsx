@@ -10,13 +10,14 @@ import { Button } from "@/components/ui/button";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
 import { X } from "lucide-react";
 import { useState } from "react";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import "../customStyle.css";
 import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { toast } from "@/components/ui/use-toast";
 import Spinner from "@/components/Spinner/Spinner";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import { postData } from "@/Utility/funtion";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
 
 interface ICreateAccessProfileTypes {
   setIsCreateNewProfile: React.Dispatch<React.SetStateAction<boolean>>;
@@ -27,34 +28,37 @@ const CreateAccessProfile = ({
   setIsCreateNewProfile,
   setIsUpdated,
 }: ICreateAccessProfileTypes) => {
-  const api = useAxiosPrivate();
-  const { combinedUser } = useGlobalContext();
+  const { token } = useGlobalContext();
   const [profileType, setProfileType] = useState("");
   const [profileId, setProfileId] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    try {
-      setIsLoading(true);
-      const data = { profile_type: profileType, profile_id: profileId };
 
-      const res = await api.post(
-        `/access-profiles/${combinedUser?.user_id}`,
-        data
-      );
+    setIsLoading(true);
+    const data = {
+      profile_type: profileType,
+      profile_id: profileId,
+      primary_yn: "N",
+    };
+    const postDataParams = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.AccessProfiles}/${token.user_id}`,
+      setLoading: setIsLoading,
+      payload: data,
+      isConsole: true,
+      isToast: true,
+      accessToken: token.access_token,
+    };
 
-      if (res) {
-        setIsUpdated(Math.random() + 23 * 3000);
-        toast({
-          description: `${res.data.message}`,
-        });
-        setIsCreateNewProfile(false);
-      }
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
+    const res = await postData(postDataParams);
+    if (res) {
+      setIsUpdated(Math.random() + 23 * 3000);
+      toast({
+        description: `${res.data.message}`,
+      });
+      setIsCreateNewProfile(false);
     }
   };
 

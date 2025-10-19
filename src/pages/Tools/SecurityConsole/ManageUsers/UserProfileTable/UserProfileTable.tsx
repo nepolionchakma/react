@@ -35,12 +35,14 @@ import {
   IUsersInfoTypes,
 } from "@/types/interfaces/users.interface";
 import { toast } from "@/components/ui/use-toast";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import AddUserProfile from "./AddUserProfile/AddUserProfile";
 import Alert from "@/components/Alert/Alert";
 import EditUserProfile from "./EditUserProfile/EditUserProfile";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
+import { deleteData } from "@/Utility/funtion";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 interface Props {
   profileData: IProfilesType[];
   isUpdated: number;
@@ -63,7 +65,7 @@ export function UserProfileTable({
   selectedProfile,
   setSelectedProfile,
 }: Props) {
-  const api = useAxiosPrivate();
+  const { token } = useGlobalContext();
   // const {
   //   // fetchCombinedUser, page,
   //   setPage,
@@ -105,22 +107,19 @@ export function UserProfileTable({
   const handleDelete = async () => {
     // deleteCombinedUser(selected);
     for (const profile of selectedProfile) {
-      try {
-        const res = await api.delete(
-          `/access-profiles/${profile.user_id}/${profile.serial_number}`
-        );
-        if (res.status === 200) {
-          toast({
-            description: `${res.data.message}`,
-          });
-          setIsUpdated(Math.random() + 23 * 3000);
-        }
-      } catch (error) {
-        console.log(error);
+      const deleteDataParams = {
+        baseURL: FLASK_URL,
+        url: `${flaskApi.AccessProfiles}/${profile.user_id}/${profile.serial_number}`,
+        isConsole: true,
+        isToast: true,
+        accessToken: token.access_token,
+      };
+      const res = await deleteData(deleteDataParams);
+      if (res.status === 200) {
         toast({
-          description: `Failed to delete`,
-          variant: "destructive",
+          description: `${res.data.message}`,
         });
+        setIsUpdated(Math.random() + 23 * 3000);
       }
     }
     //table toggle empty
