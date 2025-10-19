@@ -6,15 +6,14 @@ import Spinner from "@/components/Spinner/Spinner";
 import { useEffect, useState } from "react";
 
 import CreateAccessProfile from "./CreateAccessProfile/CreateAccessProfile";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { IProfilesType } from "@/types/interfaces/users.interface";
 import UpdateProfile3 from "./UpdateProfile/UpdateProfile3";
-// import UpdateProfile from "./UpdateProfile/UpdateProfile";
-// import UpdateProfile from "./UpdateProfile";
+import { loadData } from "@/Utility/funtion";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
 
 const Profile = () => {
   const { combinedUser, isCombinedUserLoading } = useGlobalContext();
-  const api = useAxiosPrivate();
+  const { token } = useGlobalContext();
   const [isCreateNewProfile, setIsCreateNewProfile] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<IProfilesType1[]>([]);
@@ -23,24 +22,24 @@ const Profile = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        if (combinedUser?.user_id) {
-          setIsLoading(true);
-          const resData = await api.get(
-            `/access-profiles/${combinedUser?.user_id}`
-          );
-          // is primary available
-          const filterPrimaryData = resData.data.find(
-            (item: IProfilesType) => item.primary_yn === "Y"
-          );
-          setPrimaryCheckedItem(filterPrimaryData);
+      if (combinedUser?.user_id) {
+        setIsLoading(true);
+        const postDataParams = {
+          baseURL: FLASK_URL,
+          url: `${flaskApi.AccessProfiles}/${combinedUser?.user_id}`,
+          setLoading: setIsLoading,
+          isConsole: true,
+          isToast: true,
+          accessToken: token.access_token,
+        };
+        const resData = await loadData(postDataParams);
+        // is primary available
+        const filterPrimaryData = resData.find(
+          (item: IProfilesType) => item.primary_yn === "Y"
+        );
+        setPrimaryCheckedItem(filterPrimaryData);
 
-          setData(resData.data);
-        }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoading(false);
+        setData(resData);
       }
     };
     fetchData();

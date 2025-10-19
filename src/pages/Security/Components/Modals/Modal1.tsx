@@ -5,9 +5,10 @@ import Body1 from "./Body/Body1";
 import Body2 from "./Body/Body2";
 import Body3 from "./Body/Body3";
 import Body4 from "./Body/Body4";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
-import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { IProfilesType } from "@/types/interfaces/users.interface";
+import { loadData } from "@/Utility/funtion";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 
 interface Props {
   setTwoStepModal1: Dispatch<SetStateAction<boolean>>;
@@ -20,26 +21,29 @@ const Modal1 = ({ setTwoStepModal1 }: Props) => {
   const [verifyClick, setVerifyClick] = useState("");
   const [selectedID, setSelectedID] = useState("");
 
-  const api = useAxiosPrivate();
   const { combinedUser } = useGlobalContext();
   const [data, setData] = useState<IProfilesType[]>([]);
   const [errorCode, setErrorCode] = useState(false);
+  const { token } = useGlobalContext();
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        if (combinedUser?.user_id) {
-          const resData = await api.get<IProfilesType[]>(
-            `/access-profiles/${combinedUser?.user_id}`
+      if (combinedUser?.user_id) {
+        const getDataParams = {
+          baseURL: FLASK_URL,
+          url: `${flaskApi.AccessProfiles}/${combinedUser?.user_id}`,
+          isConsole: true,
+          isToast: true,
+          accessToken: token.access_token,
+        };
+        const resData = await loadData(getDataParams);
+        if (resData) {
+          setData(
+            resData.data.filter(
+              (item: IProfilesType) => item.profile_type === checkedMethod
+            )
           );
-          if (resData) {
-            setData(
-              resData.data.filter((item) => item.profile_type === checkedMethod)
-            );
-          }
         }
-      } catch (error) {
-        console.log(error);
       }
     };
     fetchData();

@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { UsersTable } from "./UsersTable/UsersTable";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import {
   IProfilesType,
   IUsersInfoTypes,
 } from "@/types/interfaces/users.interface";
 import { UserProfileTable } from "./UserProfileTable/UserProfileTable";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import { loadData } from "@/Utility/funtion";
 
 const SetupAndAdministration = () => {
-  const api = useAxiosPrivate();
+  const { token } = useGlobalContext();
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<IProfilesType[]>([]);
   // const [filterUserID, setFilterUserID] = useState<number[]>([]);
@@ -21,31 +23,31 @@ const SetupAndAdministration = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        if (selectedUser.user_id) {
-          setIsLoading(true);
-          const resData = await api.get(
-            `/access-profiles/${selectedUser.user_id}`
-          );
-          // is primary available
-          const filterPrimaryData = resData.data.find(
-            (item: IProfilesType) => item.primary_yn === "Y"
-          );
-          setPrimaryCheckedItem(filterPrimaryData);
-          setSelectedProfile([]);
-          setData(resData.data);
-        } else {
-          setData([]);
-        }
-      } catch (error) {
-        console.log(error);
+      if (selectedUser.user_id) {
+        setIsLoading(true);
+        const getDataParams = {
+          baseURL: FLASK_URL,
+          url: `${flaskApi.AccessProfiles}/${selectedUser.user_id}`,
+          setLoading: setIsLoading,
+          payload: { user_id: selectedUser.user_id },
+          isConsole: true,
+          isToast: true,
+          accessToken: token.access_token,
+        };
+        const resData = await loadData(getDataParams);
+        // is primary available
+        const filterPrimaryData = resData.find(
+          (item: IProfilesType) => item.primary_yn === "Y"
+        );
+        setPrimaryCheckedItem(filterPrimaryData);
+        setSelectedProfile([]);
+        setData(resData);
+      } else {
         setData([]);
-      } finally {
-        setIsLoading(false);
       }
     };
     fetchData();
-  }, [selectedUser, isUpdated, api]);
+  }, [selectedUser, isUpdated, token.access_token]);
 
   return (
     <div>

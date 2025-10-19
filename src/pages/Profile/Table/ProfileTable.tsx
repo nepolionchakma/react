@@ -15,9 +15,11 @@ import {
 
 import { tailspin } from "ldrs";
 import { toast } from "@/components/ui/use-toast";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { Checkbox } from "@/components/ui/checkbox";
 import { IProfilesType } from "@/types/interfaces/users.interface";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import { deleteData } from "@/Utility/funtion";
 
 tailspin.register();
 
@@ -42,7 +44,7 @@ const ProfileTable = ({
   setIsLoading,
   primaryCheckedItem,
 }: ProfileTableProps) => {
-  const api = useAxiosPrivate();
+  const { token } = useGlobalContext();
   const [isUpdateProfile, setIsUpdateProfile] = useState(false);
   const [editableProfile, setEditableProfile] = useState<IProfilesType1>(
     {} as IProfilesType1
@@ -64,22 +66,19 @@ const ProfileTable = ({
   );
 
   const handleDelete = async (user_id: number, serial_number: number) => {
-    try {
-      const res = await api.delete(
-        `/access-profiles/${user_id}/${serial_number}`
-      );
-      if (res.status === 200) {
-        toast({
-          description: `${res.data.message}`,
-        });
-        setIsUpdated(Math.random() + 23 * 3000);
-      }
-    } catch (error) {
-      console.log(error);
+    const deleteDataParams = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.AccessProfiles}/${user_id}/${serial_number}`,
+      isConsole: true,
+      isToast: true,
+      accessToken: token.access_token,
+    };
+    const res = await deleteData(deleteDataParams);
+    if (res.status === 200) {
       toast({
-        description: `Failed to delete`,
-        variant: "destructive",
+        description: `${res.data.message}`,
       });
+      setIsUpdated(Math.random() + 23 * 3000);
     }
   };
   return (

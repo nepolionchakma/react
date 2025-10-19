@@ -4,7 +4,6 @@ import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { IProfilesType1 } from "../Table/ProfileTable";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { toast } from "@/components/ui/use-toast";
 import Spinner from "@/components/Spinner/Spinner";
 import "../customStyle.css";
@@ -12,6 +11,9 @@ import PhoneInput from "react-phone-number-input";
 import "react-phone-number-input/style.css";
 import { Checkbox } from "@/components/ui/checkbox";
 import { IProfilesType } from "@/types/interfaces/users.interface";
+import { putData } from "@/Utility/funtion";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 
 interface ICustomModalTypes {
   editableProfile: IProfilesType1;
@@ -29,7 +31,7 @@ const UpdateProfileIDModal = ({
   setIsUpdated,
   primaryCheckedItem,
 }: ICustomModalTypes) => {
-  const api = useAxiosPrivate();
+  const { token } = useGlobalContext();
   const [profileId, setProfileId] = useState<string>(
     editableProfile.profile_id
   );
@@ -52,49 +54,47 @@ const UpdateProfileIDModal = ({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    try {
-      setIsLoading(true);
-      const data = {
-        profile_id: profileId,
-        primary_yn: isPrimary,
-      };
+    setIsLoading(true);
+    const data = {
+      profile_id: profileId,
+      primary_yn: isPrimary,
+    };
 
-      if (isChecked) {
-        if (
-          primaryCheckedItem &&
-          primaryCheckedItem.primary_yn !== editableProfile.primary_yn
-        ) {
-          try {
-            await api.put(
-              `/access-profiles/${primaryCheckedItem.user_id}/${primaryCheckedItem.serial_number}`,
-              { ...primaryCheckedItem, primary_yn: "N" }
-            );
-          } catch (error) {
-            console.error("Error updating profile:", error);
-          }
-        }
+    if (isChecked) {
+      if (
+        primaryCheckedItem &&
+        primaryCheckedItem.primary_yn !== editableProfile.primary_yn
+      ) {
+        const putDataParams = {
+          baseURL: FLASK_URL,
+          url: `${flaskApi.AccessProfiles}/${primaryCheckedItem.user_id}/${primaryCheckedItem.serial_number}`,
+          payload: { ...primaryCheckedItem, primary_yn: "N" },
+          setLoading: setIsLoading,
+          isConsole: true,
+          isToast: true,
+          accessToken: token.access_token,
+        };
+        await putData(putDataParams);
       }
+    }
 
-      const res = await api.put(
-        `/access-profiles/${editableProfile.user_id}/${editableProfile.serial_number}`,
-        data
-      );
+    const putDataParams = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.AccessProfiles}/${editableProfile.user_id}/${editableProfile.serial_number}`,
+      payload: data,
+      setLoading: setIsLoading,
+      isConsole: true,
+      isToast: true,
+      accessToken: token.access_token,
+    };
+    const res = await putData(putDataParams);
 
-      if (res.status === 200) {
-        toast({
-          description: `${res.data.message}`,
-        });
-        setIsOpenModal(false);
-        setIsUpdated(Math.random() + 23 * 3000);
-      }
-    } catch (error) {
-      console.log(error, "error");
+    if (res.status === 200) {
       toast({
-        description: `Failed to update`,
-        variant: "destructive",
+        description: `${res.data.message}`,
       });
-    } finally {
-      setIsLoading(false);
+      setIsOpenModal(false);
+      setIsUpdated(Math.random() + 23 * 3000);
     }
   };
   return (
