@@ -10,7 +10,7 @@ const MainApp = () => {
 
   return (
     <div className="font-workSans">
-      <nav className="sticky top-0 z-50">
+      <nav>
         <Topbar />
       </nav>
       <div className="pt-[3rem] overflow-y-auto scrollbar-thin h-[calc(100vh)]">

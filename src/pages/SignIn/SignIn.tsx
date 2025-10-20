@@ -26,7 +26,7 @@ const SignIn = () => {
   }
   return (
     <>
-      <div className="w-[100vw] h-[100vh] flex justify-center items-center font-openSans">
+      <div className="w-[100vw] h-[100vh] flex justify-center items-center font-openSans scrollbar-thin overflow-auto">
         <div className="w-[496px]">
           <img src={logo} alt="logo" className="h-8 w-auto mb-2" />
           <h2 className="text-xl font-semibold  mb-2">

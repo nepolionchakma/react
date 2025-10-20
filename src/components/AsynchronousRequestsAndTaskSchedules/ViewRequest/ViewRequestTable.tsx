@@ -218,7 +218,7 @@ export function ViewRequestTable() {
       </div>
 
       {/* Table Section */}
-      <div className="rounded-md border overflow-x-auto scrollbar-thin">
+      <div className="rounded-md border">
         <Table
           style={{
             width: table.getTotalSize(),
