@@ -25,9 +25,12 @@ const ActionItems = ({
   const handleDelete = async () => {
     try {
       for (const tenancy of selectedTenancyRows) {
-        const res = await api.delete(`/tenants/${tenancy.tenant_id}`, {
-          baseURL: flaskUrl,
-        });
+        const res = await api.delete(
+          `/tenants/cascade_delete?tenant_id=${tenancy.tenant_id}`,
+          {
+            baseURL: flaskUrl,
+          }
+        );
         if (res) {
           toast({
             description: `${res.data.message}`,

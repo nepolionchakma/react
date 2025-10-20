@@ -5,6 +5,8 @@ import { ITenantsTypes } from "@/types/interfaces/users.interface";
 import { X } from "lucide-react";
 import React, { useState } from "react";
 import { postData, putData } from "@/Utility/funtion";
+import { flaskApi } from "@/Api/Api";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 interface ICustomModalTypes {
   action: string;
   tabName: string;
@@ -21,6 +23,7 @@ const TenancyCreateAndEditModal = ({
   handleCloseModal,
   setSelectedTenancyRows,
 }: ICustomModalTypes) => {
+  const { token } = useGlobalContext();
   const [tenantName, setTenantName] = useState<string>(
     selectedTenancyRows && action === "edit"
       ? selectedTenancyRows[0].tenant_name
@@ -36,12 +39,13 @@ const TenancyCreateAndEditModal = ({
       if (action === "add") {
         const postParams = {
           baseURL: flaskUrl,
-          url: "/tenants",
+          url: flaskApi.DefTenants,
           setLoading: setIsLoading,
           payload: {
             tenant_name: tenantName,
           },
           isConsole: true,
+          accessToken: `${token.access_token}`,
         };
 
         await postData(postParams);
@@ -52,6 +56,7 @@ const TenancyCreateAndEditModal = ({
           setLoading: setIsLoading,
           payload: { tenant_name: tenantName },
           isConsole: true,
+          accessToken: `${token.access_token}`,
         };
         const res = await putData(putParams);
         if (res) {

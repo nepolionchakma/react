@@ -1,8 +1,9 @@
 import { ColumnDef } from "@tanstack/react-table";
-import { IJobTitle } from "@/types/interfaces/users.interface";
+import { IJobTitle, ITenantsTypes } from "@/types/interfaces/users.interface";
 import { ArrowUpDown } from "lucide-react";
+import { renderTenantsNames } from "@/Utility/general";
 
-export const columns: ColumnDef<IJobTitle>[] = [
+export const columns = (tenants: ITenantsTypes[]): ColumnDef<IJobTitle>[] => [
   {
     id: "select",
     size: 24,
@@ -27,13 +28,16 @@ export const columns: ColumnDef<IJobTitle>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="min-w-max cursor-pointer"
         >
-          Tenant Id
+          Tenant Name
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
         </div>
       );
     },
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">{row.getValue("tenant_id")}</div>
+      <div className="capitalize min-w-max">
+        {renderTenantsNames(row.original.tenant_id, tenants)}
+        {/* <span>Id {row.getValue("tenant_id")}</span> */}
+      </div>
     ),
   },
   {

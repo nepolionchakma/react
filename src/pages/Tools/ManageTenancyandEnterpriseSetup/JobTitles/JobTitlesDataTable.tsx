@@ -90,7 +90,7 @@ export function JobTitlesDataTable({
 
   const table = useReactTable({
     data,
-    columns,
+    columns: React.useMemo(() => columns(tenants), [tenants]),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -303,7 +303,7 @@ export function JobTitlesDataTable({
             {isLoading ? (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={table.getAllColumns().length}
                   className="h-[16rem] text-center"
                 >
                   <l-tailspin
