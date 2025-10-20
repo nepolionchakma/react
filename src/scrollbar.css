@@ -1,18 +1,45 @@
-/* src/styles/scrollbar.css */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-.scrollbar-thin::-webkit-scrollbar {
-  width: 5px; /* Adjust the width for vertical scrollbars */
-  height: 5px; /* Adjust the height for horizontal scrollbars */
+/* Disable horizontal overflow on shadcn table container when needed */
+.no-x-scroll [data-slot="table-container"] {
+  overflow-x: visible !important;
 }
 
-.scrollbar-thin::-webkit-scrollbar-thumb {
-  background-color: rgb(0, 0, 0); /* Adjust the color */
-  border-radius: 10px; /* Adjust the border radius */
+/* Disable vertical overflow on shadcn table container when needed */
+.no-y-scroll [data-slot="table-container"] {
+  overflow-y: visible !important;
 }
 
-.scrollbar-thin::-webkit-scrollbar-track {
-  background-color: rgba(0, 0, 0, 0.1); /* Adjust the background color */
+/* Cross-browser thin scrollbar utility */
+.scrollbar-thin {
+  /* Firefox */
+  /* scrollbar-width: thin !important; */
+  scrollbar-color: rgb(0, 0, 0)  !important;
+}
+
+/* WebKit (Chrome, Edge, Safari) */
+.scrollbar-thin::-webkit-scrollbar,
+.scrollbar-thin *::-webkit-scrollbar {
+  width: 5px !important;
+  height: 5px !important;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb,
+.scrollbar-thin *::-webkit-scrollbar-thumb {
+  background-color: rgb(0, 0, 0) !important;
+  border-radius: 10px !important;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover,
+.scrollbar-thin *::-webkit-scrollbar-thumb:hover {
+  background-color: rgb(0, 0, 0) !important;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track,
+.scrollbar-thin *::-webkit-scrollbar-track {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Corner area where horizontal and vertical scrollbars meet */
+.scrollbar-thin::-webkit-scrollbar-corner,
+.scrollbar-thin *::-webkit-scrollbar-corner {
+  background: transparent !important;
 }
