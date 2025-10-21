@@ -173,11 +173,28 @@ const OnceScheduleType: FC<IOnceScheduleType> = ({
             selected={selectedDate}
             onSelect={handleDateSelect}
             initialFocus
-            className="rounded-md border "
+            // styles={{
+            //   nav_button_next: { height: "20px", width: "20px" },
+            //   nav_button_previous: { height: "20px", width: "20px" },
+            //   day: {
+            //     height: "25px",
+            //     width: "25px",
+            //     margin: "1px",
+            //   },
+            //   head_cell: {
+            //     height: "25px",
+            //     width: "25px",
+            //     margin: "1px",
+            //   },
+            //   row: {
+            //     margin: "1px",
+            //   },
+            // }}
+            className="rounded-md border"
           />
 
           {/* Time Picker - Hour, Minute */}
-          <div className="flex justify-between mt-2 gap-2">
+          <div className="flex justify-between gap-2">
             {/* Hour Selection */}
             <Select
               onValueChange={(value) => {
@@ -187,7 +204,7 @@ const OnceScheduleType: FC<IOnceScheduleType> = ({
               }}
               value={selectedHour.toString()}
             >
-              <SelectTrigger className="w-24">
+              <SelectTrigger className="w-24 h-8">
                 <SelectValue>
                   {selectedHour.toString().padStart(2, "0")}
                 </SelectValue>
@@ -210,7 +227,7 @@ const OnceScheduleType: FC<IOnceScheduleType> = ({
               }}
               value={selectedMinute.toString()}
             >
-              <SelectTrigger className="w-24">
+              <SelectTrigger className="w-24 h-8">
                 <SelectValue>
                   {selectedMinute.toString().padStart(2, "0")}
                 </SelectValue>

@@ -359,12 +359,13 @@ const Schedule: FC<IScheduleProps> = ({
                     "FREQUENCY" in schedule &&
                     schedule?.["FREQUENCY"] > 0 &&
                     "bg-[#64748B] hover:bg-[#4B5563]"
-              }`}
+              } h-9`}
             >
               OK
             </Button>
             <Button
               variant="secondary"
+              className="h-9"
               onClick={() => setIsOpenScheduleModal("")}
             >
               Cancel

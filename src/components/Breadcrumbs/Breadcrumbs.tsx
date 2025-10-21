@@ -84,7 +84,7 @@ const Breadcrumb = () => {
           )}
           {index < breadcrumbs.length - 1 && (
             <span>
-              <ChevronRight strokeWidth={1} className="mx-2 inline-block" />
+              <ChevronRight strokeWidth={1} className="mx-0.5 inline-block" />
             </span>
           )}
         </span>
