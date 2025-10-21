@@ -227,9 +227,9 @@ const ManageControlEnvironments = () => {
           >
             <span className="flex flex-col items-start gap-1">
               {selectedItems.map((item, index) => (
-                <p key={item.control_environment_id}>
+                <span key={item.control_environment_id}>
                   {index + 1}. Environment Name: {item.name}
-                </p>
+                </span>
               ))}
             </span>
           </Alert>
