@@ -245,7 +245,7 @@ export function ManageExecutionMethodsTable() {
             placeholder="Search Internal Execution Method"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
-            className="w-[24rem] px-4 py-2"
+            className="w-[20rem] px-4 py-2"
           />
         </div>
 

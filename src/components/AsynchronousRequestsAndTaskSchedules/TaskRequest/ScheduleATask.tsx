@@ -195,14 +195,13 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
       isToast: true,
       accessToken: token.access_token,
     };
+
+    setIsLoading(true);
+    const res = await (action === "Schedule A Task"
+      ? postData(postDataParams)
+      : putData(putDataParams));
+
     try {
-      console.log(postDataParams, "postDataParams");
-      console.log(putDataParams, "putDataParams");
-      setIsLoading(true);
-      const res = await (action === "Schedule A Task"
-        ? postData(postDataParams)
-        : putData(putDataParams));
-      console.log(res, "res");
       if (res.status === 200) {
         if (selected) {
           // select value update
@@ -322,7 +321,7 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
         </div>
       )}
       {isOpenScheduleModal === "Schedule" && (
-        <CustomModal4 className="w-[75vw] h-[85vh]">
+        <CustomModal4 className="w-[60vw] h-[80vh]">
           <Schedule
             schedule={schedule}
             setSchedule={setSchedule}
@@ -424,7 +423,7 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
                 <TableRow>
                   <TableCell
                     colSpan={2}
-                    className="text-center h-30 border border-winter-400"
+                    className="text-center h-[8rem] border border-winter-400"
                   >
                     <l-tailspin
                       size="40"
@@ -587,7 +586,13 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
               )}
             </TableBody>
           </Table>
-          <div className="flex justify-end">
+          <div
+            className={
+              action === "Edit Scheduled Task"
+                ? "fixed right-5 bottom-5"
+                : "flex justify-end"
+            }
+          >
             <Button type="submit" className="mt-5">
               {isLoading ? <div>Loading...</div> : "Submit"}
             </Button>
