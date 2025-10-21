@@ -23,7 +23,7 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
       return (
         <div
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="min-w-[15rem] cursor-pointer"
+          className="min-w-max cursor-pointer"
         >
           Parameter Name
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
@@ -31,7 +31,7 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="min-w-[15rem]">{row.getValue("parameter_name")}</div>
+      <div className="min-w-max">{row.getValue("parameter_name")}</div>
     ),
   },
   {
@@ -47,7 +47,7 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
       return (
         <div
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="min-w-[11rem] cursor-pointer"
+          className="min-w-max cursor-pointer"
         >
           Task Name
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
@@ -55,7 +55,7 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="min-w-[11rem]">{row.getValue("task_name")}</div>
+      <div className="min-w-max">{row.getValue("task_name")}</div>
     ),
   },
   {
@@ -71,7 +71,7 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
       return (
         <div
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="min-w-[40rem] cursor-pointer"
+          className="w-[20rem] cursor-pointer"
         >
           Description
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
@@ -79,9 +79,7 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="min-w-[40rem] capitalize">
-        {row.getValue("description")}
-      </div>
+      <div className="w-[20rem] capitalize">{row.getValue("description")}</div>
     ),
   },
   {
@@ -100,7 +98,7 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
           className="min-w-max cursor-pointer"
         >
           Data Type
-          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+          <ArrowUpDown className="ml-2 h-4 min-w-max inline-block" />
         </div>
       );
     },
@@ -147,7 +145,7 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
           className="min-w-max cursor-pointer"
         >
           Created By
-          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+          <ArrowUpDown className="ml-2 h-4 min-w-max inline-block" />
         </div>
       );
     },
@@ -171,7 +169,7 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
           className="min-w-max cursor-pointer"
         >
           Last Updated By
-          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+          <ArrowUpDown className="ml-2 h-4 min-w-max inline-block" />
         </div>
       );
     },
@@ -194,7 +192,7 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
           className="min-w-max cursor-pointer"
         >
           Creation Date
-          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+          <ArrowUpDown className="ml-2 h-4 min-w-max inline-block" />
         </div>
       );
     },
@@ -220,7 +218,7 @@ export const columns: ColumnDef<IARMTaskParametersTypes>[] = [
           className="min-w-max cursor-pointer"
         >
           Last Updated Date
-          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+          <ArrowUpDown className="ml-2 h-4 min-w-max inline-block" />
         </div>
       );
     },

@@ -57,6 +57,7 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
       return (
         <div
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-[50%] cursor-pointer"
         >
           User Task Name{" "}
           <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
@@ -64,7 +65,7 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="min-w-[30rem]">{row.getValue("user_task_name")}</div>
+      <div className="min-w-[50%]">{row.getValue("user_task_name")}</div>
     ),
   },
   {
@@ -81,7 +82,7 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
       return (
         <div
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="min-w-[35rem] cursor-pointer"
+          className="min-w-[50%] cursor-pointer"
         >
           Task Name
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
@@ -89,7 +90,7 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="min-w-[35rem]">{row.getValue("task_name")}</div>
+      <div className="min-w-[50%]">{row.getValue("task_name")}</div>
     ),
   },
 ];
@@ -97,8 +98,8 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
 export function TaskNameTable() {
   const {
     totalPage,
-    isLoading,
-    setIsLoading,
+    // isLoading,
+    // setIsLoading,
     // selectedTask,
     setSelectedTask,
     getAsyncTasksLazyLoading,
@@ -109,6 +110,7 @@ export function TaskNameTable() {
   const [data, setData] = React.useState<IARMAsynchronousTasksTypes[] | []>([]);
   const [page, setPage] = React.useState<number>(1);
   const [limit, setLimit] = React.useState<number>(4);
+  const [isLoading, setIsLoading] = React.useState<boolean>(false);
   // const [selectedRowId, setSelectedRowId] = React.useState<string>("");
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -156,6 +158,7 @@ export function TaskNameTable() {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         if (!query.isEmpty) {
           const res = await getSearchAsyncTasksLazyLoading(
             page,
@@ -180,6 +183,7 @@ export function TaskNameTable() {
         setSelectedTaskParameters([]);
         // uncheck checkbox
         table.getRowModel().rows.map((row) => row.toggleSelected(false));
+        setIsLoading(false);
       }
     };
     setIsLoading(true);
@@ -209,7 +213,7 @@ export function TaskNameTable() {
             placeholder="Search User Task Name"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
-            className="w-[24rem] px-4 py-2"
+            className="w-[20rem] px-4 py-2"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -300,7 +304,7 @@ export function TaskNameTable() {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-[16rem] text-center"
+                    className="h-[6.5rem] text-center"
                   >
                     <l-tailspin
                       size="40"
@@ -356,7 +360,7 @@ export function TaskNameTable() {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-[16rem] text-center"
+                    className="h-[6.5rem] text-center"
                   >
                     <l-tailspin
                       size="40"
@@ -370,7 +374,7 @@ export function TaskNameTable() {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-[16rem] text-center"
+                    className="h-[6.5rem] text-center"
                   >
                     No results.
                   </TableCell>

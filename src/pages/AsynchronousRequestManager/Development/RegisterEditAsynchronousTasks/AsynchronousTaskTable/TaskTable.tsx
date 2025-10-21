@@ -259,7 +259,7 @@ export function TaskTable() {
             placeholder="Search User Task Name"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
-            className="w-[24rem] px-4 py-2"
+            className="w-[20rem] px-4 py-2"
           />
         </div>
         <div className="flex items-center gap-2">

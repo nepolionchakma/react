@@ -167,7 +167,7 @@ export function TaskParametersTable() {
   return (
     <div className="px-3">
       {selectedTask?.user_task_name && isOpenModal === "add_task_params" ? (
-        <CustomModal4 className="w-[770px]">
+        <CustomModal4 className="w-[60vw]">
           <TaskParametersModal
             task_name="Add Parameter"
             selected={selectedTaskParameters[0]}
@@ -177,7 +177,7 @@ export function TaskParametersTable() {
       ) : (
         selectedTask?.user_task_name &&
         isOpenModal === "update_task_params" && (
-          <CustomModal4 className="w-[770px]">
+          <CustomModal4 className="w-[60vw]">
             <TaskParametersModal
               task_name="Edit Parameter"
               selected={selectedTaskParameters[0]}
@@ -252,7 +252,7 @@ export function TaskParametersTable() {
                 .getColumn("parameter_name")
                 ?.setFilterValue(event.target.value)
             }
-            className="w-[24rem] px-4 py-2"
+            className="w-[20rem] px-4 py-2"
           />
         </div>
 
@@ -371,7 +371,7 @@ export function TaskParametersTable() {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-[16rem] text-center"
+                    className="h-[10rem] text-center"
                   >
                     <l-tailspin
                       size="40"
@@ -419,7 +419,7 @@ export function TaskParametersTable() {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-[16rem] text-center"
+                    className="h-[10rem] text-center"
                   >
                     <l-tailspin
                       size="40"
@@ -433,7 +433,7 @@ export function TaskParametersTable() {
                 <TableRow>
                   <TableCell
                     colSpan={columns.length}
-                    className="h-[16rem] text-center"
+                    className="h-[10rem] text-center"
                   >
                     No results.
                   </TableCell>

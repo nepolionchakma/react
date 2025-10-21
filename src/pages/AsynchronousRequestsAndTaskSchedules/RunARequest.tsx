@@ -57,7 +57,6 @@ const RunARequest = () => {
   >([]);
   const [open, setOpen] = useState(false);
   const [date, setDate] = useState<Date | undefined>(undefined);
-
   useEffect(() => {
     const fetchAsyncTasks = async () => {
       try {
@@ -153,7 +152,7 @@ const RunARequest = () => {
   };
 
   return (
-    <div className="w-[900px] mx-auto my-10 border rounded">
+    <div className="my-10 border rounded">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2 p-4">
           <div className="grid grid-cols-2 gap-4 pb-2">

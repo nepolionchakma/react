@@ -38,12 +38,12 @@ import {
 import { toast } from "@/components/ui/use-toast";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import ScheduleATaskComponent from "../TaskRequest/ScheduleATask";
-import CustomModal2 from "@/components/CustomModal/CustomModal2";
 import PopUp from "./PopUp/PopUp";
 import Alert from "@/components/Alert/Alert";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import Rows from "@/components/Rows/Rows";
+import CustomModal4 from "@/components/CustomModal/CustomModal4";
 
 export function ViewEditScheduledTasksTable() {
   const {
@@ -102,28 +102,21 @@ export function ViewEditScheduledTasksTable() {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      try {
-        if (!query.isEmpty) {
-          const results = await getSearchAsynchronousRequestsAndTaskSchedules(
-            page,
-            limit,
-            query.value
-          );
-          if (results) {
-            setData(results);
-          }
-        } else {
-          const res = await getAsynchronousRequestsAndTaskSchedules(
-            page,
-            limit
-          );
+      if (!query.isEmpty) {
+        const results = await getSearchAsynchronousRequestsAndTaskSchedules(
+          page,
+          limit,
+          query.value
+        );
 
-          if (res) {
-            setData(res);
-          }
+        if (results) {
+          setData(results);
         }
-      } catch (error) {
-        console.log(error);
+      } else {
+        const res = await getAsynchronousRequestsAndTaskSchedules(page, limit);
+        if (res) {
+          setData(res);
+        }
       }
     };
     setIsLoading(true);
@@ -239,7 +232,7 @@ export function ViewEditScheduledTasksTable() {
   return (
     <div className="px-3">
       {isOpenModal === "edit_task_schedule" && (
-        <CustomModal2>
+        <CustomModal4 className="w-[80vw] h-[90vh]">
           <ScheduleATaskComponent
             action="Edit Scheduled Task"
             selected={selected}
@@ -247,7 +240,7 @@ export function ViewEditScheduledTasksTable() {
             user_schedule_name="run_script"
             handleCloseModal={handleCloseModal}
           />
-        </CustomModal2>
+        </CustomModal4>
       )}
       {viewParameters !== undefined && (
         <PopUp
@@ -296,7 +289,7 @@ export function ViewEditScheduledTasksTable() {
             placeholder="Search Task Name"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
-            className="w-[24rem] px-4 py-2"
+            className="w-[20rem] px-4 py-2"
           />
         </div>
         <div className="flex gap-2">
