@@ -20,7 +20,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import {
   Select,
   SelectContent,
@@ -50,6 +49,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { postData, putData } from "@/Utility/funtion";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
 
 interface ITaskRequestProps {
   action: string;
@@ -68,10 +69,10 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
   selected,
   setSelected,
 }) => {
-  const api = useAxiosPrivate();
   const { getAsyncTasks, getTaskParametersByTaskName, setChangeState } =
     useARMContext();
-  const { isOpenScheduleModal, setIsOpenScheduleModal } = useGlobalContext();
+  const { isOpenScheduleModal, setIsOpenScheduleModal, token } =
+    useGlobalContext();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [asyncTaskNames, setAsyncTaskNames] = useState<
     IARMAsynchronousTasksTypes[] | undefined
@@ -176,17 +177,32 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
             redbeat_schedule_name: selected?.redbeat_schedule_name,
           };
     // console.log(payload, "payload");
+    const postDataParams = {
+      baseURL: FLASK_URL,
+      url: flaskApi.CreateTaskSchedule,
+      setLoading: setIsLoading,
+      payload,
+      isConsole: true,
+      isToast: true,
+      accessToken: token.access_token,
+    };
+    const putDataParams = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.UpdateTaskSchedule}/${selected?.task_name}`,
+      setLoading: setIsLoading,
+      payload,
+      isConsole: true,
+      isToast: true,
+      accessToken: token.access_token,
+    };
     try {
+      console.log(postDataParams, "postDataParams");
+      console.log(putDataParams, "putDataParams");
       setIsLoading(true);
       const res = await (action === "Schedule A Task"
-        ? api.post(
-            "/asynchronous-requests-and-task-schedules/create-task-schedule",
-            payload
-          )
-        : api.put(
-            `/asynchronous-requests-and-task-schedules/update-task-schedule/${selected?.task_name}`,
-            payload
-          ));
+        ? postData(postDataParams)
+        : putData(putDataParams));
+      console.log(res, "res");
       if (res.status === 200) {
         if (selected) {
           // select value update
@@ -296,7 +312,7 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
       className={`${
         action === "Edit Scheduled Task"
           ? ""
-          : "w-[900px] mx-auto my-10 border rounded"
+          : "w-full mx-auto my-10 border rounded"
       } `}
     >
       {action === "Edit Scheduled Task" && (
@@ -306,7 +322,7 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
         </div>
       )}
       {isOpenScheduleModal === "Schedule" && (
-        <CustomModal4 className="w-[770px] h-[450px]">
+        <CustomModal4 className="w-[75vw] h-[85vh]">
           <Schedule
             schedule={schedule}
             setSchedule={setSchedule}

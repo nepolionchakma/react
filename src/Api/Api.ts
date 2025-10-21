@@ -31,6 +31,9 @@ export const flaskApi = {
   DefAsyncTaskSchedules: "/def_async_task_schedules",
   DeleteTaskParameters: "/Delete_TaskParams",
   ShowTaskParameters: "/Show_TaskParams",
+  CreateTaskSchedule: "/Create_TaskSchedule",
+  UpdateTaskSchedule: "/Update_TaskSchedule",
+  ShowAsyncTasks: "/def_async_tasks",
 };
 
 // All Node api

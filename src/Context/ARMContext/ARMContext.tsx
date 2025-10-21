@@ -124,11 +124,14 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   const getAsyncTasks = async () => {
     try {
       // setIsLoading(true);
-      const res = await api.get<IARMAsynchronousTasksTypes[]>(
-        `/arm-tasks/def_async_tasks`
-      );
-
-      return res.data ?? [];
+      const res = await loadData({
+        baseURL: FLASK_URL,
+        url: flaskApi.ShowAsyncTasks,
+        setLoading: setIsLoading,
+        accessToken: token.access_token,
+      });
+      console.log(res, "res");
+      return res ?? [];
     } catch (error) {
       if (error instanceof Error) {
         toast({ title: error.message, variant: "destructive" });
@@ -300,6 +303,12 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       const res = await api.get<IARMAsynchronousTasksParametersTypes[]>(
         `/arm-tasks/task-params/${task_name}`
       );
+      loadData({
+        baseURL: FLASK_URL,
+        url: `${flaskApi.ShowTaskParameters}/${task_name}`,
+        setLoading: setIsLoading,
+        accessToken: token.access_token,
+      });
 
       return res.data ?? [];
     } catch (error) {
