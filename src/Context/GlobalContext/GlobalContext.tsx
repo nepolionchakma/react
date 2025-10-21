@@ -11,7 +11,6 @@ import axios, { AxiosError } from "axios";
 import {
   Token,
   Users,
-  ITenantsTypes,
   IUsersInfoTypes,
   IUpdateUserTypes,
   IUserPasswordResetTypes,
@@ -65,8 +64,6 @@ interface GlobalContex {
     postData: IDataSourcePostTypes
   ) => Promise<void>;
   deleteDataSource: (id: number) => Promise<void>;
-
-  fetchTenants: () => Promise<ITenantsTypes[] | undefined>;
   combinedUser: IUsersInfoTypes | undefined;
   setCombinedUser: React.Dispatch<
     React.SetStateAction<IUsersInfoTypes | undefined>
@@ -513,17 +510,6 @@ export function GlobalContextProvider({
     }
   };
 
-  // Tenants
-  const fetchTenants = async () => {
-    try {
-      const res = await api.get<ITenantsTypes[]>(`/def-tenants`);
-
-      return res.data;
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   return (
     <GlobalContex.Provider
       value={{
@@ -544,7 +530,6 @@ export function GlobalContextProvider({
         createDataSource,
         updateDataSource,
         deleteDataSource,
-        fetchTenants,
         combinedUser,
         setCombinedUser,
         // usersInfo,
