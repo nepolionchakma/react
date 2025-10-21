@@ -39,7 +39,7 @@ import { toast } from "@/components/ui/use-toast";
 const SearchResults = () => {
   const {
     setSelectedControl,
-    fetchControls,
+    // fetchControls,
     // controlsData: data,
   } = useControlsContext();
   // const { isLoading, stateChange } = useAACContext();
@@ -99,9 +99,11 @@ const SearchResults = () => {
   };
 
   React.useEffect(() => {
-    fetchControls();
-    table.getRowModel().rows.map((row) => row.toggleSelected(false));
-    setSelectedControl([]);
+    if (stateChange) {
+      getControls(page, limit);
+      table.getRowModel().rows.map((row) => row.toggleSelected(false));
+      setSelectedControl([]);
+    }
   }, [stateChange]);
   // const data = manageAccessModels ? [...manageAccessModels] : [];
   ring.register();
@@ -193,7 +195,7 @@ const SearchResults = () => {
             placeholder="Search Control Name"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
-            className="w-[24rem] px-4 py-2"
+            className="w-[20rem] px-4 py-2"
           />
         </div>
         <div className="flex items-center gap-2">

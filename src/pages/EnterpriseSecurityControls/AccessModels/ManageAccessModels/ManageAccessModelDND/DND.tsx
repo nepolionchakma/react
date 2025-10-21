@@ -25,11 +25,9 @@ import { toast } from "@/components/ui/use-toast";
 import { Save, X } from "lucide-react";
 import DragOverlayComponent from "./DragOverlayComponent";
 import ManageAccessModelUpdate from "../Update/ManageAccessModelUpdate";
-// import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { postData, putData } from "@/Utility/funtion";
-import { AxiosError } from "axios";
 
 interface IManageAccessModelDNDProps {
   setOpenEditModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -98,7 +96,9 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     description: z.string(),
     state: z.string(),
     datasource_name: z.string(),
-    last_updated_by: z.number(),
+    type: z.string(),
+    run_status: z.string(),
+    // last_updated_by: z.number(),
   });
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -107,7 +107,9 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       description: selectedItem[0].description ?? "",
       datasource_name: selectedItem[0].datasource_name ?? "",
       state: selectedItem[0].state ?? "",
-      last_updated_by: token.user_id,
+      type: selectedItem[0].type ?? "",
+      run_status: selectedItem[0].run_status ?? "",
+      // last_updated_by: token.user_id,
     },
   });
 
@@ -297,13 +299,14 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       widget_position: item.widget_position,
       widget_state: item.widget_state,
     }));
-
+    console.log(changedAccessModel, "changedAccessModel");
     const putParams = {
       baseURL: FLASK_URL,
       url:
         flaskApi.DefAccessModels + "/" + selectedItem[0]?.def_access_model_id,
       setLoading: setIsActionLoading,
       payload: changedAccessModel,
+      accessToken: token.access_token,
     };
 
     const postAccessModelLogicsParams = {
@@ -311,6 +314,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       url: `${flaskApi.DefAccessModelLogics}/upsert`,
       setLoading: setIsActionLoading,
       payload: upsertLogics,
+      accessToken: token.access_token,
     };
 
     const postAccessModelAttributeParams = {
@@ -318,45 +322,37 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       url: `${flaskApi.DefAccessModelLogicAttributes}/upsert`,
       setLoading: setIsActionLoading,
       payload: upsertAttributes,
+      accessToken: token.access_token,
     };
-
-    try {
-      if (isChangedAccessAccessModel) {
-        const res = await putData(putParams);
-
-        if (res) {
-          setIsActionLoading(false);
-          setStateChange((prev) => prev + 1);
-          setOpenEditModal(false);
-          toast({
-            description: res.data.message,
-          });
-        }
-      }
-      if (items.length > 0) {
-        const res1 = await postData(postAccessModelLogicsParams);
-
-        if (res1.status === 200 || res1.status === 201) {
-          const res2 = await postData(postAccessModelAttributeParams);
-
-          if (res2.status === 200 || res2.status === 201) {
-            setOriginalData([...rightWidgets]);
-            setIdStateChange((prev) => prev + 1);
-            res2.data.forEach((element: { message: string }) => {
-              toast({
-                description: element.message,
-              });
-            });
-            setIsActionLoading(false);
-          }
-        }
-      }
-    } catch (error) {
-      console.error("Error occurred:", error);
-      if (error instanceof AxiosError) {
+    console.log(putParams, "putParams");
+    if (isChangedAccessAccessModel) {
+      const res = await putData(putParams);
+      console.log(res, "res");
+      if (res) {
+        setIsActionLoading(false);
+        setStateChange((prev) => prev + 1);
+        setOpenEditModal(false);
         toast({
-          description: error.response?.data.message,
+          description: res.data.message,
         });
+      }
+    }
+    if (items.length > 0) {
+      const res1 = await postData(postAccessModelLogicsParams);
+      console.log(res1, "res1");
+      if (res1.status === 200 || res1.status === 201) {
+        const res2 = await postData(postAccessModelAttributeParams);
+        console.log(res2, "res2");
+        if (res2.status === 200 || res2.status === 201) {
+          setOriginalData([...rightWidgets]);
+          setIdStateChange((prev) => prev + 1);
+          res2.data.forEach((element: { message: string }) => {
+            toast({
+              description: element.message,
+            });
+          });
+          setIsActionLoading(false);
+        }
       }
     }
   };
