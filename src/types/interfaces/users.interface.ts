@@ -147,6 +147,7 @@ export interface IUserLinkedDevices {
   location?: string;
   signon_audit?: audit[];
   signon_id: string;
+  is_online: boolean;
 }
 
 export interface IProfilesType {

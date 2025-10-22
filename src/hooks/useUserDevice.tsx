@@ -81,6 +81,7 @@ const useUserDevice = () => {
       user_agent,
       is_active: 1,
       signon_id: signonId,
+      is_online: true,
     };
     return userDevice;
   };
