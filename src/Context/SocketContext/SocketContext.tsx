@@ -121,7 +121,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       }
     };
     fetchUnreadTotalAlert();
-  }, [api, token.user_id]);
+  }, [api, token, token.user_id]);
 
   //Fetch Notification Messages
   useEffect(() => {
@@ -427,7 +427,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
         if (
           prev.some(
             (item) =>
-              item.id === device.id && item.is_active === device.is_active
+              item.id === device.id && item.is_online === device.is_online
           )
         ) {
           return prev;
@@ -438,17 +438,23 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       });
     });
 
-    socket.on("inactiveDevice", (data) => {
-      // console.log(data, "data");
+    socket.on("inactiveDevice", (data: IUserLinkedDevices) => {
+      console.log(data, "data");
       deviceSync(data);
       setLinkedDevices((prev) => {
         if (
           prev.some(
-            (item) => item.id === data.id && item.is_active === data.is_active
+            (item) => item.id === data.id && item.is_online === data.is_online
           )
         ) {
+          console.log(
+            prev.some(
+              (item) => item.id === data.id && item.is_online === data.is_online
+            )
+          );
           return prev;
         } else {
+          console.log("else");
           const removed = prev.filter((item) => item.id !== data.id);
           return [data, ...removed];
         }
@@ -520,6 +526,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     totalRecycleBinMsg,
     presentDevice,
     userId,
+    alerts,
   ]);
 
   // messages Action
