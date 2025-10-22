@@ -1,9 +1,10 @@
 import { IControlsTypes } from "@/types/interfaces/manageControls.interface";
 import { createContext, useContext, useState } from "react";
 import { toast } from "@/components/ui/use-toast";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import axios from "axios";
 import { useGlobalContext } from "../GlobalContext/GlobalContext";
+import { loadData } from "@/Utility/funtion";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
 interface IControlsProviderProps {
   children: React.ReactNode;
 }
@@ -47,7 +48,6 @@ export const useControlsContext = () => {
 export const ControlsContextProvider = ({
   children,
 }: IControlsProviderProps) => {
-  const api = useAxiosPrivate();
   const { token } = useGlobalContext();
   // const { setIsLoading } = useAACContext();
   const FLASK_ENDPOINT_URL = import.meta.env.VITE_FLASK_ENDPOINT_URL;
@@ -60,11 +60,14 @@ export const ControlsContextProvider = ({
   // Controls
   const fetchControls = async () => {
     try {
-      // setIsLoading(true);
-      const response = await api.get<IControlsTypes[]>(`/controls`);
+      const response = await loadData({
+        baseURL: FLASK_URL,
+        url: flaskApi.DefControls,
+        accessToken: token.access_token,
+      });
       if (response) {
-        setControlsData(response.data ?? []);
-        return response.data ?? [];
+        setControlsData(response ?? []);
+        return response ?? [];
       }
     } catch (error) {
       console.log(error);
@@ -136,7 +139,7 @@ export const ControlsContextProvider = ({
   const searchFilter = async (data: ISearchTypes) => {
     const allControls = await fetchControls();
 
-    const filterResult = allControls?.filter((item) => {
+    const filterResult = allControls?.filter((item: IControlsTypes) => {
       setIsLoading(true);
       // Check if each filter condition is satisfied
       const matchesControlName =

@@ -213,7 +213,7 @@ const SearchResultsTable = () => {
 
   const handleDelete = async () => {
     await Promise.all(
-      await willBeDelete.map(async (item) => {
+      willBeDelete.map(async (item) => {
         await deleteManageModelLogicAndAttributeData(
           item.def_access_model_logic_id,
           item.id
@@ -326,7 +326,7 @@ const SearchResultsTable = () => {
             placeholder="Search Model Name"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
-            className="w-[24rem] px-4 py-2 "
+            className="w-[20rem] px-4 py-2 "
           />
         </div>
         {/* Rows and Column */}

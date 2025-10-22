@@ -34,8 +34,10 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
-import { toast } from "@/components/ui/use-toast";
 import Rows from "@/components/Rows/Rows";
+import { FLASK_URL } from "@/Api/Api";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import { loadData } from "@/Utility/funtion";
 
 interface ITenantsDataProps {
   tabName: string;
@@ -56,6 +58,7 @@ export function TenancyDataTable({
   tenancyLimit,
   setTenancyLimit,
 }: ITenantsDataProps) {
+  const { token } = useGlobalContext();
   const api = useAxiosPrivate();
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [data, setData] = React.useState<ITenantsTypes[]>([]);
@@ -143,23 +146,20 @@ export function TenancyDataTable({
   }, [page, stateChanged, tenancyLimit]);
 
   React.useEffect(() => {
-    const fetch = async () => {
-      try {
-        setIsLoading(true);
-        const res = await api.get(`/def-tenants/${page}/${tenancyLimit}`);
+    const tenancyDataParams = {
+      baseURL: FLASK_URL,
+      url: `def_tenants/${page}/${tenancyLimit}`,
+      setLoading: setIsLoading,
+      accessToken: `${token.access_token}`,
+    };
 
-        setData(res.data.items);
-        setTotalPage(res.data.pages);
-      } catch (error) {
-        if (error instanceof Error) {
-          toast({ title: error.message, variant: "destructive" });
-        }
-      } finally {
-        setIsLoading(false);
-      }
+    const fetch = async () => {
+      const res = await loadData(tenancyDataParams);
+      setData(res.items);
+      setTotalPage(res.pages);
     };
     fetch();
-  }, [api, page, stateChanged, tenancyLimit]);
+  }, [api, page, stateChanged, token.access_token, tenancyLimit]);
 
   return (
     <div className="w-full">
