@@ -64,6 +64,7 @@ const ManageGlobalConditionsModal: FC<IManageGlobalConditionProps> = () => {
       datasource: datasourceOption,
       status: status,
     };
+    console.log(postPayload, "postPayload");
     const postParams = {
       baseURL: FLASK_URL,
       url: flaskApi.DefGlobalConditions,

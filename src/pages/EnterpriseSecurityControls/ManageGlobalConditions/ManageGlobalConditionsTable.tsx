@@ -232,7 +232,7 @@ const ManageGlobalConditionsTable = ({
         return (
           <div
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="min-w-[35rem] cursor-pointer"
+            className="min-w-[30rem] cursor-pointer"
           >
             Description
             <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
@@ -241,7 +241,7 @@ const ManageGlobalConditionsTable = ({
       },
 
       cell: ({ row }) => (
-        <div className="capitalize min-w-[35rem]">
+        <div className="capitalize min-w-[30rem]">
           {row.getValue("description")}
         </div>
       ),

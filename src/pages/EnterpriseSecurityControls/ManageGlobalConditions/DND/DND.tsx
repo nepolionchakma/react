@@ -304,6 +304,7 @@ const DND: FC = () => {
     try {
       if (isChangedAccessGlobalCondition) {
         const res = await putData(putParams);
+        console.log(res, "res");
         if (res) {
           setStateChange((prev) => prev + 1);
           setIsEditModalOpen(false);
@@ -315,8 +316,10 @@ const DND: FC = () => {
       }
       if (items.length > 0) {
         const res1 = await postData(postGlobalConditionLogicsParams);
+        console.log(res1, "res1");
         if (res1.status === 200 || res1.status === 201) {
           const res2 = await postData(postGlobalConditionAttributeParams);
+          console.log(res2, "res2");
           if (res2.status === 200 || res2.status === 201) {
             setOriginalData([...rightWidgets]);
             setIdStateChange((prev) => prev + 1);
