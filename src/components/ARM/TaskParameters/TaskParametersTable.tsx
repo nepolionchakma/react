@@ -92,7 +92,6 @@ export function TaskParametersTable() {
       try {
         setIsLoading(true);
         const res = await getTaskParametersLazyLoading(selectedTask.task_name);
-
         if (res) setData(res);
       } catch (error) {
         setData([]);

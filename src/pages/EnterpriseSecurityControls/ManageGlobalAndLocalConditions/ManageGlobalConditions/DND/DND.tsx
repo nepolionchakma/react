@@ -26,8 +26,10 @@ import DragOverlayComponent from "./DragOverlayComponent";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { putData, postData } from "@/Utility/funtion";
 import { AxiosError } from "axios";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 
 const DND: FC = () => {
+  const { token } = useGlobalContext();
   const {
     isLoading,
     setStateChange,
@@ -35,7 +37,7 @@ const DND: FC = () => {
     isEditModalOpen,
     setIsEditModalOpen,
     selectedManageGlobalConditionItem: selectedItem,
-    setSelectedManageGlobalConditionItem,
+    // setSelectedManageGlobalConditionItem,
     fetchManageGlobalConditionLogics,
     attrMaxId,
     isActionLoading,
@@ -276,22 +278,21 @@ const DND: FC = () => {
       widget_position: item.widget_position,
       widget_state: item.widget_state,
     }));
-
+    console.log(changedAccessGlobalCondition, "changedAccessGlobalCondition");
     const putParams = {
       baseURL: FLASK_URL,
-      url:
-        flaskApi.DefGlobalConditions +
-        "/" +
-        selectedItem[0]?.def_global_condition_id,
+      url: `${flaskApi.DefGlobalConditions}/${selectedItem[0]?.def_global_condition_id}`,
       setLoading: setIsActionLoading,
       payload: changedAccessGlobalCondition,
+      accessToken: token.access_token,
     };
-
+    console.log(putParams, "putParams");
     const postGlobalConditionLogicsParams = {
       baseURL: FLASK_URL,
       url: `${flaskApi.DefGlobalConditionLogics}/upsert`,
       setLoading: setIsActionLoading,
       payload: upsertLogics,
+      accessToken: token.access_token,
     };
 
     const postGlobalConditionAttributeParams = {
@@ -299,6 +300,7 @@ const DND: FC = () => {
       url: `${flaskApi.DefGlobalConditionLogicAttributes}/upsert`,
       setLoading: setIsActionLoading,
       payload: upsertAttributes,
+      accessToken: token.access_token,
     };
 
     try {
@@ -307,8 +309,8 @@ const DND: FC = () => {
         console.log(res, "res");
         if (res) {
           setStateChange((prev) => prev + 1);
-          setIsEditModalOpen(false);
-          setSelectedManageGlobalConditionItem([]);
+          // setIsEditModalOpen(false);
+          // setSelectedManageGlobalConditionItem([]);
           toast({
             description: res.data.message,
           });
