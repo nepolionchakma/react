@@ -8,7 +8,7 @@ import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 const Topbar = () => {
   const { open, setOpen } = useGlobalContext();
   const { socketMessage, unreadTotalAlert } = useSocketContext();
-  const uniquMessages = socketMessage.filter(
+  const uniquMessages = socketMessage?.filter(
     (item, index) =>
       index ===
       socketMessage.findIndex((obj) => obj.creation_date === item.creation_date)
@@ -72,14 +72,14 @@ const Topbar = () => {
           }
         >
           <Bell className="text-2xl" />
-          {unreadTotalAlert.length > 0 ? (
+          {unreadTotalAlert?.length > 0 ? (
             <p className="w-5 h-5 flex justify-center items-center rounded-full bg-Red-100 text-white text-sm absolute left-[28px] top-0">
-              {unreadTotalAlert.length > 9 ? (
+              {unreadTotalAlert?.length > 9 ? (
                 <span className="relative">
                   9<span className="text-[0.5rem] absolute top-0">+</span>
                 </span>
               ) : (
-                <span>{unreadTotalAlert.length}</span>
+                <span>{unreadTotalAlert?.length}</span>
               )}
             </p>
           ) : null}
@@ -99,9 +99,9 @@ const Topbar = () => {
           }
         >
           <Mail className="text-2xl" />
-          {uniquMessages.length > 0 ? (
+          {uniquMessages?.length > 0 ? (
             <p className="w-5 h-5 flex justify-center items-center rounded-full bg-Red-100 text-white text-sm absolute left-[28px] top-0">
-              {uniquMessages.length > 9 ? (
+              {uniquMessages?.length > 9 ? (
                 <span className="relative">
                   9<span className="text-[0.5rem] absolute top-0">+</span>
                 </span>

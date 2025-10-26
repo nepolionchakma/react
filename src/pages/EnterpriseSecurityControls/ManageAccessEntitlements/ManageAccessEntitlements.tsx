@@ -15,7 +15,7 @@ const ManageAccessEntitlements = () => {
   } = useManageAccessEntitlementsContext();
   return (
     <div>
-      {/* Add or Edit Action */}
+      {/* Add or Edit Access Entitlement */}
       {editManageAccessEntitlement && (
         <CustomModal3>
           <div className="flex justify-between p-2 bg-slate-300 rounded-t-lg">

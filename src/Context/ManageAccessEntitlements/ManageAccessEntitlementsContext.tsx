@@ -30,15 +30,9 @@ interface IContextTypes {
   setSelectedAccessEntitlements: Dispatch<
     SetStateAction<IManageAccessEntitlementsTypes>
   >;
-  fetchManageAccessEntitlements: (
-    page: number,
-    limit: number
-  ) => Promise<IGetReturnData>;
+  fetchManageAccessEntitlements: () => Promise<IGetReturnData>;
   fetchAccessPointsByEntitlementId: (fetchData: number) => Promise<void>;
   fetchUnLinkedAccessPointsData: (access_point_name?: string) => Promise<void>;
-  fetchAccessPointsEntitlementForDelete: (
-    def_entitlement_id: number
-  ) => Promise<IAccessPointTypes[]>;
   accessPointsData: IAccessPointTypes[];
   setAccessPointsData: Dispatch<SetStateAction<IAccessPointTypes[] | []>>;
   isLoading: boolean;
@@ -61,7 +55,9 @@ interface IContextTypes {
     id: number,
     putData: IManageAccessEntitlementsTypes
   ) => Promise<void>;
-  deleteManageAccessEntitlement: (id: number) => Promise<void>;
+  deleteManageAccessEntitlement: (
+    def_access_entitlement_id: number
+  ) => Promise<void>;
   save: number;
   setSave: Dispatch<SetStateAction<number>>;
   save2: number;
@@ -70,7 +66,6 @@ interface IContextTypes {
   setTable: Dispatch<
     SetStateAction<Table<IManageAccessEntitlementsTypes> | undefined>
   >;
-  deleteAccessPointsElement: (id: number) => Promise<number | undefined>;
   createAccessEntitlementElements: (
     def_entitlement_id: number,
     accessPointsMaxId: (number | undefined)[]
@@ -90,6 +85,10 @@ interface IContextTypes {
   setSelectedAccessEntitlementElements: Dispatch<SetStateAction<number[] | []>>;
   unLinkedAccessPoints: IAccessPointTypes[];
   isLoadingUnLinkedAccessPoints: boolean;
+  accessEntitlementsPage: number;
+  setAccessEntitlementsPage: Dispatch<SetStateAction<number>>;
+  accessEntitlementsLimit: number;
+  setAccessEntitlementsLimit: Dispatch<SetStateAction<number>>;
 }
 export const ManageAccessEntitlements = createContext<IContextTypes | null>(
   null
@@ -154,8 +153,11 @@ export const ManageAccessEntitlementsProvider = ({
   const [unLinkedAccessPoints, setUnLinkedAccessPoints] = useState<
     IAccessPointTypes[]
   >([]);
+  const [accessEntitlementsPage, setAccessEntitlementsPage] =
+    useState<number>(1);
+  const [accessEntitlementsLimit, setAccessEntitlementsLimit] = useState(4);
 
-  // Search Access Points Elements
+  // UnLinked Access Points
   const fetchUnLinkedAccessPointsData = async (access_point_name?: string) => {
     if (!token?.access_token) return;
     const isUnLinked = true;
@@ -170,6 +172,7 @@ export const ManageAccessEntitlementsProvider = ({
     setUnLinkedAccessPoints(response);
   };
 
+  // Linked Access Points
   const fetchAccessPointsByEntitlementId = useCallback(
     async (def_entitlement_id: number) => {
       if (token?.access_token && def_entitlement_id > 0) {
@@ -189,51 +192,6 @@ export const ManageAccessEntitlementsProvider = ({
     },
     [token.access_token]
   );
-
-  const fetchAccessPointsEntitlementForDelete = useCallback(
-    async (def_entitlement_id: number) => {
-      if (def_entitlement_id > 0) {
-        const response = await loadData({
-          baseURL: FLASK_URL,
-          url: `${flaskApi.DefAccessEntitlementElements}/${def_entitlement_id}`,
-          accessToken: token.access_token,
-          setLoading: setIsLoading,
-        });
-
-        const accessPointsId = response.data.map(
-          (data: IFetchAccessEntitlementElementsTypes) => data.access_point_id
-        );
-
-        // fetch access points data by IDS array
-        if (accessPointsId.length > 0) {
-          const filterAccessPointsById = await loadData({
-            baseURL: FLASK_URL,
-            url: `${flaskApi.DefAccessPoints}/access-points/id-delete?accessPoint=${accessPointsId}`,
-            accessToken: token.access_token,
-            setLoading: setIsLoading,
-          });
-          return filterAccessPointsById.data;
-        } else {
-          return [];
-        }
-      }
-    },
-    [token.access_token]
-  );
-
-  const deleteAccessPointsElement = async (id: number) => {
-    const res = await deleteData({
-      baseURL: FLASK_URL,
-      url: `${flaskApi.DefAccessPoints}/${id}`,
-      accessToken: token.access_token,
-    });
-    if (res.status === 200) {
-      toast({
-        description: `Deleted successfully.`,
-      });
-    }
-    return res.status;
-  };
 
   const fetchAccessEtitlementElenents = async () => {
     const res = await loadData({
@@ -299,37 +257,25 @@ export const ManageAccessEntitlementsProvider = ({
   };
 
   // Manage Access Entitlements && Access points element
-  const fetchManageAccessEntitlements = async (page: number, limit: number) => {
+  const fetchManageAccessEntitlements = async () => {
     const response = await loadData({
       baseURL: FLASK_URL,
-      url: `${flaskApi.DefAccessEntitlements}/search/${page}/${limit}`,
+      url: `${flaskApi.DefAccessEntitlements}/search/${accessEntitlementsPage}/${accessEntitlementsLimit}`,
       accessToken: token.access_token,
       setLoading: setIsLoading,
     });
     return response;
   };
+
   const createManageAccessEntitlements = async (
     data: IManageAccessEntitlementsTypes
   ) => {
-    const {
-      entitlement_name,
-      description,
-      comments,
-      status,
-      created_by,
-      last_updated_by,
-    } = data;
+    // data is: entitlement_name, description, comments, status, created_by, last_updated_by,
+
     const res = await postData({
       baseURL: FLASK_URL,
       url: flaskApi.DefAccessEntitlements,
-      payload: {
-        entitlement_name,
-        description,
-        comments,
-        status,
-        last_updated_by,
-        created_by,
-      },
+      payload: data,
       accessToken: token.access_token,
       setLoading: setIsLoading,
     });
@@ -347,31 +293,17 @@ export const ManageAccessEntitlementsProvider = ({
     }
     setSave((prevSave) => prevSave + 1);
   };
+
   const updateManageAccessEntitlements = async (
     id: number,
     data: IManageAccessEntitlementsTypes
   ) => {
-    const {
-      def_entitlement_id,
-      entitlement_name,
-      description,
-      comments,
-      status,
-      created_by,
-      last_updated_by,
-    } = data;
+    // data is: entitlement_name, description, comments, status, created_by, last_updated_by,
+
     const res = await putData({
       baseURL: FLASK_URL,
       url: `${flaskApi.DefAccessEntitlements}/${id}`,
-      payload: {
-        def_entitlement_id,
-        entitlement_name,
-        description,
-        comments,
-        status,
-        last_updated_by,
-        created_by,
-      },
+      payload: data,
       accessToken: token.access_token,
       setLoading: setIsLoading,
     });
@@ -390,33 +322,23 @@ export const ManageAccessEntitlementsProvider = ({
     }
     setSave((prevSave) => prevSave + 1);
   };
-  const deleteManageAccessEntitlement = async (id: number) => {
-    const response = await loadData({
+
+  const deleteManageAccessEntitlement = async (
+    def_access_entitlement_id: number
+  ) => {
+    const response = await deleteData({
       baseURL: FLASK_URL,
-      url: `${flaskApi.DefAccessEntitlements}/${id}`,
+      url: `${flaskApi.DefAccessEntitlements}/${def_access_entitlement_id}`,
       accessToken: token.access_token,
-      setLoading: setIsLoading,
     });
 
-    if (response.data.length > 0) {
-      for (const element of response.data) {
-        await deleteAccessEntitlementElement(
-          element.entitlement_id,
-          element.access_point_id
-        );
-      }
-    }
-    const res = await deleteData({
-      baseURL: FLASK_URL,
-      url: `${flaskApi.DefAccessEntitlementElements}/${id}`,
-      accessToken: token.access_token,
-    });
-    if (res.status === 200) {
+    if (response.status === 200) {
       toast({
         description: `Deleted successfully.`,
       });
+      setAccessPointsData([]);
+      setSave((prevSave) => prevSave + 1);
     }
-    setSave((prevSave) => prevSave + 1);
   };
 
   const value = {
@@ -424,7 +346,6 @@ export const ManageAccessEntitlementsProvider = ({
     selectedAccessEntitlements,
     setSelectedAccessEntitlements,
     fetchAccessPointsByEntitlementId,
-    fetchAccessPointsEntitlementForDelete,
     fetchUnLinkedAccessPointsData,
     accessPointsData,
     setAccessPointsData,
@@ -448,7 +369,6 @@ export const ManageAccessEntitlementsProvider = ({
     setSave2,
     table,
     setTable,
-    deleteAccessPointsElement,
     createAccessEntitlementElements,
     deleteAccessEntitlementElement,
     editAccessPoint,
@@ -460,6 +380,10 @@ export const ManageAccessEntitlementsProvider = ({
     setSelectedAccessEntitlementElements,
     unLinkedAccessPoints,
     isLoadingUnLinkedAccessPoints,
+    accessEntitlementsPage,
+    setAccessEntitlementsPage,
+    accessEntitlementsLimit,
+    setAccessEntitlementsLimit,
   };
 
   return (
