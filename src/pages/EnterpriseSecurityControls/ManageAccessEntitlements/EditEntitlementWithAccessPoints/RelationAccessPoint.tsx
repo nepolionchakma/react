@@ -46,14 +46,12 @@ const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
     }, 1000);
 
     return () => clearTimeout(delayDebounce);
-  }, [query.isEmpty]);
+  }, [query.value]);
 
   const handleQueryChange = (e: ChangeEvent<HTMLInputElement>) => {
     setQuery({ isEmpty: true, value: e.target.value });
   };
-  const filterdAccessPoints = unLinkedAccessPoints.filter((item) =>
-    item.access_point_name.toLowerCase().includes(query.value.toLowerCase())
-  );
+
   const handleSelect = (selectItem: IAccessPointTypes) => {
     setSelectedItem((prevSelected) => {
       const isSelected = prevSelected.some(
@@ -86,6 +84,7 @@ const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
 
   const handleAdd = async () => {
     const selectedIds = selectedItem?.map((item) => item.def_access_point_id);
+    setQuery({ isEmpty: false, value: "" });
     await createAccessEntitlementElements(
       selectedManageAccessEntitlements?.def_entitlement_id
         ? selectedManageAccessEntitlements.def_entitlement_id
@@ -96,6 +95,7 @@ const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
   };
 
   const handleRemoveAccessEntitlementElements = () => {
+    setQuery({ isEmpty: false, value: "" });
     deleteAccessEntitlementElement(
       selectedManageAccessEntitlements?.def_entitlement_id
         ? selectedManageAccessEntitlements.def_entitlement_id
@@ -139,14 +139,14 @@ const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
                 ) : null}
               </span>
             )}
-            {filterdAccessPoints.length === 0 &&
+            {unLinkedAccessPoints.length === 0 &&
               !isLoadingUnLinkedAccessPoints && <div>No results.</div>}
             {isLoadingUnLinkedAccessPoints ? (
               <div className="flex justify-center mt-5">
                 <Spinner color="black" size="40" />
               </div>
             ) : (
-              filterdAccessPoints?.map((item) => (
+              unLinkedAccessPoints?.map((item) => (
                 <div
                   onClick={() => handleSelect(item)}
                   key={item.def_access_point_id}
@@ -167,48 +167,7 @@ const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
             )}
           </div>
         </div>
-        <div className="flex items-center justify-between py-4">
-          <div className="flex flex-col gap-2">
-            <>
-              <Button onClick={handleAdd} disabled={selectedItem?.length === 0}>
-                <h3>Add</h3>
-              </Button>
-              <Button
-                disabled={selectedItem?.length === 0}
-                onClick={handleRemoveSeletedItems}
-              >
-                <h3>Cancel</h3>
-              </Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button
-                    disabled={selectedAccessEntitlementElements?.length === 0}
-                  >
-                    Remove
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>
-                      Are you absolutely sure?
-                    </AlertDialogTitle>
-                    <AlertDialogDescription>
-                      This action will remove selected Access Point.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction
-                      onClick={handleRemoveAccessEntitlementElements}
-                    >
-                      Continue
-                    </AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
-            </>
-          </div>
-        </div>
+
         {/* w-[calc(100%-11rem)] */}
         <div className="w-[calc(100%-11rem)] relative scrollbar-thin border rounded-sm p-3 overflow-y-scroll">
           <div className="rounded-sm scrollbar-thin flex flex-wrap justify-end gap-2">
@@ -232,6 +191,44 @@ const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
           </div>
         </div>
       </div>
+      {/* <div className="flex items-center justify-between py-4"> */}
+      <div className="flex gap-2 my-2">
+        <Button
+          onClick={handleAdd}
+          disabled={selectedItem?.length === 0}
+          className="h-8"
+        >
+          <h3>Add</h3>
+        </Button>
+
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button
+              disabled={selectedAccessEntitlementElements?.length === 0}
+              className="h-8"
+            >
+              Remove
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action will be remove selected Access Point.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleRemoveAccessEntitlementElements}
+              >
+                Continue
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </div>
+      {/* </div> */}
     </div>
   );
 };

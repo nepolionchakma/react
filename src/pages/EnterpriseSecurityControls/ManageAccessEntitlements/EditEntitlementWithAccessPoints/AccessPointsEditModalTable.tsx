@@ -81,7 +81,7 @@ const AccessPointsEditModal = () => {
   return (
     <div className="w-full">
       {/* Top  */}
-      <div className="mb-4">
+      <div className="">
         <RelationAccessPoint tableRow={tableRow} />
       </div>
       {/* Bottom Table */}
