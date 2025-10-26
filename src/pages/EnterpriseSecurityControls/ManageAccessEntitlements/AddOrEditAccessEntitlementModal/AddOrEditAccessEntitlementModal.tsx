@@ -166,7 +166,7 @@ const AddOrEditAccessEntitlementModal: FC<IManageAccessEntitlementsProps> = ({
                 <FormLabel>Status</FormLabel>
                 <Select
                   required
-                  defaultValue={field.value}
+                  value={field.value}
                   onValueChange={field.onChange}
                 >
                   <FormControl>
@@ -175,8 +175,8 @@ const AddOrEditAccessEntitlementModal: FC<IManageAccessEntitlementsProps> = ({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="ACTIVE">Active</SelectItem>
+                    <SelectItem value="INACTIVE">Inactive</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
