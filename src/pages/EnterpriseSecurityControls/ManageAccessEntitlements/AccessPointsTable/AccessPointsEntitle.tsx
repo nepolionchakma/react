@@ -5,8 +5,8 @@ import AccessPointsEntitleModal from "./CreateAccessPointsEntitleModal";
 import AccessPointsEntitleTable from "./AccessPointsEntitleTable";
 import { X } from "lucide-react";
 import AccessPointsEditModal from "../EditEntitlementWithAccessPoints/AccessPointsEditModalTable";
-import CustomModal1 from "@/components/CustomModal/CustomModal1";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import CustomModal4 from "@/components/CustomModal/CustomModal4";
 
 const AccessPointsEntitle = () => {
   const { isOpenModal, setIsOpenModal } = useGlobalContext();
@@ -18,51 +18,46 @@ const AccessPointsEntitle = () => {
   // };
   return (
     <div>
-      <div>
-        <AccessPointsEntitleTable />
-        {/* Modal */}
-        <div>
-          {isOpenModal === "access_points" && (
-            <CustomModal1>
-              <div className="flex justify-between p-2 bg-slate-300 rounded-t-lg">
-                <h2 className="text-lg font-bold capitalize">
-                  Entitlement Name :{" "}
-                  {selectedManageAccessEntitlements?.entitlement_name}
-                </h2>
-                <X
-                  onClick={() => {
-                    setIsOpenModal("");
-                  }}
-                  className="cursor-pointer"
-                />
-              </div>
-              {/* Card start */}
-              <div className="p-4">
-                <AccessPointsEditModal />
-              </div>
-            </CustomModal1>
-          )}
-        </div>
-        <div>
-          {isOpenModal === "create_access_point" && (
-            <CustomModal3>
-              <div className="flex justify-between p-2 bg-slate-300 rounded-t-lg">
-                <h2 className="text-lg font-bold">Add Access Point</h2>
-                <X
-                  onClick={() => {
-                    setIsOpenModal("");
-                  }}
-                  className="cursor-pointer"
-                />
-              </div>
-              {/* Card start */}
-              <div className="px-6 py-4">
-                <AccessPointsEntitleModal />
-              </div>
-            </CustomModal3>
-          )}
-        </div>
-      </div>
+      {/* Modal access points */}
+      {isOpenModal === "access_points" && (
+        <CustomModal4 className="w-[70vw] h-[80vh]">
+          <div className="flex justify-between p-2 bg-slate-300 rounded-t-lg">
+            <h2 className="text-lg font-bold capitalize">
+              Add Access Point to:{" "}
+              {selectedManageAccessEntitlements?.entitlement_name} Entitlement
+            </h2>
+            <X
+              onClick={() => {
+                setIsOpenModal("");
+              }}
+              className="cursor-pointer"
+            />
+          </div>
+          {/* Card start */}
+          <div className="p-4">
+            <AccessPointsEditModal />
+          </div>
+        </CustomModal4>
+      )}
+      {/* Modal create access points */}
+      {isOpenModal === "create_access_point" && (
+        <CustomModal3>
+          <div className="flex justify-between p-2 bg-slate-300 rounded-t-lg">
+            <h2 className="text-lg font-bold">Add Access Point</h2>
+            <X
+              onClick={() => {
+                setIsOpenModal("");
+              }}
+              className="cursor-pointer"
+            />
+          </div>
+          {/* Card start */}
+          <div className="px-6 py-4">
+            <AccessPointsEntitleModal />
+          </div>
+        </CustomModal3>
+      )}
+      <AccessPointsEntitleTable />
     </div>
   );
 };

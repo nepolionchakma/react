@@ -220,7 +220,7 @@ const SearchResults = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="max-h-72 overflow-y-auto"
+              className="max-h-72 overflow-y-auto scrollbar-thin"
             >
               {table
                 .getAllColumns()
