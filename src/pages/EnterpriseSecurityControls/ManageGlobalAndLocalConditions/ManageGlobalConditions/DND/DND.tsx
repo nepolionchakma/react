@@ -64,23 +64,21 @@ const DND: FC = () => {
 
   useEffect(() => {
     const fetchDataFunc = async () => {
-      try {
-        const fetchData = await fetchManageGlobalConditionLogics(
-          selectedItem[0]?.def_global_condition_id
-        );
+      const fetchData = await fetchManageGlobalConditionLogics(
+        selectedItem[0]?.def_global_condition_id
+      );
 
+      if (fetchData) {
         const sortedData = fetchData?.sort(
           (a, b) => a.widget_position - b.widget_position
         );
 
         setRightWidgets(sortedData as Extend[]);
         setOriginalData(sortedData as Extend[]);
-      } catch (error) {
-        console.log(error);
       }
     };
     fetchDataFunc();
-  }, []);
+  }, [fetchManageGlobalConditionLogics, selectedItem]);
 
   //Top Form Start
   const FormSchema = z.object({
@@ -278,7 +276,6 @@ const DND: FC = () => {
       widget_position: item.widget_position,
       widget_state: item.widget_state,
     }));
-    console.log(changedAccessGlobalCondition, "changedAccessGlobalCondition");
     const putParams = {
       baseURL: FLASK_URL,
       url: `${flaskApi.DefGlobalConditions}/${selectedItem[0]?.def_global_condition_id}`,
@@ -286,7 +283,6 @@ const DND: FC = () => {
       payload: changedAccessGlobalCondition,
       accessToken: token.access_token,
     };
-    console.log(putParams, "putParams");
     const postGlobalConditionLogicsParams = {
       baseURL: FLASK_URL,
       url: `${flaskApi.DefGlobalConditionLogics}/upsert`,
@@ -306,7 +302,6 @@ const DND: FC = () => {
     try {
       if (isChangedAccessGlobalCondition) {
         const res = await putData(putParams);
-        console.log(res, "res");
         if (res) {
           setStateChange((prev) => prev + 1);
           // setIsEditModalOpen(false);
@@ -318,10 +313,8 @@ const DND: FC = () => {
       }
       if (items.length > 0) {
         const res1 = await postData(postGlobalConditionLogicsParams);
-        console.log(res1, "res1");
         if (res1.status === 200 || res1.status === 201) {
           const res2 = await postData(postGlobalConditionAttributeParams);
-          console.log(res2, "res2");
           if (res2.status === 200 || res2.status === 201) {
             setOriginalData([...rightWidgets]);
             setIdStateChange((prev) => prev + 1);

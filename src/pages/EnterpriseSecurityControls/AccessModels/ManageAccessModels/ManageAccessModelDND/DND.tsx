@@ -74,21 +74,19 @@ const DND: FC<IManageAccessModelDNDProps> = ({
 
   useEffect(() => {
     const fetchDataFunc = async () => {
-      try {
-        const fetchData = await fetchDefAccessModelLogics(
-          selectedItem[0].def_access_model_id ?? 0
-        );
+      const fetchData = await fetchDefAccessModelLogics(
+        selectedItem[0].def_access_model_id ?? 0
+      );
+      if (fetchData) {
         const sortedData = fetchData?.sort(
           (a, b) => a.widget_position - b.widget_position
         );
         setRightWidgets(sortedData as Extend[]);
         setOriginalData(sortedData as Extend[]);
-      } catch (error) {
-        console.log(error);
       }
     };
     fetchDataFunc();
-  }, []);
+  }, [fetchDefAccessModelLogics, selectedItem]);
 
   //Top Form Start
   const FormSchema = z.object({
@@ -299,7 +297,6 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       widget_position: item.widget_position,
       widget_state: item.widget_state,
     }));
-    console.log(changedAccessModel, "changedAccessModel");
     const putParams = {
       baseURL: FLASK_URL,
       url:
@@ -324,10 +321,8 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       payload: upsertAttributes,
       accessToken: token.access_token,
     };
-    console.log(putParams, "putParams");
     if (isChangedAccessAccessModel) {
       const res = await putData(putParams);
-      console.log(res, "res");
       if (res) {
         setIsActionLoading(false);
         setStateChange((prev) => prev + 1);
@@ -339,10 +334,8 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     }
     if (items.length > 0) {
       const res1 = await postData(postAccessModelLogicsParams);
-      console.log(res1, "res1");
       if (res1.status === 200 || res1.status === 201) {
         const res2 = await postData(postAccessModelAttributeParams);
-        console.log(res2, "res2");
         if (res2.status === 200 || res2.status === 201) {
           setOriginalData([...rightWidgets]);
           setIdStateChange((prev) => prev + 1);
