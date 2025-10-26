@@ -100,8 +100,6 @@ const ManageGlobalConditionsTable = ({
     IManageGlobalConditionLogicExtendTypes[]
   >([]);
 
-  console.log(selectedGlobalIds);
-
   useEffect(() => {
     fetchDataSource();
   }, []);
@@ -232,7 +230,7 @@ const ManageGlobalConditionsTable = ({
         return (
           <div
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="min-w-[35rem] cursor-pointer"
+            className="min-w-[30rem] cursor-pointer"
           >
             Description
             <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
@@ -241,7 +239,7 @@ const ManageGlobalConditionsTable = ({
       },
 
       cell: ({ row }) => (
-        <div className="capitalize min-w-[35rem]">
+        <div className="capitalize min-w-[30rem]">
           {row.getValue("description")}
         </div>
       ),
@@ -405,7 +403,7 @@ const ManageGlobalConditionsTable = ({
           >
             <span className="flex flex-col items-start gap-1">
               {isLoading ? (
-                <span className="block">
+                <span className="w-full h-[10rem] flex items-center justify-center ">
                   <l-tailspin
                     size="40"
                     stroke="5"

@@ -1,12 +1,11 @@
-import { IDataSourceTypes } from "@/types/interfaces/datasource.interface";
-import { IFetchAccessPointsElementTypes } from "@/types/interfaces/ManageAccessEntitlements.interface";
+import { IAccessPointTypes } from "@/types/interfaces/ManageAccessEntitlements.interface";
 
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Check, X } from "lucide-react";
 
-const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
+const columns: ColumnDef<IAccessPointTypes>[] = [
   {
-    accessorKey: "element_name",
+    accessorKey: "access_point_name",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
       const a = rowA.getValue(columnId) as string;
@@ -20,7 +19,7 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
           className="min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Element Name
+          Access Point Name
           <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
         </div>
       );
@@ -28,7 +27,7 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
     cell: ({ row }) => {
       return (
         <div className="capitalize min-w-max">
-          {row.getValue("element_name")}
+          {row.getValue("access_point_name")}
         </div>
       );
     },
@@ -61,7 +60,7 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
     ),
   },
   {
-    accessorKey: "dataSource",
+    accessorKey: "datasource_name",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
       const a = rowA.getValue(columnId) as string;
@@ -75,17 +74,16 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="min-w-max cursor-pointer"
         >
-          Datasource
+          Datasource Name
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
         </div>
       );
     },
 
     cell: ({ row }) => {
-      const dataSource: IDataSourceTypes = row.getValue("dataSource");
       return (
         <div className="capitalize min-w-max">
-          {dataSource?.datasource_name}
+          {row.getValue("datasource_name")}
         </div>
       );
     },
@@ -115,7 +113,7 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
     ),
   },
   {
-    accessorKey: "element_type",
+    accessorKey: "access_point_type",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
       const a = rowA.getValue(columnId) as string;
@@ -129,7 +127,7 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="min-w-[8rem] cursor-pointer"
         >
-          Element Type
+          Access Point Type
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
         </div>
       );
@@ -137,7 +135,7 @@ const columns: ColumnDef<IFetchAccessPointsElementTypes>[] = [
 
     cell: ({ row }) => (
       <div className="capitalize min-w-[8rem]">
-        {row.getValue("element_type")}
+        {row.getValue("access_point_type")}
       </div>
     ),
   },

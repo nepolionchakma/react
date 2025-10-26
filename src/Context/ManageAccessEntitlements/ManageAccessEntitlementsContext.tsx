@@ -1,11 +1,8 @@
 import { toast } from "@/components/ui/use-toast";
 import {
-  ICreateAccessPointsElementTypes,
-  IFetchAccessPointsElementTypes,
+  IAccessPointTypes,
   IFetchAccessEntitlementElementsTypes,
   IManageAccessEntitlementsTypes,
-  IManageAccessEntitlementsPerPageTypes,
-  IFetchCombinedAccessPointsElementAndDatasourceTypes,
 } from "@/types/interfaces/ManageAccessEntitlements.interface";
 import {
   createContext,
@@ -16,9 +13,15 @@ import {
   useState,
 } from "react";
 import { useGlobalContext } from "../GlobalContext/GlobalContext";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { Table } from "@tanstack/react-table";
-import { AxiosResponse } from "axios";
+import { deleteData, loadData, postData, putData } from "@/Utility/funtion";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+interface IGetReturnData {
+  items: [];
+  page: number;
+  pages: number;
+  total: number;
+}
 interface IManageAccessEntitlementsProviderProps {
   children: React.ReactNode;
 }
@@ -30,35 +33,23 @@ interface IContextTypes {
   fetchManageAccessEntitlements: (
     page: number,
     limit: number
-  ) => Promise<IManageAccessEntitlementsPerPageTypes | undefined>;
-  fetchAccessPointsEntitlement: (
-    fetchData: IManageAccessEntitlementsTypes
-  ) => Promise<void>;
-  getSearchAccessPointElementsLazyLoading: (
-    page: number,
-    limit: number,
-    element_name: string
-  ) => Promise<IFetchAccessPointsElementTypes[] | undefined>;
+  ) => Promise<IGetReturnData>;
+  fetchAccessPointsByEntitlementId: (fetchData: number) => Promise<void>;
+  fetchUnLinkedAccessPointsData: (access_point_name?: string) => Promise<void>;
   fetchAccessPointsEntitlementForDelete: (
-    fetchData: IManageAccessEntitlementsTypes
-  ) => Promise<IFetchAccessPointsElementTypes[]>;
-  filteredData: IFetchCombinedAccessPointsElementAndDatasourceTypes[];
-  setFilteredData: Dispatch<
-    SetStateAction<IFetchCombinedAccessPointsElementAndDatasourceTypes[] | []>
-  >;
+    def_entitlement_id: number
+  ) => Promise<IAccessPointTypes[]>;
+  accessPointsData: IAccessPointTypes[];
+  setAccessPointsData: Dispatch<SetStateAction<IAccessPointTypes[] | []>>;
   isLoading: boolean;
   isLoadingAccessPoints: boolean;
-  selectedAccessPoints: ICreateAccessPointsElementTypes[];
-  setSelectedAccessPoints: Dispatch<
-    SetStateAction<ICreateAccessPointsElementTypes[]>
-  >;
+  setIsLoadingAccessPoints: Dispatch<SetStateAction<boolean>>;
+  selectedAccessPoints: IAccessPointTypes[];
+  setSelectedAccessPoints: Dispatch<SetStateAction<IAccessPointTypes[]>>;
   selectedManageAccessEntitlements: IManageAccessEntitlementsTypes | undefined;
   setSelectedManageAccessEntitlements: Dispatch<
     SetStateAction<IManageAccessEntitlementsTypes | undefined>
   >;
-  createAccessPointsEntitlement: (
-    postData: ICreateAccessPointsElementTypes
-  ) => Promise<number | undefined>;
   editManageAccessEntitlement: boolean;
   setEditManageAccessEntitlement: Dispatch<SetStateAction<boolean>>;
   mangeAccessEntitlementAction: string;
@@ -85,30 +76,20 @@ interface IContextTypes {
     accessPointsMaxId: (number | undefined)[]
   ) => Promise<void>;
   deleteAccessEntitlementElement: (
-    entitlementId: number,
-    accessPointId: number
+    def_entitlement_id: number,
+    accessPointIds: (number | undefined)[]
   ) => Promise<void>;
   editAccessPoint: boolean;
   setEditAccessPoint: Dispatch<SetStateAction<boolean>>;
   accessPointStatus: string;
   setAccessPointStatus: Dispatch<SetStateAction<string>>;
-  fetchAccessPointsData: () => Promise<
-    IFetchAccessPointsElementTypes[] | undefined
-  >;
   fetchAccessEtitlementElenents: () => Promise<
     IFetchAccessEntitlementElementsTypes[] | [] | undefined
   >;
-  accessPoints: ICreateAccessPointsElementTypes[] | undefined;
   selectedAccessEntitlementElements: number[];
   setSelectedAccessEntitlementElements: Dispatch<SetStateAction<number[] | []>>;
-  //lazy loading
-  page: number;
-  setPage: Dispatch<SetStateAction<number>>;
-  totalPage: number;
-  setTotalPage: Dispatch<SetStateAction<number>>;
-  currentPage: number;
-  limit: number;
-  setLimit: Dispatch<SetStateAction<number>>;
+  unLinkedAccessPoints: IAccessPointTypes[];
+  isLoadingUnLinkedAccessPoints: boolean;
 }
 export const ManageAccessEntitlements = createContext<IContextTypes | null>(
   null
@@ -123,16 +104,12 @@ export const useManageAccessEntitlementsContext = () => {
 export const ManageAccessEntitlementsProvider = ({
   children,
 }: IManageAccessEntitlementsProviderProps) => {
-  const api = useAxiosPrivate();
-  const { combinedUser } = useGlobalContext();
+  const { token } = useGlobalContext();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isLoadingAccessPoints, setIsLoadingAccessPoints] =
     useState<boolean>(false);
-  const [page, setPage] = useState<number>(1);
-  const [limit, setLimit] = useState<number>(5);
-  const [totalPage, setTotalPage] = useState<number>(1);
-  const [currentPage, setCurrentPage] = useState<number>(1);
-  const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
+  const [isLoadingUnLinkedAccessPoints, setIsLoadingUnLinkedAccessPoints] =
+    useState<boolean>(true);
 
   const [selectedAccessEntitlements, setSelectedAccessEntitlements] =
     useState<IManageAccessEntitlementsTypes>({
@@ -149,11 +126,11 @@ export const ManageAccessEntitlementsProvider = ({
       last_updated_by: 0,
       created_by: 0,
     });
-  const [filteredData, setFilteredData] = useState<
-    IFetchCombinedAccessPointsElementAndDatasourceTypes[]
-  >([]);
+  const [accessPointsData, setAccessPointsData] = useState<IAccessPointTypes[]>(
+    []
+  );
   const [selectedAccessPoints, setSelectedAccessPoints] = useState<
-    ICreateAccessPointsElementTypes[]
+    IAccessPointTypes[]
   >([]);
   const [
     selectedManageAccessEntitlements,
@@ -170,301 +147,169 @@ export const ManageAccessEntitlementsProvider = ({
   >();
   const [editAccessPoint, setEditAccessPoint] = useState<boolean>(false);
   const [accessPointStatus, setAccessPointStatus] = useState<string>("");
-  const [accessPoints, setAccessPoints] = useState<
-    ICreateAccessPointsElementTypes[] | undefined
-  >([]);
   const [
     selectedAccessEntitlementElements,
     setSelectedAccessEntitlementElements,
   ] = useState<number[]>([]);
-
-  // Access points element
-  const fetchAccessPointsData = async () => {
-    setIsLoading(true);
-    try {
-      const response = await api.get<IFetchAccessPointsElementTypes[]>(
-        `/def-access-point-elements`
-      );
-      setAccessPoints(response.data);
-      return response.data;
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [unLinkedAccessPoints, setUnLinkedAccessPoints] = useState<
+    IAccessPointTypes[]
+  >([]);
 
   // Search Access Points Elements
-  const getSearchAccessPointElementsLazyLoading = async (
-    page: number,
-    limit: number,
-    element_name: string
-  ) => {
-    try {
-      setIsLoading(true);
-      const resultLazyLoading = await api.get(
-        `/def-access-point-elements/search/${page}/${limit}?element_name=${element_name}`
-      );
-      setTotalPage(resultLazyLoading.data.pages);
-
-      return resultLazyLoading.data.items;
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
+  const fetchUnLinkedAccessPointsData = async (access_point_name?: string) => {
+    if (!token?.access_token) return;
+    const isUnLinked = true;
+    const response = await loadData({
+      baseURL: FLASK_URL,
+      url: `${
+        flaskApi.DefAccessPointsView
+      }?unlinked=${isUnLinked}&access_point_name=${access_point_name ?? ""}`,
+      setLoading: setIsLoadingUnLinkedAccessPoints,
+      accessToken: token?.access_token,
+    });
+    setUnLinkedAccessPoints(response);
   };
 
-  const fetchAccessPointsEntitlement = useCallback(
-    async (fetchData: IManageAccessEntitlementsTypes) => {
-      setIsLoading(true);
-      try {
-        if (fetchData.def_entitlement_id) {
-          const response = await api.get<
-            IFetchAccessEntitlementElementsTypes[]
-          >(`/access-entitlement-elements/${fetchData.def_entitlement_id}`);
+  const fetchAccessPointsByEntitlementId = useCallback(
+    async (def_entitlement_id: number) => {
+      if (token?.access_token && def_entitlement_id > 0) {
+        const response = await loadData({
+          baseURL: FLASK_URL,
+          url: `${flaskApi.DefAccessPointsView}?def_entitlement_id=${def_entitlement_id}`,
+          setLoading: setIsLoadingAccessPoints,
+          accessToken: token.access_token,
+        });
 
-          const accessPointsId = response.data.map(
-            (data) => data.access_point_id
-          );
-
-          if (accessPointsId.length === 0) {
-            setFilteredData([]);
-          } else {
-            const filterAccessPointsById = await api.get(
-              `/def-access-point-elements/accesspoints?accessPointsId=${accessPointsId}`
-            );
-
-            const totalCount = response.data.length;
-            const totalPages = Math.ceil(totalCount / limit);
-
-            setTotalPage(totalPages);
-            setCurrentPage(currentPage);
-            setFilteredData(
-              filterAccessPointsById.data as IFetchCombinedAccessPointsElementAndDatasourceTypes[]
-            );
-          }
-
-          // fetch access points data by IDS array
+        if (response.message) {
+          setAccessPointsData([]);
         } else {
-          setFilteredData([]);
+          setAccessPointsData(response);
         }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoading(false);
       }
     },
-    [api, currentPage, limit, page]
+    [token.access_token]
   );
+
   const fetchAccessPointsEntitlementForDelete = useCallback(
-    async (fetchData: IManageAccessEntitlementsTypes) => {
-      try {
-        if (fetchData) {
-          const response = await api.get<
-            IFetchAccessEntitlementElementsTypes[]
-          >(`/access-entitlement-elements/${fetchData.def_entitlement_id}`);
+    async (def_entitlement_id: number) => {
+      if (def_entitlement_id > 0) {
+        const response = await loadData({
+          baseURL: FLASK_URL,
+          url: `${flaskApi.DefAccessEntitlementElements}/${def_entitlement_id}`,
+          accessToken: token.access_token,
+          setLoading: setIsLoading,
+        });
 
-          const accessPointsId = response.data.map(
-            (data) => data.access_point_id
-          );
+        const accessPointsId = response.data.map(
+          (data: IFetchAccessEntitlementElementsTypes) => data.access_point_id
+        );
 
-          // fetch access points data by IDS array
-          if (accessPointsId.length > 0) {
-            const filterAccessPointsById = await api.get(
-              `/def-access-point-elements/access-points/id-delete?accessPoint=${accessPointsId}`
-            );
-            console.log(
-              `/def-access-point-elements/access-points/id-delete?accessPoint=${accessPointsId}`
-            );
-            return filterAccessPointsById.data;
-          } else {
-            return [];
-          }
+        // fetch access points data by IDS array
+        if (accessPointsId.length > 0) {
+          const filterAccessPointsById = await loadData({
+            baseURL: FLASK_URL,
+            url: `${flaskApi.DefAccessPoints}/access-points/id-delete?accessPoint=${accessPointsId}`,
+            accessToken: token.access_token,
+            setLoading: setIsLoading,
+          });
+          return filterAccessPointsById.data;
+        } else {
+          return [];
         }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoading(false);
       }
     },
-    [api]
+    [token.access_token]
   );
-  const createAccessPointsEntitlement = async (
-    postData: ICreateAccessPointsElementTypes
-  ) => {
-    const {
-      def_data_source_id,
-      element_name,
-      description,
-      platform,
-      element_type,
-      access_control,
-      change_control,
-      audit,
-      created_by,
-      last_updated_by,
-    } = postData;
-    try {
-      setIsLoading(true);
-      const res = await api.post<ICreateAccessPointsElementTypes>(
-        `/def-access-point-elements`,
-        {
-          def_data_source_id,
-          element_name,
-          description,
-          platform,
-          element_type,
-          access_control,
-          change_control,
-          audit,
-          created_by,
-          last_updated_by,
-        }
-      );
-      // setSave((prevSave) => prevSave + 1);
-      if (res.status === 201) {
-        toast({
-          description: `Added successfully.`,
-        });
-        setSave2((prevSave) => prevSave + 1);
-      }
-      return res.status;
-    } catch (error) {
-      if (error instanceof Error) {
-        console.log(error.message);
-        toast({
-          description: `Failed: ${error.message}`,
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setIsLoading(false);
-      setSave2((prevSave) => prevSave + 1);
-    }
-  };
+
   const deleteAccessPointsElement = async (id: number) => {
-    try {
-      const res = await api.delete(`/def-access-point-elements/${id}`, {
-        baseURL: flaskUrl, // Overrides the default baseURL
+    const res = await deleteData({
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefAccessPoints}/${id}`,
+      accessToken: token.access_token,
+    });
+    if (res.status === 200) {
+      toast({
+        description: `Deleted successfully.`,
       });
-      if (res.status === 200) {
-        toast({
-          description: `Deleted successfully.`,
-        });
-      }
-      // setSave((prevSave) => prevSave + 1);
-      return res.status;
-    } catch (error) {
-      console.log(error);
     }
+    return res.status;
   };
+
   const fetchAccessEtitlementElenents = async () => {
-    const res = await api.get<IFetchAccessEntitlementElementsTypes[]>(
-      `/access-entitlement-elements`
-    );
+    const res = await loadData({
+      baseURL: FLASK_URL,
+      url: flaskApi.DefAccessPoints,
+      accessToken: token.access_token,
+      setLoading: setIsLoading,
+    });
     return res.data;
   };
 
   // Access entitlement elements
   const createAccessEntitlementElements = async (
     def_entitlement_id: number,
-    accessPointsMaxId: (number | undefined)[]
+    accessPointIds: (number | undefined)[]
   ) => {
-    try {
-      setIsLoadingAccessPoints(true);
-      for (const id of accessPointsMaxId) {
-        const response: AxiosResponse<IFetchAccessEntitlementElementsTypes> =
-          await api.post<IFetchAccessEntitlementElementsTypes>(
-            `/access-entitlement-elements`,
-            {
-              entitlement_id: def_entitlement_id,
-              access_point_id: id,
-              created_by: combinedUser?.user_name,
-              last_updated_by: combinedUser?.user_name,
-            }
-          );
+    const response = await postData({
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefAccessEntitlementElements}/${def_entitlement_id}`,
+      payload: {
+        def_access_point_ids: accessPointIds,
+      },
+      accessToken: token.access_token,
+      setLoading: setIsLoadingUnLinkedAccessPoints,
+    });
 
-        if (response.status === 201) {
-          toast({
-            description: `${
-              selectedManageAccessEntitlements?.def_entitlement_id
-                ? `Data added successfully to ${selectedManageAccessEntitlements?.entitlement_name}`
-                : "Data added successfully"
-            } `,
-          });
-        }
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({
-          title: error.message,
-        });
-      }
-    } finally {
-      setIsLoadingAccessPoints(false);
+    if (response.status === 201) {
+      toast({
+        description: `${
+          selectedManageAccessEntitlements?.def_entitlement_id
+            ? `Data added successfully to ${selectedManageAccessEntitlements?.entitlement_name}`
+            : "Data added successfully"
+        } `,
+      });
+      await fetchUnLinkedAccessPointsData();
+      await fetchAccessPointsByEntitlementId(
+        selectedAccessEntitlements.def_entitlement_id
+      );
     }
-
-    fetchAccessPointsEntitlement(selectedAccessEntitlements);
   };
+
   const deleteAccessEntitlementElement = async (
-    entitlementId: number,
-    accessPointId: number
+    def_entitlement_id: number,
+    accessPointIds: (number | undefined)[]
   ) => {
-    setIsLoadingAccessPoints(true);
-    try {
-      await Promise.all([
-        await api
-          .delete(
-            `/access-entitlement-elements/${entitlementId}/${accessPointId}`
-          )
-          .then((res) => {
-            if (res.status === 200) {
-              toast({
-                description: `Deleted successfully.`,
-              });
-            }
-          })
-          .catch((error) => {
-            if (error instanceof Error) {
-              toast({
-                title: error.message,
-              });
-            }
-          })
-          .finally(() => {
-            fetchAccessPointsEntitlementForDelete(selectedAccessEntitlements);
-          }),
-        // await api.delete(`/access-points-element/${accessPointId}`),
-      ]);
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({
-          title: error.message,
-        });
-      }
-    } finally {
-      setIsLoadingAccessPoints(false);
+    const res = await deleteData({
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefAccessEntitlementElements}/${def_entitlement_id}`,
+      payload: {
+        def_access_point_ids: accessPointIds,
+      },
+      accessToken: token.access_token,
+    });
+    if (res.status === 200) {
+      toast({
+        description: `Removed successfully.`,
+      });
+      await fetchUnLinkedAccessPointsData();
+      await fetchAccessPointsByEntitlementId(
+        selectedAccessEntitlements.def_entitlement_id
+      );
     }
   };
 
   // Manage Access Entitlements && Access points element
   const fetchManageAccessEntitlements = async (page: number, limit: number) => {
-    setIsLoading(true);
-    try {
-      const response = await api.get<IManageAccessEntitlementsPerPageTypes>(
-        `/def-access-entitlements/${page}/${limit}`
-      );
-      const sortingData = response.data;
-      return sortingData ?? {};
-    } catch (error) {
-      console.log(error);
-    } finally {
-      setIsLoading(false);
-    }
+    const response = await loadData({
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefAccessEntitlements}/search/${page}/${limit}`,
+      accessToken: token.access_token,
+      setLoading: setIsLoading,
+    });
+    return response;
   };
   const createManageAccessEntitlements = async (
-    postData: IManageAccessEntitlementsTypes
+    data: IManageAccessEntitlementsTypes
   ) => {
     const {
       entitlement_name,
@@ -473,45 +318,38 @@ export const ManageAccessEntitlementsProvider = ({
       status,
       created_by,
       last_updated_by,
-    } = postData;
-
-    try {
-      setIsLoading(true);
-      const res = await api.post(`/def-access-entitlements`, {
+    } = data;
+    const res = await postData({
+      baseURL: FLASK_URL,
+      url: flaskApi.DefAccessEntitlements,
+      payload: {
         entitlement_name,
         description,
         comments,
         status,
         last_updated_by,
         created_by,
-      });
+      },
+      accessToken: token.access_token,
+      setLoading: setIsLoading,
+    });
 
-      if (res.status === 200) {
-        toast({
-          description: `${res.data.message}`,
-        });
-      }
-      if (res.status === 201) {
-        toast({
-          description: `${res.data.message}`,
-        });
-        setEditManageAccessEntitlement(false);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({
-          title: error.message,
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setSave((prevSave) => prevSave + 1);
-      setIsLoading(false);
+    if (res.status === 200) {
+      toast({
+        description: `${res.data.message}`,
+      });
     }
+    if (res.status === 201) {
+      toast({
+        description: `${res.data.message}`,
+      });
+      setEditManageAccessEntitlement(false);
+    }
+    setSave((prevSave) => prevSave + 1);
   };
   const updateManageAccessEntitlements = async (
     id: number,
-    putData: IManageAccessEntitlementsTypes
+    data: IManageAccessEntitlementsTypes
   ) => {
     const {
       def_entitlement_id,
@@ -521,10 +359,11 @@ export const ManageAccessEntitlementsProvider = ({
       status,
       created_by,
       last_updated_by,
-    } = putData;
-    try {
-      setIsLoading(true);
-      const res = await api.put(`/def-access-entitlements/${id}`, {
+    } = data;
+    const res = await putData({
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefAccessEntitlements}/${id}`,
+      payload: {
         def_entitlement_id,
         entitlement_name,
         description,
@@ -532,77 +371,70 @@ export const ManageAccessEntitlementsProvider = ({
         status,
         last_updated_by,
         created_by,
+      },
+      accessToken: token.access_token,
+      setLoading: setIsLoading,
+    });
+
+    if (res.status === 200) {
+      toast({
+        description: `${res.data.message}`,
+      });
+    }
+    if (res.status === 201) {
+      toast({
+        description: `${res.data.message}`,
       });
 
-      if (res.status === 200) {
-        toast({
-          description: `${res.data.message}`,
-        });
-      }
-      if (res.status === 201) {
-        toast({
-          description: `${res.data.message}`,
-        });
-
-        setEditManageAccessEntitlement(false);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({
-          title: error.message,
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setSave((prevSave) => prevSave + 1);
-      setIsLoading(false);
+      setEditManageAccessEntitlement(false);
     }
+    setSave((prevSave) => prevSave + 1);
   };
   const deleteManageAccessEntitlement = async (id: number) => {
-    try {
-      //fetch access entitlements
-      const response = await api.get(`/access-entitlement-elements/${id}`);
+    const response = await loadData({
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefAccessEntitlements}/${id}`,
+      accessToken: token.access_token,
+      setLoading: setIsLoading,
+    });
 
-      if (response.data.length > 0) {
-        for (const element of response.data) {
-          await deleteAccessEntitlementElement(
-            element.entitlement_id,
-            element.access_point_id
-          );
-        }
-      }
-      const res = await api.delete(`/def-access-entitlements/${id}`);
-      if (res.status === 200) {
-        toast({
-          description: `Deleted successfully.`,
-        });
-      }
-      setSave((prevSave) => prevSave + 1);
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({
-          title: error.message,
-        });
+    if (response.data.length > 0) {
+      for (const element of response.data) {
+        await deleteAccessEntitlementElement(
+          element.entitlement_id,
+          element.access_point_id
+        );
       }
     }
+    const res = await deleteData({
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefAccessEntitlementElements}/${id}`,
+      accessToken: token.access_token,
+    });
+    if (res.status === 200) {
+      toast({
+        description: `Deleted successfully.`,
+      });
+    }
+    setSave((prevSave) => prevSave + 1);
   };
 
   const value = {
     fetchManageAccessEntitlements,
     selectedAccessEntitlements,
     setSelectedAccessEntitlements,
-    fetchAccessPointsEntitlement,
+    fetchAccessPointsByEntitlementId,
     fetchAccessPointsEntitlementForDelete,
-    getSearchAccessPointElementsLazyLoading,
-    filteredData,
-    setFilteredData,
+    fetchUnLinkedAccessPointsData,
+    accessPointsData,
+    setAccessPointsData,
     isLoading,
     isLoadingAccessPoints,
+    setIsLoadingAccessPoints,
     selectedAccessPoints,
     setSelectedAccessPoints,
     selectedManageAccessEntitlements,
     setSelectedManageAccessEntitlements,
-    createAccessPointsEntitlement,
     editManageAccessEntitlement,
     setEditManageAccessEntitlement,
     mangeAccessEntitlementAction,
@@ -623,18 +455,11 @@ export const ManageAccessEntitlementsProvider = ({
     setEditAccessPoint,
     accessPointStatus,
     setAccessPointStatus,
-    fetchAccessPointsData,
     fetchAccessEtitlementElenents,
-    accessPoints,
     selectedAccessEntitlementElements,
     setSelectedAccessEntitlementElements,
-    page,
-    setPage,
-    totalPage,
-    setTotalPage,
-    currentPage,
-    limit,
-    setLimit,
+    unLinkedAccessPoints,
+    isLoadingUnLinkedAccessPoints,
   };
 
   return (

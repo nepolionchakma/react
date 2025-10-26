@@ -31,33 +31,20 @@ import { useEffect, useState } from "react";
 
 import { useManageAccessEntitlementsContext } from "@/Context/ManageAccessEntitlements/ManageAccessEntitlementsContext";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import { useLocation } from "react-router-dom";
 import columns from "./Columns";
 
 // import Rows from "@/components/Rows/Rows";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
-import { api } from "@/Api/Api";
-import {
-  IFetchAccessEntitlementElementsTypes,
-  IFetchAccessPointsElementTypes,
-  IFetchCombinedAccessPointsElementAndDatasourceTypes,
-} from "@/types/interfaces/ManageAccessEntitlements.interface";
 
 const AccessPointsEntitleTable = () => {
-  // Global Context and Location
-  const location = useLocation();
   const { setIsOpenModal } = useGlobalContext();
   const {
     isLoadingAccessPoints,
     selectedManageAccessEntitlements,
-    fetchAccessPointsEntitlement,
     selectedAccessEntitlements,
-    save2,
     setAccessPointStatus,
-    page,
-    setPage,
-    totalPage,
+    accessPointsData: data,
   } = useManageAccessEntitlementsContext();
 
   // State Hooks
@@ -65,8 +52,6 @@ const AccessPointsEntitleTable = () => {
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [data, setData] = useState<IFetchAccessPointsElementTypes[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
 
   // Table Initialization
   const table = useReactTable({
@@ -93,60 +78,9 @@ const AccessPointsEntitleTable = () => {
     },
   });
 
-  // Effect: Fetch Data when relevant parameters change
-  useEffect(() => {
-    if (selectedAccessEntitlements.def_entitlement_id === 0) {
-      setData([]);
-    } else {
-      const fetchAcessPointsData = async () => {
-        try {
-          setIsLoading(true);
-          if (selectedAccessEntitlements.def_entitlement_id) {
-            const response = await api.get<
-              IFetchAccessEntitlementElementsTypes[]
-            >(
-              `/access-entitlement-elements/${selectedAccessEntitlements.def_entitlement_id}`
-            );
-
-            const accessPointsId = response.data.map(
-              (data) => data.access_point_id
-            );
-
-            if (accessPointsId.length === 0) {
-              setData([]);
-            } else {
-              const filterAccessPointsById = await api.get(
-                `/def-access-point-elements/accesspoints?accessPointsId=${accessPointsId}`
-              );
-
-              setData(
-                filterAccessPointsById.data as IFetchCombinedAccessPointsElementAndDatasourceTypes[]
-              );
-            }
-          } else {
-            setData([]);
-          }
-        } catch (error) {
-          console.log(error);
-        } finally {
-          setIsLoading(false);
-        }
-      };
-
-      fetchAcessPointsData();
-    }
-  }, [
-    location,
-    save2,
-    isLoadingAccessPoints,
-    selectedAccessEntitlements.def_entitlement_id,
-    fetchAccessPointsEntitlement,
-  ]);
-
-  // Effect: Manage Pagination Array based on selected state
   useEffect(() => {
     table.toggleAllRowsSelected(false); // Reset row selection
-  }, [page, totalPage, selectedAccessEntitlements.def_entitlement_id]);
+  }, [selectedAccessEntitlements.def_entitlement_id, table]);
 
   // default hidden columns
   const hiddenColumns = [
@@ -182,8 +116,12 @@ const AccessPointsEntitleTable = () => {
                   : "cursor-pointer text-black"
               }
               onClick={() => {
-                setIsOpenModal("access_points");
-                setPage(1);
+                selectedManageAccessEntitlements?.def_entitlement_id !==
+                  selectedAccessEntitlements.def_entitlement_id ||
+                selectedManageAccessEntitlements.def_entitlement_id === 0
+                  ? null
+                  : setIsOpenModal("access_points");
+                // setPage(1);
               }}
             >
               Access Points
@@ -202,7 +140,11 @@ const AccessPointsEntitleTable = () => {
                     : "cursor-pointer text-black"
                 }
                 onClick={() => {
-                  setIsOpenModal("create_access_point");
+                  selectedManageAccessEntitlements?.def_entitlement_id !==
+                    selectedAccessEntitlements.def_entitlement_id ||
+                  selectedManageAccessEntitlements.def_entitlement_id === 0
+                    ? null
+                    : setIsOpenModal("create_access_point");
                   setAccessPointStatus("create");
                 }}
               />
@@ -299,7 +241,7 @@ const AccessPointsEntitleTable = () => {
             ))}
           </TableHeader>
           <TableBody>
-            {isLoading ? (
+            {isLoadingAccessPoints ? (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
@@ -329,20 +271,6 @@ const AccessPointsEntitleTable = () => {
                   ))}
                 </TableRow>
               ))
-            ) : isLoading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-[16rem] text-center"
-                >
-                  <l-tailspin
-                    size="40"
-                    stroke="5"
-                    speed="0.9"
-                    color="black"
-                  ></l-tailspin>
-                </TableCell>
-              </TableRow>
             ) : (
               <TableRow>
                 <TableCell
@@ -355,19 +283,11 @@ const AccessPointsEntitleTable = () => {
             )}
           </TableBody>
         </Table>
-
-        {/* Pagination */}
-        <div className="flex justify-end p-1">
-          {/* <div className="flex-1 text-sm text-gray-600">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
-          </div> */}
-          {/* <Pagination5
-            currentPage={page}
-            setCurrentPage={setPage}
-            totalPageNumbers={totalPage as number}
-          /> */}
-        </div>
+      </div>
+      <div className="p-1">
+        <p className="text-sm text-gray-600">
+          Total Row(s): {table.getFilteredRowModel().rows.length}
+        </p>
       </div>
     </div>
   );

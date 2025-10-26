@@ -281,9 +281,14 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       accessToken: token.access_token,
       setLoading: setIsLoading,
     });
-    console.log(resultLazyLoading, "resultLazyLoading");
-    setManageGlobalConditions(resultLazyLoading.items);
-    setTotalPage(resultLazyLoading.pages);
+
+    if (resultLazyLoading.items.length) {
+      setManageGlobalConditions(resultLazyLoading.items);
+      setTotalPage(resultLazyLoading.pages);
+    } else {
+      setTotalPage(1);
+      setManageGlobalConditions([]);
+    }
   };
 
   // search global condition
@@ -298,8 +303,13 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       accessToken: token.access_token,
       setLoading: setIsLoading,
     });
-    setTotalPage(response.pages);
-    setManageGlobalConditions(response.items);
+    if (response.items.length) {
+      setManageGlobalConditions(response.items);
+      setTotalPage(response.pages);
+    } else {
+      setTotalPage(1);
+      setManageGlobalConditions([]);
+    }
   };
 
   const createManageGlobalCondition = async (
@@ -359,14 +369,15 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       return filteredData as IManageGlobalConditionLogicExtendTypes[];
     }
   };
+
   const manageGlobalConditionDeleteCalculate = async (id: number) => {
-    try {
-      const result = await fetchManageGlobalConditionLogics(id);
+    const result = await fetchManageGlobalConditionLogics(id);
+    if (result?.length) {
       return result;
-    } catch (error) {
-      console.log(error);
     }
+    return [];
   };
+
   const deleteManageGlobalCondition = async (
     items: IManageGlobalConditionTypes[]
   ) => {
@@ -389,25 +400,22 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     logicId: number,
     attrId: number
   ) => {
-    try {
-      const [isExistLogicId, isExistAttrId] = await Promise.all([
-        deleteData({
-          baseURL: FLASK_URL,
-          url: `${flaskApi.DefGlobalConditionLogics}/${logicId}`,
-          accessToken: token.access_token,
-        }),
-        deleteData({
-          baseURL: FLASK_URL,
-          url: `${flaskApi.DefGlobalConditionLogicAttributes}/${attrId}`,
-          accessToken: token.access_token,
-        }),
-      ]);
-      if (isExistLogicId.status === 200 && isExistAttrId.status === 200) {
-        return isExistLogicId.status;
-      }
-    } catch (error) {
-      console.log(error);
+    const [isExistLogicId, isExistAttrId] = await Promise.all([
+      deleteData({
+        baseURL: FLASK_URL,
+        url: `${flaskApi.DefGlobalConditionLogics}/${logicId}`,
+        accessToken: token.access_token,
+      }),
+      deleteData({
+        baseURL: FLASK_URL,
+        url: `${flaskApi.DefGlobalConditionLogicAttributes}/${attrId}`,
+        accessToken: token.access_token,
+      }),
+    ]);
+    if (isExistLogicId.status === 200 && isExistAttrId.status === 200) {
+      return isExistLogicId.status;
     }
+    return;
   };
 
   // fetch Access Models
@@ -565,12 +573,11 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     }
   };
   const manageAccessModelLogicsDeleteCalculate = async (id: number) => {
-    try {
-      const result = await fetchDefAccessModelLogics(id);
-      return result ?? [];
-    } catch (error) {
-      console.log(error);
+    const result = await fetchDefAccessModelLogics(id);
+    if (result?.length) {
+      return result;
     }
+    return [];
   };
 
   const deleteManageModelLogicAndAttributeData = async (
@@ -592,6 +599,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     if (isExistLogicId.status === 200 && isExistAttrId.status === 200) {
       return isExistLogicId.status;
     }
+    return;
   };
 
   // fetch access model attribute

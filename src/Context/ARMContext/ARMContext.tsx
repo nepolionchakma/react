@@ -18,8 +18,6 @@ interface ARMContextProviderProps {
 interface ARMContext {
   totalPage: number;
   setTotalPage: React.Dispatch<React.SetStateAction<number>>;
-  totalPage2: number;
-  setTotalPage2: React.Dispatch<React.SetStateAction<number>>;
   getAsyncTasks: () => Promise<IARMAsynchronousTasksTypes[] | undefined>;
   getAsyncTasksLazyLoading: (
     page: number,
@@ -115,48 +113,33 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   >([]);
   // const [page, setPage] = useState<number>(1);
   const [totalPage, setTotalPage] = useState<number>(1);
-  const [totalPage2, setTotalPage2] = useState<number>(1);
 
   // Asunchronous Tasks
   const getAsyncTasks = async () => {
-    try {
-      // setIsLoading(true);
-      const res = await loadData({
-        baseURL: FLASK_URL,
-        url: flaskApi.ShowAsyncTasks,
-        setLoading: setIsLoading,
-        accessToken: token.access_token,
-      });
-      if (res.length) {
-        return res;
-      } else {
-        return [];
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
-    } finally {
-      setIsLoading(false);
+    const res = await loadData({
+      baseURL: FLASK_URL,
+      url: flaskApi.ShowAsyncTasks,
+      setLoading: setIsLoading,
+      accessToken: token.access_token,
+    });
+    if (res.length) {
+      return res;
+    } else {
+      return [];
     }
   };
   const getAsyncTasksLazyLoading = async (page: number, limit: number) => {
-    try {
-      setIsLoading(true);
-      const resultLazyLoading = await loadData({
-        baseURL: FLASK_URL,
-        url: `${flaskApi.ShowAsyncTasks}/${page}/${limit}`,
-        setLoading: setIsLoading,
-        accessToken: token.access_token,
-      });
+    const resultLazyLoading = await loadData({
+      baseURL: FLASK_URL,
+      url: `${flaskApi.ShowAsyncTasks}/${page}/${limit}`,
+      setLoading: setIsLoading,
+      accessToken: token.access_token,
+    });
+    if (resultLazyLoading.items.length) {
       setTotalPage(resultLazyLoading.pages);
       return resultLazyLoading.items;
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
-    } finally {
-      setIsLoading(false);
+    } else {
+      return [];
     }
   };
   const getSearchAsyncTasksLazyLoading = async (
@@ -164,92 +147,64 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     limit: number,
     userTaskName: string
   ) => {
-    try {
-      // setIsLoading(true);
-      const resultLazyLoading = await loadData({
-        baseURL: FLASK_URL,
-        url: `${flaskApi.ShowAsyncTasks}/search/${page}/${limit}?user_task_name=${userTaskName}`,
-        setLoading: setIsLoading,
-        accessToken: token.access_token,
-      });
+    const resultLazyLoading = await loadData({
+      baseURL: FLASK_URL,
+      url: `${flaskApi.ShowAsyncTasks}/search/${page}/${limit}?user_task_name=${userTaskName}`,
+      setLoading: setIsLoading,
+      accessToken: token.access_token,
+    });
+    if (resultLazyLoading.items.length) {
       setTotalPage(resultLazyLoading.pages);
       return resultLazyLoading.items;
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
-    } finally {
-      setIsLoading(false);
+    } else {
+      return [];
     }
   };
   const cancelAsyncTasks = async (task_name: string) => {
-    try {
-      // setIsLoading(true);
-      const res = await putData({
-        baseURL: FLASK_URL,
-        url: `${flaskApi.CancelTask}/${task_name}`,
-        setLoading: setIsLoading,
-        accessToken: token.access_token,
-        payload: {},
+    const res = await putData({
+      baseURL: FLASK_URL,
+      url: `${flaskApi.CancelTask}/${task_name}`,
+      setLoading: setIsLoading,
+      accessToken: token.access_token,
+      payload: {},
+    });
+    if (res.status === 200) {
+      toast({
+        description: `${res.data.message}`,
       });
-      if (res.status === 200) {
-        toast({
-          description: `${res.data.message}`,
-        });
-        setChangeState(Math.random() + 23 * 3000);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
-    } finally {
-      setIsLoading(false);
     }
+    setChangeState(Math.random() + 23 * 3000);
   };
 
   // Manage Execution Methods
   const getManageExecutionMethods = async () => {
-    try {
-      // setIsLoading(true);
-      const res = await loadData({
-        baseURL: FLASK_URL,
-        url: flaskApi.ShowExecutionMethods,
-        setLoading: setIsLoading,
-        accessToken: token.access_token,
-      });
-      if (res.length) {
-        return res;
-      } else {
-        return [];
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
-    } finally {
-      setIsLoading(false);
+    const res = await loadData({
+      baseURL: FLASK_URL,
+      url: flaskApi.ShowExecutionMethods,
+      setLoading: setIsLoading,
+      accessToken: token.access_token,
+    });
+    if (res.length) {
+      return res;
+    } else {
+      return [];
     }
   };
   const getManageExecutionMethodsLazyLoading = async (
     page: number,
     limit: number
   ) => {
-    try {
-      setIsLoading(true);
-      const res = await loadData({
-        baseURL: FLASK_URL,
-        url: `${flaskApi.ShowExecutionMethods}/${page}/${limit}`,
-        setLoading: setIsLoading,
-        accessToken: token.access_token,
-      });
+    const res = await loadData({
+      baseURL: FLASK_URL,
+      url: `${flaskApi.ShowExecutionMethods}/${page}/${limit}`,
+      setLoading: setIsLoading,
+      accessToken: token.access_token,
+    });
+    if (res.items.length) {
       setTotalPage(res.pages);
       return res.items;
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
-    } finally {
-      setIsLoading(false);
+    } else {
+      return [];
     }
   };
   const getSearchManageExecutionMethodsLazyLoading = async (
@@ -257,82 +212,59 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     limit: number,
     internal_execution_method: string
   ) => {
-    try {
-      setIsLoading(true);
-      const res = await loadData({
-        baseURL: FLASK_URL,
-        url: `${flaskApi.DefAsyncSearchExecutionMethods}/${page}/${limit}?internal_execution_method=${internal_execution_method}`,
-        setLoading: setIsLoading,
-        accessToken: token.access_token,
-      });
-
+    const res = await loadData({
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefAsyncSearchExecutionMethods}/${page}/${limit}?internal_execution_method=${internal_execution_method}`,
+      setLoading: setIsLoading,
+      accessToken: token.access_token,
+    });
+    if (res.items.length) {
       setTotalPage(res.pages);
       return res.items;
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
-    } finally {
-      setIsLoading(false);
+    } else {
+      return [];
     }
   };
   const deleteExecutionMethod = async (internal_execution_method: string) => {
-    try {
-      setIsLoading(true);
-      const res = await deleteData({
-        baseURL: FLASK_URL,
-        url: `${flaskApi.DeleteExecutionMethod}/${internal_execution_method}`,
-        accessToken: token.access_token,
+    const res = await deleteData({
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DeleteExecutionMethod}/${internal_execution_method}`,
+      accessToken: token.access_token,
+    });
+    if (res.status === 200) {
+      toast({
+        description: `${res.data.message}`,
       });
-      if (res.status === 200) {
-        toast({
-          description: `${res.data.message}`,
-        });
-        setChangeState(Math.random() + 23 * 3000);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
-    } finally {
-      setIsLoading(false);
     }
+    setChangeState(Math.random() + 23 * 3000);
   };
 
   // Task Parameters
   const getTaskParametersLazyLoading = async (task_name: string) => {
-    try {
-      const params = {
-        baseURL: FLASK_URL,
-        url: `${flaskApi.ShowTaskParameters}/${task_name}`,
-        setLoading: setIsLoading,
-        accessToken: token.access_token,
-      };
-      const response = await loadData(params);
-
-      setTotalPage2(response.pages);
-      return response.items;
-    } catch (error) {
-      console.log(error);
+    const params = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.ShowTaskParameters}/${task_name}`,
+      setLoading: setIsLoading,
+      accessToken: token.access_token,
+    };
+    const response = await loadData(params);
+    if (response.length) {
+      return response;
+    } else {
       return [];
     }
   };
   const getTaskParametersByTaskName = async (task_name: string) => {
-    try {
-      const res = await loadData({
-        baseURL: FLASK_URL,
-        url: `${flaskApi.ShowTaskParameters}/${task_name}`,
-        setLoading: setIsLoading,
-        accessToken: token.access_token,
-      });
+    const res = await loadData({
+      baseURL: FLASK_URL,
+      url: `${flaskApi.ShowTaskParameters}/${task_name}`,
+      setLoading: setIsLoading,
+      accessToken: token.access_token,
+    });
 
-      if (res.length) {
-        return res;
-      } else {
-        return [];
-      }
-    } catch (error) {
-      console.log("Task Parameters Item Not found", error);
+    if (res.length) {
+      return res;
+    } else {
       return [];
     }
   };
@@ -340,25 +272,19 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     task_name: string,
     def_param_id: number
   ) => {
-    try {
-      const params = {
-        baseURL: FLASK_URL,
-        url: `${flaskApi.DeleteTaskParameters}/${task_name}/${def_param_id}`,
-        setLoading: setIsLoading,
-        accessToken: token.access_token,
-      };
-      const res = await deleteData(params);
-      if (res.status === 200) {
-        toast({
-          description: `${res.data.message}`,
-        });
-        setChangeState(Math.random() + 23 * 3000);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
+    const params = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DeleteTaskParameters}/${task_name}/${def_param_id}`,
+      setLoading: setIsLoading,
+      accessToken: token.access_token,
+    };
+    const res = await deleteData(params);
+    if (res.status === 200) {
+      toast({
+        description: `${res.data.message}`,
+      });
     }
+    setChangeState(Math.random() + 23 * 3000);
   };
 
   // Asynchronous Requests and Task Schedules
@@ -373,89 +299,69 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       accessToken: token.access_token,
     };
     const result = await loadData(params);
-    setTotalPage(result.pages);
-    return result.items;
+    if (result.items.length) {
+      setTotalPage(result.pages);
+      return result.items;
+    } else {
+      return [];
+    }
   };
   const getSearchAsynchronousRequestsAndTaskSchedules = async (
     page: number,
     limit: number,
     task_name: string
   ) => {
-    try {
-      setIsLoading(true);
-      const resultLazyLoading = await loadData({
-        baseURL: FLASK_URL,
-        url: `${flaskApi.DefAsyncSearchTaskSchedules}/${page}/${limit}?task_name=${task_name}`,
-        setLoading: setIsLoading,
-        accessToken: token.access_token,
-      });
+    const resultLazyLoading = await loadData({
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefAsyncSearchTaskSchedules}/${page}/${limit}?task_name=${task_name}`,
+      setLoading: setIsLoading,
+      accessToken: token.access_token,
+    });
+    if (resultLazyLoading.items.length) {
       setTotalPage(resultLazyLoading.pages);
       return resultLazyLoading.items;
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
-      setIsLoading(false);
-    } finally {
-      setIsLoading(false);
+    } else {
+      return [];
     }
   };
   const cancelScheduledTask = async (
     selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes
     // selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
   ) => {
-    try {
-      setIsLoading(true);
-      const res = await putData({
-        baseURL: FLASK_URL,
-        url: `${flaskApi.CancelAsyncTasks}/${selectedItem.task_name}`,
-        accessToken: token.access_token,
-        payload: {
-          redbeat_schedule_name: selectedItem.redbeat_schedule_name,
-        },
-        setLoading: setIsLoading,
+    const res = await putData({
+      baseURL: FLASK_URL,
+      url: `${flaskApi.CancelAsyncTasks}/${selectedItem.task_name}`,
+      accessToken: token.access_token,
+      payload: {
+        redbeat_schedule_name: selectedItem.redbeat_schedule_name,
+      },
+      setLoading: setIsLoading,
+    });
+    if (res.status === 200) {
+      toast({
+        description: `${res.data.message}`,
       });
-      if (res.status === 200) {
-        toast({
-          description: `${res.data.message}`,
-        });
-        setChangeState(Math.random() + 23 * 3000);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
-    } finally {
-      setIsLoading(false);
     }
+    setChangeState(Math.random() + 23 * 3000);
   };
   const rescheduleTask = async (
     selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes
   ) => {
-    try {
-      setIsLoading(true);
-      const res = await putData({
-        baseURL: FLASK_URL,
-        url: `${flaskApi.RescheduleTask}/${selectedItem.task_name}`,
-        accessToken: token.access_token,
-        payload: {
-          redbeat_schedule_name: selectedItem.redbeat_schedule_name,
-        },
-        setLoading: setIsLoading,
+    const res = await putData({
+      baseURL: FLASK_URL,
+      url: `${flaskApi.RescheduleTask}/${selectedItem.task_name}`,
+      accessToken: token.access_token,
+      payload: {
+        redbeat_schedule_name: selectedItem.redbeat_schedule_name,
+      },
+      setLoading: setIsLoading,
+    });
+    if (res.status === 200) {
+      toast({
+        description: `${res.data.message}`,
       });
-      if (res.status === 200) {
-        toast({
-          description: `${res.data.message}`,
-        });
-        setChangeState(Math.random() + 23 * 3000);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
-    } finally {
-      setIsLoading(false);
     }
+    setChangeState(Math.random() + 23 * 3000);
   };
   const getViewRequests = async (
     page: number,
@@ -471,15 +377,17 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     };
     const result = await loadData(params);
 
-    setTotalPage(result.pages);
-    return result.items;
+    if (result.items.length) {
+      setTotalPage(result.pages);
+      return result.items;
+    } else {
+      return [];
+    }
   };
 
   const values = {
     totalPage,
     setTotalPage,
-    totalPage2,
-    setTotalPage2,
     getManageExecutionMethods,
     getManageExecutionMethodsLazyLoading,
     getSearchManageExecutionMethodsLazyLoading,
