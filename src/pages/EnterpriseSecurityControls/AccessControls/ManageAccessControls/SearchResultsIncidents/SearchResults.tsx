@@ -55,6 +55,7 @@ const SearchResults = () => {
   const [limit, setLimit] = React.useState(8);
   const [data, setData] = React.useState<IControlsTypes[]>([]);
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
+
   React.useEffect(() => {
     const fetchData = async () => {
       try {

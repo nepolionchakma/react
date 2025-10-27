@@ -133,22 +133,84 @@ const columns: ColumnDef<IControlsTypes>[] = [
     ),
   },
   {
-    accessorKey: "control_last_run",
+    accessorKey: "created_by",
     enableResizing: true,
-    header: () => <div className="min-w-max">Control Last Run</div>,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Created By
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
+    cell: ({ row }) => (
+      <div className="capitalize  min-w-max">{row.getValue("created_by")}</div>
+    ),
+  },
+  {
+    accessorKey: "creation_date",
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = new Date(rowA.getValue(columnId));
+      const b = new Date(rowB.getValue(columnId));
+      return a.getTime() - b.getTime();
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Creation Date
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
     cell: ({ row }) => {
-      const data: Date = row.getValue("control_last_run");
+      const data: Date = row.getValue("creation_date");
       const date = new Date(data);
       const formattedDate = date.toLocaleString("en-US");
       return <div className="capitalize min-w-max">{formattedDate}</div>;
     },
   },
   {
-    accessorKey: "control_last_updated",
+    accessorKey: "last_updated_by",
     enableResizing: true,
-    header: () => <div className="min-w-max">Control Last Updated</div>,
+    header: () => <div className="min-w-max">Last Updated By</div>,
     cell: ({ row }) => {
-      const data: Date = row.getValue("control_last_updated");
+      const data: Date = row.getValue("last_updated_by");
+      const date = new Date(data);
+      const formattedDate = date.toLocaleString("en-US");
+      return <div className="capitalize min-w-max">{formattedDate}</div>;
+    },
+  },
+
+  {
+    accessorKey: "last_update_date",
+    enableResizing: true,
+    header: () => <div className="min-w-max">Last Update Date</div>,
+    cell: ({ row }) => {
+      const data: Date = row.getValue("last_update_date");
+      const date = new Date(data);
+      const formattedDate = date.toLocaleString("en-US");
+      return <div className="capitalize min-w-max">{formattedDate}</div>;
+    },
+  },
+  {
+    accessorKey: "last_run_date",
+    enableResizing: true,
+    header: () => <div className="min-w-max">Last Run Date</div>,
+    cell: ({ row }) => {
+      const data: Date = row.getValue("last_run_date");
       const date = new Date(data);
       const formattedDate = date.toLocaleString("en-US");
       return <div className="capitalize min-w-max">{formattedDate}</div>;
@@ -185,10 +247,11 @@ const columns: ColumnDef<IControlsTypes>[] = [
     enableResizing: true,
     header: () => <div className="min-w-max">Authorized Data</div>,
     cell: ({ row }) => {
-      const data: Date = row.getValue("authorized_data");
-      const date = new Date(data);
-      const formattedDate = date.toLocaleString("en-US");
-      return <div className="capitalize min-w-max">{formattedDate}</div>;
+      return (
+        <div className="capitalize min-w-max">
+          {row.getValue("authorized_data")}
+        </div>
+      );
     },
   },
   {
@@ -240,56 +303,6 @@ const columns: ColumnDef<IControlsTypes>[] = [
       const formattedDate = date.toLocaleString("en-US");
       return <div className="capitalize min-w-max">{formattedDate}</div>;
     },
-  },
-  {
-    accessorKey: "created_date",
-    enableResizing: true,
-    sortingFn: (rowA, rowB, columnId) => {
-      const a = new Date(rowA.getValue(columnId));
-      const b = new Date(rowB.getValue(columnId));
-      return a.getTime() - b.getTime();
-    },
-    header: ({ column }) => {
-      return (
-        <div
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="min-w-max cursor-pointer"
-        >
-          Created Date
-          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
-        </div>
-      );
-    },
-    cell: ({ row }) => {
-      const data: Date = row.getValue("created_date");
-      const date = new Date(data);
-      const formattedDate = date.toLocaleString("en-US");
-      return <div className="capitalize min-w-max">{formattedDate}</div>;
-    },
-  },
-  {
-    accessorKey: "created_by",
-    enableResizing: true,
-    sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as string;
-      const b = rowB.getValue(columnId) as string;
-
-      return a.localeCompare(b, undefined, { sensitivity: "base" });
-    },
-    header: ({ column }) => {
-      return (
-        <div
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="min-w-max cursor-pointer"
-        >
-          Created By
-          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
-        </div>
-      );
-    },
-    cell: ({ row }) => (
-      <div className="capitalize  min-w-max">{row.getValue("created_by")}</div>
-    ),
   },
 ];
 export default columns;

@@ -221,7 +221,7 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
     },
   },
   {
-    accessorKey: "created_on",
+    accessorKey: "creation_date",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
       const a = new Date(rowA.getValue(columnId));
@@ -234,13 +234,13 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="min-w-max cursor-pointer"
         >
-          Created On
+          Creation Date
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
         </div>
       );
     },
     cell: ({ row }) => {
-      const sliceDate = convertDate(row.getValue("created_on"));
+      const sliceDate = convertDate(row.getValue("creation_date"));
       return <div className="capitalize min-w-max">{sliceDate}</div>;
     },
   },
@@ -265,13 +265,11 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
       );
     },
     cell: ({ row }) => (
-      <div className="capitalize min-w-[6rem]">
-        {row.getValue("created_by")}
-      </div>
+      <div className="capitalize min-w-max">{row.getValue("created_by")}</div>
     ),
   },
   {
-    accessorKey: "last_updated_on",
+    accessorKey: "last_update_date",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
       const a = new Date(rowA.getValue(columnId));
@@ -284,13 +282,13 @@ const columns: ColumnDef<IManageAccessEntitlementsTypes>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="min-w-max cursor-pointer"
         >
-          Last Updated On
+          Last Updated Date
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
         </div>
       );
     },
     cell: ({ row }) => {
-      const sliceDate = convertDate(row.getValue("last_updated_on"));
+      const sliceDate = convertDate(row.getValue("last_update_date"));
       return <div className="capitalize min-w-max">{sliceDate}</div>;
     },
   },
