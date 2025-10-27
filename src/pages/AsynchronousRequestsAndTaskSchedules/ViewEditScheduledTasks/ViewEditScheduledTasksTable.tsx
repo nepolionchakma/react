@@ -37,7 +37,7 @@ import {
 } from "@/types/interfaces/ARM.interface";
 import { toast } from "@/components/ui/use-toast";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
-import ScheduleATaskComponent from "../TaskRequest/ScheduleATask";
+import ScheduleATaskComponent from "../ScheduleATask/ScheduleATask";
 import PopUp from "./PopUp/PopUp";
 import Alert from "@/components/Alert/Alert";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
