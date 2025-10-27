@@ -44,6 +44,7 @@ import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import Rows from "@/components/Rows/Rows";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
+import { convertToTitleCase } from "@/Utility/general";
 
 export function ViewEditScheduledTasksTable() {
   const {
@@ -303,7 +304,7 @@ export function ViewEditScheduledTasksTable() {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="max-h-72 overflow-y-auto"
+              className="max-h-72 overflow-y-auto scrollbar-thin"
             >
               {table
                 .getAllColumns()
@@ -318,7 +319,7 @@ export function ViewEditScheduledTasksTable() {
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id}
+                      {convertToTitleCase(column.id)}
                     </DropdownMenuCheckboxItem>
                   );
                 })}

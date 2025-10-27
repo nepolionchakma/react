@@ -40,6 +40,7 @@ import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import Rows from "@/components/Rows/Rows";
+import { convertToTitleCase } from "@/Utility/general";
 interface Props {
   selectedUser: IUsersInfoTypes;
   setSelectedUser: React.Dispatch<React.SetStateAction<IUsersInfoTypes>>;
@@ -242,7 +243,10 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent
+              align="end"
+              className="max-h-72 overflow-y-auto scrollbar-thin"
+            >
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -256,7 +260,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id}
+                      {convertToTitleCase(column.id)}
                     </DropdownMenuCheckboxItem>
                   );
                 })}

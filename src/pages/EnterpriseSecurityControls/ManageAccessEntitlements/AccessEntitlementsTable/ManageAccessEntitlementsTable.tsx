@@ -38,6 +38,7 @@ import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import Rows from "@/components/Rows/Rows";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
+import { convertToTitleCase } from "@/Utility/general";
 
 // Main Component
 const ManageAccessEntitlementsTable = () => {
@@ -322,7 +323,7 @@ const ManageAccessEntitlementsTable = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="max-h-[70vh] overflow-auto scrollbar-thin"
+              className="max-h-72 overflow-y-auto scrollbar-thin"
             >
               {table
                 .getAllColumns()
@@ -336,7 +337,7 @@ const ManageAccessEntitlementsTable = () => {
                       column.toggleVisibility(!!value)
                     }
                   >
-                    {column.id}
+                    {convertToTitleCase(column.id)}
                   </DropdownMenuCheckboxItem>
                 ))}
             </DropdownMenuContent>

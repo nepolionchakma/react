@@ -40,6 +40,7 @@ import { IManageControlEnvironments } from "@/types/interfaces/manageControlEnvi
 import { Checkbox } from "@/components/ui/checkbox";
 import Modal from "./Modal";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import { convertToTitleCase } from "@/Utility/general";
 
 const ManageControlEnvironments = () => {
   const { token } = useGlobalContext();
@@ -249,7 +250,10 @@ const ManageControlEnvironments = () => {
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent
+              align="end"
+              className="max-h-72 overflow-y-auto scrollbar-thin"
+            >
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -263,7 +267,7 @@ const ManageControlEnvironments = () => {
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id}
+                      {convertToTitleCase(column.id)}
                     </DropdownMenuCheckboxItem>
                   );
                 })}

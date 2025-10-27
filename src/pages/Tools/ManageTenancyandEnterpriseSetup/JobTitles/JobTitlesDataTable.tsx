@@ -38,6 +38,7 @@ import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { loadData } from "@/Utility/funtion";
 import JobTitleCreateAndEditModal from "../Modal/JobTitleCreateAndEditModal";
+import { convertToTitleCase } from "@/Utility/general";
 
 interface IJobTitlesDataProps {
   tabName: string;
@@ -222,7 +223,10 @@ export function JobTitlesDataTable({
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent
+              align="end"
+              className="max-h-72 overflow-y-auto scrollbar-thin"
+            >
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -236,7 +240,7 @@ export function JobTitlesDataTable({
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id}
+                      {convertToTitleCase(column.id)}
                     </DropdownMenuCheckboxItem>
                   );
                 })}
@@ -387,7 +391,7 @@ export function JobTitlesDataTable({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   if (header.index === 0) {
-              
+
                   }
                   return (
                     <TableHead
@@ -396,7 +400,7 @@ export function JobTitlesDataTable({
                         // width: header.index === 0 ? 24 : "auto",
                         width: `${header.getSize()}px`,
                       }}
-                      className={`relative border border-slate-400 bg-slate-200 p-1 h-9 
+                      className={`relative border border-slate-400 bg-slate-200 p-1 h-9
                       `}
                     >
                       {header.isPlaceholder
