@@ -33,8 +33,7 @@ import ManageSchedulers from "@/pages/AsynchronousRequestManager/Administration/
 import ManageWorkers from "@/pages/AsynchronousRequestManager/Administration/ManageWorkers";
 import RegisterEditAsynchronousTasks from "@/pages/AsynchronousRequestManager/Development/RegisterEditAsynchronousTasks/RegisterEditAsynchronousTasks";
 import TaskParameters from "@/pages/AsynchronousRequestManager/Development/TaskParameters/TaskParameters";
-import RunAHocRequest from "@/pages/AsynchronousRequestsAndTaskSchedules/RunARequest";
-import ViewRequests from "@/pages/AsynchronousRequestsAndTaskSchedules/ViewRequests";
+import RunAHocRequest from "@/pages/AsynchronousRequestsAndTaskSchedules/RunARequest/RunARequest";
 import EnterpriseSecurityControls from "@/pages/EnterpriseSecurityControls/EnterpriseSecurityControls";
 import AccessModels from "@/pages/EnterpriseSecurityControls/AccessModels/AccessModels";
 import Controls from "@/pages/EnterpriseSecurityControls/AccessControls/Controls";
@@ -54,8 +53,7 @@ import AuditorReporting from "@/pages/EnterpriseAccessMonitoring/AuditorReportin
 import NotificatonsRoutes from "@/pages/Notifications/NotificatonsRoutes";
 import ContinuousMonitoring from "@/pages/ContinuousMonitoring/ContinuousMonitoring";
 import Finance from "@/pages/Finance/Finance";
-import { ViewEditScheduledTasksTable } from "@/components/AsynchronousRequestsAndTaskSchedules/ViewEditScheduledTasks/ViewEditScheduledTasksTable";
-import ScheduleATask from "@/pages/AsynchronousRequestsAndTaskSchedules/ScheduleATask";
+import { ViewEditScheduledTasksTable } from "@/pages/AsynchronousRequestsAndTaskSchedules/ViewEditScheduledTasks/ViewEditScheduledTasksTable";
 import ManageExecutionMethods from "@/pages/AsynchronousRequestManager/Development/ManageExecutionMethods/ManageExecutionMethods";
 import ManagePriviedgesAndRoles from "@/pages/Tools/SecurityConsole/ManagePrivilegesAndRoles/ManagePrivilegesAndRoles";
 import EnterpriseProcessModeler from "@/pages/Tools/EnterpriseProcessModeler/EnterpriseProcessModeler";
@@ -66,6 +64,8 @@ import MobileAppAdminConsole from "@/pages/Tools/MobileAppAdminConsole/MobileApp
 import ManageGlobalAndLocalCondition from "@/pages/EnterpriseSecurityControls/ManageGlobalAndLocalConditions/ManageGlobalAndLocalCondition";
 import InvitationRedirectPage from "@/pages/InvitationRedirect/InvitationRedirectPage";
 import NewUserInvitation from "@/pages/Tools/SecurityConsole/NewUserInvitation/NewUserInvitation";
+import { ViewRequestTable } from "@/pages/AsynchronousRequestsAndTaskSchedules/ViewRequests/ViewRequestTable";
+import ScheduleATaskComponent from "@/pages/AsynchronousRequestsAndTaskSchedules/ScheduleATask/ScheduleATask";
 
 const routes = createBrowserRouter([
   {
@@ -356,7 +356,14 @@ const routes = createBrowserRouter([
           },
           {
             path: "schedule-a-task",
-            element: <ScheduleATask />,
+            element: (
+              <ScheduleATaskComponent
+                action="Schedule A Task"
+                user_schedule_name="run_script"
+                handleCloseModal={() => {}}
+                setSelected={() => {}}
+              />
+            ),
           },
           {
             path: "view-edit-scheduled-tasks",
@@ -368,7 +375,7 @@ const routes = createBrowserRouter([
           },
           {
             path: "view-requests",
-            element: <ViewRequests />,
+            element: <ViewRequestTable />,
           },
         ],
       },

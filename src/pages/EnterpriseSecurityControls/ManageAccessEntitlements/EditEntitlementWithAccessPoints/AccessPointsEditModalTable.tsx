@@ -183,7 +183,7 @@ const AccessPointsEditModal = () => {
                       <TableCell key={cell.id} className="border py-0 px-1 h-7">
                         {index === 0 ? (
                           <Checkbox
-                            className=""
+                            className="mr-1"
                             checked={row.getIsSelected() || false}
                             onCheckedChange={(value) => {
                               row.toggleSelected(!!value);

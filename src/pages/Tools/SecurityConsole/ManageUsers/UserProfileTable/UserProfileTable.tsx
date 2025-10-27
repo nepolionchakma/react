@@ -43,6 +43,7 @@ import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import { deleteData } from "@/Utility/funtion";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import { convertToTitleCase } from "@/Utility/general";
 interface Props {
   profileData: IProfilesType[];
   isUpdated: number;
@@ -254,7 +255,10 @@ export function UserProfileTable({
               Columns <ChevronDown className="ml-2 h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent
+            align="end"
+            className="max-h-72 overflow-y-auto scrollbar-thin"
+          >
             {table
               .getAllColumns()
               .filter((column) => column.getCanHide())
@@ -268,7 +272,7 @@ export function UserProfileTable({
                       column.toggleVisibility(!!value)
                     }
                   >
-                    {column.id}
+                    {convertToTitleCase(column.id)}
                   </DropdownMenuCheckboxItem>
                 );
               })}
@@ -293,7 +297,7 @@ export function UserProfileTable({
                       key={header.id}
                       style={{
                         width: `${header.getSize()}px`,
-                        maxWidth: header.id === "select" ? "10px" : "",
+                        maxWidth: header.id === "select" ? 22 : "",
                       }}
                       className={`relative border border-slate-400 bg-slate-200 p-1 h-9`}
                     >
@@ -368,17 +372,10 @@ export function UserProfileTable({
                   data-state={row.getIsSelected() && "selected"}
                 >
                   {row.getVisibleCells().map((cell, index) => (
-                    <TableCell
-                      key={cell.id}
-                      style={{
-                        width: cell.column.getSize(),
-                        minWidth: cell.column.columnDef.minSize,
-                      }}
-                      className={`border p-1 h-8 ${index === 0 && "w-3"}`}
-                    >
+                    <TableCell key={cell.id} className="border py-0 px-1 h-7">
                       {index === 0 ? (
                         <Checkbox
-                          className=""
+                          className="mr-1"
                           checked={row.getIsSelected()}
                           onCheckedChange={(value) =>
                             row.toggleSelected(!!value)

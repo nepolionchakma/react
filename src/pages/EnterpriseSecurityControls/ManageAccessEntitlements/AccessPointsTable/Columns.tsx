@@ -125,7 +125,7 @@ const columns: ColumnDef<IAccessPointTypes>[] = [
       return (
         <div
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="min-w-[8rem] cursor-pointer"
+          className="min-w-max cursor-pointer"
         >
           Access Point Type
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
@@ -134,7 +134,7 @@ const columns: ColumnDef<IAccessPointTypes>[] = [
     },
 
     cell: ({ row }) => (
-      <div className="capitalize min-w-[8rem]">
+      <div className="capitalize min-w-max">
         {row.getValue("access_point_type")}
       </div>
     ),

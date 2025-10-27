@@ -43,6 +43,7 @@ import Alert from "@/components/Alert/Alert";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import Rows from "@/components/Rows/Rows";
+import { convertToTitleCase } from "@/Utility/general";
 
 const SearchResultsTable = () => {
   const {
@@ -338,7 +339,10 @@ const SearchResultsTable = () => {
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent
+              align="end"
+              className="max-h-72 overflow-y-auto scrollbar-thin"
+            >
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -352,7 +356,7 @@ const SearchResultsTable = () => {
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id}
+                      {convertToTitleCase(column.id)}
                     </DropdownMenuCheckboxItem>
                   );
                 })}

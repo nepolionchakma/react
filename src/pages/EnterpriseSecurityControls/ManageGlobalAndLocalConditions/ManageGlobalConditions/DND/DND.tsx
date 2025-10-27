@@ -78,7 +78,7 @@ const DND: FC = () => {
       }
     };
     fetchDataFunc();
-  }, [fetchManageGlobalConditionLogics, selectedItem]);
+  }, [selectedItem]);
 
   //Top Form Start
   const FormSchema = z.object({
@@ -404,7 +404,7 @@ const DND: FC = () => {
               </div>
               <div className="border rounded-lg">
                 {isLoading ? (
-                  <div className="w-10 mx-auto mt-10">
+                  <div className="w-10 mx-auto my-10">
                     <l-ring
                       size="40"
                       stroke="5"

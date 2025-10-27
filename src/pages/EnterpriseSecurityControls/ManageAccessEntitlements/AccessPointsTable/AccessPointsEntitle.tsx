@@ -37,7 +37,7 @@ const AccessPointsEntitle = () => {
             />
           </div>
           {/* Manage Access Entitlement */}
-          <div className="p-4 h-[72.4vh] overflow-auto scrollbar-thin">
+          <div className="px-4 py-2 h-[71vh] overflow-auto scrollbar-thin">
             <AccessPointsEditModal />
           </div>
         </CustomModal4>

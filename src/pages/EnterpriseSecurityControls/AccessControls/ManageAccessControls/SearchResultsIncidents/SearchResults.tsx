@@ -35,6 +35,7 @@ import { useControlsContext } from "@/Context/ManageAccessEntitlements/ManageCon
 import { IControlsTypes } from "@/types/interfaces/manageControls.interface";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { toast } from "@/components/ui/use-toast";
+import { convertToTitleCase } from "@/Utility/general";
 
 const SearchResults = () => {
   const {
@@ -55,6 +56,7 @@ const SearchResults = () => {
   const [limit, setLimit] = React.useState(8);
   const [data, setData] = React.useState<IControlsTypes[]>([]);
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
+
   React.useEffect(() => {
     const fetchData = async () => {
       try {
@@ -235,7 +237,7 @@ const SearchResults = () => {
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id}
+                      {convertToTitleCase(column.id)}
                     </DropdownMenuCheckboxItem>
                   );
                 })}
