@@ -12,7 +12,6 @@ import { useToast } from "@/components/ui/use-toast";
 import { v4 as uuidv4 } from "uuid";
 import Spinner from "@/components/Spinner/Spinner";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import {
   renderUserName,
   renderProfilePicture,
@@ -22,14 +21,14 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toTitleCase } from "@/Utility/general";
 import { postData, putData } from "@/Utility/funtion";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
+import { NODE_URL } from "@/Api/Api";
 
 interface ComposeButtonProps {
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
-  const api = useAxiosPrivate();
-  const { users, combinedUser } = useGlobalContext();
+  const { users, combinedUser, token, userId } = useGlobalContext();
   const { handlesendMessage, handleDraftMessage, handleSendAlert } =
     useSocketContext();
   const { toast } = useToast();
@@ -122,7 +121,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
     const notifcationData = {
       notification_id: id,
       notification_type: notifcationType,
-      sender: combinedUser?.user_id,
+      sender: userId,
       recipients: recivers,
       subject: subject,
       notification_body: body,
@@ -153,15 +152,12 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
         setLoading: setIsSending,
         payload: notifcationData,
         isToast: true,
+        accessToken: token.access_token,
       };
 
       const response = await postData(sendNotificationParams);
-
+      console.log(response);
       if (response.status === 201) {
-        await api.post(
-          "/push-notification/send-notification",
-          sendNotificationPayload
-        );
         if (notifcationType === "ALERT") {
           const alertParams = {
             baseURL: nodeUrl,
@@ -176,6 +172,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
               last_updated_by: combinedUser?.user_id,
             },
             isToast: false,
+            accessToken: token.access_token,
           };
 
           const alertResponse = await postData(alertParams);
@@ -189,6 +186,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
                 alert_id: alertResponse.data.result.alert_id,
               },
               isToast: false,
+              accessToken: token.access_token,
             };
             await putData(params);
             handleSendAlert(
@@ -211,6 +209,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
               user_ids: recivers,
             },
             isToast: false,
+            accessToken: token.access_token,
           };
 
           const actionItemResponse = await postData(actionItemParams);
@@ -224,6 +223,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
                 action_item_id: actionItemResponse.data.action_item_id,
               },
               isToast: false,
+              accessToken: token.access_token,
             };
             await putData(params1);
 
@@ -235,23 +235,29 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
                 notification_id: response.data.result.notification_id,
               },
               isToast: false,
+              accessToken: token.access_token,
             };
             await putData(params2);
           }
         }
         handlesendMessage(
           notifcationData.notification_id,
-          notifcationData.sender
+          notifcationData.sender,
+          notifcationData.recipients
         );
+
+        const pushNotificationParams = {
+          baseURL: nodeUrl,
+          url: "/push-notification/send-notification",
+          setLoading: setIsSending,
+          payload: sendNotificationPayload,
+          accessToken: token.access_token,
+        };
+
+        await postData(pushNotificationParams);
       }
     } catch (error) {
       console.error("Error:", error);
-      if (error instanceof Error) {
-        toast({
-          title: error.message,
-          variant: "destructive",
-        });
-      }
     } finally {
       setIsSending(false);
       setRecivers([]);
@@ -305,8 +311,16 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
       alert_id: null,
     };
     try {
-      setIsDrafting(true);
-      const response = await api.post(`/notifications`, data);
+      const draftParams = {
+        baseURL: NODE_URL,
+        url: "/notifications",
+        setLoading: setIsDrafting,
+        payload: data,
+        // isConsole?: boolean;
+        isToast: true,
+        accessToken: token.access_token,
+      };
+      const response = await postData(draftParams);
 
       if (response.status === 201) {
         if (notifcationType === "ALERT") {
@@ -390,7 +404,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
         toast({
           title: `${response.data.message}`,
         });
-        handleDraftMessage(data.notification_id, data.sender);
+        handleDraftMessage(data.notification_id, data.sender, "New");
       }
     } catch (error) {
       if (error instanceof Error) {

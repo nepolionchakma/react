@@ -555,27 +555,6 @@ function InvitationRedirectPage() {
                     </div>
                   </form>
                 </Form>
-
-                <p>To downlod the mobile app</p>
-                <p>
-                  Android:
-                  <a
-                    className="text-blue-600 underline"
-                    href="https://play.google.com/store/apps/details?id=gov.bbg.voa
-"
-                  >
-                    PROCG Onboarding App
-                  </a>
-                </p>
-                <p>
-                  IOS:
-                  <a
-                    className="text-blue-600 underline"
-                    href="https://apps.apple.com/app/myapp/id123456789"
-                  >
-                    PROCG Onboarding App
-                  </a>
-                </p>
               </div>
             ) : (
               <div>

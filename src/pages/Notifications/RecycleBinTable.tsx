@@ -56,15 +56,16 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const limit = 50;
   const navigate = useNavigate();
   useEffect(() => {
     const fetchRecycleBinMsg = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get<Notification[]>(
-          `/notifications/recyclebin/${userId}/${currentPage}/50`
+        const response = await api.get(
+          `/notifications/recyclebin?user_id=${userId}&page=${currentPage}&limit=${limit}`
         );
-        setRecycleBinMsg(response.data);
+        setRecycleBinMsg(response.data.result);
       } catch (error) {
         if (error instanceof Error) {
           toast({ title: error.message, variant: "destructive" });
@@ -99,10 +100,10 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
   const handleDelete = async (msg: Notification) => {
     try {
       const response = await api.put(
-        `/notifications/remove-from-recyclebin/${msg.notification_id}/${userId}`
+        `/notifications/remove-from-recyclebin?notification_id=${msg.notification_id}&user_id=${userId}`
       );
       if (response.status === 200) {
-        handleDeleteMessage(msg.notification_id);
+        handleDeleteMessage(msg.notification_id, "Recycle");
         toast({
           title: `${response.data.message}`,
         });
@@ -162,24 +163,6 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
     navigate(`/notifications/recycle-bin/${id}`);
   };
 
-  const restoreMessage = async (notificationId: string) => {
-    try {
-      const response = await api.put(
-        `/notifications/restore/${notificationId}/${userId}`
-      );
-      if (response.status === 200) {
-        handleRestoreMessage(notificationId, token.user_id);
-        toast({
-          title: `${response.data.message}`,
-        });
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
-    }
-  };
-
   const findOrigin = (msg: Notification) => {
     if (msg.status === "DRAFT") {
       return "Drafts";
@@ -188,6 +171,28 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
         return "Sent";
       } else {
         return "Inbox";
+      }
+    }
+  };
+
+  const restoreMessage = async (notification: Notification) => {
+    try {
+      const response = await api.put(
+        `/notifications/restore?notification_id=${notification.notification_id}&user_id=${userId}`
+      );
+      if (response.status === 200) {
+        handleRestoreMessage(
+          notification.notification_id,
+          token.user_id,
+          findOrigin(notification)
+        );
+        toast({
+          title: `${response.data.message}`,
+        });
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast({ title: error.message, variant: "destructive" });
       }
     }
   };
@@ -303,11 +308,7 @@ const RecycleBinTable = ({ path, person }: RecycleBinTableProps) => {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span
-                                onClick={() =>
-                                  restoreMessage(msg.notification_id)
-                                }
-                              >
+                              <span onClick={() => restoreMessage(msg)}>
                                 <RotateCcw className="cursor-pointer" />
                               </span>
                             </TooltipTrigger>
