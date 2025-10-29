@@ -52,7 +52,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
   const nodeUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
 
-  const totalusers = [...recivers, combinedUser?.user_id];
+  const totalusers = [...recivers, userId];
   const involvedusers = [...new Set(totalusers)];
   const actualUsers = users.filter(
     (usr) => usr.user_id !== combinedUser?.user_id
@@ -151,7 +151,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
         url: "/notifications",
         setLoading: setIsSending,
         payload: notifcationData,
-        isToast: true,
+        isToast: notifcationType === "NOTIFICATION" ? true : false,
         accessToken: token.access_token,
       };
 
@@ -160,7 +160,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
       if (response.status === 201) {
         if (notifcationType === "ALERT") {
           const alertParams = {
-            baseURL: nodeUrl,
+            baseURL: NODE_URL,
             url: "/alerts",
             setLoading: setIsSending,
             payload: {
@@ -168,27 +168,27 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
               description: alertDescription,
               recepients: recivers,
               notification_id: id,
-              created_by: combinedUser?.user_id,
-              last_updated_by: combinedUser?.user_id,
+              // created_by: combinedUser?.user_id,
+              // last_updated_by: combinedUser?.user_id,
             },
-            isToast: false,
+            isToast: true,
             accessToken: token.access_token,
           };
 
           const alertResponse = await postData(alertParams);
 
           if (alertResponse.status === 201) {
-            const params = {
-              baseURL: nodeUrl,
-              url: `/notifications/${response.data.result.notification_id}`,
-              setLoading: setIsSending,
-              payload: {
-                alert_id: alertResponse.data.result.alert_id,
-              },
-              isToast: false,
-              accessToken: token.access_token,
-            };
-            await putData(params);
+            // const params = {
+            //   baseURL: nodeUrl,
+            //   url: `/notifications/${response.data.result.notification_id}`,
+            //   setLoading: setIsSending,
+            //   payload: {
+            //     alert_id: alertResponse.data.result.alert_id,
+            //   },
+            //   isToast: false,
+            //   accessToken: token.access_token,
+            // };
+            // await putData(params);
             handleSendAlert(
               alertResponse.data.result.alert_id,
               recivers,

@@ -18,7 +18,7 @@ import {
 import { io } from "socket.io-client";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { getUserLocation, watchGeoPermission } from "@/Utility/locationUtils";
-import { Alerts } from "@/types/interfaces/alerts.interface";
+import { AlertPayload, Alerts } from "@/types/interfaces/alerts.interface";
 
 interface SocketContextProps {
   children: ReactNode;
@@ -449,9 +449,9 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     //   }
     // );
 
-    socket.on("SentAlert", ({ alert }: { alert: Alerts }) => {
-      const alertIds = alerts.map((item) => item.alert_id);
-      if (alertIds.includes(alert.alert_id)) {
+    socket.on("SentAlert", ({ alert, isAcknowledge }: AlertPayload) => {
+      console.log(alert, isAcknowledge);
+      if (isAcknowledge) {
         setAlerts((prev) => {
           const newExistingAlerts = prev.filter(
             (item) => item.alert_id !== alert.alert_id
