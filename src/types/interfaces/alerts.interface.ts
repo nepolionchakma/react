@@ -12,3 +12,8 @@ export interface Alerts {
   last_update_by: number;
   last_update_date: Date;
 }
+
+export type AlertPayload = {
+  alert: Alerts;
+  isAcknowledge: boolean;
+};
