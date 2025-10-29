@@ -1,6 +1,7 @@
 import axios from "axios";
 export const url = import.meta.env.VITE_NODE_ENDPOINT_URL; //VITE_API_ENDPOINT using NGNIX;
 export const FLASK_URL = import.meta.env.VITE_FLASK_ENDPOINT_URL;
+export const NODE_URL = import.meta.env.VITE_NODE_ENDPOINT_URL;
 
 axios.defaults.withCredentials = true;
 // export default axios.create({

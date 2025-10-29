@@ -19,7 +19,6 @@ import TableRowCounter from "@/components/TableCounter/TableRowCounter";
 import Spinner from "@/components/Spinner/Spinner";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { useEffect, useState } from "react";
-import { Notification } from "@/types/interfaces/users.interface";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
@@ -45,16 +44,17 @@ const SentTable = ({ path, person }: SentTableProps) => {
   const { toast } = useToast();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const limit = 50;
 
   //Fetch Sent Messages
   useEffect(() => {
     const fetchSentMessages = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get<Notification[]>(
-          `/notifications/sent/${userId}/${currentPage}/50`
+        const response = await api.get(
+          `/notifications/sent?user_id=${userId}&page=${currentPage}&limit=${limit}`
         );
-        const result = response.data;
+        const result = response.data.result;
         setSentMessages(result);
       } catch (error) {
         if (error instanceof Error) {
@@ -88,10 +88,10 @@ const SentTable = ({ path, person }: SentTableProps) => {
   const handleDelete = async (notification_id: string) => {
     try {
       const response = await api.put(
-        `/notifications/move-to-recyclebin/${notification_id}/${userId}`
+        `/notifications/move-to-recyclebin?notification_id=${notification_id}&user_id=${userId}`
       );
       if (response.status === 200) {
-        handleDeleteMessage(notification_id);
+        handleDeleteMessage(notification_id, "Sent");
         toast({
           title: `${response.data.message}`,
         });

@@ -10,6 +10,7 @@ interface loadDataParams {
   url: string;
   setLoading?: Dispatch<SetStateAction<boolean>>;
   accessToken?: string;
+  isToast?: boolean;
 }
 
 interface postDataParams {
@@ -60,10 +61,14 @@ export async function loadData(params: loadDataParams) {
         (error.response?.data as any)?.message ||
         (error.response?.data as any)?.error ||
         error.message;
-      toast({ title: message, variant: "destructive" });
+      if (params.isToast) {
+        toast({ title: message, variant: "destructive" });
+      }
       return error.response?.data;
     } else {
-      toast({ title: error as any, variant: "destructive" });
+      if (params.isToast) {
+        toast({ title: error as any, variant: "destructive" });
+      }
       return error;
       // throw error;
     }
@@ -100,8 +105,10 @@ export async function postData(params: postDataParams) {
       }
       throw error;
     } else {
-      toast({ title: error as any, variant: "destructive" });
-      throw error;
+      if (params.isToast) {
+        toast({ title: error as any, variant: "destructive" });
+        throw error;
+      }
     }
   } finally {
     params.setLoading(false);
@@ -134,8 +141,10 @@ export async function putData(params: putDataParams) {
       }
       throw error;
     } else {
-      toast({ title: error as any, variant: "destructive" });
-      throw error;
+      if (params.isToast) {
+        toast({ title: error as any, variant: "destructive" });
+        throw error;
+      }
     }
   } finally {
     params.setLoading(false);
@@ -169,8 +178,10 @@ export async function deleteData(params: deleteDataParams) {
       }
       throw error;
     } else {
-      toast({ title: error as any, variant: "destructive" });
-      throw error;
+      if (params.isToast) {
+        toast({ title: error as any, variant: "destructive" });
+        throw error;
+      }
     }
   }
 }

@@ -15,20 +15,22 @@ import {
   renderSlicedUsername,
 } from "@/Utility/NotificationUtils";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
+import { NODE_URL } from "@/Api/Api";
+import { postData } from "@/Utility/funtion";
 
 interface ReplyDialogProps {
-  parrentMessage: Notification;
-  setTotalMessages: React.Dispatch<React.SetStateAction<Notification[]>>;
+  parrentMessage: Notification | undefined;
+  setStateChange: React.Dispatch<React.SetStateAction<number>>;
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const ReplyDialog = ({
   parrentMessage,
-  setTotalMessages,
+  setStateChange,
   setShowModal,
 }: ReplyDialogProps) => {
   const api = useAxiosPrivate();
-  const { users, userId, combinedUser } = useGlobalContext();
+  const { users, userId, combinedUser, token } = useGlobalContext();
   const { handlesendMessage, handleDraftMessage } = useSocketContext();
   const [subject, setSubject] = useState<string>("");
   const [body, setBody] = useState<string>("");
@@ -40,12 +42,14 @@ const ReplyDialog = ({
   const { toast } = useToast();
 
   const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
-  const totalInvolved = [...parrentMessage.recipients, parrentMessage.sender];
-  const recivers = totalInvolved.filter((rcvr) => rcvr !== userId);
+  // const totalInvolved = parrentMessage.involved_users
+  const recivers = parrentMessage?.involved_users.filter(
+    (rcvr) => rcvr !== userId
+  );
 
   useEffect(() => {
-    setSubject(`Re: ${parrentMessage.subject}`);
-  }, [parrentMessage.subject]);
+    setSubject(`Re: ${parrentMessage?.subject}`);
+  }, [parrentMessage?.subject]);
 
   const handleSend = async () => {
     if (subject.length > 100) {
@@ -64,18 +68,18 @@ const ReplyDialog = ({
       notification_body: body,
       status: "SENT",
       creation_date: new Date(),
-      parent_notification_id: parrentMessage.parent_notification_id,
-      involved_users: parrentMessage.involved_users,
+      parent_notification_id: parrentMessage?.parent_notification_id,
+      involved_users: parrentMessage?.involved_users,
       readers: recivers,
-      holders: parrentMessage.involved_users,
+      holders: parrentMessage?.involved_users,
       recycle_bin: [],
-      action_item_id: parrentMessage.action_item_id,
-      alert_id: parrentMessage.alert_id,
+      action_item_id: parrentMessage?.action_item_id,
+      alert_id: parrentMessage?.alert_id,
     };
 
-    const sendNotificationPayload = {
+    const pushNotificationPayload = {
       notificationID: id,
-      parentId: parrentMessage.parent_notification_id,
+      parentId: parrentMessage?.parent_notification_id,
       date: new Date(),
       sender: combinedUser?.user_name,
       recipients: recivers,
@@ -84,18 +88,31 @@ const ReplyDialog = ({
     };
     try {
       setIsSending(true);
-      const response = await api.post(`/notifications`, data);
+      const sendNotificationParams = {
+        baseURL: NODE_URL,
+        url: "/notifications",
+        setLoading: setIsSending,
+        payload: data,
+        isToast: true,
+        accessToken: token.access_token,
+      };
+      const response = await postData(sendNotificationParams);
 
       if (response.status === 201) {
-        setTotalMessages((prev) => [data, ...prev]);
-        await api.post(
-          "/push-notification/send-notification",
-          sendNotificationPayload
-        );
-        toast({
-          title: `${response.data.message}`,
-        });
-        handlesendMessage(data.notification_id, data.sender);
+        handlesendMessage(data.notification_id, data.sender, data.recipients);
+        setStateChange((prev) => prev + 3);
+
+        const pushNotificationParams = {
+          baseURL: NODE_URL,
+          url: "/push-notification/send-notification",
+          setLoading: setIsSending,
+          payload: pushNotificationPayload,
+          accessToken: token.access_token,
+          isToast: false,
+          // isConsole?: boolean;
+        };
+
+        await postData(pushNotificationParams);
       }
     } catch (error) {
       console.error("Error:", error);
@@ -128,19 +145,19 @@ const ReplyDialog = ({
       notification_body: body,
       status: "DRAFT",
       creation_date: new Date(),
-      parent_notification_id: parrentMessage.parent_notification_id,
-      involved_users: parrentMessage.involved_users,
+      parent_notification_id: parrentMessage?.parent_notification_id,
+      involved_users: parrentMessage?.involved_users,
       readers: recivers,
       holders: [userId],
       recycle_bin: [],
-      action_item_id: parrentMessage.action_item_id,
-      alert_id: parrentMessage.alert_id,
+      action_item_id: parrentMessage?.action_item_id,
+      alert_id: parrentMessage?.alert_id,
     };
     try {
       setIsDrafting(true);
       const response = await api.post(`/notifications`, data);
       if (response.status === 201) {
-        handleDraftMessage(data.notification_id, data.sender);
+        handleDraftMessage(data.notification_id, data.sender, "New");
         toast({
           title: `${response.data.message}`,
         });
@@ -168,7 +185,7 @@ const ReplyDialog = ({
             <div className="flex flex-col gap-2">
               <label className="font-semibold text-dark-400">Recipients</label>
               <div className="w-full border p-1 rounded-sm bg-gray-100 max-h-[4.5rem] scrollbar-thin overflow-auto flex flex-wrap gap-1">
-                {recivers.map((rec) => (
+                {recivers?.map((rec: number) => (
                   <div
                     key={rec}
                     className="flex gap-1 border h-8 px-2 items-center rounded-full bg-white"
@@ -233,10 +250,10 @@ const ReplyDialog = ({
               <p className="font-semibold ">Save as drafts</p>
             </button>
             <button
-              disabled={recivers.length === 0 || body === ""}
+              disabled={recivers?.length === 0 || body === ""}
               onClick={handleSend}
               className={`${
-                body.length === 0 || body === "" || recivers.length === 0
+                body.length === 0 || body === "" || recivers?.length === 0
                   ? "cursor-not-allowed bg-dark-400"
                   : "cursor-pointer bg-dark-100 hover:bg-dark-100/80"
               } flex gap-1 items-center px-6 py-2 rounded-md text-white`}

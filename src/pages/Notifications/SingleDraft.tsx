@@ -11,7 +11,6 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useToast } from "@/components/ui/use-toast";
 import Spinner from "@/components/Spinner/Spinner";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import {
   renderUserName,
   renderProfilePicture,
@@ -19,13 +18,13 @@ import {
 } from "@/Utility/NotificationUtils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toTitleCase } from "@/Utility/general";
-import { loadData, putData } from "@/Utility/funtion";
+import { loadData, postData, putData } from "@/Utility/funtion";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
 import { Notification } from "@/types/interfaces/users.interface";
 
 interface ComposeButtonProps {
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
-  draftNotification: Notification;
+  draftNotification: Notification | undefined;
 }
 
 interface IOldMsgTypes {
@@ -42,21 +41,24 @@ const SingleDraft = ({
   setShowModal,
   draftNotification,
 }: ComposeButtonProps) => {
-  const api = useAxiosPrivate();
-  const { users, combinedUser } = useGlobalContext();
+  const { users, combinedUser, token } = useGlobalContext();
   const {
     handlesendMessage,
     handleDraftMessage,
     handleSendAlert,
-    handleDraftMsgId,
+    handleDeleteMessage,
   } = useSocketContext();
   const { toast } = useToast();
   const [recivers, setRecivers] = useState<number[]>(
-    draftNotification.recipients
+    draftNotification?.recipients || []
   );
-  const notifcationType = draftNotification.notification_type;
-  const [subject, setSubject] = useState<string>(draftNotification.subject);
-  const [body, setBody] = useState<string>(draftNotification.notification_body);
+  const notifcationType = draftNotification?.notification_type;
+  const [subject, setSubject] = useState<string | undefined>(
+    draftNotification?.subject
+  );
+  const [body, setBody] = useState<string | undefined>(
+    draftNotification?.notification_body
+  );
   const [query, setQuery] = useState<string>("");
   const [isSending, setIsSending] = useState(false);
   const [isDrafting, setIsDrafting] = useState(false);
@@ -69,9 +71,9 @@ const SingleDraft = ({
     useState<string>("");
   const [userChanged, setuserChanged] = useState<boolean>(false);
   const [oldMsgState, setOldMsgState] = useState<IOldMsgTypes>({
-    receivers: draftNotification.recipients,
-    subject: draftNotification.subject,
-    body: draftNotification.notification_body,
+    receivers: draftNotification?.recipients,
+    subject: draftNotification?.subject,
+    body: draftNotification?.notification_body,
   });
   const actionItemStatus = "NEW";
 
@@ -94,12 +96,12 @@ const SingleDraft = ({
       if (notifcationType === "ALERT") {
         const params = {
           baseURL: nodeUrl,
-          url: `/alerts/${draftNotification.alert_id}`,
+          url: `/alerts/${draftNotification?.alert_id}`,
           setLoading: setIsLoading,
         };
 
         const alertResponse = await loadData(params);
-        console.log(alertResponse, `/alerts/${draftNotification.alert_id}`);
+        console.log(alertResponse, `/alerts/${draftNotification?.alert_id}`);
         if (alertResponse) {
           setOldMsgState((prev) => ({
             ...prev,
@@ -112,7 +114,7 @@ const SingleDraft = ({
       } else if (notifcationType === "ACTION ITEM") {
         const params = {
           baseURL: flaskUrl,
-          url: `/def_action_items/${draftNotification.action_item_id}`,
+          url: `/def_action_items/${draftNotification?.action_item_id}`,
           setLoading: setIsLoading,
         };
 
@@ -131,8 +133,8 @@ const SingleDraft = ({
 
     fetchData();
   }, [
-    draftNotification.action_item_id,
-    draftNotification.alert_id,
+    draftNotification?.action_item_id,
+    draftNotification?.alert_id,
     flaskUrl,
     nodeUrl,
     notifcationType,
@@ -210,7 +212,7 @@ const SingleDraft = ({
   };
 
   const handleSend = async () => {
-    if (subject.length > 100) {
+    if (subject && subject.length > 100) {
       toast({
         title: "The subject should not exceed 100 characters.",
         variant: "destructive",
@@ -234,21 +236,22 @@ const SingleDraft = ({
       return;
     }
     const notifcationData = {
+      notification_type: "NOTIFICATION",
       sender: combinedUser?.user_id,
       recipients: recivers,
       subject: subject,
       notification_body: body,
       status: "SENT",
-      creation_date: new Date(),
+      parent_notification_id: draftNotification?.parent_notification_id,
       involved_users: involvedusers,
       readers: recivers,
       holders: involvedusers,
       recycle_bin: [],
     };
 
-    const sendNotificationPayload = {
-      notificationID: draftNotification.notification_id,
-      parentId: draftNotification.parent_notification_id,
+    const pushNotificationPayload = {
+      notificationID: draftNotification?.notification_id,
+      parentId: draftNotification?.parent_notification_id,
       date: new Date(),
       sender: combinedUser?.user_name,
       recipients: recivers,
@@ -258,7 +261,7 @@ const SingleDraft = ({
     try {
       const sendNotificationParams = {
         baseURL: nodeUrl,
-        url: `/notifications/${draftNotification.notification_id}`,
+        url: `/notifications/${draftNotification?.notification_id}`,
         setLoading: setIsSending,
         payload: notifcationData,
         isToast: true,
@@ -266,15 +269,15 @@ const SingleDraft = ({
       const response = await putData(sendNotificationParams);
 
       if (response.status === 200) {
-        await api.post(
-          "/push-notification/send-notification",
-          sendNotificationPayload
-        );
+        // await api.post(
+        //   "/push-notification/send-notification",
+        //   pushNotificationPayload
+        // );
 
         if (notifcationType === "ALERT") {
           const alertParams = {
             baseURL: nodeUrl,
-            url: `/alerts/${draftNotification.alert_id}`,
+            url: `/alerts/${draftNotification?.alert_id}`,
             setLoading: setIsSending,
             payload: {
               alert_name: alertName,
@@ -287,7 +290,7 @@ const SingleDraft = ({
 
           await putData(alertParams);
           handleSendAlert(
-            draftNotification.alert_id as number,
+            draftNotification?.alert_id as number,
             recivers,
             false
           );
@@ -296,7 +299,7 @@ const SingleDraft = ({
         if (notifcationType === "ACTION ITEM") {
           const actionItemParams = {
             baseURL: flaskUrl,
-            url: `/def_action_items/${draftNotification.action_item_id}`,
+            url: `/def_action_items/${draftNotification?.action_item_id}`,
             setLoading: setIsSending,
             payload: {
               action_item_name: actionItemName,
@@ -310,19 +313,26 @@ const SingleDraft = ({
           await putData(actionItemParams);
         }
         handlesendMessage(
-          draftNotification.notification_id,
-          notifcationData.sender
+          draftNotification?.notification_id,
+          notifcationData.sender,
+          notifcationData.recipients
         );
-        handleDraftMsgId(draftNotification.notification_id as string);
+        handleDeleteMessage(
+          draftNotification?.notification_id as string,
+          "Drafts"
+        );
+        const pushNotificationParams = {
+          baseURL: nodeUrl,
+          url: "/push-notification/send-notification",
+          setLoading: setIsSending,
+          payload: pushNotificationPayload,
+          accessToken: token.access_token,
+        };
+
+        await postData(pushNotificationParams);
       }
     } catch (error) {
       console.error("Error:", error);
-      if (error instanceof Error) {
-        toast({
-          title: error.message,
-          variant: "destructive",
-        });
-      }
     } finally {
       setIsSending(false);
       setRecivers([]);
@@ -336,7 +346,7 @@ const SingleDraft = ({
   };
 
   const handleDraft = async () => {
-    if (subject.length > 100) {
+    if (subject && subject.length > 100) {
       toast({
         title: "The subject should not exceed 100 characters.",
         variant: "destructive",
@@ -372,20 +382,19 @@ const SingleDraft = ({
       recycle_bin: [],
     };
     try {
-      setIsDrafting(true);
       const sendNotificationParams = {
         baseURL: nodeUrl,
-        url: `/notifications/${draftNotification.notification_id}`,
+        url: `/notifications/${draftNotification?.notification_id}`,
         setLoading: setIsDrafting,
         payload: data,
-        isToast: false,
+        isToast: true,
       };
       const response = await putData(sendNotificationParams);
       if (response.status === 200) {
         if (notifcationType === "ALERT") {
           const alertParams = {
             baseURL: nodeUrl,
-            url: `/alerts/${draftNotification.alert_id}`,
+            url: `/alerts/${draftNotification?.alert_id}`,
             setLoading: setIsDrafting,
             payload: {
               alert_name: alertName,
@@ -402,7 +411,7 @@ const SingleDraft = ({
         if (notifcationType === "ACTION ITEM") {
           const actionItemParams = {
             baseURL: flaskUrl,
-            url: `/def_action_items/${draftNotification.action_item_id}`,
+            url: `/def_action_items/${draftNotification?.action_item_id}`,
             setLoading: setIsDrafting,
             payload: {
               action_item_name: actionItemName,
@@ -417,8 +426,9 @@ const SingleDraft = ({
         }
 
         handleDraftMessage(
-          draftNotification.notification_id as string,
-          data.sender
+          draftNotification?.notification_id as string,
+          data.sender,
+          "Old"
         );
         toast({
           title: `${response.data.message}`,
@@ -436,7 +446,9 @@ const SingleDraft = ({
   return (
     <CustomModal4 className="w-[700px]">
       <div className="flex justify-between px-2 items-center bg-[#CEDEF2] h-[41px]">
-        <p className="font-semibold">Edit {toTitleCase(notifcationType)}</p>
+        <p className="font-semibold">
+          Edit {toTitleCase(notifcationType as string)}
+        </p>
         <button onClick={() => setShowModal(false)}>
           <X />
         </button>
@@ -453,7 +465,7 @@ const SingleDraft = ({
               <div className="flex flex-col gap-2">
                 <label className="font-semibold text-dark-400 ">Type</label>
                 <div className="w-full border-b border-light-400 bg-gray-100 h-8 rounded-sm border flex justify-between items-center px-2 text-gray-400 cursor-not-allowed">
-                  <p>{toTitleCase(notifcationType)}</p>
+                  <p>{toTitleCase(notifcationType as string)}</p>
                   <ChevronDown strokeWidth={1} />
                 </div>
               </div>
