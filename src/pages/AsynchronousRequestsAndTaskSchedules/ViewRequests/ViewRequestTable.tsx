@@ -35,6 +35,7 @@ import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import PopUp from "./PopUp/PopUp";
 import Rows from "@/components/Rows/Rows";
 import Days from "@/components/Days/Days";
+import { convertToTitleCase } from "@/Utility/general";
 
 export function ViewRequestTable() {
   const {
@@ -209,7 +210,7 @@ export function ViewRequestTable() {
                       column.toggleVisibility(!!value)
                     }
                   >
-                    {column.id}
+                    {convertToTitleCase(column.id)}
                   </DropdownMenuCheckboxItem>
                 ))}
             </DropdownMenuContent>

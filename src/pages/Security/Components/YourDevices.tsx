@@ -54,7 +54,7 @@ const YourDevices = () => {
     };
 
     getDevices();
-  }, [api, isLoading, setLinkedDevices]);
+  }, [api, isLoading, setLinkedDevices, token]);
 
   const switchFunc = async (data: IUserLinkedDevices) => {
     try {
@@ -210,6 +210,10 @@ const YourDevices = () => {
                   </div>
                   <div className="flex flex-col items-end gap-1">
                     <Switch
+                      className={`${
+                        device.is_online &&
+                        "data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300  transition-colors"
+                      }`}
                       disabled={device.is_active === 0 && true}
                       checked={device.is_active === 1 ? true : false}
                       onCheckedChange={() => {

@@ -13,8 +13,8 @@ const Layout = () => {
   useEffect(() => {
     const hasDevice = localStorage.getItem("presentDevice");
 
-    if (presentDevice.id !== 0 && hasDevice === "true") {
-      addDevice(presentDevice.id);
+    if (presentDevice?.id !== 0 && hasDevice === "true") {
+      addDevice(presentDevice?.id);
 
       localStorage.removeItem("presentDevice");
     }

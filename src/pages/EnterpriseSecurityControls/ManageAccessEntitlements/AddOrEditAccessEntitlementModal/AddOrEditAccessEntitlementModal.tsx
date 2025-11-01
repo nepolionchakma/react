@@ -29,7 +29,7 @@ import { Row } from "@tanstack/react-table";
 interface IManageAccessEntitlementsProps {
   selectedItem?: IManageAccessEntitlementsTypes;
 }
-const ManageAccessPointsEntitleModal: FC<IManageAccessEntitlementsProps> = ({
+const AddOrEditAccessEntitlementModal: FC<IManageAccessEntitlementsProps> = ({
   selectedItem,
 }) => {
   const { token } = useGlobalContext();
@@ -166,7 +166,7 @@ const ManageAccessPointsEntitleModal: FC<IManageAccessEntitlementsProps> = ({
                 <FormLabel>Status</FormLabel>
                 <Select
                   required
-                  defaultValue={field.value}
+                  value={field.value}
                   onValueChange={field.onChange}
                 >
                   <FormControl>
@@ -175,8 +175,8 @@ const ManageAccessPointsEntitleModal: FC<IManageAccessEntitlementsProps> = ({
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="ACTIVE">Active</SelectItem>
+                    <SelectItem value="INACTIVE">Inactive</SelectItem>
                   </SelectContent>
                 </Select>
                 <FormMessage />
@@ -193,4 +193,4 @@ const ManageAccessPointsEntitleModal: FC<IManageAccessEntitlementsProps> = ({
     </Form>
   );
 };
-export default ManageAccessPointsEntitleModal;
+export default AddOrEditAccessEntitlementModal;

@@ -40,6 +40,7 @@ import {
 import Rows from "@/components/Rows/Rows";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
+import { convertToTitleCase } from "@/Utility/general";
 const data: IManageLocalConditonsType[] = [
   {
     id: "m5gr84i4",
@@ -360,7 +361,10 @@ export function ManageLocalConditions({ localLimit, setLocalLimit }: Props) {
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent
+              align="end"
+              className="max-h-72 overflow-y-auto scrollbar-thin"
+            >
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -374,7 +378,7 @@ export function ManageLocalConditions({ localLimit, setLocalLimit }: Props) {
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id}
+                      {convertToTitleCase(column.id)}
                     </DropdownMenuCheckboxItem>
                   );
                 })}

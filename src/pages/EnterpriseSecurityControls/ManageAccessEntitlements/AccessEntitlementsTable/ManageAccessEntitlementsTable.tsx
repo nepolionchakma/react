@@ -32,16 +32,13 @@ import {
 
 import Pagination5 from "@/components/Pagination/Pagination5";
 import columns from "./Columns";
-import {
-  IFetchAccessPointsElementTypes,
-  IManageAccessEntitlementsTypes,
-} from "@/types/interfaces/ManageAccessEntitlements.interface";
+import { IManageAccessEntitlementsTypes } from "@/types/interfaces/ManageAccessEntitlements.interface";
 import { useManageAccessEntitlementsContext } from "@/Context/ManageAccessEntitlements/ManageAccessEntitlementsContext";
-import { toast } from "@/components/ui/use-toast";
 import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import Rows from "@/components/Rows/Rows";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
+import { convertToTitleCase } from "@/Utility/general";
 
 // Main Component
 const ManageAccessEntitlementsTable = () => {
@@ -49,26 +46,26 @@ const ManageAccessEntitlementsTable = () => {
   const {
     save,
     setTable,
-
+    isLoading,
     selectedAccessEntitlements,
     setSelectedAccessEntitlements,
-    setFilteredData,
-    fetchAccessPointsEntitlement,
-    deleteAccessPointsElement,
+    setAccessPointsData,
+    fetchAccessPointsByEntitlementId,
     deleteManageAccessEntitlement,
     fetchManageAccessEntitlements,
     setEditManageAccessEntitlement,
     setMangeAccessEntitlementAction,
     setSelectedManageAccessEntitlements,
-    fetchAccessPointsEntitlementForDelete,
+    accessEntitlementsPage,
+    setAccessEntitlementsPage,
+    accessEntitlementsLimit,
+    setAccessEntitlementsLimit,
+    // accessPointsData,
   } = useManageAccessEntitlementsContext();
 
   // State Management
   const [data, setData] = React.useState<IManageAccessEntitlementsTypes[]>([]);
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [page, setPage] = React.useState<number>(1);
-  const [accessEntitlementsLimit, setAceessEntitlementsLimit] =
-    React.useState(4);
+
   const [totalPage, setTotalPage] = React.useState<number | undefined>(1);
 
   // Shadcn Form State
@@ -79,11 +76,6 @@ const ManageAccessEntitlementsTable = () => {
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-
-  // Delete States
-  const [deleteAccessPointsElements, setDeleteAccessPointsElements] =
-    React.useState<IFetchAccessPointsElementTypes[]>([]);
-  const [deleteLoading, setDeleteLoading] = React.useState(false);
 
   React.useEffect(() => {
     setSelectedAccessEntitlements({
@@ -100,40 +92,30 @@ const ManageAccessEntitlementsTable = () => {
       last_updated_by: 0,
       created_by: 0,
     });
-    setFilteredData([]);
+    setAccessPointsData([]);
     setSelectedManageAccessEntitlements({} as IManageAccessEntitlementsTypes);
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
-  }, [page]);
+  }, [accessEntitlementsPage]);
 
   React.useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-
-      try {
-        const result = await fetchManageAccessEntitlements(
-          page,
-          accessEntitlementsLimit
-        );
-        setTotalPage(result?.totalPages);
-        // setCurrentPage(result?.currentPage ?? 1);
-        setData(result?.results ?? []);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    fetchData();
-  }, [save, page, accessEntitlementsLimit]);
+    (async () => {
+      const result = await fetchManageAccessEntitlements();
+      setTotalPage(result.pages);
+      // setCurrentPage(result?.currentPage ?? 1);
+      setData(result.items);
+    })();
+  }, [accessEntitlementsPage, accessEntitlementsLimit, save]);
 
   // Fetch Access Points
   React.useEffect(() => {
     if (selectedAccessEntitlements.def_entitlement_id !== 0) {
-      fetchAccessPointsEntitlement(selectedAccessEntitlements);
+      fetchAccessPointsByEntitlementId(
+        selectedAccessEntitlements.def_entitlement_id
+      );
       setSelectedManageAccessEntitlements(selectedAccessEntitlements);
     } else {
       setSelectedManageAccessEntitlements({} as IManageAccessEntitlementsTypes);
-      fetchAccessPointsEntitlement({} as IManageAccessEntitlementsTypes);
+      fetchAccessPointsByEntitlementId(0);
     }
   }, [selectedAccessEntitlements.def_entitlement_id]);
 
@@ -187,34 +169,10 @@ const ManageAccessEntitlementsTable = () => {
     },
   });
 
-  // Delete items generate Handler
-  const handleGenerateAccessPointsDelete = async () => {
-    try {
-      setDeleteLoading(true);
-      const result = await fetchAccessPointsEntitlementForDelete(
-        selectedAccessEntitlements
-      );
-
-      setDeleteAccessPointsElements(result);
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
-    } finally {
-      setDeleteLoading(false);
-    }
-  };
-
   const handleDelete = async () => {
     await deleteManageAccessEntitlement(
       selectedAccessEntitlements.def_entitlement_id
     );
-
-    if (deleteAccessPointsElements) {
-      for (const item of deleteAccessPointsElements!) {
-        await deleteAccessPointsElement(item.def_access_point_id);
-      }
-    }
 
     table.getRowModel().rows.forEach((row) => row.toggleSelected(false));
     setSelectedAccessEntitlements({
@@ -231,7 +189,6 @@ const ManageAccessEntitlementsTable = () => {
       last_updated_by: 0,
       created_by: 0,
     });
-    setDeleteAccessPointsElements([]);
   };
 
   // default hidden columns
@@ -270,7 +227,7 @@ const ManageAccessEntitlementsTable = () => {
                     setSelectedManageAccessEntitlements(
                       {} as IManageAccessEntitlementsTypes
                     );
-                    setFilteredData([]);
+                    setAccessPointsData([]);
                     setSelectedAccessEntitlements({
                       def_entitlement_id: 0,
                       entitlement_name: "",
@@ -293,6 +250,7 @@ const ManageAccessEntitlementsTable = () => {
                 />
               </span>
             </CustomTooltip>
+
             {selectedAccessEntitlements.def_entitlement_id !== 0 ? (
               <CustomTooltip tooltipTitle="Edit">
                 <span>
@@ -316,47 +274,35 @@ const ManageAccessEntitlementsTable = () => {
                 </span>
               </CustomTooltip>
             )}
+
             <Alert
               disabled={selectedAccessEntitlements.def_entitlement_id === 0}
               actionName="delete"
               onContinue={handleDelete}
-              onClick={handleGenerateAccessPointsDelete}
               tooltipTitle="Delete"
             >
               <span className="flex flex-col gap-1">
-                {deleteLoading ? (
-                  <span className="h-10 w-10 mx-auto p-2">
-                    <l-tailspin
-                      size="30"
-                      stroke="5"
-                      speed="0.9"
-                      color="black"
-                    />
+                <span className="flex flex-col items-start gap-1">
+                  <span>
+                    Entitlement Name:
+                    {` ${selectedAccessEntitlements.entitlement_name}`}
                   </span>
-                ) : (
-                  <span className="flex flex-col items-start gap-1">
-                    <span>
-                      Entitlement Name:
-                      {` ${selectedAccessEntitlements.entitlement_name}`}
-                    </span>
 
-                    <span>
-                      {deleteAccessPointsElements && (
-                        <span>
-                          {deleteAccessPointsElements.map((item, index) => (
-                            <span
-                              key={item.def_access_point_id}
-                              className="flex gap-1"
-                            >
-                              {index + 1}. {item.element_name}
-                            </span>
-                          ))}
-                        </span>
-                      )}
-                    </span>
+                  <span>
+                    {/* {accessPointsData && (
+                      <span>
+                        {accessPointsData.map((item, index) => (
+                          <span
+                            key={item.def_access_point_id}
+                            className="flex gap-1"
+                          >
+                            {index + 1}. {item.access_point_name}
+                          </span>
+                        ))}
+                      </span>
+                    )} */}
                   </span>
-                )}
-                {isLoading && <span>loading</span>}
+                </span>
               </span>
             </Alert>
           </ActionButtons>
@@ -365,7 +311,7 @@ const ManageAccessEntitlementsTable = () => {
         <div className="flex gap-2 items-center ml-auto">
           <Rows
             limit={accessEntitlementsLimit}
-            setLimit={setAceessEntitlementsLimit}
+            setLimit={setAccessEntitlementsLimit}
           />
 
           {/* Columns */}
@@ -377,7 +323,7 @@ const ManageAccessEntitlementsTable = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="max-h-[70vh] overflow-auto scrollbar-thin"
+              className="max-h-72 overflow-y-auto scrollbar-thin"
             >
               {table
                 .getAllColumns()
@@ -391,7 +337,7 @@ const ManageAccessEntitlementsTable = () => {
                       column.toggleVisibility(!!value)
                     }
                   >
-                    {column.id}
+                    {convertToTitleCase(column.id)}
                   </DropdownMenuCheckboxItem>
                 ))}
             </DropdownMenuContent>
@@ -459,7 +405,7 @@ const ManageAccessEntitlementsTable = () => {
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-[16rem] text-center"
+                  className="h-[6.5rem] text-center"
                 >
                   <l-tailspin
                     size="40"
@@ -503,25 +449,11 @@ const ManageAccessEntitlementsTable = () => {
                   ))}
                 </TableRow>
               ))
-            ) : isLoading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-[16rem] text-center"
-                >
-                  <l-tailspin
-                    size="40"
-                    stroke="5"
-                    speed="0.9"
-                    color="black"
-                  ></l-tailspin>
-                </TableCell>
-              </TableRow>
             ) : (
               <TableRow>
                 <TableCell
                   colSpan={columns.length}
-                  className="h-[16rem] text-center"
+                  className="h-[6.5rem] text-center"
                 >
                   No results.
                 </TableCell>
@@ -537,8 +469,8 @@ const ManageAccessEntitlementsTable = () => {
             {table.getFilteredRowModel().rows.length} row(s) selected.
           </div>
           <Pagination5
-            currentPage={page}
-            setCurrentPage={setPage}
+            currentPage={accessEntitlementsPage}
+            setCurrentPage={setAccessEntitlementsPage}
             totalPageNumbers={totalPage as number}
           />
         </div>

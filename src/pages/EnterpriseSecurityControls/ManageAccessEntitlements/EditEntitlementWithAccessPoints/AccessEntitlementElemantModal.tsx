@@ -6,12 +6,10 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 
 const AccessEntitlementElemantModal = () => {
   const { isOpenModal, setIsOpenModal } = useGlobalContext();
-  const { selectedManageAccessEntitlements, setLimit, setPage } =
+  const { selectedManageAccessEntitlements } =
     useManageAccessEntitlementsContext();
   const handleCancel = () => {
     setIsOpenModal("");
-    setLimit(5);
-    setPage(1);
   };
   return (
     <div>

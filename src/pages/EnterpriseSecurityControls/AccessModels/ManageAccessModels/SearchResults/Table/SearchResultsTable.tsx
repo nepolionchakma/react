@@ -43,6 +43,7 @@ import Alert from "@/components/Alert/Alert";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import Rows from "@/components/Rows/Rows";
+import { convertToTitleCase } from "@/Utility/general";
 
 const SearchResultsTable = () => {
   const {
@@ -213,7 +214,7 @@ const SearchResultsTable = () => {
 
   const handleDelete = async () => {
     await Promise.all(
-      await willBeDelete.map(async (item) => {
+      willBeDelete.map(async (item) => {
         await deleteManageModelLogicAndAttributeData(
           item.def_access_model_logic_id,
           item.id
@@ -326,7 +327,7 @@ const SearchResultsTable = () => {
             placeholder="Search Model Name"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
-            className="w-[24rem] px-4 py-2 "
+            className="w-[20rem] px-4 py-2 "
           />
         </div>
         {/* Rows and Column */}
@@ -338,7 +339,10 @@ const SearchResultsTable = () => {
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent
+              align="end"
+              className="max-h-72 overflow-y-auto scrollbar-thin"
+            >
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -352,7 +356,7 @@ const SearchResultsTable = () => {
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id}
+                      {convertToTitleCase(column.id)}
                     </DropdownMenuCheckboxItem>
                   );
                 })}

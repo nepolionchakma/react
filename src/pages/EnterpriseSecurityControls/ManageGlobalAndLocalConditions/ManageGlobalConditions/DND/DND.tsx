@@ -26,8 +26,10 @@ import DragOverlayComponent from "./DragOverlayComponent";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { putData, postData } from "@/Utility/funtion";
 import { AxiosError } from "axios";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 
 const DND: FC = () => {
+  const { token } = useGlobalContext();
   const {
     isLoading,
     setStateChange,
@@ -35,7 +37,7 @@ const DND: FC = () => {
     isEditModalOpen,
     setIsEditModalOpen,
     selectedManageGlobalConditionItem: selectedItem,
-    setSelectedManageGlobalConditionItem,
+    // setSelectedManageGlobalConditionItem,
     fetchManageGlobalConditionLogics,
     attrMaxId,
     isActionLoading,
@@ -62,23 +64,21 @@ const DND: FC = () => {
 
   useEffect(() => {
     const fetchDataFunc = async () => {
-      try {
-        const fetchData = await fetchManageGlobalConditionLogics(
-          selectedItem[0]?.def_global_condition_id
-        );
+      const fetchData = await fetchManageGlobalConditionLogics(
+        selectedItem[0]?.def_global_condition_id
+      );
 
+      if (fetchData) {
         const sortedData = fetchData?.sort(
           (a, b) => a.widget_position - b.widget_position
         );
 
         setRightWidgets(sortedData as Extend[]);
         setOriginalData(sortedData as Extend[]);
-      } catch (error) {
-        console.log(error);
       }
     };
     fetchDataFunc();
-  }, []);
+  }, [selectedItem]);
 
   //Top Form Start
   const FormSchema = z.object({
@@ -276,22 +276,19 @@ const DND: FC = () => {
       widget_position: item.widget_position,
       widget_state: item.widget_state,
     }));
-
     const putParams = {
       baseURL: FLASK_URL,
-      url:
-        flaskApi.DefGlobalConditions +
-        "/" +
-        selectedItem[0]?.def_global_condition_id,
+      url: `${flaskApi.DefGlobalConditions}/${selectedItem[0]?.def_global_condition_id}`,
       setLoading: setIsActionLoading,
       payload: changedAccessGlobalCondition,
+      accessToken: token.access_token,
     };
-
     const postGlobalConditionLogicsParams = {
       baseURL: FLASK_URL,
       url: `${flaskApi.DefGlobalConditionLogics}/upsert`,
       setLoading: setIsActionLoading,
       payload: upsertLogics,
+      accessToken: token.access_token,
     };
 
     const postGlobalConditionAttributeParams = {
@@ -299,6 +296,7 @@ const DND: FC = () => {
       url: `${flaskApi.DefGlobalConditionLogicAttributes}/upsert`,
       setLoading: setIsActionLoading,
       payload: upsertAttributes,
+      accessToken: token.access_token,
     };
 
     try {
@@ -306,8 +304,8 @@ const DND: FC = () => {
         const res = await putData(putParams);
         if (res) {
           setStateChange((prev) => prev + 1);
-          setIsEditModalOpen(false);
-          setSelectedManageGlobalConditionItem([]);
+          // setIsEditModalOpen(false);
+          // setSelectedManageGlobalConditionItem([]);
           toast({
             description: res.data.message,
           });
@@ -406,7 +404,7 @@ const DND: FC = () => {
               </div>
               <div className="border rounded-lg">
                 {isLoading ? (
-                  <div className="w-10 mx-auto mt-10">
+                  <div className="w-10 mx-auto my-10">
                     <l-ring
                       size="40"
                       stroke="5"

@@ -200,7 +200,7 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
     ),
   },
   {
-    accessorKey: "last_updated_date",
+    accessorKey: "last_update_date",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
       const a = new Date(rowA.getValue(columnId));
@@ -213,13 +213,13 @@ const columns: ColumnDef<IManageAccessModelsTypes>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="min-w-max cursor-pointer"
         >
-          Last Updated Date
+          Last Update Date
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
         </div>
       );
     },
     cell: ({ row }) => {
-      const data: string = row.getValue("last_updated_date");
+      const data: string = row.getValue("last_update_date");
       const date = new Date(data).toLocaleString();
       return <div className="capitalize px-1 min-w-max">{date}</div>;
     },

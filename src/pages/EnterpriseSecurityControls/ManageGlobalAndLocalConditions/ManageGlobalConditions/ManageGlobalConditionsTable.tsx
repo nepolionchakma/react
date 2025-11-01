@@ -52,6 +52,7 @@ import Alert from "@/components/Alert/Alert";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import Rows from "@/components/Rows/Rows";
+import { convertToTitleCase } from "@/Utility/general";
 
 interface Props {
   globalLimit: number;
@@ -99,8 +100,6 @@ const ManageGlobalConditionsTable = ({
   const [willBeDelete, setWillBeDelete] = useState<
     IManageGlobalConditionLogicExtendTypes[]
   >([]);
-
-  console.log(selectedGlobalIds);
 
   useEffect(() => {
     fetchDataSource();
@@ -232,7 +231,7 @@ const ManageGlobalConditionsTable = ({
         return (
           <div
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="min-w-[35rem] cursor-pointer"
+            className="min-w-[30rem] cursor-pointer"
           >
             Description
             <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
@@ -241,7 +240,7 @@ const ManageGlobalConditionsTable = ({
       },
 
       cell: ({ row }) => (
-        <div className="capitalize min-w-[35rem]">
+        <div className="capitalize min-w-[30rem]">
           {row.getValue("description")}
         </div>
       ),
@@ -405,7 +404,7 @@ const ManageGlobalConditionsTable = ({
           >
             <span className="flex flex-col items-start gap-1">
               {isLoading ? (
-                <span className="block">
+                <span className="w-full h-[10rem] flex items-center justify-center ">
                   <l-tailspin
                     size="40"
                     stroke="5"
@@ -457,7 +456,10 @@ const ManageGlobalConditionsTable = ({
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent
+              align="end"
+              className="max-h-72 overflow-y-auto scrollbar-thin"
+            >
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -471,7 +473,7 @@ const ManageGlobalConditionsTable = ({
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id}
+                      {convertToTitleCase(column.id)}
                     </DropdownMenuCheckboxItem>
                   );
                 })}

@@ -38,6 +38,7 @@ import Rows from "@/components/Rows/Rows";
 import { FLASK_URL } from "@/Api/Api";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { loadData } from "@/Utility/funtion";
+import { convertToTitleCase } from "@/Utility/general";
 
 interface ITenantsDataProps {
   tabName: string;
@@ -192,7 +193,10 @@ export function TenancyDataTable({
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent
+              align="end"
+              className="max-h-72 overflow-y-auto scrollbar-thin"
+            >
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -206,7 +210,7 @@ export function TenancyDataTable({
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id}
+                      {convertToTitleCase(column.id)}
                     </DropdownMenuCheckboxItem>
                   );
                 })}
@@ -355,7 +359,7 @@ export function TenancyDataTable({
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
                   if (header.index === 0) {
-              
+
                   }
                   return (
                     <TableHead
@@ -364,7 +368,7 @@ export function TenancyDataTable({
                         // width: header.index === 0 ? 24 : "auto",
                         width: `${header.getSize()}px`,
                       }}
-                      className={`relative border border-slate-400 bg-slate-200 p-1 h-9 
+                      className={`relative border border-slate-400 bg-slate-200 p-1 h-9
                       `}
                     >
                       {header.isPlaceholder

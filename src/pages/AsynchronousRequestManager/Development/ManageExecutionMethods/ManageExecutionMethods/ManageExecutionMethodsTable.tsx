@@ -39,6 +39,7 @@ import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import Rows from "@/components/Rows/Rows";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
+import { convertToTitleCase } from "@/Utility/general";
 
 export function ManageExecutionMethodsTable() {
   const {
@@ -260,7 +261,7 @@ export function ManageExecutionMethodsTable() {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="max-h-72 overflow-y-auto"
+              className="max-h-72 overflow-y-auto scrollbar-thin"
             >
               {table
                 .getAllColumns()
@@ -275,7 +276,7 @@ export function ManageExecutionMethodsTable() {
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id}
+                      {convertToTitleCase(column.id)}
                     </DropdownMenuCheckboxItem>
                   );
                 })}

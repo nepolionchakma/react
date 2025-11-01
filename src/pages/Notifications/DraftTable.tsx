@@ -49,31 +49,20 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showSingleDraft, setShowSingleDraft] = useState(false);
-  const [selectedDraft, setSelectedDraft] = useState<Notification>({
-    notification_id: "",
-    notification_type: "",
-    sender: userId,
-    recipients: [],
-    subject: "",
-    notification_body: "",
-    creation_date: new Date(),
-    status: "",
-    parent_notification_id: "",
-    involved_users: [],
-    readers: [],
-    holders: [],
-    recycle_bin: [],
-  });
+  const [selectedDraft, setSelectedDraft] = useState<
+    Notification | undefined
+  >();
+  const limit = 50;
 
   //Fetch Draft Messages
   useEffect(() => {
     const fetchSentMessages = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get<Notification[]>(
-          `/notifications/draft/${userId}/${currentPage}/50`
+        const response = await api.get(
+          `/notifications/drafts?user_id=${userId}&page=${currentPage}&limit=${limit}`
         );
-        const result = response.data;
+        const result = response.data.result;
         setDraftMessages(result);
       } catch (error) {
         if (error instanceof Error) {
@@ -107,10 +96,10 @@ const DraftTable = ({ path, person }: DraftTableProps) => {
   const handleDelete = async (notification_id: string) => {
     try {
       const response = await api.put(
-        `/notifications/move-to-recyclebin/${notification_id}/${userId}`
+        `/notifications/move-to-recyclebin?notification_id=${notification_id}&user_id=${userId}`
       );
       if (response.status === 200) {
-        handleDeleteMessage(notification_id);
+        handleDeleteMessage(notification_id, "Drafts");
         toast({
           title: `${response.data.message}`,
         });

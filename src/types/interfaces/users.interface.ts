@@ -66,22 +66,40 @@ export interface Message {
 }
 
 export interface Notification {
+  user_id: number;
   notification_id: string;
   notification_type: string;
-  sender: number;
-  recipients: number[];
-  subject: string;
-  notification_body: string;
-  creation_date: Date;
+  subject?: string;
+  notification_body?: string;
   status: string;
   parent_notification_id: string;
   involved_users: number[];
-  readers: number[];
-  holders: number[];
-  recycle_bin: number[];
-  action_item_id?: number | null;
-  alert_id?: number | null;
+  action_item_id?: number;
+  alert_id?: number;
+  sender: number;
+  recipients: number[];
+  recipient: boolean;
+  reader: boolean;
+  holder: boolean;
+  recycle_bin: boolean;
+  created_by?: number;
+  creation_date: Date;
+  last_updated_by?: number;
+  last_update_date: Date;
 }
+
+export type NotificationType = "Drafts" | "Sent" | "Inbox" | "Recycle";
+export type DraftNotificationType = "New" | "Old";
+
+export type MessagePayload = {
+  notification: Notification;
+  type: NotificationType;
+};
+export type DraftPayload = {
+  notification: Notification;
+  type: DraftNotificationType;
+};
+
 export interface IAddUserTypes {
   user_type: string;
   user_name: string;
@@ -147,6 +165,7 @@ export interface IUserLinkedDevices {
   location?: string;
   signon_audit?: audit[];
   signon_id: string;
+  is_online: boolean;
 }
 
 export interface IProfilesType {

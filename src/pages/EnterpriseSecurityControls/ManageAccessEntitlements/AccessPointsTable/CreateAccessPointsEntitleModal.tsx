@@ -19,37 +19,41 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useManageAccessEntitlementsContext } from "@/Context/ManageAccessEntitlements/ManageAccessEntitlementsContext";
-import { ring } from "ldrs";
 import { useEffect, useState } from "react";
 import { IDataSourceTypes } from "@/types/interfaces/datasource.interface";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import { IFetchAccessPointsElementTypes } from "@/types/interfaces/ManageAccessEntitlements.interface";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { loadData, postData } from "@/Utility/funtion";
+import { toast } from "@/components/ui/use-toast";
 const AccessPointsEntitleModal = () => {
-  const api = useAxiosPrivate();
   const {
     selectedManageAccessEntitlements,
-    createAccessPointsEntitlement,
-    isLoading,
-    createAccessEntitlementElements,
+    isLoadingAccessPoints,
+    setIsLoadingAccessPoints,
+    fetchAccessPointsByEntitlementId,
   } = useManageAccessEntitlementsContext();
   const { token } = useGlobalContext();
   const [dataSources, setDataSources] = useState<IDataSourceTypes[]>([]);
 
   useEffect(() => {
     const res = async () => {
-      const res = await api.get<IDataSourceTypes[]>(`/def-data-sources`);
-      setDataSources(res.data);
+      const res = await loadData({
+        baseURL: FLASK_URL,
+        url: flaskApi.DefDataSources,
+        accessToken: token.access_token,
+        setLoading: () => {},
+      });
+      setDataSources(res);
     };
     res();
-  }, []);
+  }, [token.access_token]);
 
   const FormSchema = z.object({
-    element_name: z.string(),
+    access_point_name: z.string(),
     description: z.string(),
     def_data_source_id: z.string(),
     platform: z.string(),
-    element_type: z.string(),
+    access_point_type: z.string(),
     access_control: z.string(),
     change_control: z.string(),
     audit: z.string(),
@@ -57,11 +61,11 @@ const AccessPointsEntitleModal = () => {
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      element_name: "",
+      access_point_name: "",
       description: "",
       def_data_source_id: "",
       platform: "",
-      element_type: "",
+      access_point_type: "",
       access_control: "",
       change_control: "",
       audit: "",
@@ -69,50 +73,40 @@ const AccessPointsEntitleModal = () => {
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
-    const postData = {
+    if (!selectedManageAccessEntitlements) return;
+    const postPayload = {
       def_data_source_id: Number(data.def_data_source_id),
-      element_name: data.element_name,
+      access_point_name: data.access_point_name,
       description: data.description,
       platform: data.platform,
-      element_type: data.element_type,
+      access_point_type: data.access_point_type,
       access_control: data.access_control,
       change_control: data.change_control,
       audit: data.audit,
-      created_by: token.user_id,
-      last_updated_by: token.user_id,
+      def_entitlement_id: selectedManageAccessEntitlements?.def_entitlement_id,
     };
-
-    const postAccessPointsElement = async () => {
-      //get max access point id
-      const res = await api.get(`/def-access-point-elements`);
-      const accessPointsMaxId =
-        res.data.length > 0
-          ? Math.max(
-              ...res.data.map(
-                (data: IFetchAccessPointsElementTypes) =>
-                  data.def_access_point_id
-              )
-            ) + 1
-          : 1;
-
-      try {
-        await createAccessPointsEntitlement(postData);
-        await createAccessEntitlementElements(
+    (async () => {
+      const res = await postData({
+        baseURL: FLASK_URL,
+        url: flaskApi.DefAccessPoints,
+        payload: postPayload,
+        accessToken: token.access_token,
+        setLoading: setIsLoadingAccessPoints,
+      });
+      // setSave((prevSave) => prevSave + 1);
+      if (res.status === 201) {
+        toast({
+          description: `Added successfully.`,
+        });
+        fetchAccessPointsByEntitlementId(
           selectedManageAccessEntitlements?.def_entitlement_id
-            ? selectedManageAccessEntitlements.def_entitlement_id
-            : 0,
-          [accessPointsMaxId]
         );
-      } catch (error) {
-        console.log(error);
-      } finally {
         form.reset();
-        // await fetchAccessPointsEntitlement(selected[0]);
       }
-    };
-    postAccessPointsElement();
+    })();
+    // await fetchAccessPointsEntitlement(selected[0]);
   }
-  ring.register();
+
   return (
     <Form {...form}>
       <form
@@ -122,12 +116,12 @@ const AccessPointsEntitleModal = () => {
         <div className="grid grid-cols-2 gap-2">
           <FormField
             control={form.control}
-            name="element_name"
+            name="access_point_name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Element Name</FormLabel>
+                <FormLabel>Access Point Name</FormLabel>
                 <FormControl>
-                  <Input placeholder="Element Name" {...field} />
+                  <Input placeholder="Access Point Name" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -197,12 +191,12 @@ const AccessPointsEntitleModal = () => {
           />
           <FormField
             control={form.control}
-            name="element_type"
+            name="access_point_type"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Element Type</FormLabel>
+                <FormLabel>Access Point Type</FormLabel>
                 <FormControl>
-                  <Input placeholder="Element Type" {...field} />
+                  <Input placeholder="Access Point Type" {...field} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -265,7 +259,7 @@ const AccessPointsEntitleModal = () => {
         </div>
         <div className="flex justify-end">
           <Button type="submit">
-            {isLoading ? (
+            {isLoadingAccessPoints ? (
               <l-ring
                 size="20"
                 stroke="5"

@@ -21,7 +21,6 @@ import TableRowCounter from "@/components/TableCounter/TableRowCounter";
 import Spinner from "@/components/Spinner/Spinner";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { useEffect, useState } from "react";
-import { Notification } from "@/types/interfaces/users.interface";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import Alert from "@/components/Alert/Alert";
@@ -48,17 +47,17 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const limit = 50;
   //Fetch Received Messages
   useEffect(() => {
     const fetchReceivedMessages = async () => {
       try {
         setIsLoading(true);
-        const response = await api.get<Notification[]>(
-          `/notifications/received/${userId}/${currentPage}/50`
+        const response = await api.get(
+          `/notifications/received?user_id=${userId}&page=${currentPage}&limit=${limit}`
         );
 
-        const result = response.data;
-        setReceivedMessages(result);
+        setReceivedMessages(response.data.result);
       } catch (error) {
         if (error instanceof Error) {
           toast({ title: error.message, variant: "destructive" });
@@ -93,7 +92,7 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
   const handleUniqueMessages = async (parentid: string) => {
     try {
       const res = await api.put(
-        `/notifications/update-readers/${parentid}/${userId}`
+        `/notifications/update-readers?parent_notification_id=${parentid}&user_id=${userId}`
       );
       if (res) {
         navigate(`/notifications/inbox/${parentid}`);
@@ -109,10 +108,10 @@ const NotificationTable = ({ path, person }: NotificationTableProps) => {
   const handleDelete = async (notification_id: string) => {
     try {
       const response = await api.put(
-        `/notifications/move-to-recyclebin/${notification_id}/${userId}`
+        `/notifications/move-to-recyclebin?notification_id=${notification_id}&user_id=${userId}`
       );
       if (response.status === 200) {
-        handleDeleteMessage(notification_id);
+        handleDeleteMessage(notification_id, "Inbox");
         toast({
           title: `${response.data.message}`,
         });

@@ -36,21 +36,10 @@ const SingleSent = () => {
   const id = idString.id;
 
   const [totalMessages, setTotalMessages] = useState<Notification[]>([]);
-  const [parrentMessage, setParrentMessage] = useState<Notification>({
-    notification_id: "",
-    notification_type: "",
-    sender: 0,
-    recipients: [],
-    subject: "",
-    notification_body: "",
-    creation_date: new Date(),
-    status: "",
-    parent_notification_id: "",
-    involved_users: [],
-    readers: [],
-    holders: [],
-    recycle_bin: [],
-  });
+  const [stateChange, setStateChange] = useState(0);
+  const [parrentMessage, setParrentMessage] = useState<
+    Notification | undefined
+  >(undefined);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
   //Fetch TotalReplyMessages
@@ -58,7 +47,7 @@ const SingleSent = () => {
     const fetchMessage = async () => {
       try {
         const response = await api.get<Notification[]>(
-          `/notifications/reply/${id}/${userId}`
+          `/notifications/reply?user_id=${userId}&parent_notification_id=${id}`
         );
         const result = response.data;
         setTotalMessages(result);
@@ -76,7 +65,7 @@ const SingleSent = () => {
     };
 
     fetchMessage();
-  }, [id, toast, api, userId]);
+  }, [id, toast, api, userId, stateChange]);
 
   useEffect(() => {
     if (totalMessages.length === 0 && isLoaded) {
@@ -90,8 +79,10 @@ const SingleSent = () => {
   useEffect(() => {
     const fetchMessage = async () => {
       try {
-        const response = await api.get<Notification>(`/notifications/${id}`);
-        const result = response.data;
+        const response = await api.get(
+          `/notifications/unique?notification_id=${id}&user_id=${userId}`
+        );
+        const result = response.data.result;
         setParrentMessage(result);
       } catch (error) {
         if (error instanceof Error) {
@@ -106,15 +97,15 @@ const SingleSent = () => {
     };
 
     fetchMessage();
-  }, [id, toast, api]);
+  }, [id, toast, api, userId]);
 
   const handleDelete = async (msgId: string) => {
     try {
       const response = await api.put(
-        `/notifications/move-to-recyclebin/${msgId}/${userId}`
+        `/notifications/move-to-recyclebin?notification_id=${msgId}&user_id=${userId}`
       );
       if (response.status === 200) {
-        handleDeleteMessage(msgId as string);
+        handleDeleteMessage(msgId as string, "Sent");
         setTotalMessages((prev) =>
           prev.filter((msg) => msg.notification_id !== msgId)
         );
@@ -137,36 +128,38 @@ const SingleSent = () => {
     return formattedDate;
   };
 
-  const renderMessage = (msg: string) => {
+  const renderMessage = (msg: string | undefined) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
 
     // Split the message by URLs and wrap each URL with <a> tag
-    const parts = msg.split(urlRegex);
+    if (msg) {
+      const parts = msg.split(urlRegex);
 
-    return parts.map((part, index) => {
-      // If the part matches the URL pattern, return a link
-      if (urlRegex.test(part)) {
-        return (
-          <a
-            href={part}
-            key={index}
-            className="text-blue-700 underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {part}
-          </a>
-        );
-      }
+      return parts.map((part, index) => {
+        // If the part matches the URL pattern, return a link
+        if (urlRegex.test(part)) {
+          return (
+            <a
+              href={part}
+              key={index}
+              className="text-blue-700 underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {part}
+            </a>
+          );
+        }
 
-      // Otherwise, return the text and convert newlines to <br />
-      return part.split("\n").map((line, lineIndex) => (
-        <React.Fragment key={lineIndex}>
-          {line}
-          <br />
-        </React.Fragment>
-      ));
-    });
+        // Otherwise, return the text and convert newlines to <br />
+        return part.split("\n").map((line, lineIndex) => (
+          <React.Fragment key={lineIndex}>
+            {line}
+            <br />
+          </React.Fragment>
+        ));
+      });
+    }
   };
   return (
     <div className="flex justify-center items-center w-full mb-4">
@@ -194,7 +187,7 @@ const SingleSent = () => {
               </span>
             </CustomTooltip>
 
-            <p className="font-bold">{parrentMessage.subject}</p>
+            <p className="font-bold">{parrentMessage?.subject}</p>
           </div>
           <div className="flex flex-col gap-4 w-full ">
             {totalMessages.map((msg) => (
@@ -265,7 +258,7 @@ const SingleSent = () => {
                     </div>
                   </div>
                   <p className="text-dark-400 mb-2">
-                    {renderMessage(msg.notification_body)}
+                    {renderMessage(msg?.notification_body)}
                   </p>
                   <div className="bg-gray-200 h-[0.7px] w-full"></div>
                 </div>
@@ -274,7 +267,7 @@ const SingleSent = () => {
           </div>
           {showModal && (
             <ReplyDialog
-              setTotalMessages={setTotalMessages}
+              setStateChange={setStateChange}
               parrentMessage={parrentMessage}
               setShowModal={setShowModal}
             />

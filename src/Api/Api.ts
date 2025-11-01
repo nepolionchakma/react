@@ -1,6 +1,7 @@
 import axios from "axios";
 export const url = import.meta.env.VITE_NODE_ENDPOINT_URL; //VITE_API_ENDPOINT using NGNIX;
 export const FLASK_URL = import.meta.env.VITE_FLASK_ENDPOINT_URL;
+export const NODE_URL = import.meta.env.VITE_NODE_ENDPOINT_URL;
 
 axios.defaults.withCredentials = true;
 // export default axios.create({
@@ -17,9 +18,17 @@ export const flaskApi = {
   DefGlobalConditions: "/def_global_conditions",
   DefGlobalConditionLogics: "/def_global_condition_logics",
   DefGlobalConditionLogicAttributes: "/def_global_condition_logic_attributes",
+  DefGlobalConditionLogicExtend: "/def_global_condition_logic_extend",
+  DefDataSources: "/def_data_sources",
   DefAccessModels: "/def_access_models",
   DefAccessModelLogics: "/def_access_model_logics",
   DefAccessModelLogicAttributes: "/def_access_model_logic_attributes",
+  DefAccessModelLogicExtend: "/def_access_model_logic_extend",
+  DefControls: "/def_controls",
+  DefAccessPoints: "/def_access_points",
+  DefAccessPointsView: "/def_access_points_view",
+  DefAccessEntitlements: "/def_access_entitlements",
+  DefAccessEntitlementElements: "/def_access_entitlement_elements",
   DefActionItems: "/def_action_items_view",
   DefActionItemAssignment: "/def_action_item_assignments",
   DefControlEnvironments: "/def_control_environments",

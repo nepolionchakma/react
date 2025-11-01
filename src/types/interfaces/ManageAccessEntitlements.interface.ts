@@ -19,25 +19,27 @@ export interface IManageAccessEntitlementsPerPageTypes {
   totalPages: number;
   currentPage: number;
 }
-export interface IFetchAccessPointsElementTypes {
+export interface IAccessPointTypes {
+  access_control: string;
+  access_point_name: string;
+  access_point_type: string;
+  audit: string;
+  change_control: string;
+  created_by: number;
+  creation_date: string;
+  datasource_name: string;
   def_access_point_id: number;
   def_data_source_id: number;
-  element_name: string;
+  def_entitlement_id: number;
   description: string;
-  platform: string;
-  element_type: string;
-  access_control: string;
-  change_control: string;
-  audit: string;
-  created_by: number;
-  created_on: string;
+  last_update_date: string;
   last_updated_by: number;
-  last_updated_on: string;
+  platform: string;
 }
 
 export interface IManageEntitlementElementDataDeleteTypes {
   entitlement_id: number;
-  res: IFetchAccessPointsElementTypes[] | undefined;
+  res: IAccessPointTypes[] | undefined;
 }
 export interface IFetchAccessEntitlementElementsTypes {
   entitlement_id: number;
@@ -46,15 +48,14 @@ export interface IFetchAccessEntitlementElementsTypes {
 export interface ICreateAccessPointsElementTypes {
   def_access_point_id?: number;
   def_data_source_id: number;
-  element_name: string;
+  access_point_name: string;
   description: string;
   platform: string;
-  element_type: string;
+  access_point_type: string;
   access_control: string;
   change_control: string;
   audit: string;
-  created_by: number;
-  last_updated_by: number;
+  def_entitlement_id: number;
 }
 export interface IManageLocalConditonsType {
   id: string;
@@ -153,6 +154,6 @@ export interface IManageAccessModelSearchFilterTypes {
 }
 
 export interface IFetchCombinedAccessPointsElementAndDatasourceTypes
-  extends IFetchAccessPointsElementTypes {
+  extends IAccessPointTypes {
   dataSource: IDataSourcePostTypes;
 }

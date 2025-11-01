@@ -40,6 +40,7 @@ import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import Rows from "@/components/Rows/Rows";
+import { convertToTitleCase } from "@/Utility/general";
 
 export function TaskTable() {
   const {
@@ -273,7 +274,7 @@ export function TaskTable() {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="max-h-72 overflow-y-auto"
+              className="max-h-72 overflow-y-auto scrollbar-thin"
             >
               {table
                 .getAllColumns()
@@ -288,7 +289,7 @@ export function TaskTable() {
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id}
+                      {convertToTitleCase(column.id)}
                     </DropdownMenuCheckboxItem>
                   );
                 })}

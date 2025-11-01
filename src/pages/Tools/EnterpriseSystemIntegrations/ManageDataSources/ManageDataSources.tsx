@@ -54,6 +54,7 @@ import {
 import Alert from "@/components/Alert/Alert";
 import Rows from "@/components/Rows/Rows";
 import SearchInput from "@/components/SearchInput/SearchInput";
+import { convertToTitleCase } from "@/Utility/general";
 
 const ManageDataSources = () => {
   const {
@@ -573,7 +574,10 @@ const ManageDataSources = () => {
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent
+              align="end"
+              className="max-h-72 overflow-y-auto scrollbar-thin"
+            >
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -587,7 +591,7 @@ const ManageDataSources = () => {
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id}
+                      {convertToTitleCase(column.id)}
                     </DropdownMenuCheckboxItem>
                   );
                 })}

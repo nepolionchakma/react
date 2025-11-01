@@ -68,9 +68,11 @@ const Dropdown = () => {
         <Avatar className="border">
           <AvatarImage
             className="object-cover object-center"
-            src={`${apiUrl}/${combinedUser?.profile_picture.original}`}
+            src={`${apiUrl}/${combinedUser?.profile_picture?.original}`}
           />
-          <AvatarFallback>{combinedUser?.user_name.slice(0, 1)}</AvatarFallback>
+          <AvatarFallback>
+            {combinedUser?.user_name?.slice(0, 1)}
+          </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-48 mr-1">

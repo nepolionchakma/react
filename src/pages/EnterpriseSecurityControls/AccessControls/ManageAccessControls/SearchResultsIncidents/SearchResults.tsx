@@ -35,11 +35,12 @@ import { useControlsContext } from "@/Context/ManageAccessEntitlements/ManageCon
 import { IControlsTypes } from "@/types/interfaces/manageControls.interface";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { toast } from "@/components/ui/use-toast";
+import { convertToTitleCase } from "@/Utility/general";
 
 const SearchResults = () => {
   const {
     setSelectedControl,
-    fetchControls,
+    // fetchControls,
     // controlsData: data,
   } = useControlsContext();
   // const { isLoading, stateChange } = useAACContext();
@@ -55,6 +56,7 @@ const SearchResults = () => {
   const [limit, setLimit] = React.useState(8);
   const [data, setData] = React.useState<IControlsTypes[]>([]);
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
+
   React.useEffect(() => {
     const fetchData = async () => {
       try {
@@ -99,9 +101,11 @@ const SearchResults = () => {
   };
 
   React.useEffect(() => {
-    fetchControls();
-    table.getRowModel().rows.map((row) => row.toggleSelected(false));
-    setSelectedControl([]);
+    if (stateChange) {
+      getControls(page, limit);
+      table.getRowModel().rows.map((row) => row.toggleSelected(false));
+      setSelectedControl([]);
+    }
   }, [stateChange]);
   // const data = manageAccessModels ? [...manageAccessModels] : [];
   ring.register();
@@ -193,7 +197,7 @@ const SearchResults = () => {
             placeholder="Search Control Name"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
-            className="w-[24rem] px-4 py-2"
+            className="w-[20rem] px-4 py-2"
           />
         </div>
         <div className="flex items-center gap-2">
@@ -218,7 +222,7 @@ const SearchResults = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent
               align="end"
-              className="max-h-72 overflow-y-auto"
+              className="max-h-72 overflow-y-auto scrollbar-thin"
             >
               {table
                 .getAllColumns()
@@ -233,7 +237,7 @@ const SearchResults = () => {
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id}
+                      {convertToTitleCase(column.id)}
                     </DropdownMenuCheckboxItem>
                   );
                 })}

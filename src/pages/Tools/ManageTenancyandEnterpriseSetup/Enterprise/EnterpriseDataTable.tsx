@@ -35,6 +35,7 @@ import { Button } from "@/components/ui/button";
 import { ChevronDown } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
 import Rows from "@/components/Rows/Rows";
+import { convertToTitleCase } from "@/Utility/general";
 
 interface IEnterpriseDataProps {
   tabName: string;
@@ -190,7 +191,10 @@ export function EnterpriseDataTable({
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
+            <DropdownMenuContent
+              align="end"
+              className="max-h-72 overflow-y-auto scrollbar-thin"
+            >
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
@@ -204,7 +208,7 @@ export function EnterpriseDataTable({
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id}
+                      {convertToTitleCase(column.id)}
                     </DropdownMenuCheckboxItem>
                   );
                 })}

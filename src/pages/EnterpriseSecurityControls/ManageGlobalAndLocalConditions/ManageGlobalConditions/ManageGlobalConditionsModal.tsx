@@ -19,6 +19,7 @@ import CustomDropDown from "@/components/CustomDropDown/CustomDropDown";
 import { postData } from "@/Utility/funtion";
 import { FLASK_URL } from "@/Api/Api";
 import { flaskApi } from "@/Api/Api";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 interface IManageGlobalConditionProps {
   selectedItem?: IManageGlobalConditionTypes;
 }
@@ -26,6 +27,7 @@ interface IManageGlobalConditionProps {
 const statusData = ["Active", "Inactive"];
 
 const ManageGlobalConditionsModal: FC<IManageGlobalConditionProps> = () => {
+  const { token } = useGlobalContext();
   const {
     setIsOpenManageGlobalConditionModal,
     isLoading,
@@ -64,11 +66,13 @@ const ManageGlobalConditionsModal: FC<IManageGlobalConditionProps> = () => {
       datasource: datasourceOption,
       status: status,
     };
+    console.log(postPayload, "postPayload");
     const postParams = {
       baseURL: FLASK_URL,
       url: flaskApi.DefGlobalConditions,
       setLoading: setIsLoading,
       payload: postPayload,
+      accessToken: token.access_token,
     };
 
     const res = await postData(postParams);

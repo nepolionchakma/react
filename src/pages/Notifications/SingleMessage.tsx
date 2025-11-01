@@ -22,45 +22,43 @@ import {
   renderProfilePicture,
   renderSlicedUsername,
 } from "@/Utility/NotificationUtils";
+import { NODE_URL } from "@/Api/Api";
+import { loadData } from "@/Utility/funtion";
 
 const SingleMessage = () => {
   const api = useAxiosPrivate();
   const { handleDeleteMessage } = useSocketContext();
-  const { userId, users } = useGlobalContext();
+  const { userId, users, token } = useGlobalContext();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(true);
+  const [stateChange, setStateChange] = useState(0);
 
   const navigate = useNavigate();
   const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
   const { id } = useParams();
 
   const [totalMessages, setTotalMessages] = useState<Notification[]>([]);
-  const [parrentMessage, setParrentMessage] = useState<Notification>({
-    notification_id: "",
-    notification_type: "",
-    sender: 0,
-    recipients: [],
-    subject: "",
-    notification_body: "",
-    creation_date: new Date(),
-    status: "",
-    parent_notification_id: "",
-    involved_users: [],
-    readers: [],
-    holders: [],
-    recycle_bin: [],
-  });
+  const [parrentMessage, setParrentMessage] = useState<
+    Notification | undefined
+  >(undefined);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
   //Fetch TotalReplyMessages
   useEffect(() => {
     const fetchMessage = async () => {
       try {
-        const response = await api.get<Notification[]>(
-          `/notifications/reply/${id}/${userId}`
-        );
+        const loadParams = {
+          baseURL: NODE_URL,
+          url: `/notifications/reply?parent_notification_id=${id}`,
+          setLoading: setIsLoading,
+          accessToken: token.access_token,
+          isToast: false,
+        };
+        const response = await loadData(loadParams);
+
+        console.log(response);
         if (response) {
-          const result = response.data;
+          const result = response.result;
 
           setTotalMessages(result);
           setIsLoaded(true);
@@ -78,14 +76,16 @@ const SingleMessage = () => {
     };
 
     fetchMessage();
-  }, [id, toast, api, userId]);
+  }, [id, toast, api, userId, stateChange, token.access_token]);
 
   //Fetch SingleMessage
   useEffect(() => {
     const fetchMessage = async () => {
       try {
-        const response = await api.get<Notification>(`/notifications/${id}`);
-        const result = response.data;
+        const response = await api.get(
+          `/notifications/unique?notification_id=${id}&user_id=${userId}`
+        );
+        const result = response.data.result;
         setParrentMessage(result);
       } catch (error) {
         if (error instanceof Error) {
@@ -113,10 +113,10 @@ const SingleMessage = () => {
   const handleDelete = async (msgId: string) => {
     try {
       const response = await api.put(
-        `/notifications/move-to-recyclebin/${msgId}/${userId}`
+        `/notifications/move-to-recyclebin?notification_id=${msgId}&user_id=${userId}`
       );
       if (response.status === 200) {
-        handleDeleteMessage(msgId as string);
+        handleDeleteMessage(msgId as string, "Inbox");
         setTotalMessages((prev) =>
           prev.filter((msg) => msg.notification_id !== msgId)
         );
@@ -140,36 +140,38 @@ const SingleMessage = () => {
     return formattedDate;
   };
 
-  const renderMessage = (msg: string) => {
+  const renderMessage = (msg: string | undefined) => {
     const urlRegex = /(https?:\/\/[^\s]+)/g;
 
     // Split the message by URLs and wrap each URL with <a> tag
-    const parts = msg.split(urlRegex);
+    if (msg) {
+      const parts = msg.split(urlRegex);
 
-    return parts.map((part, index) => {
-      // If the part matches the URL pattern, return a link
-      if (urlRegex.test(part)) {
-        return (
-          <a
-            href={part}
-            key={index}
-            className="text-blue-700 underline"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            {part}
-          </a>
-        );
-      }
+      return parts.map((part, index) => {
+        // If the part matches the URL pattern, return a link
+        if (urlRegex.test(part)) {
+          return (
+            <a
+              href={part}
+              key={index}
+              className="text-blue-700 underline"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {part}
+            </a>
+          );
+        }
 
-      // Otherwise, return the text and convert newlines to <br />
-      return part.split("\n").map((line, lineIndex) => (
-        <React.Fragment key={lineIndex}>
-          {line}
-          <br />
-        </React.Fragment>
-      ));
-    });
+        // Otherwise, return the text and convert newlines to <br />
+        return part.split("\n").map((line, lineIndex) => (
+          <React.Fragment key={lineIndex}>
+            {line}
+            <br />
+          </React.Fragment>
+        ));
+      });
+    }
   };
   return (
     <div className="flex justify-center items-center w-full mb-4">
@@ -203,17 +205,17 @@ const SingleMessage = () => {
               <div className="flex gap-4 items-start" key={msg.notification_id}>
                 <Avatar className="w-8 h-8">
                   <AvatarImage
-                    src={`${url}/${renderProfilePicture(msg.sender, users)}`}
+                    src={`${url}/${renderProfilePicture(msg.user_id, users)}`}
                   />
                   <AvatarFallback>
-                    {renderSlicedUsername(msg.sender, users, 1)}
+                    {renderSlicedUsername(msg.user_id, users, 1)}
                   </AvatarFallback>
                 </Avatar>
                 <div className="flex flex-col w-full">
                   <div className="flex justify-between items-start">
                     <div className="flex flex-col">
                       <p className="font-semibold">
-                        {renderUserName(msg.sender, users)}
+                        {renderUserName(msg.user_id, users)}
                       </p>
                       <div className="text-sm gap-1 flex items-center">
                         <span className="text-dark-400">to</span>
@@ -267,7 +269,7 @@ const SingleMessage = () => {
                     </div>
                   </div>
                   <p className="text-dark-400 mb-2">
-                    {renderMessage(msg.notification_body)}
+                    {renderMessage(msg?.notification_body)}
                   </p>
                   <div className="bg-gray-200 h-[0.7px] w-full"></div>
                 </div>
@@ -276,7 +278,7 @@ const SingleMessage = () => {
           </div>
           {showModal && (
             <ReplyDialog
-              setTotalMessages={setTotalMessages}
+              setStateChange={setStateChange}
               parrentMessage={parrentMessage}
               setShowModal={setShowModal}
             />
