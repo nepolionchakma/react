@@ -1,15 +1,14 @@
 import { Card } from "@/components/ui/card";
 import { CircleAlert } from "lucide-react";
 import { useEffect, useState } from "react";
-import { loadData } from "@/Utility/funtion";
+import { loadData, putData } from "@/Utility/funtion";
 import { convertDate } from "@/Utility/DateConverter";
-import { url, nodeApi, api } from "@/Api/Api";
+import { url, nodeApi, NODE_URL } from "@/Api/Api";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import Spinner from "@/components/Spinner/Spinner";
 import type { Alerts } from "@/types/interfaces/alerts.interface";
 import Pagination5 from "@/components/Pagination/Pagination5";
-import { useToast } from "@/components/ui/use-toast";
 
 const Alerts = () => {
   const { token } = useGlobalContext();
@@ -19,19 +18,18 @@ const Alerts = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(0);
   const limit = 8;
-  const { toast } = useToast();
 
   useEffect(() => {
     const fetchAlerts = async () => {
       const alertDataParams = {
         baseURL: url,
-        url: `${nodeApi.Alerts}/view/${token.user_id}/${currentPage}/${limit}`,
+        url: `${nodeApi.Alerts}/view?user_id=${token.user_id}&page=${currentPage}&limit=${limit}`,
         setLoading: setIsLoading,
       };
 
       const res = await loadData(alertDataParams);
-      setAlerts(res.items);
-      setTotalPage(res.pages);
+      setAlerts(res.result);
+      setTotalPage(res.totalPages);
     };
     fetchAlerts();
   }, [token.user_id, currentPage, setAlerts]);
@@ -42,23 +40,21 @@ const Alerts = () => {
   );
 
   const handleAcknowledge = async (user_id: number, alert_id: number) => {
-    try {
-      const res = await api.put(`/recepients/${alert_id}/${user_id}`, {
+    const putParams = {
+      baseURL: NODE_URL,
+      url: `/alerts/acknowledge/${alert_id}/${user_id}`,
+      setLoading: setIsLoading,
+      payload: {
         acknowledge: true,
-      });
-      if (res.status === 200) {
-        toast({
-          title: `Alert acknowledged.`,
-        });
-        handleSendAlert(alert_id, [user_id], true);
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({
-          title: error.message,
-          variant: "destructive",
-        });
-      }
+      },
+      // isConsole?: boolean;
+      isToast: true,
+      accessToken: token.access_token,
+    };
+
+    const res = await putData(putParams);
+    if (res.status === 200) {
+      handleSendAlert(alert_id, [user_id], true);
     }
   };
 
