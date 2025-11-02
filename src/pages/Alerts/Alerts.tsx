@@ -26,7 +26,7 @@ const Alerts = () => {
         url: `${nodeApi.Alerts}/view?user_id=${token.user_id}&page=${currentPage}&limit=${limit}`,
         setLoading: setIsLoading,
       };
-
+      console.log(alertDataParams, "alertDataParams");
       const res = await loadData(alertDataParams);
       setAlerts(res.result);
       setTotalPage(res.totalPages);
