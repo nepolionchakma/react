@@ -96,20 +96,21 @@ const SingleDraft = ({
       if (notifcationType === "ALERT") {
         const params = {
           baseURL: nodeUrl,
-          url: `/alerts/${draftNotification?.alert_id}`,
+          url: `/alerts/view?user_id=${token?.user_id}&alert_id=${draftNotification?.alert_id}`,
           setLoading: setIsLoading,
         };
 
         const alertResponse = await loadData(params);
-        console.log(alertResponse, `/alerts/${draftNotification?.alert_id}`);
+        console.log(alertResponse, "alertResponse");
+
         if (alertResponse) {
           setOldMsgState((prev) => ({
             ...prev,
-            alertName: alertResponse.alert_name,
-            alertDescription: alertResponse.description,
+            alertName: alertResponse.result.alert_name,
+            alertDescription: alertResponse.result.description,
           }));
-          setAlertName(alertResponse.alert_name);
-          setAlertDescription(alertResponse.description);
+          setAlertName(alertResponse.result.alert_name);
+          setAlertDescription(alertResponse.result.description);
         }
       } else if (notifcationType === "ACTION ITEM") {
         const params = {
@@ -236,13 +237,11 @@ const SingleDraft = ({
       return;
     }
     const notifcationData = {
-      notification_type: "NOTIFICATION",
       sender: combinedUser?.user_id,
       recipients: recivers,
       subject: subject,
       notification_body: body,
       status: "SENT",
-      parent_notification_id: draftNotification?.parent_notification_id,
       involved_users: involvedusers,
       readers: recivers,
       holders: involvedusers,
@@ -264,7 +263,7 @@ const SingleDraft = ({
         url: `/notifications/${draftNotification?.notification_id}`,
         setLoading: setIsSending,
         payload: notifcationData,
-        isToast: true,
+        isToast: notifcationType === "NOTIFICATION" ? true : false,
       };
       const response = await putData(sendNotificationParams);
 
@@ -282,10 +281,10 @@ const SingleDraft = ({
             payload: {
               alert_name: alertName,
               description: alertDescription,
-              recepients: recivers,
-              last_updated_by: combinedUser?.user_id,
+              recipients: recivers,
+              status: "SENT",
             },
-            isToast: false,
+            isToast: true,
           };
 
           await putData(alertParams);
@@ -307,7 +306,7 @@ const SingleDraft = ({
               status: actionItemStatus,
               user_ids: recivers,
             },
-            isToast: false,
+            isToast: true,
           };
 
           await putData(actionItemParams);
@@ -401,6 +400,7 @@ const SingleDraft = ({
               description: alertDescription,
               last_updated_by: combinedUser?.user_id,
               recipients: recivers,
+              status: "DRAFT",
             },
             isToast: false,
           };
@@ -430,9 +430,6 @@ const SingleDraft = ({
           data.sender,
           "Old"
         );
-        toast({
-          title: `${response.data.message}`,
-        });
       }
     } catch (error) {
       if (error instanceof Error) {

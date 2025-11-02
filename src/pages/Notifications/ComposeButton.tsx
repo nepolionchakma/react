@@ -168,6 +168,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
               description: alertDescription,
               recepients: recivers,
               notification_id: id,
+              status: "SENT",
             },
             isToast: true,
             accessToken: token.access_token,
@@ -320,6 +321,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
               description: alertDescription,
               recepients: recivers,
               notification_id: id,
+              status: "DRAFT",
             },
             isToast: false,
           };
