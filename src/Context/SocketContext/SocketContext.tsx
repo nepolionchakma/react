@@ -124,14 +124,16 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   /** fetch total alert */
   useEffect(() => {
     const fetchUnreadTotalAlert = async () => {
-      if (!token || token?.user_id === 0) return;
-      const res = await api.get(`/alerts/view/total/${token.user_id}`);
+      if (!token || userId === 0) return;
+      const res = await api.get(`/alerts/view?user_id=${userId}`);
+
+      console.log(res);
       if (res.status === 200) {
-        setUnreadTotalAlert(res.data);
+        setUnreadTotalAlert(res.data.result);
       }
     };
     fetchUnreadTotalAlert();
-  }, [api, token, token.user_id]);
+  }, [api, token, userId]);
 
   //Fetch Notification Messages
   useEffect(() => {

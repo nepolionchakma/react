@@ -168,8 +168,6 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
               description: alertDescription,
               recepients: recivers,
               notification_id: id,
-              // created_by: combinedUser?.user_id,
-              // last_updated_by: combinedUser?.user_id,
             },
             isToast: true,
             accessToken: token.access_token,
@@ -178,17 +176,6 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
           const alertResponse = await postData(alertParams);
 
           if (alertResponse.status === 201) {
-            // const params = {
-            //   baseURL: nodeUrl,
-            //   url: `/notifications/${response.data.result.notification_id}`,
-            //   setLoading: setIsSending,
-            //   payload: {
-            //     alert_id: alertResponse.data.result.alert_id,
-            //   },
-            //   isToast: false,
-            //   accessToken: token.access_token,
-            // };
-            // await putData(params);
             handleSendAlert(
               alertResponse.data.result.alert_id,
               recivers,
@@ -333,31 +320,19 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
               description: alertDescription,
               recepients: recivers,
               notification_id: id,
-              created_by: combinedUser?.user_id,
-              last_updated_by: combinedUser?.user_id,
             },
             isToast: false,
           };
 
-          const alertResponse = await postData(alertParams);
+          await postData(alertParams);
 
-          if (alertResponse.status === 201) {
-            const params = {
-              baseURL: nodeUrl,
-              url: `/notifications/${response.data.result.notification_id}`,
-              setLoading: setIsDrafting,
-              payload: {
-                alert_id: alertResponse.data.result.alert_id,
-              },
-              isToast: false,
-            };
-            await putData(params);
-            handleSendAlert(
-              alertResponse.data.result.alert_id,
-              recivers,
-              false
-            );
-          }
+          // if (alertResponse.status === 201) {
+          //   handleSendAlert(
+          //     alertResponse.data.result.alert_id,
+          //     recivers,
+          //     false
+          //   );
+          // }
         }
 
         if (notifcationType === "ACTION ITEM") {
