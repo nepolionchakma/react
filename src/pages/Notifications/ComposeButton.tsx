@@ -19,7 +19,7 @@ import {
 } from "@/Utility/NotificationUtils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toTitleCase } from "@/Utility/general";
-import { postData, putData } from "@/Utility/funtion";
+import { postData } from "@/Utility/funtion";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
 import { NODE_URL } from "@/Api/Api";
 
@@ -46,7 +46,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
   const [actionItemName, setActionItemName] = useState<string>("");
   const [actionItemDescription, setActionItemDescription] =
     useState<string>("");
-  const actionItemStatus = "NEW";
+
   const id = uuidv4();
   // const date = new Date();
   const nodeUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
@@ -156,7 +156,6 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
       };
 
       const response = await postData(sendNotificationParams);
-      console.log(response);
       if (response.status === 201) {
         if (notifcationType === "ALERT") {
           const alertParams = {
@@ -193,40 +192,15 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
             payload: {
               action_item_name: actionItemName,
               description: actionItemDescription,
-              status: actionItemStatus,
               user_ids: recivers,
+              notification_id: id,
+              action: "SENT",
             },
-            isToast: false,
+            isToast: true,
             accessToken: token.access_token,
           };
 
-          const actionItemResponse = await postData(actionItemParams);
-          console.log(actionItemResponse, "actionItemResponse");
-          if (actionItemResponse.status === 201) {
-            const params1 = {
-              baseURL: nodeUrl,
-              url: `/notifications/${response.data.result.notification_id}`,
-              setLoading: setIsSending,
-              payload: {
-                action_item_id: actionItemResponse.data.action_item_id,
-              },
-              isToast: false,
-              accessToken: token.access_token,
-            };
-            await putData(params1);
-
-            const params2 = {
-              baseURL: flaskUrl,
-              url: `/def_action_items/${actionItemResponse.data.action_item_id}`,
-              setLoading: setIsSending,
-              payload: {
-                notification_id: response.data.result.notification_id,
-              },
-              isToast: false,
-              accessToken: token.access_token,
-            };
-            await putData(params2);
-          }
+          await postData(actionItemParams);
         }
         handlesendMessage(
           notifcationData.notification_id,
@@ -305,11 +279,10 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
         setLoading: setIsDrafting,
         payload: data,
         // isConsole?: boolean;
-        isToast: true,
+        isToast: notifcationType === "NOTIFICATION" ? true : false,
         accessToken: token.access_token,
       };
       const response = await postData(draftParams);
-
       if (response.status === 201) {
         if (notifcationType === "ALERT") {
           const alertParams = {
@@ -323,18 +296,10 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
               notification_id: id,
               status: "DRAFT",
             },
-            isToast: false,
+            isToast: true,
           };
 
           await postData(alertParams);
-
-          // if (alertResponse.status === 201) {
-          //   handleSendAlert(
-          //     alertResponse.data.result.alert_id,
-          //     recivers,
-          //     false
-          //   );
-          // }
         }
 
         if (notifcationType === "ACTION ITEM") {
@@ -345,42 +310,16 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
             payload: {
               action_item_name: actionItemName,
               description: actionItemDescription,
-              status: actionItemStatus,
               user_ids: recivers,
+              notification_id: id,
+              action: "DRAFT",
             },
-            isToast: false,
+            isToast: true,
+            accessToken: token.access_token,
           };
-
-          const actionItemResponse = await postData(actionItemParams);
-
-          if (actionItemResponse.status === 201) {
-            const params1 = {
-              baseURL: nodeUrl,
-              url: `/notifications/${response.data.result.notification_id}`,
-              setLoading: setIsDrafting,
-              payload: {
-                action_item_id: actionItemResponse.data.action_item_id,
-              },
-              isToast: false,
-            };
-            await putData(params1);
-
-            const params2 = {
-              baseURL: flaskUrl,
-              url: `/def_action_items/${actionItemResponse.data.action_item_id}`,
-              setLoading: setIsDrafting,
-              payload: {
-                notification_id: response.data.result.notification_id,
-              },
-              isToast: false,
-            };
-            await putData(params2);
-          }
+          await postData(actionItemParams);
         }
 
-        toast({
-          title: `${response.data.message}`,
-        });
         handleDraftMessage(data.notification_id, data.sender, "New");
       }
     } catch (error) {

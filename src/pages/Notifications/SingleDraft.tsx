@@ -71,7 +71,6 @@ const SingleDraft = ({
     subject: draftNotification?.subject,
     body: draftNotification?.notification_body,
   });
-  const actionItemStatus = "NEW";
 
   // const date = new Date();
   const nodeUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
@@ -94,10 +93,10 @@ const SingleDraft = ({
           baseURL: nodeUrl,
           url: `/alerts/view?user_id=${token?.user_id}&alert_id=${draftNotification?.alert_id}`,
           setLoading: setIsLoading,
+          accessToken: token.access_token,
         };
 
         const alertResponse = await loadData(params);
-        console.log(alertResponse, "alertResponse");
 
         if (alertResponse) {
           setOldMsgState((prev) => ({
@@ -113,6 +112,7 @@ const SingleDraft = ({
           baseURL: flaskUrl,
           url: `/def_action_items/${draftNotification?.action_item_id}`,
           setLoading: setIsLoading,
+          accessToken: token.access_token,
         };
 
         const actionItemResponse = await loadData(params);
@@ -299,10 +299,11 @@ const SingleDraft = ({
             payload: {
               action_item_name: actionItemName,
               description: actionItemDescription,
-              status: actionItemStatus,
               user_ids: recivers,
+              action: "SENT",
             },
             isToast: true,
+            accessToken: token.access_token,
           };
 
           await putData(actionItemParams);
@@ -382,7 +383,7 @@ const SingleDraft = ({
         url: `/notifications/${draftNotification?.notification_id}`,
         setLoading: setIsDrafting,
         payload: data,
-        isToast: true,
+        isToast: notifcationType === "NOTIFICATION" ? true : false,
       };
       const response = await putData(sendNotificationParams);
       if (response.status === 200) {
@@ -398,7 +399,7 @@ const SingleDraft = ({
               recipients: recivers,
               status: "DRAFT",
             },
-            isToast: false,
+            isToast: true,
           };
 
           await putData(alertParams);
@@ -412,12 +413,14 @@ const SingleDraft = ({
             payload: {
               action_item_name: actionItemName,
               description: actionItemDescription,
-              status: actionItemStatus,
               user_ids: recivers,
+              notification_id: draftNotification?.notification_id,
+              action: "DRAFT",
             },
-            isToast: false,
+            isToast: true,
+            accessToken: token.access_token,
           };
-
+          console.log(actionItemParams, "actionItemParams");
           await putData(actionItemParams);
         }
 
@@ -468,7 +471,14 @@ const SingleDraft = ({
                   Recipients
                 </label>
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="w-full border-b border-light-400 h-8 rounded-sm border flex justify-between items-center px-2">
+                  <DropdownMenuTrigger
+                    disabled={subject?.includes("Re: ")}
+                    className={`${
+                      subject?.includes("Re: ")
+                        ? " text-gray-400 bg-gray-100 cursor-not-allowed"
+                        : ""
+                    } w-full border-b border-light-400 h-8 rounded-sm border flex justify-between items-center px-2`}
+                  >
                     <p>Select Recipients</p>
                     <ChevronDown strokeWidth={1} />
                   </DropdownMenuTrigger>
@@ -533,12 +543,14 @@ const SingleDraft = ({
                       <p className="font-semibold text-green-600">
                         {renderUserName(rec, users)}
                       </p>
-                      <div
-                        onClick={() => handleRemoveReciever(rec)}
-                        className="flex h-[65%] items-end cursor-pointer"
-                      >
-                        <Delete size={18} />
-                      </div>
+                      {!subject?.includes("Re: ") ? (
+                        <div
+                          onClick={() => handleRemoveReciever(rec)}
+                          className="flex h-[65%] items-end cursor-pointer"
+                        >
+                          <Delete size={18} />
+                        </div>
+                      ) : null}
                     </div>
                   ))}
                 </div>
@@ -548,6 +560,7 @@ const SingleDraft = ({
             <div className="flex flex-col gap-2 w-full text-dark-400">
               <label className="font-semibold ">Subject</label>
               <input
+                disabled={subject?.includes("Re: ")}
                 type="text"
                 className="rounded-sm outline-none border pl-2 h-8 w-full text-sm"
                 value={subject}

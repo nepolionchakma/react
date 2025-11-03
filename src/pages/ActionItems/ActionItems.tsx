@@ -192,7 +192,7 @@ const ActionItems = () => {
   const handleUpdateStatus = async (userId: number, actionItemId: number) => {
     try {
       const res = await axios.put(
-        `${FLASK_URL}/${flaskApi.DefActionItemAssignment}/${userId}/${actionItemId}`,
+        `${FLASK_URL}/def_action_items/update_status/${userId}/${actionItemId}`,
         { status: activeDialog?.status.toUpperCase() },
         {
           headers: {
@@ -200,6 +200,7 @@ const ActionItems = () => {
           },
         }
       );
+
       if (res.status === 200) {
         setActionItems((prev) =>
           prev.map((item) =>

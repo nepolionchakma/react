@@ -127,7 +127,6 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       if (!token || userId === 0) return;
       const res = await api.get(`/alerts/view?user_id=${userId}`);
 
-      console.log(res);
       if (res.status === 200) {
         setUnreadTotalAlert(res.data.result);
       }
@@ -220,7 +219,6 @@ export function SocketContextProvider({ children }: SocketContextProps) {
         (msg) => msg.notification_id
       );
       if (receivedMessagesId.includes(data.notification_id)) {
-        console.log("return");
         return;
       } else {
         setSocketMessages((prevArray) => [data, ...prevArray]);
@@ -413,7 +411,6 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     });
 
     socket.on("inactiveDevice", (data: IUserLinkedDevices) => {
-      console.log(data, "data");
       if (data.is_active === 0) {
         deviceSync(data);
       }
@@ -424,14 +421,8 @@ export function SocketContextProvider({ children }: SocketContextProps) {
             (item) => item.id === data.id && item.is_online === data.is_online
           )
         ) {
-          console.log(
-            prev.some(
-              (item) => item.id === data.id && item.is_online === data.is_online
-            )
-          );
           return prev;
         } else {
-          console.log("else");
           const removed = prev.filter((item) => item.id !== data.id);
           return [data, ...removed];
         }
@@ -460,7 +451,6 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     // );
 
     socket.on("SentAlert", ({ alert, isAcknowledge }: AlertPayload) => {
-      console.log(alert, isAcknowledge);
       if (isAcknowledge) {
         setAlerts((prev) => {
           const newExistingAlerts = prev.filter(
