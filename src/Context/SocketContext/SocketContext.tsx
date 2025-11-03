@@ -229,8 +229,15 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       }
     });
     socket.on("sentMessage", (data: Notification) => {
-      console.log("recieving sentMessage event", data.notification_id);
       const sentMessageId = sentMessages.map((msg) => msg.notification_id);
+      const draftMessageId = draftMessages.map((msg) => msg.notification_id);
+      // remove draft message from draftMessages
+      if (draftMessageId.includes(data.notification_id)) {
+        return setDraftMessages((prev) =>
+          prev.filter((item) => item.notification_id !== data.notification_id)
+        );
+      }
+      // add sent message to sentMessages
       if (sentMessageId.includes(data.notification_id)) {
         return;
       } else {
