@@ -233,9 +233,10 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       const draftMessageId = draftMessages.map((msg) => msg.notification_id);
       // remove draft message from draftMessages
       if (draftMessageId.includes(data.notification_id)) {
-        return setDraftMessages((prev) =>
+        setDraftMessages((prev) =>
           prev.filter((item) => item.notification_id !== data.notification_id)
         );
+        return setTotalDraftMessages((prev) => prev - 1);
       }
       // add sent message to sentMessages
       if (sentMessageId.includes(data.notification_id)) {
