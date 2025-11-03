@@ -42,12 +42,8 @@ const SingleDraft = ({
   draftNotification,
 }: ComposeButtonProps) => {
   const { users, combinedUser, token } = useGlobalContext();
-  const {
-    handlesendMessage,
-    handleDraftMessage,
-    handleSendAlert,
-    handleDeleteMessage,
-  } = useSocketContext();
+  const { handlesendMessage, handleDraftMessage, handleSendAlert } =
+    useSocketContext();
   const { toast } = useToast();
   const [recivers, setRecivers] = useState<number[]>(
     draftNotification?.recipients || []
@@ -316,10 +312,10 @@ const SingleDraft = ({
           notifcationData.sender,
           notifcationData.recipients
         );
-        handleDeleteMessage(
-          draftNotification?.notification_id as string,
-          "Drafts"
-        );
+        // handleDeleteMessage(
+        //   draftNotification?.notification_id as string,
+        //   "Drafts"
+        // );
         const pushNotificationParams = {
           baseURL: nodeUrl,
           url: "/push-notification/send-notification",
