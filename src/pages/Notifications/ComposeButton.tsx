@@ -202,10 +202,12 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
 
           await postData(actionItemParams);
         }
+
         handlesendMessage(
           notifcationData.notification_id,
           notifcationData.sender,
-          notifcationData.recipients
+          notifcationData.recipients,
+          "Sent"
         );
 
         const pushNotificationParams = {

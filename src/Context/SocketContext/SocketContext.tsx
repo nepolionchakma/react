@@ -14,6 +14,8 @@ import {
   MessagePayload,
   Notification,
   NotificationType,
+  SentNotificationType,
+  SentPayload,
 } from "@/types/interfaces/users.interface";
 import { io } from "socket.io-client";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
@@ -29,7 +31,8 @@ interface SocketContext {
   handlesendMessage: (
     notificationId: string | undefined,
     sender: number | undefined,
-    recipients: number[] | undefined
+    recipients: number[] | undefined,
+    type: SentNotificationType
   ) => void;
   handleDisconnect: () => void;
   handleRead: (id: string) => void;
@@ -226,22 +229,17 @@ export function SocketContextProvider({ children }: SocketContextProps) {
         setTotalReceivedMessages((prev) => prev + 1);
       }
     });
-    socket.on("sentMessage", (data: Notification) => {
-      const sentMessageId = sentMessages.map((msg) => msg.notification_id);
-      const draftMessageId = draftMessages.map((msg) => msg.notification_id);
+    socket.on("sentMessage", ({ notification, type }: SentPayload) => {
+      setSentMessages((prev) => [notification, ...prev]);
+      setTotalSentMessages((prev) => prev + 1);
       // remove draft message from draftMessages
-      if (draftMessageId.includes(data.notification_id)) {
+      if (type === "Draft") {
         setDraftMessages((prev) =>
-          prev.filter((item) => item.notification_id !== data.notification_id)
+          prev.filter(
+            (item) => item.notification_id !== notification.notification_id
+          )
         );
-        return setTotalDraftMessages((prev) => prev - 1);
-      }
-      // add sent message to sentMessages
-      if (sentMessageId.includes(data.notification_id)) {
-        return;
-      } else {
-        setSentMessages((prev) => [data, ...prev]);
-        setTotalSentMessages((prev) => prev + 1);
+        setTotalDraftMessages((prev) => prev - 1);
       }
     });
     socket.on("draftMessage", ({ notification, type }: DraftPayload) => {
@@ -500,9 +498,10 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   const handlesendMessage = (
     notificationId: string | undefined,
     sender: number | undefined,
-    recipients: number[] | undefined
+    recipients: number[] | undefined,
+    type: SentNotificationType
   ) => {
-    socket.emit("sendMessage", { notificationId, sender, recipients });
+    socket.emit("sendMessage", { notificationId, sender, recipients, type });
   };
 
   const handleDisconnect = () => {
