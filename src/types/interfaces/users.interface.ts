@@ -90,6 +90,7 @@ export interface Notification {
 
 export type NotificationType = "Drafts" | "Sent" | "Inbox" | "Recycle";
 export type DraftNotificationType = "New" | "Old";
+export type SentNotificationType = "Sent" | "Draft";
 
 export type MessagePayload = {
   notification: Notification;
@@ -98,6 +99,10 @@ export type MessagePayload = {
 export type DraftPayload = {
   notification: Notification;
   type: DraftNotificationType;
+};
+export type SentPayload = {
+  notification: Notification;
+  type: SentNotificationType;
 };
 
 export interface IAddUserTypes {

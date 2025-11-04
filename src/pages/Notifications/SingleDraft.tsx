@@ -283,12 +283,15 @@ const SingleDraft = ({
             isToast: true,
           };
 
-          await putData(alertParams);
-          handleSendAlert(
-            draftNotification?.alert_id as number,
-            recivers,
-            false
-          );
+          const alertRes = await putData(alertParams);
+
+          if (alertRes.status === 200) {
+            handleSendAlert(
+              draftNotification?.alert_id as number,
+              recivers,
+              false
+            );
+          }
         }
 
         if (notifcationType === "ACTION ITEM") {
@@ -310,8 +313,9 @@ const SingleDraft = ({
         }
         handlesendMessage(
           draftNotification?.notification_id,
-          notifcationData.sender,
-          notifcationData.recipients
+          token.user_id,
+          notifcationData.recipients,
+          "Draft"
         );
         // handleDeleteMessage(
         //   draftNotification?.notification_id as string,

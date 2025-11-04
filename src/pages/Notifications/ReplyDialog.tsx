@@ -99,7 +99,12 @@ const ReplyDialog = ({
       const response = await postData(sendNotificationParams);
 
       if (response.status === 201) {
-        handlesendMessage(data.notification_id, data.sender, data.recipients);
+        handlesendMessage(
+          data.notification_id,
+          data.sender,
+          data.recipients,
+          "Sent"
+        );
         setStateChange((prev) => prev + 3);
 
         const pushNotificationParams = {
