@@ -1,11 +1,20 @@
+import { FLASK_URL } from "@/Api/Api";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { toast } from "@/components/ui/use-toast";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+// import { toast } from "@/components/ui/use-toast";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { IEnterprisesTypes } from "@/types/interfaces/users.interface";
+import { postData } from "@/Utility/funtion";
 import { X } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 interface ICustomModalTypes {
   action: string;
   tabName: string;
@@ -16,81 +25,146 @@ interface ICustomModalTypes {
   setStateChanged: React.Dispatch<React.SetStateAction<number>>;
   handleCloseModal: () => void;
 }
+
+interface Validity {
+  amount: number;
+  unit: string;
+}
 const EnterpriseCreateAndEditModal = ({
   action,
   tabName,
-  selectedEnterpriseRows,
   setStateChanged,
   handleCloseModal,
-  setSelectedEnterpriseRows,
 }: ICustomModalTypes) => {
-  const api = useAxiosPrivate();
+  // const api = useAxiosPrivate();
+  const { enterpriseSetting, token, setEnterpriseSetting } = useGlobalContext();
   const [enterpriseName, setEnterpriseName] = useState<string>(
-    selectedEnterpriseRows && action === "edit"
-      ? selectedEnterpriseRows[0].enterprise_name
+    enterpriseSetting && action === "edit"
+      ? enterpriseSetting.enterprise_name
       : ""
   );
   const [enterpriseType, setEnterpriseType] = useState<string>(
-    selectedEnterpriseRows && action === "edit"
-      ? selectedEnterpriseRows[0].enterprise_type
+    enterpriseSetting && action === "edit"
+      ? enterpriseSetting.enterprise_type
       : ""
   );
+  const [userInvitationValidity, setUserInvitationValidity] =
+    useState<Validity>({ amount: 1, unit: "h" });
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
+
+  const parseValidity = (value: string): Validity => {
+    const match = value.match(/^(\d+)([a-zA-Z]+)$/);
+    if (!match) {
+      throw new Error(`Invalid validity format: ${value}`);
+    }
+
+    return {
+      amount: parseInt(match[1], 10),
+      unit: match[2],
+    };
+  };
+
+  useEffect(() => {
+    if (enterpriseSetting?.user_invitation_validity) {
+      const res = parseValidity(enterpriseSetting?.user_invitation_validity);
+      setUserInvitationValidity({
+        amount: res.amount,
+        unit: res.unit,
+      });
+    }
+  }, [enterpriseSetting?.user_invitation_validity]);
+
+  console.log(userInvitationValidity.amount + userInvitationValidity.unit);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    try {
-      setIsLoading(true);
-      const data = {
-        enterprise_name: enterpriseName,
-        enterprise_type: enterpriseType,
-      };
+    // const match = /^(\d+)([mhdw])$/.exec(userInvitationValidity);
+    // if (!match) {
+    //   toast({
+    //     title:
+    //       "Invalid User Invitation Validiy format. Use like 15m, 2h, 3d, 1w.",
+    //     variant: "destructive",
+    //   });
+    //   return;
+    // }
 
-      if (action === "edit") {
-        const res = await api.put(
-          `/update_enterprise/${selectedEnterpriseRows?.[0].tenant_id}`,
-          data,
-          {
-            baseURL: flaskUrl,
-          }
-        );
-        if (res.status === 200) {
-          toast({
-            description: `${res.data.message}`,
-          });
-          setSelectedEnterpriseRows([]);
-        }
-      } else {
-        const res = await api.post(
-          `/create_enterprise/${selectedEnterpriseRows?.[0].tenant_id}`,
-          data,
-          {
-            baseURL: flaskUrl,
-          }
-        );
-        if (res.status === 200) {
-          toast({
-            description: `${res.data.message}`,
-          });
-          setSelectedEnterpriseRows([]);
-        }
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({ title: error.message, variant: "destructive" });
-      }
-    } finally {
-      setIsLoading(false);
+    const data = {
+      enterprise_name: enterpriseName,
+      enterprise_type: enterpriseType,
+      user_invitation_validity:
+        userInvitationValidity.amount + userInvitationValidity.unit,
+    };
+
+    const params = {
+      baseURL: FLASK_URL,
+      url: `/create_enterprise/${enterpriseSetting?.tenant_id}`,
+      setLoading: setIsLoading,
+      payload: data,
+      // isConsole?: boolean;
+      isToast: true,
+      accessToken: token.access_token,
+    };
+
+    const res = await postData(params);
+    if (res.status === 200 || res.status === 201) {
+      setEnterpriseSetting(res.data.result);
       handleClose();
       setStateChanged(Math.random() + 23 * 3000);
     }
+
+    // try {
+
+    //   if (action === "edit") {
+    //     const res = await api.put(
+    //       `/update_enterprise/${selectedEnterpriseRows?.[0].tenant_id}`,
+    //       data,
+    //       {
+    //         baseURL: flaskUrl,
+    //       }
+    //     );
+    //     if (res.status === 200) {
+    //       toast({
+    //         description: `${res.data.message}`,
+    //       });
+    //       setSelectedEnterpriseRows([]);
+    //     }
+    //   } else {
+    //     const res = await api.post(
+    //       `/create_enterprise/${selectedEnterpriseRows?.[0].tenant_id}`,
+    //       data,
+    //       {
+    //         baseURL: flaskUrl,
+    //       }
+    //     );
+    //     if (res.status === 200) {
+    //       toast({
+    //         description: `${res.data.message}`,
+    //       });
+    //       setSelectedEnterpriseRows([]);
+    //     }
+    //   }
+    // } catch (error) {
+    //   if (error instanceof Error) {
+    //     toast({ title: error.message, variant: "destructive" });
+    //   }
+    // } finally {
+    //   setIsLoading(false);
+
+    // }
   };
 
   const handleClose = () => {
     setEnterpriseName("");
     setEnterpriseType("");
     handleCloseModal();
+  };
+
+  const inputRef = React.useRef(null);
+
+  const handleClick = () => {
+    if (inputRef.current) {
+      (inputRef.current as HTMLInputElement).select();
+    }
   };
 
   return (
@@ -123,6 +197,62 @@ const EnterpriseCreateAndEditModal = ({
               value={enterpriseType}
               onChange={(e) => setEnterpriseType(e.target.value)}
             />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="enterprise_type">User Invitation Validity</label>
+            <div className="flex items-center gap-2">
+              <div>
+                <label className="block mb-1 text-sm font-medium">
+                  Time Amount
+                </label>
+                <Input
+                  type="number"
+                  placeholder="1,2,3 etc...."
+                  className=""
+                  value={userInvitationValidity.amount}
+                  onChange={(e) =>
+                    setUserInvitationValidity((prev) => ({
+                      ...prev,
+                      amount: Number(e.target.value),
+                    }))
+                  }
+                  min={1}
+                  ref={inputRef}
+                  onClick={handleClick}
+                />
+              </div>
+              <div>
+                <label className="block mb-1 text-sm font-medium">
+                  Time Unit
+                </label>
+                <Select
+                  value={userInvitationValidity.unit}
+                  onValueChange={(value) =>
+                    setUserInvitationValidity({
+                      ...userInvitationValidity,
+                      unit: value,
+                    })
+                  }
+                >
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Select unit" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="m">Minutes</SelectItem>
+                    <SelectItem value="h">Hours</SelectItem>
+                    <SelectItem value="d">Days</SelectItem>
+                    <SelectItem value="w">Weeks</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            {/* <Input
+              type="text"
+              name="user_invitation_validity"
+              id="user_invitation_validity"
+              value={userInvitationValidity}
+              onChange={(e) => setUserInvitationValidity(e.target.value)}
+            /> */}
           </div>
           <div className="flex justify-end">
             <Button type="submit">

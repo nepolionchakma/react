@@ -40,10 +40,10 @@ function InvitationRedirectPage() {
   const [tenants, setTenants] = useState<ITenantsTypes[] | undefined>([]);
   const [response, setResponse] = useState("");
   const [state, setState] = useState(0);
-  const [tenantId, setTenantId] = useState<number | null>(null);
+  // const [tenantId, setTenantId] = useState<number | null>(null);
   const [jobTitles, setJobTitles] = useState<IJobTitle[] | undefined>([]);
 
-  const { user_invitation_id, token } = useParams();
+  const { user_invitation_id, tenant_id, token } = useParams();
 
   const decrypt = (value: string) => {
     try {
@@ -62,6 +62,7 @@ function InvitationRedirectPage() {
 
   const decryptedUserInvitaitionId = decrypt(user_invitation_id as string);
   const decryptedToken = decrypt(token as string);
+  const decryptedTenantId = decrypt(tenant_id as string);
 
   const FormSchema = z
     .object({
@@ -71,7 +72,7 @@ function InvitationRedirectPage() {
       middle_name: z.string().optional(),
       last_name: z.string().optional(),
       job_title: z.string(),
-      tenant_id: z.string(),
+      tenant_id: z.string().optional(),
       email_address: z.string().email(),
       password: z.string().min(8, {
         message: "At least 8 characters.",
@@ -91,7 +92,7 @@ function InvitationRedirectPage() {
       user_name: "",
       user_type: "person",
       email_address: "",
-      tenant_id: "",
+      tenant_id: decryptedTenantId as string,
       first_name: "",
       middle_name: "",
       last_name: "",
@@ -104,9 +105,6 @@ function InvitationRedirectPage() {
   const handleReset = () => {
     reset();
   };
-
-  // const urlParams = new URLSearchParams(window.location.search);
-  // const token = urlParams.get("token");
 
   useEffect(() => {
     const fetchTenantsData = async () => {
@@ -159,8 +157,7 @@ function InvitationRedirectPage() {
       user_type: data.user_type,
       user_name: data.user_name,
       email_address: data.email_address,
-
-      tenant_id: Number(data.tenant_id),
+      tenant_id: Number(decryptedTenantId),
       first_name: data.first_name,
       middle_name: data.middle_name,
       last_name: data.last_name,
@@ -169,7 +166,7 @@ function InvitationRedirectPage() {
       user_invitation_id: Number(decryptedUserInvitaitionId),
     };
 
-    console.log(postPayload);
+    // console.log(postPayload);
     const params = {
       baseURL: FLASK_URL,
       url: `/users`,
@@ -194,10 +191,10 @@ function InvitationRedirectPage() {
 
   useEffect(() => {
     const loadJobTitles = async () => {
-      if (!tenantId) return;
+      if (!decryptedTenantId) return;
       const params = {
         baseURL: FLASK_URL,
-        url: `${flaskApi.JobTitles}?tenant_id=${tenantId}`,
+        url: `${flaskApi.JobTitles}?tenant_id=${Number(decryptedTenantId)}`,
         accessToken: decryptedToken as string,
       };
 
@@ -211,7 +208,7 @@ function InvitationRedirectPage() {
       }
     };
     loadJobTitles();
-  }, [decryptedToken, tenantId, form]);
+  }, [decryptedToken, decryptedTenantId, form]);
 
   useEffect(() => {
     if (token && isValid) {
@@ -307,6 +304,7 @@ function InvitationRedirectPage() {
                         )}
                       />
                       <FormField
+                        disabled={true}
                         control={form.control}
                         name="tenant_id"
                         render={({ field }) => (
@@ -318,13 +316,12 @@ function InvitationRedirectPage() {
                             <Select
                               required
                               onValueChange={(value) => {
-                                setTenantId(Number(value));
                                 field.onChange(value);
                               }}
-                              defaultValue={field.value}
+                              defaultValue={field.value?.toString()}
                             >
                               <FormControl>
-                                <SelectTrigger>
+                                <SelectTrigger disabled>
                                   <SelectValue placeholder="Select a Tenant" />
                                 </SelectTrigger>
                               </FormControl>
@@ -333,9 +330,6 @@ function InvitationRedirectPage() {
                                   <SelectItem
                                     value={String(tenant.tenant_id)}
                                     key={tenant.tenant_id}
-                                    onChange={() =>
-                                      setTenantId(tenant.tenant_id)
-                                    }
                                   >
                                     {tenant.tenant_name}
                                   </SelectItem>

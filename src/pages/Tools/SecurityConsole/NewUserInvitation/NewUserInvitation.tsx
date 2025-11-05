@@ -9,7 +9,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 function NewUserInvitation() {
-  const { token } = useGlobalContext();
+  const { token, enterpriseSetting } = useGlobalContext();
   const [invitaionType, setInvitaionType] = useState("email");
   const [isCopyURL, setIsCopyURL] = useState(false);
   const [generatedLink, setGeneratedLink] = useState<string | null>(null);
@@ -36,6 +36,8 @@ function NewUserInvitation() {
       payload: {
         invited_by: token.user_id,
         email: data.email,
+        tenant_id: enterpriseSetting?.tenant_id,
+        user_invitation_validity: enterpriseSetting?.user_invitation_validity,
       },
       isConsole: true,
     };
@@ -71,6 +73,8 @@ function NewUserInvitation() {
       setLoading: setIsLoading,
       payload: {
         invited_by: token.user_id,
+        tenant_id: enterpriseSetting?.tenant_id,
+        user_invitation_validity: enterpriseSetting?.user_invitation_validity,
       },
     };
 
