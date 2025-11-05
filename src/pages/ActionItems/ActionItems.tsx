@@ -7,7 +7,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { loadData } from "@/Utility/funtion";
+import { loadData, putData } from "@/Utility/funtion";
 import { flaskApi, FLASK_URL } from "@/Api/Api";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import Spinner from "@/components/Spinner/Spinner";
@@ -26,8 +26,6 @@ import {
 import { toTitleCase } from "@/Utility/general";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import Alert from "@/components/Alert/Alert";
-import axios from "axios";
-import { toast } from "@/components/ui/use-toast";
 
 export interface IActionItems {
   action_item_id: number;
@@ -190,38 +188,29 @@ const ActionItems = () => {
   };
 
   const handleUpdateStatus = async (userId: number, actionItemId: number) => {
-    try {
-      const res = await axios.put(
-        `${FLASK_URL}/${flaskApi.DefActionItemAssignment}/${userId}/${actionItemId}`,
-        { status: activeDialog?.status.toUpperCase() },
-        {
-          headers: {
-            Authorization: `Bearer ${token.access_token}`,
-          },
-        }
+    const actionItemParams = {
+      baseURL: FLASK_URL,
+      url: `/def_action_items/update_status/${userId}/${actionItemId}`,
+      setLoading: setIsLoading,
+      payload: {
+        status: activeDialog?.status.toUpperCase(),
+      },
+      isToast: true,
+      accessToken: token.access_token,
+    };
+
+    const res = await putData(actionItemParams);
+
+    if (res.status === 200) {
+      setActionItems((prev) =>
+        prev.map((item) =>
+          item.action_item_id === activeDialog?.itemId
+            ? { ...item, status: activeDialog.status }
+            : item
+        )
       );
-      if (res.status === 200) {
-        setActionItems((prev) =>
-          prev.map((item) =>
-            item.action_item_id === activeDialog?.itemId
-              ? { ...item, status: activeDialog.status }
-              : item
-          )
-        );
-        toast({
-          title: res.data.message,
-        });
-      }
-    } catch (error) {
-      if (error instanceof Error) {
-        toast({
-          title: error.message,
-          variant: "destructive",
-        });
-      }
-    } finally {
-      setActiveDialog(null);
     }
+    setActiveDialog(null);
   };
 
   const handleOpenProgressBar = (id: number) => {

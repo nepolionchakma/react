@@ -64,8 +64,8 @@ const JobTitleCreateAndEditModal = ({
             job_title_name: jobTitleName,
             tenant_id: selectedTenantId,
           },
-          isConsole: true,
           accessToken: `${token.access_token}`,
+          isToast: true,
         };
 
         await postData(postParams);
@@ -78,8 +78,8 @@ const JobTitleCreateAndEditModal = ({
             job_title_name: jobTitleName,
             tenant_id: selectedTenantId,
           },
-          isConsole: true,
           accessToken: `${token.access_token}`,
+          isToast: true,
         };
         await putData(putParams);
       }

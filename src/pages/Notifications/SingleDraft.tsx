@@ -42,12 +42,8 @@ const SingleDraft = ({
   draftNotification,
 }: ComposeButtonProps) => {
   const { users, combinedUser, token } = useGlobalContext();
-  const {
-    handlesendMessage,
-    handleDraftMessage,
-    handleSendAlert,
-    handleDeleteMessage,
-  } = useSocketContext();
+  const { handlesendMessage, handleDraftMessage, handleSendAlert } =
+    useSocketContext();
   const { toast } = useToast();
   const [recivers, setRecivers] = useState<number[]>(
     draftNotification?.recipients || []
@@ -75,7 +71,6 @@ const SingleDraft = ({
     subject: draftNotification?.subject,
     body: draftNotification?.notification_body,
   });
-  const actionItemStatus = "NEW";
 
   // const date = new Date();
   const nodeUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
@@ -96,26 +91,28 @@ const SingleDraft = ({
       if (notifcationType === "ALERT") {
         const params = {
           baseURL: nodeUrl,
-          url: `/alerts/${draftNotification?.alert_id}`,
+          url: `/alerts/view?user_id=${token?.user_id}&alert_id=${draftNotification?.alert_id}`,
           setLoading: setIsLoading,
+          accessToken: token.access_token,
         };
 
         const alertResponse = await loadData(params);
-        console.log(alertResponse, `/alerts/${draftNotification?.alert_id}`);
+
         if (alertResponse) {
           setOldMsgState((prev) => ({
             ...prev,
-            alertName: alertResponse.alert_name,
-            alertDescription: alertResponse.description,
+            alertName: alertResponse.result.alert_name,
+            alertDescription: alertResponse.result.description,
           }));
-          setAlertName(alertResponse.alert_name);
-          setAlertDescription(alertResponse.description);
+          setAlertName(alertResponse.result.alert_name);
+          setAlertDescription(alertResponse.result.description);
         }
       } else if (notifcationType === "ACTION ITEM") {
         const params = {
           baseURL: flaskUrl,
           url: `/def_action_items/${draftNotification?.action_item_id}`,
           setLoading: setIsLoading,
+          accessToken: token.access_token,
         };
 
         const actionItemResponse = await loadData(params);
@@ -236,13 +233,11 @@ const SingleDraft = ({
       return;
     }
     const notifcationData = {
-      notification_type: "NOTIFICATION",
       sender: combinedUser?.user_id,
       recipients: recivers,
       subject: subject,
       notification_body: body,
       status: "SENT",
-      parent_notification_id: draftNotification?.parent_notification_id,
       involved_users: involvedusers,
       readers: recivers,
       holders: involvedusers,
@@ -264,7 +259,7 @@ const SingleDraft = ({
         url: `/notifications/${draftNotification?.notification_id}`,
         setLoading: setIsSending,
         payload: notifcationData,
-        isToast: true,
+        isToast: notifcationType === "NOTIFICATION" ? true : false,
       };
       const response = await putData(sendNotificationParams);
 
@@ -282,18 +277,21 @@ const SingleDraft = ({
             payload: {
               alert_name: alertName,
               description: alertDescription,
-              recepients: recivers,
-              last_updated_by: combinedUser?.user_id,
+              recipients: recivers,
+              status: "SENT",
             },
-            isToast: false,
+            isToast: true,
           };
 
-          await putData(alertParams);
-          handleSendAlert(
-            draftNotification?.alert_id as number,
-            recivers,
-            false
-          );
+          const alertRes = await putData(alertParams);
+
+          if (alertRes.status === 200) {
+            handleSendAlert(
+              draftNotification?.alert_id as number,
+              recivers,
+              false
+            );
+          }
         }
 
         if (notifcationType === "ACTION ITEM") {
@@ -304,23 +302,25 @@ const SingleDraft = ({
             payload: {
               action_item_name: actionItemName,
               description: actionItemDescription,
-              status: actionItemStatus,
               user_ids: recivers,
+              action: "SENT",
             },
-            isToast: false,
+            isToast: true,
+            accessToken: token.access_token,
           };
 
           await putData(actionItemParams);
         }
         handlesendMessage(
           draftNotification?.notification_id,
-          notifcationData.sender,
-          notifcationData.recipients
+          token.user_id,
+          notifcationData.recipients,
+          "Draft"
         );
-        handleDeleteMessage(
-          draftNotification?.notification_id as string,
-          "Drafts"
-        );
+        // handleDeleteMessage(
+        //   draftNotification?.notification_id as string,
+        //   "Drafts"
+        // );
         const pushNotificationParams = {
           baseURL: nodeUrl,
           url: "/push-notification/send-notification",
@@ -387,7 +387,7 @@ const SingleDraft = ({
         url: `/notifications/${draftNotification?.notification_id}`,
         setLoading: setIsDrafting,
         payload: data,
-        isToast: true,
+        isToast: notifcationType === "NOTIFICATION" ? true : false,
       };
       const response = await putData(sendNotificationParams);
       if (response.status === 200) {
@@ -401,8 +401,9 @@ const SingleDraft = ({
               description: alertDescription,
               last_updated_by: combinedUser?.user_id,
               recipients: recivers,
+              status: "DRAFT",
             },
-            isToast: false,
+            isToast: true,
           };
 
           await putData(alertParams);
@@ -416,12 +417,14 @@ const SingleDraft = ({
             payload: {
               action_item_name: actionItemName,
               description: actionItemDescription,
-              status: actionItemStatus,
               user_ids: recivers,
+              notification_id: draftNotification?.notification_id,
+              action: "DRAFT",
             },
-            isToast: false,
+            isToast: true,
+            accessToken: token.access_token,
           };
-
+          console.log(actionItemParams, "actionItemParams");
           await putData(actionItemParams);
         }
 
@@ -430,9 +433,6 @@ const SingleDraft = ({
           data.sender,
           "Old"
         );
-        toast({
-          title: `${response.data.message}`,
-        });
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -475,7 +475,14 @@ const SingleDraft = ({
                   Recipients
                 </label>
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="w-full border-b border-light-400 h-8 rounded-sm border flex justify-between items-center px-2">
+                  <DropdownMenuTrigger
+                    disabled={subject?.includes("Re: ")}
+                    className={`${
+                      subject?.includes("Re: ")
+                        ? " text-gray-400 bg-gray-100 cursor-not-allowed"
+                        : ""
+                    } w-full border-b border-light-400 h-8 rounded-sm border flex justify-between items-center px-2`}
+                  >
                     <p>Select Recipients</p>
                     <ChevronDown strokeWidth={1} />
                   </DropdownMenuTrigger>
@@ -540,12 +547,14 @@ const SingleDraft = ({
                       <p className="font-semibold text-green-600">
                         {renderUserName(rec, users)}
                       </p>
-                      <div
-                        onClick={() => handleRemoveReciever(rec)}
-                        className="flex h-[65%] items-end cursor-pointer"
-                      >
-                        <Delete size={18} />
-                      </div>
+                      {!subject?.includes("Re: ") ? (
+                        <div
+                          onClick={() => handleRemoveReciever(rec)}
+                          className="flex h-[65%] items-end cursor-pointer"
+                        >
+                          <Delete size={18} />
+                        </div>
+                      ) : null}
                     </div>
                   ))}
                 </div>
@@ -555,6 +564,7 @@ const SingleDraft = ({
             <div className="flex flex-col gap-2 w-full text-dark-400">
               <label className="font-semibold ">Subject</label>
               <input
+                disabled={subject?.includes("Re: ")}
                 type="text"
                 className="rounded-sm outline-none border pl-2 h-8 w-full text-sm"
                 value={subject}
