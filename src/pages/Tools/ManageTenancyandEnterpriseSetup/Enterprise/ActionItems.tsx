@@ -6,6 +6,7 @@ import { FileEdit } from "lucide-react";
 import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 
 interface ActionItemsProps {
   selectedEnterpriseRows: IEnterprisesTypes[];
@@ -22,6 +23,7 @@ const ActionItems = ({
   setStateChanged,
   setSelectedEnterpriseRows,
 }: ActionItemsProps) => {
+  const { enterpriseSetting } = useGlobalContext();
   const api = useAxiosPrivate();
   const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
   const handleDelete = async () => {
@@ -50,7 +52,7 @@ const ActionItems = ({
   };
 
   const handleAction = () => {
-    if (selectedEnterpriseRows[0].enterprise_name === null) {
+    if (!enterpriseSetting?.enterprise_name) {
       setAction("add");
     } else {
       setAction("edit");
@@ -60,19 +62,14 @@ const ActionItems = ({
     <ActionButtons>
       <CustomTooltip tooltipTitle="Edit">
         <button
-          disabled={
-            selectedEnterpriseRows.length > 1 ||
-            selectedEnterpriseRows.length === 0
-          }
+        // disabled={
+        //   selectedEnterpriseRows.length > 1 ||
+        //   selectedEnterpriseRows.length === 0
+        // }
         >
           <FileEdit
             size={23}
-            className={`${
-              selectedEnterpriseRows.length > 1 ||
-              selectedEnterpriseRows.length === 0
-                ? "text-slate-200 cursor-not-allowed"
-                : "cursor-pointer"
-            }`}
+            className="cursor-pointer"
             onClick={handleAction}
           />
         </button>
@@ -80,7 +77,7 @@ const ActionItems = ({
 
       <Alert
         actionName="delete"
-        disabled={selectedEnterpriseRows.length === 0}
+        disabled={!enterpriseSetting?.tenant_id}
         onContinue={handleDelete}
         tooltipTitle="Delete"
       >

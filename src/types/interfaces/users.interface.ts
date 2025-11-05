@@ -127,6 +127,11 @@ export interface IEnterprisesTypes {
   tenant_name: string;
   enterprise_name: string;
   enterprise_type: string;
+  user_invitation_validity: string;
+  created_by?: number;
+  creation_date: Date;
+  last_updated_by?: number;
+  last_update_date: Date;
 }
 
 export interface IGetResponeUsersInfoTypes {

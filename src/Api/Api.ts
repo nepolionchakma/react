@@ -50,6 +50,7 @@ export const flaskApi = {
   DeleteExecutionMethod: "/Delete_ExecutionMethod",
   DefAsyncSearchTaskSchedules: "/def_async_task_schedules/search",
   RescheduleTask: "/Reschedule_Task",
+  EnterpriseSetup: "/get_enterprise",
 };
 
 // All Node api

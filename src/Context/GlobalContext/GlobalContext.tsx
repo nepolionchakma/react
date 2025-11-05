@@ -16,6 +16,7 @@ import {
   IUserPasswordResetTypes,
   IUserLinkedDevices,
   IGetResponeUsersInfoTypes,
+  IEnterprisesTypes,
 } from "@/types/interfaces/users.interface";
 import {
   IDataSourcePostTypes,
@@ -104,6 +105,8 @@ interface GlobalContex {
   setIsActive: Dispatch<SetStateAction<boolean>>;
   edgeConnectionPosition: string[];
   setEdgeConnectionPosition: Dispatch<SetStateAction<string[]>>;
+  enterpriseSetting: IEnterprisesTypes | undefined;
+  setEnterpriseSetting: Dispatch<SetStateAction<IEnterprisesTypes | undefined>>;
 }
 
 export const userExample = {
@@ -155,6 +158,9 @@ export function GlobalContextProvider({
   const [presentDevice, setPresentDevice] = useState<IUserLinkedDevices>(
     userDevice()
   );
+  const [enterpriseSetting, setEnterpriseSetting] = useState<
+    IEnterprisesTypes | undefined
+  >(undefined);
 
   useEffect(() => {
     const storedValue = localStorage.getItem("signonId");
@@ -209,6 +215,16 @@ export function GlobalContextProvider({
 
         setUsers(users);
         setCombinedUser(combinedUser);
+        if (combinedUser) {
+          const enterprise = await loadData({
+            baseURL: FLASK_URL,
+            url: `${flaskApi.EnterpriseSetup}/${combinedUser.tenant_id}`,
+            // setLoading: setIsCombinedUserLoading,
+            accessToken: `${token.access_token}`,
+          });
+          console.log(enterprise);
+          setEnterpriseSetting(enterprise);
+        }
       } catch (error) {
         console.log(error);
       } finally {
@@ -560,6 +576,8 @@ export function GlobalContextProvider({
         setIsActive,
         edgeConnectionPosition,
         setEdgeConnectionPosition,
+        enterpriseSetting,
+        setEnterpriseSetting,
       }}
     >
       <SocketContextProvider>
