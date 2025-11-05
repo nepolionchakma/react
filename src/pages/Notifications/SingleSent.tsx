@@ -23,6 +23,8 @@ import {
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
+import { loadData } from "@/Utility/funtion";
+import { NODE_URL } from "@/Api/Api";
 
 const SingleSent = () => {
   const api = useAxiosPrivate();
@@ -46,11 +48,13 @@ const SingleSent = () => {
   useEffect(() => {
     const fetchMessage = async () => {
       try {
-        const response = await api.get<Notification[]>(
-          `/notifications/reply?user_id=${userId}&parent_notification_id=${id}`
-        );
-        const result = response.data;
-        setTotalMessages(result);
+        const totalMessagesParams = {
+          baseURL: NODE_URL,
+          url: `/notifications/reply?user_id=${userId}&parent_notification_id=${id}`,
+          setLoading: setIsLoading,
+        };
+        const res = await loadData(totalMessagesParams);
+        setTotalMessages(res.result);
         setIsLoaded(true);
       } catch (error) {
         if (error instanceof Error) {

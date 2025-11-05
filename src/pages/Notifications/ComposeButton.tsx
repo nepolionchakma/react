@@ -423,7 +423,7 @@ const ComposeButton = ({ setShowModal }: ComposeButtonProps) => {
                             src={`${nodeUrl}/${user.profile_picture?.thumbnail}`}
                           />
                           <AvatarFallback>
-                            {user.user_name.slice(0, 1)}
+                            {user.user_name.slice(0, 1).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
 

@@ -71,7 +71,7 @@ const Dropdown = () => {
             src={`${apiUrl}/${combinedUser?.profile_picture?.original}`}
           />
           <AvatarFallback>
-            {combinedUser?.user_name?.slice(0, 1)}
+            {combinedUser?.user_name?.slice(0, 1).toUpperCase()}
           </AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
