@@ -103,7 +103,7 @@ export const columns: ColumnDef<IEnterprisesTypes>[] = [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="min-w-max cursor-pointer"
         >
-          User Invitation Validiy
+           User Invitation Validity
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
         </div>
       );
