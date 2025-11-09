@@ -76,7 +76,7 @@ const Dropdown = () => {
         </Avatar>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-48 mr-1">
-        <DropdownMenuLabel className=" font-bold font-workSans text-lg text-center">
+        <DropdownMenuLabel className=" font-bold font-workSans text-lg text-center capitalize">
           {combinedUser?.user_name}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
