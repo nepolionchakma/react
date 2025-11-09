@@ -16,7 +16,8 @@ export const renderSlicedUsername = (
   if (user) {
     const userName = user?.user_name;
     if (userName.length > 0) {
-      return userName.slice(0, limit);
+      const trimmed = userName.slice(0, limit);
+      return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
     }
   }
 };
