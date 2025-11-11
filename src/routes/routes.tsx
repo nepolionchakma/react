@@ -67,6 +67,7 @@ import NewUserInvitation from "@/pages/Tools/SecurityConsole/NewUserInvitation/N
 import { ViewRequestTable } from "@/pages/AsynchronousRequestsAndTaskSchedules/ViewRequests/ViewRequestTable";
 import ScheduleATaskComponent from "@/pages/AsynchronousRequestsAndTaskSchedules/ScheduleATask/ScheduleATask";
 import ResetPassword from "@/pages/ResetPassword/ResetPassword";
+import { ForgotPassword } from "@/pages/ForgotPassword/ForgotPassword";
 
 const routes = createBrowserRouter([
   {
@@ -411,6 +412,10 @@ const routes = createBrowserRouter([
   {
     path: "login",
     element: <SignIn />,
+  },
+  {
+    path: "forgot-password",
+    element: <ForgotPassword />,
   },
   {
     path: "invitation",
