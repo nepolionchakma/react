@@ -66,6 +66,7 @@ import InvitationRedirectPage from "@/pages/InvitationRedirect/InvitationRedirec
 import NewUserInvitation from "@/pages/Tools/SecurityConsole/NewUserInvitation/NewUserInvitation";
 import { ViewRequestTable } from "@/pages/AsynchronousRequestsAndTaskSchedules/ViewRequests/ViewRequestTable";
 import ScheduleATaskComponent from "@/pages/AsynchronousRequestsAndTaskSchedules/ScheduleATask/ScheduleATask";
+import ResetPassword from "@/pages/ResetPassword/ResetPassword";
 
 const routes = createBrowserRouter([
   {
@@ -421,6 +422,19 @@ const routes = createBrowserRouter([
       {
         path: ":user_invitation_id/:tenant_id/:token",
         element: <InvitationRedirectPage />,
+      },
+    ],
+  },
+  {
+    path: "reset-password",
+    children: [
+      {
+        path: "",
+        element: <Error />,
+      },
+      {
+        path: ":request_id/:user_id/:token",
+        element: <ResetPassword />,
       },
     ],
   },
