@@ -58,4 +58,5 @@ export const nodeApi = {
   ViewEditScheduleTaskApi:
     "/asynchronous-requests-and-task-schedules/task-schedules",
   Alerts: "/alerts",
+  ForgotPassword: "/forgot_password_request",
 };
