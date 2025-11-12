@@ -59,4 +59,5 @@ export const nodeApi = {
     "/asynchronous-requests-and-task-schedules/task-schedules",
   Alerts: "/alerts",
   ForgotPassword: "/forgot_password_request",
+  ResetPassword: "/def_user_credentials/reset_forgot_password",
 };
