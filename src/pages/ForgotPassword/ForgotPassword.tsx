@@ -96,7 +96,7 @@ export const ForgotPassword = () => {
       isToast: true,
     };
     const res = await postData(postParams);
-    if (res?.status === 200) {
+    if (res.length > 0) {
       form.reset();
     }
   };
