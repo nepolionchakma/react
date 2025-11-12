@@ -16,7 +16,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { EyeIcon, EyeOffIcon, LockKeyhole } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { z } from "zod";
 
 type UserInfo = {
@@ -50,6 +50,7 @@ const formSchema = z
 
 const ResetPassword = () => {
   const { request_id, user_id, token } = useParams();
+  const navigate = useNavigate();
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -109,6 +110,7 @@ const ResetPassword = () => {
     const res = await putData(putParams);
     if (res) {
       form.reset();
+      navigate("/login");
     }
   };
 
