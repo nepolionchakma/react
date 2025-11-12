@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import { useLocation, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 // import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { AxiosError } from "axios";
 import { api } from "@/Api/Api";
@@ -144,6 +144,13 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
               </FormItem>
             )}
           />
+          <NavLink
+            to="/forgot-password"
+            className="block text-right text-blue-600 font-medium underline"
+          >
+            Forgot Password?
+          </NavLink>
+
           <button
             disabled={isLoading}
             type="submit"

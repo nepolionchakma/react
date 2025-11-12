@@ -38,7 +38,7 @@ export default function CustomDropDown({
     setIsOpen(false);
   };
   return (
-    <div className="flex flex-col gap-1">
+    <div className="flex flex-col gap-1" ref={ref}>
       <button
         type="button"
         onClick={handleSelect}
@@ -51,10 +51,7 @@ export default function CustomDropDown({
       </button>
 
       {isOpen && (
-        <div
-          ref={ref}
-          className="flex flex-col items-start border rounded-md shadow-md p-1 max-h-[10rem] overflow-y-auto"
-        >
+        <div className="flex flex-col items-start border rounded-md shadow-md p-1 max-h-[10rem] overflow-y-auto">
           {data.map((name, i) => {
             return (
               <button
