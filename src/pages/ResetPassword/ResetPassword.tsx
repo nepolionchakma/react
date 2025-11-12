@@ -53,7 +53,6 @@ const ResetPassword = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [showTemporaryPassword, setShowTemporaryPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [verifyUser, setVerifyUser] = useState<IVerifyUser>();
 
@@ -70,6 +69,7 @@ const ResetPassword = () => {
       };
       try {
         const res = await loadData(params);
+        // console.log(res, "res");
         if (res.valid === true) {
           setVerifyUser(res);
         }
@@ -92,7 +92,7 @@ const ResetPassword = () => {
 
   /** Update function */
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    // console.log(values);
     const passwordPayload = {
       request_id: decryptedRequestId,
       temporary_password: values.temporary_password,
@@ -104,6 +104,7 @@ const ResetPassword = () => {
       setLoading: setIsLoading,
       payload: passwordPayload,
       isToast: true,
+      accessToken: decryptedToken as string,
     };
     const res = await putData(putParams);
     if (res) {
@@ -111,13 +112,6 @@ const ResetPassword = () => {
     }
   };
 
-  const handleShowTemporaryPassword = () => {
-    if (showTemporaryPassword) {
-      setShowTemporaryPassword(false);
-    } else {
-      setShowTemporaryPassword(true);
-    }
-  };
   const handleShowPassword = () => {
     if (showPassword) {
       setShowPassword(false);
@@ -171,20 +165,9 @@ const ResetPassword = () => {
                         </FormLabel>
                         <FormControl>
                           <div className="relative">
-                            <button
-                              type="button"
-                              onClick={handleShowTemporaryPassword}
-                              className="absolute right-4 top-2 cursor-pointer"
-                            >
-                              {showTemporaryPassword ? (
-                                <EyeOffIcon size={20} color="#6b7280" />
-                              ) : (
-                                <EyeIcon size={20} color="#6b7280" />
-                              )}
-                            </button>
                             <Input
                               className="bg-[#F6F7FB]"
-                              type={showTemporaryPassword ? "text" : "password"}
+                              type="text"
                               placeholder="Enter your temporary password"
                               {...field}
                             />
@@ -263,7 +246,7 @@ const ResetPassword = () => {
                   />
                 </div>
                 <div className="flex justify-center mt-11">
-                  <Button type="submit">
+                  <Button disabled={isLoading} type="submit">
                     {isLoading ? (
                       <l-tailspin
                         size="30"
