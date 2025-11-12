@@ -12,6 +12,7 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 // const Loading = "/public/profile/loading.gif";
 
 const Dropdown = () => {
@@ -23,7 +24,7 @@ const Dropdown = () => {
   const { handleDisconnect, setLinkedDevices, inactiveDevice } =
     useSocketContext();
   const [isLoading, setIsLoading] = useState(false);
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const userExample = {
     isLoggedIn: false,
@@ -48,7 +49,7 @@ const Dropdown = () => {
           setIsLoading(false);
           setToken(userExample);
           setLinkedDevices([]);
-          window.location.href = "/login";
+          navigate("/login");
           inactiveDevice([res.data]);
           setSignonId("");
           localStorage.removeItem("signonId");
