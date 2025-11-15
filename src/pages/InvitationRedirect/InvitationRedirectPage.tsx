@@ -72,7 +72,7 @@ function InvitationRedirectPage() {
       middle_name: z.string().optional(),
       last_name: z.string().optional(),
       date_of_birth: z.string().date(),
-      job_title: z.string(),
+      job_title_id: z.string(),
       tenant_id: z.string().optional(),
       email_address: z.string().email(),
       password: z.string().min(8, {
@@ -97,7 +97,8 @@ function InvitationRedirectPage() {
       first_name: "",
       middle_name: "",
       last_name: "",
-      job_title: "",
+      date_of_birth: new Date().toISOString().split("T")[0],
+      job_title_id: "",
       password: "",
       confirm_password: "",
     },
@@ -163,7 +164,7 @@ function InvitationRedirectPage() {
       middle_name: data.middle_name,
       last_name: data.last_name,
       date_of_birth: data.date_of_birth,
-      job_title: data.job_title,
+      job_title_id: data.job_title_id,
       password: data.password,
       user_invitation_id: Number(decryptedUserInvitaitionId),
     };
@@ -205,7 +206,7 @@ function InvitationRedirectPage() {
       if (res.length > 0) {
         setJobTitles(res);
       } else {
-        form.resetField("job_title");
+        form.resetField("job_title_id");
         setJobTitles([]);
       }
     };
@@ -327,7 +328,7 @@ function InvitationRedirectPage() {
 
                       <FormField
                         control={form.control}
-                        name="job_title"
+                        name="job_title_id"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="font-normal">
@@ -346,7 +347,7 @@ function InvitationRedirectPage() {
                               <SelectContent>
                                 {jobTitles?.map((job) => (
                                   <SelectItem
-                                    value={job.job_title_name}
+                                    value={String(job.job_title_id)}
                                     key={job.job_title_id}
                                   >
                                     {job.job_title_name}
