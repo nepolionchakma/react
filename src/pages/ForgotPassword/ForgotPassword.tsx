@@ -1,6 +1,4 @@
-import { FLASK_URL, flaskApi, NODE_URL, nodeApi } from "@/Api/Api";
-import CustomDropDown from "@/components/CustomDropDown/CustomDropDown";
-import { Button } from "@/components/ui/button";
+import { NODE_URL, nodeApi } from "@/Api/Api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
@@ -10,82 +8,38 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-// import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import { IJobTitle, ITenantsTypes } from "@/types/interfaces/users.interface";
-import { loadData, postData } from "@/Utility/funtion";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { KeyRound } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { postData } from "@/Utility/funtion";
 
 const formSchema = z.object({
   user_name: z.string().min(2, "Type at least 2 character"),
   email_address: z.string().email("Enter valid email"),
+  date_of_birth: z.string().date(),
 });
 
 export const ForgotPassword = () => {
-  //   const { enterpriseSetting } = useGlobalContext();
-  const [tenants, setTenants] = useState<ITenantsTypes[]>([]);
-  const [jobTitles, setJobTitles] = useState<IJobTitle[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [tenantName, setTenantName] = useState("Select your tenant");
-  const [jobTitleName, setJobTitleName] = useState("Select your job Title");
 
-  /** Define form */
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       user_name: "",
       email_address: "",
+      date_of_birth: new Date().toISOString().split("T")[0],
     },
   });
 
-  const selectedTenantId = tenants.find(
-    (t) => t.tenant_name === tenantName
-  )?.tenant_id;
-
-  useEffect(() => {
-    const fetchTenantsData = async () => {
-      const params = {
-        baseURL: FLASK_URL,
-        url: flaskApi.DefTenants,
-      };
-      const res = await loadData(params);
-      if (res) {
-        setTenants(res);
-      }
-    };
-    fetchTenantsData();
-  }, []);
-
-  useEffect(() => {
-    if (!selectedTenantId) return;
-    const jobTitlesParams = {
-      baseURL: FLASK_URL,
-      url: `${flaskApi.JobTitles}?tenant_id=${selectedTenantId}`,
-    };
-    const fetchJobTitleNames = async () => {
-      const res = await loadData(jobTitlesParams);
-      if (res.length > 0) {
-        setJobTitles(res);
-      } else {
-        setJobTitles([]);
-        setJobTitleName("Select your job Title");
-      }
-    };
-    fetchJobTitleNames();
-  }, [selectedTenantId]);
-
-  /** Submit function */
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     const forgotPasswordPayload = {
       user_name: values.user_name,
       email_address: values.email_address,
-      tenant_id: selectedTenantId,
-      job_title: jobTitleName,
-      validity: "1h",
+      date_of_birth: values.date_of_birth,
     };
 
     const postParams = {
@@ -149,28 +103,25 @@ export const ForgotPassword = () => {
                     </FormItem>
                   )}
                 />
-                <div className="flex justify-between gap-2">
-                  <div className="flex flex-col gap-2 w-full">
-                    <p className="text-sm">Tenant Name</p>
-                    <CustomDropDown
-                      data={tenants.map(
-                        (item: ITenantsTypes) => item.tenant_name
-                      )}
-                      option={tenantName}
-                      setOption={setTenantName}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-2 w-full">
-                    <p className="text-sm">JobTitle Name</p>
-                    <CustomDropDown
-                      data={jobTitles?.map(
-                        (item: IJobTitle) => item.job_title_name
-                      )}
-                      option={jobTitleName}
-                      setOption={setJobTitleName}
-                    />
-                  </div>
-                </div>
+                <FormField
+                  control={form.control}
+                  name="date_of_birth"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="font-normal">
+                        Date of Birth
+                      </FormLabel>
+                      <FormControl>
+                        <Input
+                          type="date"
+                          className="bg-background"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
               <div className="flex justify-center mt-5">
                 <Button type="submit" className="w-1/3">

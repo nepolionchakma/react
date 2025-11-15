@@ -30,9 +30,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import columns from "./Columns";
+import { columns as getColumns } from "./Columns";
 import AddUser from "@/components/AddUser/AddUser";
-import { IUsersInfoTypes } from "@/types/interfaces/users.interface";
+import { IJobTitle, IUsersInfoTypes } from "@/types/interfaces/users.interface";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
 import { Input } from "@/components/ui/input";
@@ -41,6 +41,7 @@ import CustomTooltip from "@/components/Tooltip/Tooltip";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import Rows from "@/components/Rows/Rows";
 import { convertToTitleCase } from "@/Utility/general";
+
 interface Props {
   selectedUser: IUsersInfoTypes;
   setSelectedUser: React.Dispatch<React.SetStateAction<IUsersInfoTypes>>;
@@ -60,6 +61,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
     setIsOpenModal,
     combinedUser,
     stateChange,
+    fetchJobTitles,
   } = useGlobalContext();
   const [data, setData] = React.useState<IUsersInfoTypes[] | []>([]);
   const [page, setPage] = React.useState(1);
@@ -69,11 +71,13 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
+
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
   const [limit, setLimit] = React.useState<number>(4);
+  const [jobTitles, setJobTitles] = React.useState<IJobTitle[]>([]);
 
   const handleQuery = (e: string) => {
     if (e === "") {
@@ -84,6 +88,19 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
       setPage(1);
     }
   };
+
+  React.useEffect(() => {
+    (async () => {
+      const params = await fetchJobTitles();
+
+      if (params) {
+        setJobTitles(params);
+      } else {
+        setJobTitles([]);
+      }
+    })();
+  }, []);
+
   React.useEffect(() => {
     const fetchData = async () => {
       try {
@@ -139,7 +156,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
   };
   const table = useReactTable({
     data,
-    columns,
+    columns: getColumns(jobTitles),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -320,7 +337,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
               {isLoading ? (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={getColumns(jobTitles).length}
                     className="h-24 text-center"
                   >
                     <l-tailspin
@@ -374,7 +391,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={getColumns(jobTitles).length}
                     className="h-24 text-center"
                   >
                     No results.

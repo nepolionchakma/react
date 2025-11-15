@@ -54,8 +54,9 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
             first_name: z.string(),
             middle_name: z.string().optional(),
             last_name: z.string().optional(),
-            job_title: z.string(),
+            job_title_id: z.string(),
             tenant_id: z.string(),
+            date_of_birth: z.string().date(),
             email_address: z.string().email(),
             password: z.string().min(8, {
               message: "At least 8 characters.",
@@ -69,10 +70,11 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
             first_name: z.string().optional(),
             middle_name: z.string().optional(),
             last_name: z.string().optional(),
-            job_title: z.string().optional(),
+            job_title_id: z.string().optional(),
             email_address: z.string().email(),
             password: z.string().optional(),
             confirm_password: z.string().optional(),
+            date_of_birth: z.string().optional(),
           }
     )
     .refine((data) => data.password === data.confirm_password, {
@@ -92,13 +94,14 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
             first_name: "",
             middle_name: "",
             last_name: "",
-            job_title: "",
+            job_title_id: "",
             password: "",
             confirm_password: "",
+            date_of_birth: new Date().toISOString().split("T")[0],
           }
         : {
             user_name: selected.user_name,
-            job_title: selected.job_title,
+            job_title_id: String(selected.job_title_id),
             email_address: selected.email_address,
             password: "",
             confirm_password: "",
@@ -106,6 +109,8 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
             middle_name: selected.middle_name,
             last_name: selected.last_name,
             tenant_id: selected.tenant_id,
+            date_of_birth:
+              selected.date_of_birth ?? new Date().toISOString().split("T")[0],
           },
   });
   const { reset } = form;
@@ -122,11 +127,10 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
       first_name: data.first_name,
       middle_name: data.middle_name,
       last_name: data.last_name,
-      job_title: data.job_title,
+      job_title_id: Number(data.job_title_id),
       password: data.password,
+      date_of_birth: data.date_of_birth,
     };
-
-    console.log(postDataPayload);
 
     const postDataParams = {
       baseURL: FLASK_URL,
@@ -139,12 +143,13 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
     };
     const putDataPayload = {
       user_name: data.user_name,
-      job_title: data.job_title,
+      job_title_id: Number(data.job_title_id),
       email_address: data.email_address,
       first_name: data.first_name,
       middle_name: data.middle_name,
       last_name: data.last_name,
       password: data.password,
+      date_of_birth: data.date_of_birth,
     };
 
     const putDataParams = {
@@ -170,7 +175,6 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
       }
       if (isOpenModal === "edit_user") {
         const res = await putData(putDataParams);
-        console.log(res, "edit_user");
         if (res) {
           handleCloseModal();
           setStateChange(Math.random() + 23 * 3000);

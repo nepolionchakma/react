@@ -1,7 +1,10 @@
-import { IUsersInfoTypes } from "@/types/interfaces/users.interface";
+import { IJobTitle, IUsersInfoTypes } from "@/types/interfaces/users.interface";
+import { jobTitleName } from "@/Utility/general";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
-export const columns: ColumnDef<IUsersInfoTypes>[] = [
+export const columns = (
+  jobTitles: IJobTitle[]
+): ColumnDef<IUsersInfoTypes>[] => [
   {
     id: "select",
     size: 24,
@@ -108,7 +111,7 @@ export const columns: ColumnDef<IUsersInfoTypes>[] = [
     ),
   },
   {
-    accessorKey: "job_title",
+    accessorKey: "job_title_id",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
       const a = rowA.getValue(columnId) as string;
@@ -127,11 +130,14 @@ export const columns: ColumnDef<IUsersInfoTypes>[] = [
         </div>
       );
     },
-    cell: ({ row }) => (
-      <div className="capitalize min-w-[18rem]">
-        {row.getValue("job_title")}
-      </div>
-    ),
+    cell: ({ row }) => {
+      const jobTitleId = row.getValue("job_title_id") as number;
+      return (
+        <div className="capitalize min-w-[18rem]">
+          {jobTitleName(jobTitleId ?? 0, jobTitles)}
+        </div>
+      );
+    },
   },
 ];
 export default columns;

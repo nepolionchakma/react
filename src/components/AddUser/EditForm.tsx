@@ -46,25 +46,30 @@ const EditForm: FC<AddFormProps> = ({
   const [jobTitles, setJobTitles] = useState<IJobTitle[]>([]);
 
   const tenantId = form.getValues("tenant_id");
-  console.log(tenantId);
 
   useEffect(() => {
-    const loadJobTitles = async () => {
+    (async () => {
       const params = {
         baseURL: FLASK_URL,
         url: `${flaskApi.JobTitles}?tenant_id=${tenantId}`,
-        accessToken: token.access_token,
+        accessToken: `${token.access_token}`,
       };
 
       const res = await loadData(params);
+
       if (res) {
         setJobTitles(res);
       } else {
         setJobTitles([]);
       }
-    };
-    loadJobTitles();
-  }, [token.access_token, tenantId]);
+    })();
+  }, [tenantId]);
+
+  const getJobTitleName = (id: number) => {
+    const job = jobTitles.find((j) => Number(j.job_title_id) === Number(id));
+    return job ? job.job_title_name : "Select a Job Title";
+  };
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -89,29 +94,36 @@ const EditForm: FC<AddFormProps> = ({
 
           <FormField
             control={form.control}
-            name="job_title"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="font-normal">Job Title</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a Job Title" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {jobTitles.map((item) => (
-                      <SelectItem
-                        value={item.job_title_name}
-                        key={item.job_title_id}
-                      >
-                        {item.job_title_name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </FormItem>
-            )}
+            name="job_title_id"
+            render={({ field }) => {
+              return (
+                <FormItem>
+                  <FormLabel className="font-normal">Job Title</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    value={String(field.value || "")}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue>
+                          {getJobTitleName(field.value)}
+                        </SelectValue>
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {jobTitles.map((item) => (
+                        <SelectItem
+                          value={String(item.job_title_id)}
+                          key={item.job_title_id}
+                        >
+                          {item.job_title_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              );
+            }}
           />
           <FormField
             control={form.control}
@@ -146,6 +158,19 @@ const EditForm: FC<AddFormProps> = ({
                 <FormControl>
                   <Input {...field} type="text" placeholder="Last Name" />
                 </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="date_of_birth"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-normal">Date of Birth</FormLabel>
+                <FormControl>
+                  <Input {...field} type="date" />
+                </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />

@@ -74,3 +74,11 @@
     @apply bg-background text-foreground;
   }
 }
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  /* Example: Invert the default color to appear white on your blue background */
+  filter: invert(100%);
+  cursor: pointer;
+  background-color: gray;
+  border-radius: 5px;
+}

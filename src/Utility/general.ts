@@ -1,4 +1,4 @@
-import { ITenantsTypes } from "@/types/interfaces/users.interface";
+import { IJobTitle, ITenantsTypes } from "@/types/interfaces/users.interface";
 
 export const toTitleCase = (str: string) => {
   return str
@@ -18,4 +18,12 @@ export const convertToTitleCase = (str: string) => {
     .split("_")
     .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
+};
+
+export const jobTitleName = (id: number, jobTitles: IJobTitle[]) => {
+  if (id) {
+    const jobTitle = jobTitles.find((item) => item.job_title_id === id);
+
+    return jobTitle?.job_title_name ?? "";
+  }
 };
