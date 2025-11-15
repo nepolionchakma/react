@@ -17,6 +17,7 @@ import {
   IUserLinkedDevices,
   IGetResponeUsersInfoTypes,
   IEnterprisesTypes,
+  IJobTitle,
 } from "@/types/interfaces/users.interface";
 import {
   IDataSourcePostTypes,
@@ -107,6 +108,7 @@ interface GlobalContex {
   setEdgeConnectionPosition: Dispatch<SetStateAction<string[]>>;
   enterpriseSetting: IEnterprisesTypes | undefined;
   setEnterpriseSetting: Dispatch<SetStateAction<IEnterprisesTypes | undefined>>;
+  fetchJobTitles: () => Promise<IJobTitle[]>;
 }
 
 export const userExample = {
@@ -222,7 +224,6 @@ export function GlobalContextProvider({
             // setLoading: setIsCombinedUserLoading,
             accessToken: `${token.access_token}`,
           });
-          console.log(enterprise);
           setEnterpriseSetting(enterprise);
         }
       } catch (error) {
@@ -526,6 +527,17 @@ export function GlobalContextProvider({
     }
   };
 
+  const fetchJobTitles = async () => {
+    const params = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.JobTitles}`,
+      accessToken: `${token.access_token}`,
+    };
+
+    const res = await loadData(params);
+    return res ?? [];
+  };
+
   return (
     <GlobalContex.Provider
       value={{
@@ -578,6 +590,7 @@ export function GlobalContextProvider({
         setEdgeConnectionPosition,
         enterpriseSetting,
         setEnterpriseSetting,
+        fetchJobTitles,
       }}
     >
       <SocketContextProvider>

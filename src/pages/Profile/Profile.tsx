@@ -6,10 +6,11 @@ import Spinner from "@/components/Spinner/Spinner";
 import { useEffect, useState } from "react";
 
 import CreateAccessProfile from "./CreateAccessProfile/CreateAccessProfile";
-import { IProfilesType } from "@/types/interfaces/users.interface";
+import { IJobTitle, IProfilesType } from "@/types/interfaces/users.interface";
 import UpdateProfile3 from "./UpdateProfile/UpdateProfile3";
 import { loadData } from "@/Utility/funtion";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { jobTitleName } from "@/Utility/general";
 
 const Profile = () => {
   const { combinedUser, isCombinedUserLoading } = useGlobalContext();
@@ -19,6 +20,7 @@ const Profile = () => {
   const [data, setData] = useState<IProfilesType1[]>([]);
   const [isUpdated, setIsUpdated] = useState<number>(0);
   const [primaryCheckedItem, setPrimaryCheckedItem] = useState<IProfilesType>();
+  const [jobTitles, setJobTitles] = useState<IJobTitle[]>([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,6 +47,24 @@ const Profile = () => {
     fetchData();
   }, [combinedUser?.user_id, isUpdated]);
 
+  useEffect(() => {
+    (async () => {
+      const params = {
+        baseURL: FLASK_URL,
+        url: `${flaskApi.JobTitles}?tenant_id=${combinedUser?.tenant_id}`,
+        accessToken: `${token.access_token}`,
+      };
+
+      const res = await loadData(params);
+
+      if (res) {
+        setJobTitles(res);
+      } else {
+        setJobTitles([]);
+      }
+    })();
+  }, [combinedUser?.tenant_id]);
+
   return (
     <>
       {isCreateNewProfile && (
@@ -70,7 +90,9 @@ const Profile = () => {
                     <h5 className="font-medium">
                       {combinedUser?.first_name} {combinedUser?.last_name}
                     </h5>
-                    <h5 className="">{combinedUser?.job_title}</h5>
+                    <h5 className="">
+                      {jobTitleName(combinedUser?.job_title_id ?? 0, jobTitles)}
+                    </h5>
                     <h5 className="font-light">Id: {combinedUser?.user_id}</h5>
                   </div>
                 </div>

@@ -134,7 +134,7 @@ const AddForm: FC<AddFormProps> = ({
             name="tenant_id"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="font-normal">Tenant ID</FormLabel>
+                <FormLabel className="font-normal">Tenant Name</FormLabel>
 
                 <Select
                   required
@@ -167,7 +167,7 @@ const AddForm: FC<AddFormProps> = ({
 
           <FormField
             control={form.control}
-            name="job_title"
+            name="job_title_id"
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="font-normal">Job Title</FormLabel>
@@ -184,7 +184,7 @@ const AddForm: FC<AddFormProps> = ({
                   <SelectContent>
                     {jobTitles?.map((job) => (
                       <SelectItem
-                        value={job.job_title_name}
+                        value={String(job.job_title_id)}
                         key={job.job_title_id}
                       >
                         {job.job_title_name}
@@ -245,6 +245,20 @@ const AddForm: FC<AddFormProps> = ({
           )}
 
           <FormField
+            control={form.control}
+            name="date_of_birth"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-normal">Date of Birth</FormLabel>
+                <FormControl>
+                  <Input {...field} type="date" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
             disabled={
               combinedUser?.user_type !== "system" && userType === "system"
             }
@@ -257,7 +271,7 @@ const AddForm: FC<AddFormProps> = ({
                   <Input
                     {...field}
                     type="text"
-                    placeholder="example@email.com, example2@email.com"
+                    placeholder="example@email.com"
                     multiple={true}
                   />
                 </FormControl>
@@ -265,6 +279,7 @@ const AddForm: FC<AddFormProps> = ({
               </FormItem>
             )}
           />
+
           <FormField
             disabled={
               combinedUser?.user_type !== "system" && userType === "system"
@@ -337,7 +352,7 @@ const AddForm: FC<AddFormProps> = ({
               speed="1.75"
               color="red"
             ></l-hourglass>{" "}
-            Login as a Admin.
+            Please login as a Admin
           </p>
         ) : (
           ""

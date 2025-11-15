@@ -70,10 +70,7 @@ const ResetPassword = () => {
       };
       try {
         const res = await loadData(params);
-        // console.log(res, "res");
-        if (res.valid === true) {
-          setVerifyUser(res);
-        }
+        setVerifyUser(res);
       } catch (error) {
         console.log(error);
       }

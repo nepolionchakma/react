@@ -60,7 +60,7 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
       ip_address: ipAddress ? ipAddress : "Unknown",
       location: userLocation ? userLocation : "Unknown (Location off)",
     };
-    console.log(data, "data");
+
     try {
       setIsLoading(true);
       const response = await api.post(`/login`, data);

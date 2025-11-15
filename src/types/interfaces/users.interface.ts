@@ -15,6 +15,7 @@ export interface Users {
   user_name: string;
   user_type: string;
   email_address: string;
+  date_of_birth?: string;
   created_by?: number;
   created_on?: string;
   last_updated_by?: number;
@@ -29,7 +30,7 @@ export interface IPersonsTypes {
   first_name: string;
   middle_name: string;
   last_name: string;
-  job_title: string;
+  job_title_id: number;
 }
 export interface IUsersInfoTypes extends Users, IPersonsTypes {}
 export interface IUpdateUserTypes {
@@ -38,8 +39,9 @@ export interface IUpdateUserTypes {
   first_name: string;
   middle_name: string | undefined;
   last_name: string;
-  job_title: string;
+  job_title_id: number;
   password?: string;
+  date_of_birth?: string;
 }
 export interface ICombinedUser extends Users {
   person: IPersonsTypes;
@@ -115,7 +117,7 @@ export interface IAddUserTypes {
   first_name: string;
   middle_name: string | undefined;
   last_name: string;
-  job_title: string;
+  job_title_id: number;
   password: string;
 }
 export interface ITenantsTypes {
