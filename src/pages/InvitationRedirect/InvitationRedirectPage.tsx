@@ -71,6 +71,7 @@ function InvitationRedirectPage() {
       first_name: z.string(),
       middle_name: z.string().optional(),
       last_name: z.string().optional(),
+      date_of_birth: z.string().date(),
       job_title: z.string(),
       tenant_id: z.string().optional(),
       email_address: z.string().email(),
@@ -161,6 +162,7 @@ function InvitationRedirectPage() {
       first_name: data.first_name,
       middle_name: data.middle_name,
       last_name: data.last_name,
+      date_of_birth: data.date_of_birth,
       job_title: data.job_title,
       password: data.password,
       user_invitation_id: Number(decryptedUserInvitaitionId),
@@ -262,23 +264,6 @@ function InvitationRedirectPage() {
                               }}
                               value={field.value}
                             >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a User" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {UserTypes.map((user) => (
-                                  <SelectItem
-                                    value={user.user_type}
-                                    key={user.user_type}
-                                    onChange={() => setUserType(user.user_type)}
-                                  >
-                                    {user.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
                           </FormItem>
                         )}
                       /> */}
@@ -310,7 +295,7 @@ function InvitationRedirectPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="font-normal">
-                              Tenant ID
+                              Tenant Name
                             </FormLabel>
 
                             <Select
@@ -426,6 +411,21 @@ function InvitationRedirectPage() {
                                 placeholder="Last Name"
                               />
                             </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="date_of_birth"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="font-normal">
+                              Date of Birth
+                            </FormLabel>
+                            <FormControl>
+                              <Input {...field} type="date" />
+                            </FormControl>
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
