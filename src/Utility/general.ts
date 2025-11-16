@@ -27,3 +27,11 @@ export const jobTitleName = (id: number, jobTitles: IJobTitle[]) => {
     return jobTitle?.job_title_name ?? "";
   }
 };
+
+export const tenantNames = (id: number, data: ITenantsTypes[]) => {
+  if (id) {
+    const name = data.find((item) => item.tenant_id === id);
+
+    return name?.tenant_name ?? "";
+  }
+};
