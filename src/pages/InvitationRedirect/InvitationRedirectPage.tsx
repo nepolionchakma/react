@@ -71,7 +71,8 @@ function InvitationRedirectPage() {
       first_name: z.string(),
       middle_name: z.string().optional(),
       last_name: z.string().optional(),
-      job_title: z.string(),
+      date_of_birth: z.string().date(),
+      job_title_id: z.string(),
       tenant_id: z.string().optional(),
       email_address: z.string().email(),
       password: z.string().min(8, {
@@ -96,7 +97,8 @@ function InvitationRedirectPage() {
       first_name: "",
       middle_name: "",
       last_name: "",
-      job_title: "",
+      date_of_birth: new Date().toISOString().split("T")[0],
+      job_title_id: "",
       password: "",
       confirm_password: "",
     },
@@ -161,7 +163,8 @@ function InvitationRedirectPage() {
       first_name: data.first_name,
       middle_name: data.middle_name,
       last_name: data.last_name,
-      job_title: data.job_title,
+      date_of_birth: data.date_of_birth,
+      job_title_id: data.job_title_id,
       password: data.password,
       user_invitation_id: Number(decryptedUserInvitaitionId),
     };
@@ -203,7 +206,7 @@ function InvitationRedirectPage() {
       if (res.length > 0) {
         setJobTitles(res);
       } else {
-        form.resetField("job_title");
+        form.resetField("job_title_id");
         setJobTitles([]);
       }
     };
@@ -262,23 +265,6 @@ function InvitationRedirectPage() {
                               }}
                               value={field.value}
                             >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a User" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent>
-                                {UserTypes.map((user) => (
-                                  <SelectItem
-                                    value={user.user_type}
-                                    key={user.user_type}
-                                    onChange={() => setUserType(user.user_type)}
-                                  >
-                                    {user.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
                           </FormItem>
                         )}
                       /> */}
@@ -310,7 +296,7 @@ function InvitationRedirectPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="font-normal">
-                              Tenant ID
+                              Tenant Name
                             </FormLabel>
 
                             <Select
@@ -342,7 +328,7 @@ function InvitationRedirectPage() {
 
                       <FormField
                         control={form.control}
-                        name="job_title"
+                        name="job_title_id"
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="font-normal">
@@ -361,7 +347,7 @@ function InvitationRedirectPage() {
                               <SelectContent>
                                 {jobTitles?.map((job) => (
                                   <SelectItem
-                                    value={job.job_title_name}
+                                    value={String(job.job_title_id)}
                                     key={job.job_title_id}
                                   >
                                     {job.job_title_name}
@@ -426,6 +412,21 @@ function InvitationRedirectPage() {
                                 placeholder="Last Name"
                               />
                             </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                      <FormField
+                        control={form.control}
+                        name="date_of_birth"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="font-normal">
+                              Date of Birth
+                            </FormLabel>
+                            <FormControl>
+                              <Input {...field} type="date" />
+                            </FormControl>
+                            <FormMessage />
                           </FormItem>
                         )}
                       />

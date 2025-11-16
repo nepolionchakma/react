@@ -190,7 +190,7 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
     }
   };
   return (
-    <div className=" ">
+    <div className="max-h-96">
       <div className="p-2 bg-slate-300 rounded-t mx-auto text-center font-bold flex justify-between">
         <h1>
           {isOpenModal === "edit_user" ? "Edit an Account" : "Add an Account"}
