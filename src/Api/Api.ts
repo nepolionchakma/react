@@ -51,6 +51,8 @@ export const flaskApi = {
   DefAsyncSearchTaskSchedules: "/def_async_task_schedules/search",
   RescheduleTask: "/Reschedule_Task",
   EnterpriseSetup: "/get_enterprise",
+  DefRoles: "/def_roles",
+  DefPrivileges: "/def_privileges",
 };
 
 // All Node api
@@ -60,4 +62,5 @@ export const nodeApi = {
   Alerts: "/alerts",
   ForgotPassword: "/forgot_password_request",
   ResetPassword: "/def_user_credentials/reset_forgot_password",
+  PrevilegesAndRoles: "/def_user_granted_roles_previleges",
 };

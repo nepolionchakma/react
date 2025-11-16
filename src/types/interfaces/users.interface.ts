@@ -197,3 +197,21 @@ export interface IJobTitle {
   last_updated_by?: number;
   last_updated_on?: Date;
 }
+
+export interface IRole {
+  role_id: number;
+  role_name: string;
+}
+
+export interface IPrivilege {
+  privilege_id: number;
+  privilege_name: string;
+}
+
+export interface IPrivilegeAndRole {
+  user_id: number;
+  user_name: string;
+  tenant_id: number;
+  granted_roles: IRole[];
+  granted_privileges: IPrivilege[];
+}
