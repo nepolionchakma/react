@@ -54,8 +54,8 @@ const ManagePriviedgesAndRoles = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  const [expandRoles, setExpandRoles] = useState<string | null>(null);
-  const [expandPrevilege, setExpandPrevilege] = useState<string | null>(null);
+  // const [expandRoles, setExpandRoles] = useState<string | null>(null);
+  // const [expandPrevilege, setExpandPrevilege] = useState<string | null>(null);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [query, setQuery] = useState({ isEmpty: true, value: "" });
@@ -70,11 +70,11 @@ const ManagePriviedgesAndRoles = () => {
   const table = useReactTable({
     data,
     columns: getColumns(
-      tenants,
-      expandRoles,
-      expandPrevilege,
-      setExpandRoles,
-      setExpandPrevilege
+      tenants
+      // expandRoles,
+      // expandPrevilege,
+      // setExpandRoles,
+      // setExpandPrevilege
     ),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -297,11 +297,11 @@ const ManagePriviedgesAndRoles = () => {
                   <TableCell
                     colSpan={
                       getColumns(
-                        tenants,
-                        expandPrevilege,
-                        expandRoles,
-                        setExpandPrevilege,
-                        setExpandRoles
+                        tenants
+                        // expandPrevilege,
+                        // expandRoles,
+                        // setExpandPrevilege,
+                        // setExpandRoles
                       ).length
                     }
                     className="h-24 text-center"
@@ -360,11 +360,11 @@ const ManagePriviedgesAndRoles = () => {
                   <TableCell
                     colSpan={
                       getColumns(
-                        tenants,
-                        expandPrevilege,
-                        expandRoles,
-                        setExpandPrevilege,
-                        setExpandRoles
+                        tenants
+                        // expandPrevilege,
+                        // expandRoles,
+                        // setExpandPrevilege,
+                        // setExpandRoles
                       ).length
                     }
                     className="h-24 text-center"
