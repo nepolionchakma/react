@@ -51,7 +51,7 @@ const ManagePriviedgesAndRoles = () => {
   const [data, setData] = useState<IPrivilegeAndRole[] | []>([]);
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [expandRoles, setExpandRoles] = useState<string | null>(null);
@@ -65,6 +65,7 @@ const ManagePriviedgesAndRoles = () => {
   );
   const [tenants, setTenants] = useState<ITenantsTypes[]>([]);
   const [isOpenModal, setIsOpenModal] = useState(false);
+  const [stateChange, setStateChange] = useState(1);
 
   const table = useReactTable({
     data,
@@ -140,7 +141,8 @@ const ManagePriviedgesAndRoles = () => {
       table.toggleAllRowsSelected(false);
     };
     loadPrevilegesAndRolesData();
-  }, [limit, page, token.access_token, table]);
+    setSelectedItem(null);
+  }, [limit, page, token.access_token, table, stateChange]);
 
   const handleRowSelection = (rowSelection: IPrivilegeAndRole) => {
     setSelectedItem(rowSelection);
@@ -162,6 +164,7 @@ const ManagePriviedgesAndRoles = () => {
         <CustomModal4 className="w-[770px] ">
           <EditPrivilegeAndRole
             selected={selectedItem}
+            setStateChange={setStateChange}
             handleCloseModal={handleCloseModal}
           />
         </CustomModal4>

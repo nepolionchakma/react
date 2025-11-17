@@ -53,6 +53,8 @@ export const flaskApi = {
   EnterpriseSetup: "/get_enterprise",
   DefRoles: "/def_roles",
   DefPrivileges: "/def_privileges",
+  DefUserGrantedRoles: "/def_user_granted_roles",
+  DefUserGrantedPrivileges: "/def_user_granted_privileges",
 };
 
 // All Node api
