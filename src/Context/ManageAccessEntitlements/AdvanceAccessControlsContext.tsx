@@ -544,13 +544,13 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         baseURL: FLASK_URL,
         url: flaskApi.DefAccessModelLogics,
         accessToken: token.access_token,
-        setLoading: setIsLoading,
+        // setLoading: setIsLoading,
       }),
       loadData({
         baseURL: FLASK_URL,
         url: flaskApi.DefAccessModelLogicAttributes,
         accessToken: token.access_token,
-        setLoading: setIsLoading,
+        // setLoading: setIsLoading,
       }),
     ]);
     const attributesMap = new Map(

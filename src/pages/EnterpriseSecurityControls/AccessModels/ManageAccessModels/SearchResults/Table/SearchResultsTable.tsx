@@ -82,6 +82,7 @@ const SearchResultsTable = () => {
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
   const [debouncedQuery, setDebouncedQuery] = React.useState("");
   const [isSelectAll, setIsSelectAll] = React.useState(false);
+  const [isDeleteLoading, setIsDeleteLoading] = React.useState(false);
   const [selectedIds, setIsSelectedIds] = React.useState<number[]>([]);
 
   React.useEffect(() => {
@@ -189,6 +190,7 @@ const SearchResultsTable = () => {
     const results: IManageAccessModelLogicExtendTypes[] = [];
 
     try {
+      setIsDeleteLoading(true);
       const deletePromises = selectedAccessModelItem.map(async (item) => {
         if (item.def_access_model_id) {
           return await manageAccessModelLogicsDeleteCalculate(
@@ -206,9 +208,28 @@ const SearchResultsTable = () => {
           results.push(res);
         }
       });
-      setWillBeDelete((prev) => [...prev, ...results]);
+      setWillBeDelete((prev) => {
+        const merged = [...prev, ...results];
+
+        // Remove duplicates based on unique keys
+        const unique = merged.filter(
+          (item, index, self) =>
+            index ===
+            self.findIndex(
+              (obj) =>
+                obj.def_access_model_id === item.def_access_model_id &&
+                obj.def_access_model_logic_id ===
+                  item.def_access_model_logic_id &&
+                obj.id === item.id
+            )
+        );
+
+        return unique;
+      });
     } catch (error) {
       console.error("Error deleting access model items:", error);
+    } finally {
+      setIsDeleteLoading(false);
     }
   };
 
@@ -292,7 +313,7 @@ const SearchResultsTable = () => {
                   <span key={modelItem.def_access_model_id}>
                     Access Model Name : {modelItem.model_name}
                     <span>
-                      {isLoading ? (
+                      {isDeleteLoading ? (
                         <span className="block">
                           <l-tailspin
                             size="40"

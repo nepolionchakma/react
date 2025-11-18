@@ -40,7 +40,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   const { token } = useGlobalContext();
   // const api = useAxiosPrivate();
   const {
-    isLoading,
+    // isLoading,
     selectedAccessModelItem: selectedItem,
     fetchDefAccessModelLogics,
     manageAccessModelAttrMaxId,
@@ -53,6 +53,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   const [rightWidgets, setRightWidgets] = useState<Extend[]>([]);
   const [originalData, setOriginalData] = useState<Extend[]>([]);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const iniLeftWidget = [
     {
@@ -74,10 +75,12 @@ const DND: FC<IManageAccessModelDNDProps> = ({
 
   useEffect(() => {
     const fetchDataFunc = async () => {
+      setIsLoading(true);
       const fetchData = await fetchDefAccessModelLogics(
         selectedItem[0].def_access_model_id ?? 0
       );
       if (fetchData) {
+        setIsLoading(false);
         const sortedData = fetchData?.sort(
           (a, b) => a.widget_position - b.widget_position
         );

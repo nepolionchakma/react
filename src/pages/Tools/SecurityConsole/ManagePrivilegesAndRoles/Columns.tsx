@@ -73,7 +73,7 @@ export const columns = (
     },
 
     cell: ({ row }) => (
-      <div className="capitalize">{row.getValue("user_name")}</div>
+      <div className="capitalize min-w-max">{row.getValue("user_name")}</div>
     ),
   },
 
@@ -100,7 +100,9 @@ export const columns = (
     },
     cell: ({ row }) => {
       return (
-        <div className="capitalize min-w-max]">{row.getValue("tenant_id")}</div>
+        <div className="capitalize min-w-[10rem]">
+          {row.getValue("tenant_id")}
+        </div>
       );
     },
   },
@@ -143,7 +145,7 @@ export const columns = (
               <CircleChevronRight className="w-5 h-5 text-gray-600" />
             )}
           </button> */}
-          <div className="capitalize">
+          <div className="capitalize min-w-[20rem]">
             <span>{granted_roles.map((r) => r.role_name).join(", ")}</span>
             {/* {isExpanded ? (
               
@@ -199,7 +201,7 @@ export const columns = (
               <CircleChevronRight className="w-5 h-5 text-gray-600" />
             )}
           </button> */}
-          <div className="capitalize">
+          <div className="capitalize min-w-[25rem]">
             <span>
               {granted_privileges.map((p) => p.privilege_name).join(", ")}
             </span>
