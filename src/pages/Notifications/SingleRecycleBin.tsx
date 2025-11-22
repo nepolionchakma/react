@@ -23,11 +23,17 @@ import {
   renderProfilePicture,
   renderSlicedUsername,
 } from "@/Utility/NotificationUtils";
+import { FLASK_URL, NODE_URL } from "@/Api/Api";
+import { deleteData } from "@/Utility/funtion";
 
 const SingleRecycleBin = () => {
   const api = useAxiosPrivate();
   const { userId, token, users } = useGlobalContext();
-  const { handleDeleteMessage, handleRestoreMessage } = useSocketContext();
+  const {
+    handleDeleteMessage,
+    handleRestoreMessage,
+    handleParmanentDeleteMessage,
+  } = useSocketContext();
   const navigate = useNavigate();
   const { toast } = useToast();
   const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
@@ -59,15 +65,42 @@ const SingleRecycleBin = () => {
 
   const handleDelete = async () => {
     try {
-      const response = await api.put(
-        `/notifications/remove-from-recyclebin?notification_id=${id}&user_id=${userId}`
-      );
-      if (response.status === 200) {
-        handleDeleteMessage(id as string, "Recycle");
-        navigate("/notifications/recycle-bin");
-        toast({
-          title: `${response.data.message}`,
-        });
+      if (message?.alert_id) {
+        const deleteAlertParams = {
+          url: `alerts/${message.alert_id}`,
+          baseURL: NODE_URL,
+          accessToken: token.access_token,
+        };
+        await deleteData(deleteAlertParams);
+      } else if (message?.action_item_id) {
+        const deleteActionItemParams = {
+          url: `def_action_items/${message.action_item_id}`,
+          baseURL: FLASK_URL,
+          accessToken: token.access_token,
+        };
+        await deleteData(deleteActionItemParams);
+      } else if (message?.status === "DRAFT") {
+        const deleteNotificationParams = {
+          url: `notifications/${message.notification_id}`,
+          baseURL: NODE_URL,
+          accessToken: token.access_token,
+          isToast: true,
+        };
+        const deleteNotification = await deleteData(deleteNotificationParams);
+        if (deleteNotification) {
+          handleParmanentDeleteMessage(message.notification_id);
+        }
+      } else {
+        const response = await api.put(
+          `/notifications/remove-from-recyclebin?notification_id=${id}&user_id=${userId}`
+        );
+        if (response.status === 200) {
+          handleDeleteMessage(id as string, "Recycle");
+          navigate("/notifications/recycle-bin");
+          toast({
+            title: `${response.data.message}`,
+          });
+        }
       }
     } catch (error) {
       if (error instanceof Error) {

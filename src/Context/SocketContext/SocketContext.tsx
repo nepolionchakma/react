@@ -77,6 +77,7 @@ interface SocketContext {
     recipients: number[],
     isAcknowledge: boolean
   ) => void;
+  handleParmanentDeleteMessage: (notificationId: string) => void;
 }
 
 const SocketContext = createContext({} as SocketContext);
@@ -365,6 +366,20 @@ export function SocketContextProvider({ children }: SocketContextProps) {
       }
     });
 
+    socket.on("permanentDeleteMessage", (notificationId: string) => {
+      setRecycleBinMsg((prev) => {
+        const filteredMessages = prev.filter(
+          (msg) => msg.notification_id !== notificationId
+        );
+        // Only update total if the message was actually removed
+        // if (filteredMessages.length < prev.length) {
+
+        // }
+        return filteredMessages;
+      });
+      setTotalRecycleBinMsg(totalRecycleBinMsg - 1);
+    });
+
     socket.on("restoreMessage", ({ notification, type }: MessagePayload) => {
       try {
         if (type === "Drafts") {
@@ -517,6 +532,9 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   ) => {
     socket.emit("deleteMessage", { notificationId, sender: userId, type });
   };
+  const handleParmanentDeleteMessage = (notificationId: string) => {
+    socket.emit("permanentDeleteMessage", { notificationId, sender: userId });
+  };
 
   const handleDraftMessage = (
     notificationId: string,
@@ -590,6 +608,7 @@ export function SocketContextProvider({ children }: SocketContextProps) {
         unreadTotalAlert,
         setUnreadTotalAlert,
         handleSendAlert,
+        handleParmanentDeleteMessage,
       }}
     >
       {children}
