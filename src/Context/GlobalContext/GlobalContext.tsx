@@ -32,7 +32,7 @@ import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import useUserDevice from "@/hooks/useUserDevice";
 import { ARMContextProvider } from "../ARMContext/ARMContext";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
-import { loadData } from "@/Utility/funtion";
+import { deleteData, loadData, postData, putData } from "@/Utility/funtion";
 
 interface GlobalContextProviderProps {
   children: ReactNode;
@@ -220,7 +220,7 @@ export function GlobalContextProvider({
         if (combinedUser) {
           const enterprise = await loadData({
             baseURL: FLASK_URL,
-            url: `${flaskApi.EnterpriseSetup}/${combinedUser.tenant_id}`,
+            url: `${flaskApi.EnterpriseSetup}?tenant_id=${combinedUser.tenant_id}`,
             // setLoading: setIsCombinedUserLoading,
             accessToken: `${token.access_token}`,
           });
@@ -362,14 +362,19 @@ export function GlobalContextProvider({
   //Fetch DataSources
   const fetchDataSources = async (page: number, limit: number) => {
     try {
-      const response = await api.get<{
-        items: IDataSourceTypes[];
-        pages: number;
-        page: number;
-      }>(`/def-data-sources/${page}/${limit}`);
-      setTotalPage(response.data.pages);
-      setCurrentPage(response.data.page);
-      return response.data.items;
+      const response = await loadData({
+        baseURL: FLASK_URL,
+        url: `${flaskApi.DefDataSources}?page=${page}&limit=${limit}`,
+        accessToken: token.access_token,
+      });
+      // const response = await api.get<{
+      //   items: IDataSourceTypes[];
+      //   pages: number;
+      //   page: number;
+      // }>(`/def-data-sources/${page}/${limit}`);
+      setTotalPage(response.pages);
+      setCurrentPage(response.page);
+      return response.result;
     } catch (error) {
       console.log(error);
     }
@@ -381,13 +386,18 @@ export function GlobalContextProvider({
     dataSourceName: string
   ) => {
     try {
-      const resultLazyLoading = await api.get(
-        `/def-data-sources/search/${page}/${limit}?datasource_name=${dataSourceName}`
-      );
+      const response = await loadData({
+        baseURL: FLASK_URL,
+        url: `${flaskApi.DefDataSources}?datasource_name=${dataSourceName}&page=${page}&limit=${limit}`,
+        accessToken: token.access_token,
+      });
+      // const resultLazyLoading = await api.get(
+      //   `/def-data-sources/search/${page}/${limit}?datasource_name=${dataSourceName}`
+      // );
 
-      setTotalPage(resultLazyLoading.data.pages);
-      setCurrentPage(resultLazyLoading.data.page);
-      return resultLazyLoading.data.items;
+      setTotalPage(response.pages);
+      setCurrentPage(response.page);
+      return response.result;
     } catch (error) {
       console.log(error);
     }
@@ -395,15 +405,17 @@ export function GlobalContextProvider({
 
   const fetchDataSource = async (id: number): Promise<IDataSourceTypes> => {
     try {
-      const response = await api.get<IDataSourceTypes>(
-        `/def-data-sources/${id}`
-      );
-      if (response.status === 200) {
+      const response = await loadData({
+        baseURL: FLASK_URL,
+        url: `${flaskApi.DefDataSources}?def_data_source_id=${id}`,
+        accessToken: token.access_token,
+      });
+      if (response.result) {
         // Check if status code indicates success
-        return response.data;
+        return response.result;
       } else {
         throw new Error(
-          `Failed to fetch data source, status code: ${response.status}`
+          `Failed to fetch data source, status code: ${response.message}`
         );
       }
     } catch (error) {
@@ -411,7 +423,7 @@ export function GlobalContextProvider({
       throw error;
     }
   };
-  const createDataSource = async (postData: IDataSourcePostTypes) => {
+  const createDataSource = async (data: IDataSourcePostTypes) => {
     const {
       datasource_name,
       description,
@@ -424,9 +436,9 @@ export function GlobalContextProvider({
       default_datasource,
       created_by,
       last_updated_by,
-    } = postData;
+    } = data;
     try {
-      const res = await api.post<IDataSourceTypes>(`/def-data-sources`, {
+      const postPayload = {
         datasource_name,
         description,
         application_type,
@@ -438,12 +450,20 @@ export function GlobalContextProvider({
         default_datasource,
         created_by,
         last_updated_by,
-      });
-      // for sync data call fetch data source
+      };
 
+      const res = await postData({
+        baseURL: FLASK_URL,
+        url: `${flaskApi.DefDataSources}`,
+        setLoading: setIsLoading,
+        payload: postPayload,
+        // isConsole: true,
+        // isToast: true,
+        accessToken: token.access_token,
+      });
       if (res.status === 201) {
         toast({
-          description: `Data added successfully.`,
+          description: `${res.data.message}`,
         });
       }
     } catch (error) {
@@ -459,37 +479,22 @@ export function GlobalContextProvider({
     postData: IDataSourcePostTypes
   ) => {
     try {
-      const res = await api.put<IDataSourcePostTypes>(
-        `/def-data-sources/${id}`,
-        // {
-        //   data_source_id: id,
-        //   datasource_name: postData.datasource_name,
-        //   description: postData.description,
-        //   application_type: postData.application_type,
-        //   application_type_version: postData.application_type_version,
-        //   last_access_synchronization_status:
-        //     postData.last_access_synchronization_status,
-        //   last_access_synchronization_date:
-        //     postData.last_access_synchronization_date,
-        //   last_transaction_synchronization_status:
-        //     postData.last_transaction_synchronization_status,
-        //   last_transaction_synchronization_date:
-        //     postData.last_transaction_synchronization_date,
-        //   default_datasource: postData.default_datasource,
-        //   created_by: postData.created_by,
-        //   last_updated_by: postData.last_updated_by,
-        // }
-        {
+      const res = await putData({
+        baseURL: FLASK_URL,
+        url: `${flaskApi.DefDataSources}?def_data_source_id=${id}`,
+        setLoading: setIsLoading,
+        accessToken: token.access_token,
+        payload: {
           description: postData.description,
           last_transaction_synchronization_date:
             postData.last_transaction_synchronization_date,
           last_updated_by: postData.last_updated_by,
-        }
-      );
-      // for sync data call fetch data source
+        },
+      });
+
       if (res.status === 200) {
         toast({
-          description: `Data updated successfully.`,
+          description: `${res.data.message}`,
         });
       }
     } catch (error) {
@@ -506,14 +511,16 @@ export function GlobalContextProvider({
   };
   const deleteDataSource = async (id: number) => {
     try {
-      const res = await api.delete<IDataSourceTypes>(`/def-data-sources/${id}`);
-
+      const res = await deleteData({
+        baseURL: FLASK_URL,
+        url: `${flaskApi.DefDataSources}?def_data_source_id=${id}`,
+        accessToken: token.access_token,
+      });
       if (res.status === 200) {
         toast({
-          description: "Deleted Succesfully",
+          description: `${res.data.message}`,
         });
       }
-      console.log(res);
     } catch (error) {
       if (error instanceof AxiosError && error.response) {
         if (error?.status === 500) {

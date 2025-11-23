@@ -426,7 +426,6 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       accessToken: token.access_token,
       setLoading: setIsLoading,
     });
-    console.log(response, "ress");
     if (response) {
       const totalCount = response.result.length;
       const totalPages = Math.ceil(totalCount / limit);
@@ -659,7 +658,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       accessToken: token.access_token,
     });
     if (res) {
-      setDataSources(res);
+      setDataSources(res.result);
     }
   };
 
