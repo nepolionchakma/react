@@ -349,12 +349,14 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       }),
     ]);
     const attributesMap = new Map(
-      attributesRes.map((attr: IManageGlobalConditionLogicAttributesTypes) => [
-        attr.def_global_condition_logic_id,
-        attr,
-      ])
+      attributesRes.result.map(
+        (attr: IManageGlobalConditionLogicAttributesTypes) => [
+          attr.def_global_condition_logic_id,
+          attr,
+        ]
+      )
     );
-    const mergedData = logicsRes.map(
+    const mergedData = logicsRes.result.map(
       (item: IManageGlobalConditionLogicTypes) => ({
         ...item,
         ...(attributesMap.get(item.def_global_condition_logic_id) || {}),
@@ -403,12 +405,12 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     const [isExistLogicId, isExistAttrId] = await Promise.all([
       deleteData({
         baseURL: FLASK_URL,
-        url: `${flaskApi.DefGlobalConditionLogics}/${logicId}`,
+        url: `${flaskApi.DefGlobalConditionLogics}?def_global_condition_logic_id=${logicId}`,
         accessToken: token.access_token,
       }),
       deleteData({
         baseURL: FLASK_URL,
-        url: `${flaskApi.DefGlobalConditionLogicAttributes}/${attrId}`,
+        url: `${flaskApi.DefGlobalConditionLogicAttributes}?id=${attrId}`,
         accessToken: token.access_token,
       }),
     ]);
