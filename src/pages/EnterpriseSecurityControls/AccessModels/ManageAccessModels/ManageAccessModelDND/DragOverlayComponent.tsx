@@ -22,7 +22,9 @@ export interface DroppableListProps {
 import { FC } from "react";
 import { IManageAccessModelLogicExtendTypes } from "@/types/interfaces/ManageAccessEntitlements.interface";
 import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+import { deleteData } from "@/Utility/funtion";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 interface DroppableItemProps {
   id: string;
   item: IManageAccessModelLogicExtendTypes;
@@ -37,7 +39,6 @@ const DragOverlayComponent: FC<DroppableItemProps> = ({
   index,
   setItems,
 }) => {
-  const api = useAxiosPrivate();
   const {
     attributes,
     isDragging,
@@ -46,7 +47,7 @@ const DragOverlayComponent: FC<DroppableItemProps> = ({
     transform,
     transition,
   } = useSortable({ id: item.def_access_model_logic_id });
-
+  const { token } = useGlobalContext();
   const { deleteManageModelLogicAndAttributeData } = useAACContext();
 
   // const { deleteUser } = useSqliteAuthContext();
@@ -63,16 +64,20 @@ const DragOverlayComponent: FC<DroppableItemProps> = ({
     const res = await deleteManageModelLogicAndAttributeData(logicId, attrId);
     try {
       if (res === 200) {
-        Promise.all([
-          api.delete(`/manage-global-condition-logics/${logicId}`),
-          api.delete(`/manage-global-condition-logic-attributes/${attrId}`),
-        ])
-          // .then(([logicResult, attributeResult]) => {
-
-          // })
-          .catch((error) => {
-            console.error("Error occurred:", error);
-          });
+        await Promise.all([
+          deleteData({
+            baseURL: FLASK_URL,
+            url: `${flaskApi.DefGlobalConditionLogics}?def_global_condition_logic_id=${logicId}`,
+            accessToken: token.access_token,
+          }),
+          deleteData({
+            baseURL: FLASK_URL,
+            url: `${flaskApi.DefGlobalConditionLogicAttributes}?id=${attrId}`,
+            accessToken: token.access_token,
+          }),
+        ]).catch((error) => {
+          console.error("Error occurred:", error);
+        });
       }
     } catch (error) {
       console.log(error);

@@ -233,7 +233,9 @@ const SearchResultsTable = () => {
     "task_id",
     "args",
     "kwargs",
-    "last_updated_date",
+    "last_updated_by",
+    "last_update_date",
+    "revision",
     "revision_date",
   ];
 

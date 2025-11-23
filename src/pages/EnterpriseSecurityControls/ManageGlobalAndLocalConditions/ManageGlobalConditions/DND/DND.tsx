@@ -278,7 +278,7 @@ const DND: FC = () => {
     }));
     const putParams = {
       baseURL: FLASK_URL,
-      url: `${flaskApi.DefGlobalConditions}/${selectedItem[0]?.def_global_condition_id}`,
+      url: `${flaskApi.DefGlobalConditions}?def_global_condition_id=${selectedItem[0]?.def_global_condition_id}`,
       setLoading: setIsActionLoading,
       payload: changedAccessGlobalCondition,
       accessToken: token.access_token,

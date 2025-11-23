@@ -9,8 +9,6 @@ const EditModel: FC<IManageAccessEditModelProps> = ({
   setOpenEditModal,
   isOpenEditModal,
 }) => {
-  // const { selectedItem } = useAACContext();
-
   return (
     <CustomModal1>
       <div className="h-full">

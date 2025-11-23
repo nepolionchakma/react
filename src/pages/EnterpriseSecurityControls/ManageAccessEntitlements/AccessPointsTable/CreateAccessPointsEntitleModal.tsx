@@ -43,7 +43,7 @@ const AccessPointsEntitleModal = () => {
         accessToken: token.access_token,
         setLoading: () => {},
       });
-      setDataSources(res);
+      setDataSources(res.result);
     };
     res();
   }, [token.access_token]);
