@@ -299,8 +299,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     }));
     const putParams = {
       baseURL: FLASK_URL,
-      url:
-        flaskApi.DefAccessModels + "/" + selectedItem[0]?.def_access_model_id,
+      url: `${flaskApi.DefAccessModels}?def_access_model_id=${selectedItem[0]?.def_access_model_id}`,
       setLoading: setIsActionLoading,
       payload: changedAccessModel,
       accessToken: token.access_token,
