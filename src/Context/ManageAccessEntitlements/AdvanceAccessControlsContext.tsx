@@ -198,12 +198,12 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
           }),
         ]);
         const maxIdGlobalCondition = Math.max(
-          ...resGlobalCondition.map(
+          ...resGlobalCondition.result.map(
             (data: IManageGlobalConditionLogicAttributesTypes) => data.id
           )
         );
         const maxIdManageAccessModel = Math.max(
-          ...resManageAccessModel.map(
+          ...resManageAccessModel.result.map(
             (data: IManageAccessModelLogicAttributesTypes) => data.id
           )
         );
@@ -227,14 +227,14 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   useEffect(() => {
     if (token.user_id === 0) return;
     const maxLogicId = async () => {
-      const result = await loadData({
+      const res = await loadData({
         baseURL: FLASK_URL,
         url: flaskApi.DefAccessModelLogics,
         accessToken: token.access_token,
       });
-      if (result && result.length > 0) {
+      if (res.result && res.result.length > 0) {
         const maxAccessLogicId = Math.max(
-          ...result.map(
+          ...res.result.map(
             (data: IManageAccessModelLogicsTypes) =>
               data.def_access_model_logic_id
           )
@@ -250,14 +250,14 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   useEffect(() => {
     if (token.user_id === 0) return;
     const maxAttrId = async () => {
-      const result = await loadData({
+      const res = await loadData({
         baseURL: FLASK_URL,
         url: flaskApi.DefAccessModelLogicAttributes,
         accessToken: token.access_token,
       });
-      if (result && result.length > 0) {
+      if (res.result && res.result.length > 0) {
         const maxAccessAttrId = Math.max(
-          ...result.map(
+          ...res.result.map(
             (data: IManageAccessModelLogicAttributesTypes) => data.id
           )
         );
@@ -275,16 +275,16 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     page: number,
     limit: number
   ) => {
-    const resultLazyLoading = await loadData({
+    const res = await loadData({
       baseURL: FLASK_URL,
-      url: `${flaskApi.DefGlobalConditions}/${page}/${limit}`,
+      url: `${flaskApi.DefGlobalConditions}?page=${page}&limit=${limit}`,
       accessToken: token.access_token,
       setLoading: setIsLoading,
     });
 
-    if (resultLazyLoading.items.length) {
-      setManageGlobalConditions(resultLazyLoading.items);
-      setTotalPage(resultLazyLoading.pages);
+    if (res.result.length) {
+      setManageGlobalConditions(res.result);
+      setTotalPage(res.pages);
     } else {
       setTotalPage(1);
       setManageGlobalConditions([]);
@@ -297,15 +297,15 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     limit: number,
     name: string
   ) => {
-    const response = await loadData({
+    const res = await loadData({
       baseURL: FLASK_URL,
-      url: `${flaskApi.DefGlobalConditions}/search/${page}/${limit}?name=${name}`,
+      url: `${flaskApi.DefGlobalConditions}?name=${name}&page=${page}&limit=${limit}`,
       accessToken: token.access_token,
       setLoading: setIsLoading,
     });
-    if (response.items.length) {
-      setManageGlobalConditions(response.items);
-      setTotalPage(response.pages);
+    if (res.result.length) {
+      setManageGlobalConditions(res.result);
+      setTotalPage(res.pages);
     } else {
       setTotalPage(1);
       setManageGlobalConditions([]);
@@ -339,22 +339,24 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         baseURL: FLASK_URL,
         url: flaskApi.DefGlobalConditionLogics,
         accessToken: token.access_token,
-        setLoading: setIsLoading,
+        // setLoading: setIsLoading,
       }),
       loadData({
         baseURL: FLASK_URL,
         url: flaskApi.DefGlobalConditionLogicAttributes,
         accessToken: token.access_token,
-        setLoading: setIsLoading,
+        // setLoading: setIsLoading,
       }),
     ]);
     const attributesMap = new Map(
-      attributesRes.map((attr: IManageGlobalConditionLogicAttributesTypes) => [
-        attr.def_global_condition_logic_id,
-        attr,
-      ])
+      attributesRes.result.map(
+        (attr: IManageGlobalConditionLogicAttributesTypes) => [
+          attr.def_global_condition_logic_id,
+          attr,
+        ]
+      )
     );
-    const mergedData = logicsRes.map(
+    const mergedData = logicsRes.result.map(
       (item: IManageGlobalConditionLogicTypes) => ({
         ...item,
         ...(attributesMap.get(item.def_global_condition_logic_id) || {}),
@@ -385,7 +387,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       const { def_global_condition_id: id } = item;
       const deleteRes = await deleteData({
         baseURL: FLASK_URL,
-        url: `${flaskApi.DefGlobalConditions}/${id}`,
+        url: `${flaskApi.DefGlobalConditions}?def_global_condition_id=${id}`,
         accessToken: token.access_token,
       });
       if (deleteRes.status === 200) {
@@ -403,12 +405,12 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     const [isExistLogicId, isExistAttrId] = await Promise.all([
       deleteData({
         baseURL: FLASK_URL,
-        url: `${flaskApi.DefGlobalConditionLogics}/${logicId}`,
+        url: `${flaskApi.DefGlobalConditionLogics}?def_global_condition_logic_id=${logicId}`,
         accessToken: token.access_token,
       }),
       deleteData({
         baseURL: FLASK_URL,
-        url: `${flaskApi.DefGlobalConditionLogicAttributes}/${attrId}`,
+        url: `${flaskApi.DefGlobalConditionLogicAttributes}?id=${attrId}`,
         accessToken: token.access_token,
       }),
     ]);
@@ -426,13 +428,16 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       accessToken: token.access_token,
       setLoading: setIsLoading,
     });
-
     if (response) {
-      const totalCount = response.length;
+      const totalCount = response.result.length;
       const totalPages = Math.ceil(totalCount / limit);
 
       const startIndex = (page - 1) * limit;
-      const paginatedData = response.slice(startIndex, startIndex + limit);
+      const paginatedData = response.result.slice(
+        startIndex,
+        startIndex + limit
+      );
+
       setTotalPage(totalPages);
       setCurrentPage(page);
       const formattedData = paginatedData.map(
@@ -447,7 +452,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       );
       setManageAccessModels(formattedData);
 
-      return response ?? [];
+      return response.result ?? [];
     }
   };
 
@@ -455,14 +460,14 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   const lazyLoadingDefAccessModels = async (page: number, limit: number) => {
     const response = await loadData({
       baseURL: FLASK_URL,
-      url: `${flaskApi.DefAccessModels}/${page}/${limit}`,
+      url: `${flaskApi.DefAccessModels}?page=${page}&limit=${limit}`,
       accessToken: token.access_token,
       setLoading: setIsLoading,
     });
     if (response) {
       setTotalPage(response.pages);
       setCurrentPage(response.page);
-      setManageAccessModels(response.items);
+      setManageAccessModels(response.result);
     }
   };
 
@@ -474,13 +479,13 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
   ) => {
     const response = await loadData({
       baseURL: FLASK_URL,
-      url: `${flaskApi.DefAccessModels}/search/${page}/${limit}?model_name=${model_name}`,
+      url: `${flaskApi.DefAccessModels}?model_name=${model_name}&page=${page}&limit=${limit}`,
       accessToken: token.access_token,
       setLoading: setIsLoading,
     });
     setTotalPage(response.pages);
-    setManageAccessModels(response.items);
     setCurrentPage(response.page);
+    setManageAccessModels(response.result);
   };
 
   // Create Acces Model
@@ -510,7 +515,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       const { def_access_model_id: id } = item;
       const deleteRes = await deleteData({
         baseURL: FLASK_URL,
-        url: `${flaskApi.DefAccessModels}/${id}`,
+        url: `${flaskApi.DefAccessModels}?def_access_model_id=${id}`,
         accessToken: token.access_token,
       });
       if (deleteRes.status === 200) {
@@ -531,7 +536,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       setLoading: setIsLoading,
     });
     const maxId = Math.max(
-      ...response.map(
+      ...response.result.map(
         (data: IManageAccessModelLogicsTypes) => data.def_access_model_logic_id
       )
     );
@@ -544,25 +549,29 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         baseURL: FLASK_URL,
         url: flaskApi.DefAccessModelLogics,
         accessToken: token.access_token,
-        setLoading: setIsLoading,
+        // setLoading: setIsLoading,
       }),
       loadData({
         baseURL: FLASK_URL,
         url: flaskApi.DefAccessModelLogicAttributes,
         accessToken: token.access_token,
-        setLoading: setIsLoading,
+        // setLoading: setIsLoading,
       }),
     ]);
     const attributesMap = new Map(
-      attributesRes.map((attr: IManageAccessModelLogicAttributesTypes) => [
-        attr.def_access_model_logic_id,
-        attr,
-      ])
+      attributesRes.result.map(
+        (attr: IManageAccessModelLogicAttributesTypes) => [
+          attr.def_access_model_logic_id,
+          attr,
+        ]
+      )
     );
-    const mergedData = logicsRes.map((item: IManageAccessModelLogicsTypes) => ({
-      ...item,
-      ...(attributesMap.get(item.def_access_model_logic_id) || {}),
-    }));
+    const mergedData = logicsRes.result.map(
+      (item: IManageAccessModelLogicsTypes) => ({
+        ...item,
+        ...(attributesMap.get(item.def_access_model_logic_id) || {}),
+      })
+    );
     const filteredData = mergedData.filter(
       (item: IManageAccessModelLogicExtendTypes) =>
         item.def_access_model_id === filterId
@@ -587,12 +596,12 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     const [isExistLogicId, isExistAttrId] = await Promise.all([
       deleteData({
         baseURL: FLASK_URL,
-        url: `${flaskApi.DefAccessModelLogics}/${logicId}`,
+        url: `${flaskApi.DefAccessModelLogics}?def_access_model_logic_id=${logicId}`,
         accessToken: token.access_token,
       }),
       deleteData({
         baseURL: FLASK_URL,
-        url: `${flaskApi.DefAccessModelLogicAttributes}/${attrId}`,
+        url: `${flaskApi.DefAccessModelLogicAttributes}?id=${attrId}`,
         accessToken: token.access_token,
       }),
     ]);
@@ -611,7 +620,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       setLoading: setIsLoading,
     });
     if (response) {
-      setAccessModelLogicAttributes(response.data);
+      setAccessModelLogicAttributes(response.result);
     }
   };
 
@@ -653,7 +662,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
       accessToken: token.access_token,
     });
     if (res) {
-      setDataSources(res);
+      setDataSources(res.result);
     }
   };
 
