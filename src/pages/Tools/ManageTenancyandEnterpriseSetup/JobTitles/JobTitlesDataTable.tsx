@@ -157,19 +157,6 @@ export function JobTitlesDataTable({
       const res = await loadData(jobTitlesParams);
       setData(res.items);
       setTotalPage(res.pages);
-      // try {
-      //   setIsLoading(true);
-      //   const res = await api.get(`/def-tenants/${page}/${tenancyLimit}`);
-
-      //   setData(res.data.items);
-      //   setTotalPage(res.data.pages);
-      // } catch (error) {
-      //   if (error instanceof Error) {
-      //     toast({ title: error.message, variant: "destructive" });
-      //   }
-      // } finally {
-      //   setIsLoading(false);
-      // }
     };
     fetch();
   }, [api, page, stateChanged, token.access_token, jobTitlesLimit]);

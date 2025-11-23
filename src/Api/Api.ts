@@ -50,7 +50,7 @@ export const flaskApi = {
   DeleteExecutionMethod: "/Delete_ExecutionMethod",
   DefAsyncSearchTaskSchedules: "/def_async_task_schedules/search",
   RescheduleTask: "/Reschedule_Task",
-  EnterpriseSetup: "/get_enterprise",
+  EnterpriseSetup: "/def_tenant_enterprise_setup",
   DefRoles: "/def_roles",
   DefPrivileges: "/def_privileges",
   DefUserGrantedRoles: "/def_user_granted_roles",
@@ -59,8 +59,6 @@ export const flaskApi = {
 
 // All Node api
 export const nodeApi = {
-  ViewEditScheduleTaskApi:
-    "/asynchronous-requests-and-task-schedules/task-schedules",
   Alerts: "/alerts",
   ForgotPassword: "/forgot_password_request",
   ResetPassword: "/def_user_credentials/reset_forgot_password",

@@ -165,8 +165,8 @@ export async function deleteData(params: deleteDataParams) {
       if (params.isToast) {
         toast({ title: res.data.message });
       }
-      return res as any;
     }
+    return res as any;
   } catch (error: any) {
     if (isAxiosError(error)) {
       const message =

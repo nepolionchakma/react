@@ -424,7 +424,7 @@ const SingleDraft = ({
             isToast: true,
             accessToken: token.access_token,
           };
-          console.log(actionItemParams, "actionItemParams");
+
           await putData(actionItemParams);
         }
 
