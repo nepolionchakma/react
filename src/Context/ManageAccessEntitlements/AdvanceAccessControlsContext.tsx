@@ -339,13 +339,13 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         baseURL: FLASK_URL,
         url: flaskApi.DefGlobalConditionLogics,
         accessToken: token.access_token,
-        setLoading: setIsLoading,
+        // setLoading: setIsLoading,
       }),
       loadData({
         baseURL: FLASK_URL,
         url: flaskApi.DefGlobalConditionLogicAttributes,
         accessToken: token.access_token,
-        setLoading: setIsLoading,
+        // setLoading: setIsLoading,
       }),
     ]);
     const attributesMap = new Map(
@@ -549,13 +549,13 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
         baseURL: FLASK_URL,
         url: flaskApi.DefAccessModelLogics,
         accessToken: token.access_token,
-        setLoading: setIsLoading,
+        // setLoading: setIsLoading,
       }),
       loadData({
         baseURL: FLASK_URL,
         url: flaskApi.DefAccessModelLogicAttributes,
         accessToken: token.access_token,
-        setLoading: setIsLoading,
+        // setLoading: setIsLoading,
       }),
     ]);
     const attributesMap = new Map(
@@ -596,7 +596,7 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
     const [isExistLogicId, isExistAttrId] = await Promise.all([
       deleteData({
         baseURL: FLASK_URL,
-        url: `${flaskApi.DefAccessModelLogics}/${logicId}`,
+        url: `${flaskApi.DefAccessModelLogics}?def_access_model_logic_id=${logicId}`,
         accessToken: token.access_token,
       }),
       deleteData({

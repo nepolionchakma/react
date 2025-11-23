@@ -86,7 +86,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       }
     };
     fetchDataFunc();
-  }, [fetchDefAccessModelLogics, selectedItem]);
+  }, []);
 
   //Top Form Start
   const FormSchema = z.object({
