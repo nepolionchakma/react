@@ -13,15 +13,12 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 // import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { AxiosError } from "axios";
-import { api } from "@/Api/Api";
+import { api, NODE_URL } from "@/Api/Api";
 // import useInitialUserInfo from "@/hooks/useInitialUserInfo";
 import { v4 as uuidv4 } from "uuid";
 import useUserIP from "@/hooks/useUserIP";
 import { getUserLocation } from "@/Utility/locationUtils";
-
-interface SignInFormProps {
-  setIsWrongCredential: React.Dispatch<React.SetStateAction<boolean>>;
-}
+import { postData } from "@/Utility/funtion";
 
 const loginSchema = z.object({
   user: z.union([
@@ -31,7 +28,7 @@ const loginSchema = z.object({
   password: z.string().min(5, "Password must be at least 5 characters"),
 });
 
-const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
+const SignInForm = () => {
   const {
     setToken,
     isLoading,
@@ -63,12 +60,18 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
 
     try {
       setIsLoading(true);
-      const response = await api.post(`/login`, data);
+      const loginParams = {
+        baseURL: NODE_URL,
+        url: `/login`,
+        setLoading: setIsLoading,
+        payload: data,
+        isToast: true,
+      };
+      const response = await postData(loginParams);
       console.log(response, "response");
       if (!response.data) return;
 
       setToken(response.data);
-      setIsWrongCredential(false);
 
       if (response.data) {
         const newSignonID = uuidv4();
@@ -95,7 +98,7 @@ const SignInForm = ({ setIsWrongCredential }: SignInFormProps) => {
       }
     } catch (error) {
       console.log(error, "error");
-      setIsWrongCredential(true);
+
       if (error instanceof AxiosError && error.response) {
         console.log(error);
       }
