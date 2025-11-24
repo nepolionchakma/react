@@ -207,12 +207,12 @@ export const AACContextProvider = ({ children }: IAACContextProviderProps) => {
             (data: IManageAccessModelLogicAttributesTypes) => data.id
           )
         );
-        if (resGlobalCondition.length > 0) {
+        if (resGlobalCondition.result.length > 0) {
           setGlobalConditionAttrMaxId(maxIdGlobalCondition);
         } else {
           setGlobalConditionAttrMaxId(0);
         }
-        if (resManageAccessModel.length > 0) {
+        if (resManageAccessModel.result.length > 0) {
           setManageAccessModelAttrMaxId(maxIdManageAccessModel);
         } else {
           setManageAccessModelAttrMaxId(0);

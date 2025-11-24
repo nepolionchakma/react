@@ -65,21 +65,48 @@ const SingleRecycleBin = () => {
 
   const handleDelete = async () => {
     try {
-      if (message?.alert_id) {
+      if (message?.alert_id && message?.status === "DRAFT") {
         const deleteAlertParams = {
           url: `alerts/${message.alert_id}`,
           baseURL: NODE_URL,
           accessToken: token.access_token,
         };
-        await deleteData(deleteAlertParams);
-      } else if (message?.action_item_id) {
+        const deletedAlert = await deleteData(deleteAlertParams);
+        if (deletedAlert.status === 200) {
+          const deleteNotificationParams = {
+            url: `notifications/${message.notification_id}`,
+            baseURL: NODE_URL,
+            accessToken: token.access_token,
+            isToast: true,
+          };
+          const deleteNotification = await deleteData(deleteNotificationParams);
+          if (deleteNotification) {
+            handleParmanentDeleteMessage(message.notification_id);
+          }
+        }
+      } else if (message?.action_item_id && message?.status === "DRAFT") {
         const deleteActionItemParams = {
           url: `def_action_items/${message.action_item_id}`,
           baseURL: FLASK_URL,
           accessToken: token.access_token,
         };
-        await deleteData(deleteActionItemParams);
-      } else if (message?.status === "DRAFT") {
+        const deletedActionItem = await deleteData(deleteActionItemParams);
+        if (deletedActionItem.status === 200) {
+          const deleteNotificationParams = {
+            url: `notifications/${message.notification_id}`,
+            baseURL: NODE_URL,
+            accessToken: token.access_token,
+            isToast: true,
+          };
+          const deleteNotification = await deleteData(deleteNotificationParams);
+          if (deleteNotification) {
+            handleParmanentDeleteMessage(message.notification_id);
+          }
+        }
+      } else if (
+        message?.status === "DRAFT" &&
+        message.notification_type === "NOTIFICATION"
+      ) {
         const deleteNotificationParams = {
           url: `notifications/${message.notification_id}`,
           baseURL: NODE_URL,
