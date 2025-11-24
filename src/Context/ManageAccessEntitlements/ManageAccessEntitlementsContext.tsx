@@ -17,7 +17,7 @@ import { Table } from "@tanstack/react-table";
 import { deleteData, loadData, postData, putData } from "@/Utility/funtion";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
 interface IGetReturnData {
-  items: [];
+  result: [];
   page: number;
   pages: number;
   total: number;
@@ -260,7 +260,7 @@ export const ManageAccessEntitlementsProvider = ({
   const fetchManageAccessEntitlements = async () => {
     const response = await loadData({
       baseURL: FLASK_URL,
-      url: `${flaskApi.DefAccessEntitlements}/search/${accessEntitlementsPage}/${accessEntitlementsLimit}`,
+      url: `${flaskApi.DefAccessEntitlements}?page=${accessEntitlementsPage}&limit=${accessEntitlementsLimit}`,
       accessToken: token.access_token,
       setLoading: setIsLoading,
     });
@@ -302,7 +302,7 @@ export const ManageAccessEntitlementsProvider = ({
 
     const res = await putData({
       baseURL: FLASK_URL,
-      url: `${flaskApi.DefAccessEntitlements}/${id}`,
+      url: `${flaskApi.DefAccessEntitlements}?def_entitlement_id=${id}`,
       payload: data,
       accessToken: token.access_token,
       setLoading: setIsLoading,
@@ -312,13 +312,8 @@ export const ManageAccessEntitlementsProvider = ({
       toast({
         description: `${res.data.message}`,
       });
-    }
-    if (res.status === 201) {
-      toast({
-        description: `${res.data.message}`,
-      });
-
       setEditManageAccessEntitlement(false);
+      setSelectedAccessEntitlements({} as IManageAccessEntitlementsTypes);
     }
     setSave((prevSave) => prevSave + 1);
   };
@@ -328,7 +323,7 @@ export const ManageAccessEntitlementsProvider = ({
   ) => {
     const response = await deleteData({
       baseURL: FLASK_URL,
-      url: `${flaskApi.DefAccessEntitlements}/${def_access_entitlement_id}`,
+      url: `${flaskApi.DefAccessEntitlements}?def_entitlement_id=${def_access_entitlement_id}`,
       accessToken: token.access_token,
     });
 

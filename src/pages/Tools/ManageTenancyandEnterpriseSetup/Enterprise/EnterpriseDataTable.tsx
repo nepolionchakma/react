@@ -150,6 +150,7 @@ export function EnterpriseDataTable({
       };
 
       const res = await loadData(params);
+      console.log(res, "sdfdsfds");
 
       if (res) {
         setData(res.items);
