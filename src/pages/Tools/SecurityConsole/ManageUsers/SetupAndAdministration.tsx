@@ -35,13 +35,17 @@ const SetupAndAdministration = () => {
           accessToken: token.access_token,
         };
         const resData = await loadData(getDataParams);
-        // is primary available
-        const filterPrimaryData = resData.find(
-          (item: IProfilesType) => item.primary_yn === "Y"
-        );
-        setPrimaryCheckedItem(filterPrimaryData);
-        setSelectedProfile([]);
-        setData(resData);
+        if (resData.length > 0) {
+          // is primary available
+          const filterPrimaryData = resData?.find(
+            (item: IProfilesType) => item.primary_yn === "Y"
+          );
+          setPrimaryCheckedItem(filterPrimaryData);
+          setSelectedProfile([]);
+          setData(resData);
+        } else {
+          setData([]);
+        }
       } else {
         setData([]);
       }

@@ -48,14 +48,7 @@ interface Props {
 }
 export function UsersTable({ selectedUser, setSelectedUser }: Props) {
   const {
-    // isLoading,
-    // setIsLoading,
     fetchCombinedUser,
-    searchCombinedUser,
-    // usersInfo: data,
-    // page,
-    // setPage,
-    // totalPage,
     deleteCombinedUser,
     isOpenModal,
     setIsOpenModal,
@@ -105,21 +98,11 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        if (!query.isEmpty) {
-          const res = await searchCombinedUser(page, limit, query.value);
-
-          if (res) {
-            setData(res.items);
-            setPage(res.page);
-            setTotalPage(res.pages);
-          }
-        } else {
-          const res = await fetchCombinedUser(page, limit);
-          if (res) {
-            setData(res.items);
-            setPage(res.page);
-            setTotalPage(res.pages);
-          }
+        const res = await fetchCombinedUser(page, limit, query.value);
+        if (res) {
+          setData(res.result);
+          setPage(res.page);
+          setTotalPage(res.pages);
         }
       } catch (error) {
         console.log(error);

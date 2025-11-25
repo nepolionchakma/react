@@ -210,7 +210,7 @@ export const ManageAccessEntitlementsProvider = ({
   ) => {
     const response = await postData({
       baseURL: FLASK_URL,
-      url: `${flaskApi.DefAccessEntitlementElements}/${def_entitlement_id}`,
+      url: `${flaskApi.DefAccessEntitlementElements}?def_entitlement_id=${def_entitlement_id}`,
       payload: {
         def_access_point_ids: accessPointIds,
       },
@@ -239,7 +239,7 @@ export const ManageAccessEntitlementsProvider = ({
   ) => {
     const res = await deleteData({
       baseURL: FLASK_URL,
-      url: `${flaskApi.DefAccessEntitlementElements}/${def_entitlement_id}`,
+      url: `${flaskApi.DefAccessEntitlementElements}?def_entitlement_id=${def_entitlement_id}`,
       payload: {
         def_access_point_ids: accessPointIds,
       },

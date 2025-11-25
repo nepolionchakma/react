@@ -144,7 +144,7 @@ export function EnterpriseDataTable({
     const fetch = async () => {
       const params = {
         baseURL: FLASK_URL,
-        url: `/def_tenant_enterprise_setup/${page}/${enterpriseLimit}`,
+        url: `/def_tenant_enterprise_setup_v?page=${page}&limit=${enterpriseLimit}`,
         setLoading: setIsLoading,
         accessToken: token.access_token,
       };
@@ -152,7 +152,7 @@ export function EnterpriseDataTable({
       const res = await loadData(params);
 
       if (res) {
-        setData(res.items);
+        setData(res.result);
         setTotalPage(res.pages);
       }
     };

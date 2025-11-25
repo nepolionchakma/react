@@ -137,7 +137,7 @@ export interface IEnterprisesTypes {
 }
 
 export interface IGetResponeUsersInfoTypes {
-  items: IUsersInfoTypes[];
+  result: IUsersInfoTypes[];
   total: number;
   page: number;
   pages: number;

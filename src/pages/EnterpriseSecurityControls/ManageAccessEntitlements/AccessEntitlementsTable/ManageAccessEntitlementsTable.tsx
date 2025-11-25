@@ -116,6 +116,7 @@ const ManageAccessEntitlementsTable = () => {
     } else {
       setSelectedManageAccessEntitlements({} as IManageAccessEntitlementsTypes);
       fetchAccessPointsByEntitlementId(0);
+      setAccessPointsData([]);
     }
   }, [selectedAccessEntitlements.def_entitlement_id]);
 

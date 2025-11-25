@@ -73,7 +73,8 @@ interface GlobalContex {
   // usersInfo: IUsersInfoTypes[];
   fetchCombinedUser: (
     page: number,
-    limit: number
+    limit: number,
+    user_name: string
   ) => Promise<IGetResponeUsersInfoTypes | undefined>;
   searchCombinedUser: (
     page: number,
@@ -215,16 +216,16 @@ export function GlobalContextProvider({
           }),
         ]);
 
-        setUsers(users);
-        setCombinedUser(combinedUser);
-        if (combinedUser) {
-          const enterprise = await loadData({
+        setUsers(users.result);
+        setCombinedUser(combinedUser.result);
+        if (combinedUser.result) {
+          const res = await loadData({
             baseURL: FLASK_URL,
-            url: `${flaskApi.EnterpriseSetup}?tenant_id=${combinedUser.tenant_id}`,
+            url: `${flaskApi.EnterpriseSetup}?tenant_id=${combinedUser.result.tenant_id}`,
             // setLoading: setIsCombinedUserLoading,
             accessToken: `${token.access_token}`,
           });
-          setEnterpriseSetting(enterprise);
+          setEnterpriseSetting(res.result);
         }
       } catch (error) {
         console.log(error);
@@ -245,20 +246,20 @@ export function GlobalContextProvider({
     try {
       const loadUsersParams = {
         baseURL: FLASK_URL,
-        url: `${flaskApi.Users}??user_name=${user_name}&page=${page}&limit=${limit}`,
+        url: `${flaskApi.Users}?user_name=${user_name}&page=${page}&limit=${limit}`,
         setLoading: setIsLoading,
         accessToken: token.access_token,
       };
-      const ress = await loadData(loadUsersParams);
-      console.log(ress, "sdfdsfdfsd");
-      setIsLoading(true);
-      const res = await api.get<IGetResponeUsersInfoTypes>(
-        `/combined-user/${page}/${limit}`
-      );
+      const res = await loadData(loadUsersParams);
 
-      setTotalPage(res.data.pages);
-      setCurrentPage(res.data.page);
-      return res.data ?? {};
+      setIsLoading(true);
+      // const res = await api.get<IGetResponeUsersInfoTypes>(
+      //   `/combined-user/${page}/${limit}`
+      // );
+
+      setTotalPage(res.pages);
+      setCurrentPage(res.page);
+      return res;
     } catch (error) {
       console.log(error);
     } finally {

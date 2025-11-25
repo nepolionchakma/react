@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useManageAccessEntitlementsContext } from "@/Context/ManageAccessEntitlements/ManageAccessEntitlementsContext";
 import Spinner from "@/components/Spinner/Spinner";
+// import Alert from "@/components/Alert/Alert";
 
 const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
   const {
@@ -200,6 +201,9 @@ const RelationAccessPoint = ({ tableRow }: { tableRow: () => void }) => {
         >
           <h3>Add</h3>
         </Button>
+
+        {/* <Alert actionName="delete" onContinue={handleRemoveAccessEntitlementElements}
+        disabled={selectedAccessEntitlementElements?.length === 0}/> */}
 
         <AlertDialog>
           <AlertDialogTrigger asChild>

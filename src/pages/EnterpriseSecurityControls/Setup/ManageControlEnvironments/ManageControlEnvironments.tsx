@@ -145,12 +145,14 @@ const ManageControlEnvironments = () => {
     if (isSelectAll) {
       setIsSelectAll(false);
       setSelectedIds([]);
+      setSelectedItems([]);
     } else {
       setIsSelectAll(true);
       const allIds = controlEnvironments.map(
         (item) => item.control_environment_id
       );
       setSelectedIds(allIds);
+      setSelectedItems(controlEnvironments);
     }
   };
 
@@ -178,7 +180,6 @@ const ManageControlEnvironments = () => {
     setShowModal(true);
     SetModalType("Edit");
   };
-
   const handleDelete = async () => {
     const params = {
       url: flaskApi.DefControlEnvironments,
