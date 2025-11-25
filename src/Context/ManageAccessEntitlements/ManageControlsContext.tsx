@@ -14,7 +14,8 @@ interface IControlsContextTypes {
   fetchControls: () => Promise<IControlsTypes[] | undefined>;
   getControls: (
     page: number,
-    limit: number
+    limit: number,
+    control_name: string
   ) => Promise<IControlsTypes[] | undefined>;
   getSearchControls: (
     page: number,
@@ -74,11 +75,15 @@ export const ControlsContextProvider = ({
     }
   };
   // Controls
-  const getControls = async (page: number, limit: number) => {
+  const getControls = async (
+    page: number,
+    limit: number,
+    control_name: string
+  ) => {
     try {
       setIsLoading(true);
       const res = await axios.get(
-        `${FLASK_ENDPOINT_URL}/def_controls/${page}/${limit}`,
+        `${FLASK_ENDPOINT_URL}/def_controls?control_name=${control_name}&page=${page}&limit=${limit}`,
         {
           headers: {
             Authorization: `Bearer ${token.access_token}`,
@@ -86,7 +91,7 @@ export const ControlsContextProvider = ({
         }
       );
       setTotalPages(res.data.pages);
-      return res.data.items ?? [];
+      return res.data.result ?? [];
     } catch (error) {
       console.log(error);
     } finally {

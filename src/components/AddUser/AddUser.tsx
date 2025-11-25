@@ -36,7 +36,7 @@ const AddUser: FC<IAddUserProps> = ({ selected, handleCloseModal }) => {
       try {
         const res = await loadData(params);
         if (res) {
-          setTenants(res);
+          setTenants(res.result);
         }
       } catch (error) {
         console.log(error);

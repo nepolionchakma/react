@@ -95,7 +95,7 @@ const AddControlEnvironment: FC<IManageAccessModelProps> = ({
   return (
     <CustomModal3>
       <div className="flex justify-between p-2 bg-slate-300 rounded-t-lg">
-        <h2 className="text-lg font-bold">{action} Control Environment</h2>
+        <h2 className="text-lg font-bold">{action} Environment</h2>
         <X
           onClick={() => {
             setOpenAddModal(false);

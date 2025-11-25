@@ -38,15 +38,11 @@ import { toast } from "@/components/ui/use-toast";
 import { convertToTitleCase } from "@/Utility/general";
 
 const SearchResults = () => {
-  const {
-    setSelectedControl,
-    // fetchControls,
-    // controlsData: data,
-  } = useControlsContext();
-  // const { isLoading, stateChange } = useAACContext();
+  const { setSelectedControl } = useControlsContext();
+
   const {
     getControls,
-    getSearchControls,
+
     isLoading,
     setIsLoading,
     stateChange,
@@ -60,26 +56,14 @@ const SearchResults = () => {
   React.useEffect(() => {
     const fetchData = async () => {
       try {
-        if (!query.isEmpty) {
-          const res = await getSearchControls(page, limit, query.value);
-          if (res) {
-            setData(res);
-          }
-        } else {
-          const res = await getControls(page, limit);
-          if (res) {
-            setData(res);
-          }
-          // else {
-          //   setPage(page - 1);
-          // }
+        const res = await getControls(page, limit, query.value);
+        if (res) {
+          setData(res);
         }
       } catch (error) {
         console.log(error);
       } finally {
-        //table toggle false
         table.toggleAllRowsSelected(false);
-        // setSelected([]);
       }
     };
     setIsLoading(true);
@@ -102,7 +86,7 @@ const SearchResults = () => {
 
   React.useEffect(() => {
     if (stateChange) {
-      getControls(page, limit);
+      getControls(page, limit, query.value);
       table.getRowModel().rows.map((row) => row.toggleSelected(false));
       setSelectedControl([]);
     }

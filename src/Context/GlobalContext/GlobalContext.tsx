@@ -73,7 +73,8 @@ interface GlobalContex {
   // usersInfo: IUsersInfoTypes[];
   fetchCombinedUser: (
     page: number,
-    limit: number
+    limit: number,
+    user_name: string
   ) => Promise<IGetResponeUsersInfoTypes | undefined>;
   searchCombinedUser: (
     page: number,
@@ -209,22 +210,22 @@ export function GlobalContextProvider({
           }),
           loadData({
             baseURL: FLASK_URL,
-            url: `${flaskApi.Users}/${token?.user_id}`,
+            url: `${flaskApi.Users}?user_id=${token?.user_id}`,
             setLoading: setIsCombinedUserLoading,
             accessToken: `${token.access_token}`,
           }),
         ]);
 
-        setUsers(users);
-        setCombinedUser(combinedUser);
-        if (combinedUser) {
-          const enterprise = await loadData({
+        setUsers(users.result);
+        setCombinedUser(combinedUser.result);
+        if (combinedUser.result) {
+          const res = await loadData({
             baseURL: FLASK_URL,
-            url: `${flaskApi.EnterpriseSetup}?tenant_id=${combinedUser.tenant_id}`,
+            url: `${flaskApi.EnterpriseSetup}?tenant_id=${combinedUser.result.tenant_id}`,
             // setLoading: setIsCombinedUserLoading,
             accessToken: `${token.access_token}`,
           });
-          setEnterpriseSetting(enterprise);
+          setEnterpriseSetting(res.result);
         }
       } catch (error) {
         console.log(error);
@@ -237,16 +238,28 @@ export function GlobalContextProvider({
   }, [api, token?.user_id, updateProfileImage]);
 
   //user info
-  const fetchCombinedUser = async (page: number, limit: number) => {
+  const fetchCombinedUser = async (
+    page: number,
+    limit: number,
+    user_name: string
+  ) => {
     try {
-      setIsLoading(true);
-      const res = await api.get<IGetResponeUsersInfoTypes>(
-        `/combined-user/${page}/${limit}`
-      );
+      const loadUsersParams = {
+        baseURL: FLASK_URL,
+        url: `${flaskApi.Users}?user_name=${user_name}&page=${page}&limit=${limit}`,
+        setLoading: setIsLoading,
+        accessToken: token.access_token,
+      };
+      const res = await loadData(loadUsersParams);
 
-      setTotalPage(res.data.pages);
-      setCurrentPage(res.data.page);
-      return res.data ?? {};
+      setIsLoading(true);
+      // const res = await api.get<IGetResponeUsersInfoTypes>(
+      //   `/combined-user/${page}/${limit}`
+      // );
+
+      setTotalPage(res.pages);
+      setCurrentPage(res.page);
+      return res;
     } catch (error) {
       console.log(error);
     } finally {

@@ -36,6 +36,19 @@ const Sidbar = () => {
   const location = useLocation();
   const pathname = location.pathname;
 
+  // const toRouteKey = (str: string) =>
+  //   str
+  //     .trim()
+  //     .toLowerCase()
+  //     .replace(/[^a-z0-9\s]/g, "")
+  //     .replace(/\s+/g, "-");
+
+  // const grantedRoutes = [
+  //   "manage-users",
+  //   "manage-privileges-and-roles",
+  //   "new-user-invitation",
+  // ];
+
   const menuData = menu as MenuData[];
 
   const getMenuItemStyle = (path: string) => {
@@ -143,6 +156,7 @@ const Sidbar = () => {
                   }}
                 >
                   {subMenuItem.subMenus.map((subItem) => (
+                    // grantedRoutes.includes(toRouteKey(subItem.name)) &&
                     <MenuItem
                       className={`my-1 ${getMenuItemStyle(subItem.path)}`}
                       key={subItem.name}
@@ -165,6 +179,7 @@ const Sidbar = () => {
                   ))}
                 </SubMenu>
               ) : (
+                // grantedRoutes.includes(toRouteKey(subMenuItem.name)) &&
                 <MenuItem
                   className={`my-1 ${getMenuItemStyle(subMenuItem.path)}`}
                   key={subMenuItem.name}

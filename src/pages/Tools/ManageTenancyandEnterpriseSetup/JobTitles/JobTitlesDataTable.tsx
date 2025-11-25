@@ -172,7 +172,7 @@ export function JobTitlesDataTable({
     const loadTenantData = async () => {
       const res = await loadData(tenantDataParams);
       if (res) {
-        setTenants(res);
+        setTenants(res.result);
       }
     };
     loadTenantData();

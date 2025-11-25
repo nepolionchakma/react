@@ -99,10 +99,10 @@ const ManageAccessEntitlementsTable = () => {
 
   React.useEffect(() => {
     (async () => {
-      const result = await fetchManageAccessEntitlements();
-      setTotalPage(result.pages);
+      const res = await fetchManageAccessEntitlements();
+      setTotalPage(res.pages);
       // setCurrentPage(result?.currentPage ?? 1);
-      setData(result.items);
+      setData(res.result);
     })();
   }, [accessEntitlementsPage, accessEntitlementsLimit, save]);
 
@@ -116,6 +116,7 @@ const ManageAccessEntitlementsTable = () => {
     } else {
       setSelectedManageAccessEntitlements({} as IManageAccessEntitlementsTypes);
       fetchAccessPointsByEntitlementId(0);
+      setAccessPointsData([]);
     }
   }, [selectedAccessEntitlements.def_entitlement_id]);
 

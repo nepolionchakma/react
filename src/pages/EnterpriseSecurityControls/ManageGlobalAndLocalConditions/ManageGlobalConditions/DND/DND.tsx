@@ -31,7 +31,7 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 const DND: FC = () => {
   const { token } = useGlobalContext();
   const {
-    isLoading,
+    // isLoading,
     setStateChange,
     setIdStateChange,
     isEditModalOpen,
@@ -46,6 +46,7 @@ const DND: FC = () => {
   const [rightWidgets, setRightWidgets] = useState<Extend[]>([]);
   const [originalData, setOriginalData] = useState<Extend[]>([]);
   const [activeId, setActiveId] = useState<number | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const iniLeftWidget = [
     {
@@ -64,11 +65,13 @@ const DND: FC = () => {
 
   useEffect(() => {
     const fetchDataFunc = async () => {
+      setIsLoading(true);
       const fetchData = await fetchManageGlobalConditionLogics(
         selectedItem[0]?.def_global_condition_id
       );
 
       if (fetchData) {
+        setIsLoading(false);
         const sortedData = fetchData?.sort(
           (a, b) => a.widget_position - b.widget_position
         );
@@ -337,7 +340,7 @@ const DND: FC = () => {
   return (
     <div>
       <div className="flex justify-between sticky top-0 p-1 bg-slate-300 z-[9999999]">
-        <h2 className="font-bold">Edit Global Conditions</h2>
+        <h2 className="font-bold">Edit {selectedItem[0]?.name}</h2>
         <div className="flex gap-2 rounded-lg ">
           {isActionLoading ? (
             <div className="flex items-center rounded p-1 duration-300 z-50 cursor-not-allowed">
