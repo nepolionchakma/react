@@ -6,7 +6,6 @@ import { ChevronRight } from "lucide-react";
 
 const Breadcrumb = () => {
   const location = useLocation();
-  console.log(location, "location");
   const pathSegments = location.pathname.split("/").filter(Boolean);
   const topAndDropDownMenu = topAndDropDownMenuData.map(
     (item) => item.path.split("/").filter(Boolean)[0]

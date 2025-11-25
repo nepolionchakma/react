@@ -209,7 +209,7 @@ export function GlobalContextProvider({
           }),
           loadData({
             baseURL: FLASK_URL,
-            url: `${flaskApi.Users}/${token?.user_id}`,
+            url: `${flaskApi.Users}?user_id=${token?.user_id}`,
             setLoading: setIsCombinedUserLoading,
             accessToken: `${token.access_token}`,
           }),
@@ -237,8 +237,20 @@ export function GlobalContextProvider({
   }, [api, token?.user_id, updateProfileImage]);
 
   //user info
-  const fetchCombinedUser = async (page: number, limit: number) => {
+  const fetchCombinedUser = async (
+    page: number,
+    limit: number,
+    user_name: string
+  ) => {
     try {
+      const loadUsersParams = {
+        baseURL: FLASK_URL,
+        url: `${flaskApi.Users}??user_name=${user_name}&page=${page}&limit=${limit}`,
+        setLoading: setIsLoading,
+        accessToken: token.access_token,
+      };
+      const ress = await loadData(loadUsersParams);
+      console.log(ress, "sdfdsfdfsd");
       setIsLoading(true);
       const res = await api.get<IGetResponeUsersInfoTypes>(
         `/combined-user/${page}/${limit}`
