@@ -55,6 +55,7 @@ export const flaskApi = {
   DefPrivileges: "/def_privileges",
   DefUserGrantedRoles: "/def_user_granted_roles",
   DefUserGrantedPrivileges: "/def_user_granted_privileges",
+  DefPrevilegesAndRoles: "/def_user_granted_roles_privileges",
 };
 
 // All Node api

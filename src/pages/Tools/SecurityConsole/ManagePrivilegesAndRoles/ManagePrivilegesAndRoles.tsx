@@ -42,7 +42,7 @@ import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import Rows from "@/components/Rows/Rows";
 import { convertToTitleCase } from "@/Utility/general";
 import { useEffect, useState } from "react";
-import { FLASK_URL, flaskApi, NODE_URL, nodeApi } from "@/Api/Api";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { loadData } from "@/Utility/funtion";
 import EditPrivilegeAndRole from "./EditPrivilegeAndRole";
 
@@ -126,8 +126,8 @@ const ManagePriviedgesAndRoles = () => {
 
   useEffect(() => {
     const previlegesAndRolesParams = {
-      baseURL: NODE_URL,
-      url: `${nodeApi.PrevilegesAndRoles}?page=${page}&limit=${limit}`,
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefPrevilegesAndRoles}?user_name=${query.value}&page=${page}&limit=${limit}`,
       accessToken: `${token.access_token}`,
       setLoading: setIsLoading,
     };
@@ -136,13 +136,18 @@ const ManagePriviedgesAndRoles = () => {
       const res = await loadData(previlegesAndRolesParams);
       if (res) {
         setData(res.result);
-        setTotalPage(res.totalPages);
+        setTotalPage(res.pages);
       }
       table.toggleAllRowsSelected(false);
     };
-    loadPrevilegesAndRolesData();
-    setSelectedItem(null);
-  }, [limit, page, token.access_token, table, stateChange]);
+
+    const delayDebounce = setTimeout(() => {
+      loadPrevilegesAndRolesData();
+      setSelectedItem(null);
+    }, 1000);
+
+    return () => clearTimeout(delayDebounce);
+  }, [limit, page, token.access_token, table, stateChange, query]);
 
   const handleRowSelection = (rowSelection: IPrivilegeAndRole) => {
     setSelectedItem(rowSelection);

@@ -7,7 +7,7 @@ import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import { flaskApi } from "@/Api/Api";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
 
 interface ActionItemsProps {
   selectedEnterpriseRows: IEnterprisesTypes[];
@@ -26,14 +26,13 @@ const ActionItems = ({
 }: ActionItemsProps) => {
   const { enterpriseSetting } = useGlobalContext();
   const api = useAxiosPrivate();
-  const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
   const handleDelete = async () => {
     for (const enterprise of selectedEnterpriseRows) {
       try {
         const res = await api.delete(
           `${flaskApi.EnterpriseSetup}?tenant_id=${enterprise.tenant_id}`,
           {
-            baseURL: flaskUrl,
+            baseURL: FLASK_URL,
           }
         );
         if (res) {
@@ -63,19 +62,14 @@ const ActionItems = ({
     <ActionButtons>
       <CustomTooltip tooltipTitle="Edit">
         <button
-          disabled={
-            selectedEnterpriseRows.length > 1 ||
-            selectedEnterpriseRows.length === 0
-          }
+        // disabled={
+        //   selectedEnterpriseRows.length > 1 ||
+        //   selectedEnterpriseRows.length === 0
+        // }
         >
           <FileEdit
             size={23}
-            className={`${
-              selectedEnterpriseRows.length > 1 ||
-              selectedEnterpriseRows.length === 0
-                ? "text-slate-200 cursor-not-allowed"
-                : "cursor-pointer"
-            }`}
+            className="cursor-pointer"
             onClick={handleAction}
           />
         </button>
@@ -83,15 +77,14 @@ const ActionItems = ({
 
       <Alert
         actionName="delete"
-        disabled={selectedEnterpriseRows.length === 0}
+        disabled={!enterpriseSetting?.tenant_id}
         onContinue={handleDelete}
         tooltipTitle="Delete"
       >
         <div className="flex flex-col items-start">
           {selectedEnterpriseRows.map((item, index) => (
             <span key={item.tenant_id}>
-              {index + 1}. Enterprise Name :{" "}
-              {item.enterprise_name ? item.enterprise_name : "null"}
+              {index + 1}. Enterprise Name : {item.enterprise_name}
             </span>
           ))}
         </div>
