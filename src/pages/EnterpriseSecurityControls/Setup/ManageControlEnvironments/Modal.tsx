@@ -125,7 +125,7 @@ const Modal = ({
   return (
     <CustomModal3>
       <div className="flex justify-between p-2 bg-slate-300 rounded-t-lg">
-        <h2 className="font-bold">{modalType} Control Environment</h2>
+        <h2 className="font-bold">{modalType} Environment</h2>
         <X onClick={() => setShowModal(false)} className="cursor-pointer" />
       </div>
       <div className="px-6 py-4">
