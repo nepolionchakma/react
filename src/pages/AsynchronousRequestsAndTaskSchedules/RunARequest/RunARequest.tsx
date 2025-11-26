@@ -263,6 +263,7 @@ const RunARequest = () => {
                                 [pm.parameter_name]: Number(e.target.value),
                               }))
                             }
+                            min={1}
                             className="h-8"
                           />
                         )}

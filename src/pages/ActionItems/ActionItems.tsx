@@ -84,13 +84,13 @@ const ActionItems = () => {
   const fetchActionItems = useCallback(async () => {
     const actionItemsParams = {
       baseURL: FLASK_URL,
-      url: `${flaskApi.DefActionItems}/${token.user_id}/${currentPage}/${limit}?status=${selectedOption}`,
+      url: `${flaskApi.DefActionItems}?user_id=${token.user_id}&status=${selectedOption}&page=${currentPage}&limit=${limit}`,
       setLoading: setIsLoading,
       accessToken: token.access_token,
     };
     const res = await loadData(actionItemsParams);
-    if (res.items) {
-      setActionItems(res.items);
+    if (res.result) {
+      setActionItems(res.result);
       setTotalPage(res.pages);
       return res;
     }
@@ -101,13 +101,14 @@ const ActionItems = () => {
     async (q: string) => {
       const searchQueryParams = {
         baseURL: FLASK_URL,
-        url: `${flaskApi.DefActionItems}/${token.user_id}/${currentPage}/${limit}?status=${selectedOption}&action_item_name=${q}`,
+        url: `${flaskApi.DefActionItems}?user_id=${token.user_id}&action_item_name=${q}&status=${selectedOption}&page=${currentPage}&limit=${limit}`,
         setLoading: setIsLoading,
         accessToken: token.access_token,
       };
       const res = await loadData(searchQueryParams);
+      console.log(res, "aaa");
       if (res) {
-        setActionItems(res.items);
+        setActionItems(res.result);
         setTotalPage(res.pages);
       }
     },
@@ -190,7 +191,7 @@ const ActionItems = () => {
   const handleUpdateStatus = async (userId: number, actionItemId: number) => {
     const actionItemParams = {
       baseURL: FLASK_URL,
-      url: `/def_action_items/update_status/${userId}/${actionItemId}`,
+      url: `${flaskApi.DefActionItems}/update_status/${userId}/${actionItemId}`,
       setLoading: setIsLoading,
       payload: {
         status: activeDialog?.status.toUpperCase(),
