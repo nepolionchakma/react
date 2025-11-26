@@ -29,7 +29,7 @@ export const flaskApi = {
   DefAccessPointsView: "/def_access_points_view",
   DefAccessEntitlements: "/def_access_entitlements",
   DefAccessEntitlementElements: "/def_access_entitlement_elements",
-  DefActionItems: "/def_action_items_view",
+  DefActionItems: "/def_action_items",
   DefActionItemAssignment: "/def_action_item_assignments",
   DefControlEnvironments: "/def_control_environments",
   DefTenants: "/def_tenants",
