@@ -1,12 +1,14 @@
-import { toast } from "@/components/ui/use-toast";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+// import { toast } from "@/components/ui/use-toast";
+// import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { IEnterprisesTypes } from "@/types/interfaces/users.interface";
 import { FileEdit } from "lucide-react";
 
-import Alert from "@/components/Alert/Alert";
+// import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+// import { FLASK_URL, flaskApi } from "@/Api/Api";
+// import { deleteData } from "@/Utility/funtion";
 
 interface ActionItemsProps {
   selectedEnterpriseRows: IEnterprisesTypes[];
@@ -18,38 +20,48 @@ interface ActionItemsProps {
 }
 
 const ActionItems = ({
-  selectedEnterpriseRows,
+  // selectedEnterpriseRows,
   setAction,
-  setStateChanged,
-  setSelectedEnterpriseRows,
-}: ActionItemsProps) => {
+}: // setStateChanged,
+// setSelectedEnterpriseRows,
+ActionItemsProps) => {
   const { enterpriseSetting } = useGlobalContext();
-  const api = useAxiosPrivate();
-  const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
-  const handleDelete = async () => {
-    for (const enterprise of selectedEnterpriseRows) {
-      try {
-        const res = await api.delete(
-          `/delete_enterprise/${enterprise.tenant_id}`,
-          {
-            baseURL: flaskUrl,
-          }
-        );
-        if (res) {
-          toast({
-            description: `${res.data.message}`,
-          });
-          setSelectedEnterpriseRows([]);
-        }
-      } catch (error) {
-        if (error instanceof Error) {
-          toast({ title: error.message, variant: "destructive" });
-        }
-      } finally {
-        setStateChanged(Math.random() + 23 * 3000);
-      }
-    }
-  };
+  // const api = useAxiosPrivate();
+
+  // const handleDelete = async () => {
+  //   const deleteEnterprizeParams = {
+  //     url: `${flaskApi.EnterpriseSetup}?tenant_id=${enterpriseSetting?.tenant_id}`,
+  //     baseURL: FLASK_URL,
+  //     accessToken: token.access_token,
+  //     isToast: true,
+  //   };
+  //   const res = await deleteData(deleteEnterprizeParams);
+  //   if (res.status === 200) {
+  //     setStateChanged(Math.random() + 23 * 3000);
+  //   }
+  //   // for (const enterprise of selectedEnterpriseRows) {
+  //   //   try {
+  //   //     const res = await api.delete(
+  //   //       `${flaskApi.EnterpriseSetup}?tenant_id=${enterprise.tenant_id}`,
+  //   //       {
+  //   //         baseURL: FLASK_URL,
+  //   //       }
+  //   //     );
+  //   //     if (res) {
+  //   //       toast({
+  //   //         description: `${res.data.message}`,
+  //   //       });
+  //   //       setSelectedEnterpriseRows([]);
+  //   //     }
+  //   //   } catch (error) {
+  //   //     if (error instanceof Error) {
+  //   //       toast({ title: error.message, variant: "destructive" });
+  //   //     }
+  //   //   } finally {
+  //   //     setStateChanged(Math.random() + 23 * 3000);
+  //   //   }
+  //   // }
+  // };
 
   const handleAction = () => {
     if (!enterpriseSetting?.enterprise_name) {
@@ -75,20 +87,25 @@ const ActionItems = ({
         </button>
       </CustomTooltip>
 
-      <Alert
+      {/* <Alert
         actionName="delete"
         disabled={!enterpriseSetting?.tenant_id}
         onContinue={handleDelete}
         tooltipTitle="Delete"
       >
-        <div className="flex flex-col items-start">
+        <span className="flex flex-col items-start">
+          {
+            <span key={enterpriseSetting?.tenant_id}>
+              {1}. Enterprise Name : {enterpriseSetting?.enterprise_name}
+            </span>
+          }
           {selectedEnterpriseRows.map((item, index) => (
             <span key={item.tenant_id}>
               {index + 1}. Enterprise Name : {item.enterprise_name}
             </span>
           ))}
-        </div>
-      </Alert>
+        </span>
+      </Alert> */}
     </ActionButtons>
   );
 };

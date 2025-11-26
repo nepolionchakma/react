@@ -35,7 +35,7 @@ import { ChevronDown } from "lucide-react";
 import Rows from "@/components/Rows/Rows";
 import { convertToTitleCase } from "@/Utility/general";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import { FLASK_URL } from "@/Api/Api";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { loadData } from "@/Utility/funtion";
 
 interface IEnterpriseDataProps {
@@ -144,7 +144,7 @@ export function EnterpriseDataTable({
     const fetch = async () => {
       const params = {
         baseURL: FLASK_URL,
-        url: `/def_tenant_enterprise_setup_v?page=${page}&limit=${enterpriseLimit}`,
+        url: `${flaskApi.EnterpriseSetup}?page=${page}&limit=${enterpriseLimit}`,
         setLoading: setIsLoading,
         accessToken: token.access_token,
       };
