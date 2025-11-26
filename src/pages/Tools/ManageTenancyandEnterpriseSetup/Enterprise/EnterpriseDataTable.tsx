@@ -59,15 +59,15 @@ export function EnterpriseDataTable({
   enterpriseLimit,
   setEnterpriseLimit,
 }: IEnterpriseDataProps) {
-  const { enterpriseSetting, token } = useGlobalContext();
+  const { token } = useGlobalContext();
   const [data, setData] = React.useState<IEnterprisesTypes[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [page, setPage] = React.useState<number>(1);
   const [totalPage, setTotalPage] = React.useState<number>(1);
   const [stateChanged, setStateChanged] = React.useState<number>(0);
-  // const [isSelectAll, setIsSelectAll] = React.useState(false);
+  const [isSelectAll, setIsSelectAll] = React.useState(false);
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  // const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
+  const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -75,16 +75,15 @@ export function EnterpriseDataTable({
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  // React.useEffect(() => {
-  //   if (selectedEnterpriseRows.length !== data.length || data.length === 0) {
-  //     setIsSelectAll(false);
-  //   } else {
-  //     setIsSelectAll(true);
-  //   }
-
-  //   const selected = selectedEnterpriseRows.map((sel) => sel.tenant_id);
-  //   setSelectedIds(selected);
-  // }, [selectedEnterpriseRows.length, data.length]);
+  React.useEffect(() => {
+    if (selectedEnterpriseRows.length !== data.length || data.length === 0) {
+      setIsSelectAll(false);
+    } else {
+      setIsSelectAll(true);
+    }
+    const selected = selectedEnterpriseRows.map((sel) => sel.tenant_id);
+    setSelectedIds(selected);
+  }, [selectedEnterpriseRows.length, data.length, selectedEnterpriseRows]);
 
   const table = useReactTable({
     data,
@@ -111,26 +110,26 @@ export function EnterpriseDataTable({
     },
   });
 
-  // const handleRowSelection = (rowSelection: IEnterprisesTypes) => {
-  //   if (selectedIds.includes(rowSelection.tenant_id)) {
-  //     const newSelected = selectedEnterpriseRows.filter(
-  //       (row) => row.tenant_id !== rowSelection.tenant_id
-  //     );
-  //     setSelectedEnterpriseRows(newSelected);
-  //   } else {
-  //     setSelectedEnterpriseRows((prev) => [...prev, rowSelection]);
-  //   }
-  // };
+  const handleRowSelection = (rowSelection: IEnterprisesTypes) => {
+    if (selectedIds.includes(rowSelection.tenant_id)) {
+      const newSelected = selectedEnterpriseRows.filter(
+        (row) => row.tenant_id !== rowSelection.tenant_id
+      );
+      setSelectedEnterpriseRows(newSelected);
+    } else {
+      setSelectedEnterpriseRows((prev) => [...prev, rowSelection]);
+    }
+  };
 
-  // const handleSelectAll = () => {
-  //   if (isSelectAll) {
-  //     setIsSelectAll(false);
-  //     setSelectedEnterpriseRows([]);
-  //   } else {
-  //     setIsSelectAll(true);
-  //     setSelectedEnterpriseRows(data);
-  //   }
-  // };
+  const handleSelectAll = () => {
+    if (isSelectAll) {
+      setIsSelectAll(false);
+      setSelectedEnterpriseRows([]);
+    } else {
+      setIsSelectAll(true);
+      setSelectedEnterpriseRows(data);
+    }
+  };
 
   const handleCloseModal = () => {
     setAction("");
@@ -242,13 +241,13 @@ export function EnterpriseDataTable({
                             header.column.columnDef.header,
                             header.getContext()
                           )}
-                      {/* {header.id === "select" && (
+                      {header.id === "select" && (
                         <Checkbox
                           checked={isSelectAll}
-                          // onClick={handleSelectAll}
+                          onClick={handleSelectAll}
                           aria-label="Select all"
                         />
-                      )} */}
+                      )}
                       {header.id !== "select" && (
                         <div
                           {...{
@@ -301,16 +300,9 @@ export function EnterpriseDataTable({
                     >
                       {cell.column.id === "select" ? (
                         <Checkbox
-                          disabled={
-                            enterpriseSetting?.tenant_id !==
-                            row.original.tenant_id
-                          }
                           className="mt-1"
-                          checked={
-                            enterpriseSetting?.tenant_id ===
-                            row.original.tenant_id
-                          }
-                          // onClick={() => handleRowSelection(row.original)}
+                          checked={selectedIds.includes(row.original.tenant_id)}
+                          onClick={() => handleRowSelection(row.original)}
                         />
                       ) : (
                         flexRender(

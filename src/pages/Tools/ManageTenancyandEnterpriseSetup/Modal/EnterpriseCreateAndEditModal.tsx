@@ -64,6 +64,8 @@ const EnterpriseCreateAndEditModal = ({
     };
   };
 
+  console.log(enterpriseName, "enterprice");
+
   useEffect(() => {
     if (enterpriseSetting?.user_invitation_validity) {
       const res = parseValidity(enterpriseSetting?.user_invitation_validity);

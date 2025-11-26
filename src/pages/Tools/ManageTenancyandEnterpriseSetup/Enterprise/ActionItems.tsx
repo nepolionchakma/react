@@ -7,6 +7,7 @@ import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import { flaskApi } from "@/Api/Api";
 
 interface ActionItemsProps {
   selectedEnterpriseRows: IEnterprisesTypes[];
@@ -30,7 +31,7 @@ const ActionItems = ({
     for (const enterprise of selectedEnterpriseRows) {
       try {
         const res = await api.delete(
-          `/delete_enterprise/${enterprise.tenant_id}`,
+          `${flaskApi.EnterpriseSetup}?tenant_id=${enterprise.tenant_id}`,
           {
             baseURL: flaskUrl,
           }
@@ -62,14 +63,19 @@ const ActionItems = ({
     <ActionButtons>
       <CustomTooltip tooltipTitle="Edit">
         <button
-        // disabled={
-        //   selectedEnterpriseRows.length > 1 ||
-        //   selectedEnterpriseRows.length === 0
-        // }
+          disabled={
+            selectedEnterpriseRows.length > 1 ||
+            selectedEnterpriseRows.length === 0
+          }
         >
           <FileEdit
             size={23}
-            className="cursor-pointer"
+            className={`${
+              selectedEnterpriseRows.length > 1 ||
+              selectedEnterpriseRows.length === 0
+                ? "text-slate-200 cursor-not-allowed"
+                : "cursor-pointer"
+            }`}
             onClick={handleAction}
           />
         </button>
@@ -77,14 +83,15 @@ const ActionItems = ({
 
       <Alert
         actionName="delete"
-        disabled={!enterpriseSetting?.tenant_id}
+        disabled={selectedEnterpriseRows.length === 0}
         onContinue={handleDelete}
         tooltipTitle="Delete"
       >
         <div className="flex flex-col items-start">
           {selectedEnterpriseRows.map((item, index) => (
             <span key={item.tenant_id}>
-              {index + 1}. Enterprise Name : {item.enterprise_name}
+              {index + 1}. Enterprise Name :{" "}
+              {item.enterprise_name ? item.enterprise_name : "null"}
             </span>
           ))}
         </div>

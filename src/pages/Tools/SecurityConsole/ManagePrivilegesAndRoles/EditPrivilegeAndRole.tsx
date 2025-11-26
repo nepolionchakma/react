@@ -208,7 +208,7 @@ const EditPrivilegeAndRole: FC<IAddPrivilegeAndRoleProps> = ({
                         <PopoverTrigger className="border rounded px-3 py-2 text-left w-64 flex justify-between">
                           {field.value.length > 0
                             ? field.value.join(", ")
-                            : "Select Role"}
+                            : "Select Roles"}
                           <ChevronDown size={20} color="gray" />
                         </PopoverTrigger>
 

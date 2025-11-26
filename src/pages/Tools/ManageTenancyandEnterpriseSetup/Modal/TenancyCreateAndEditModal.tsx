@@ -5,7 +5,7 @@ import { ITenantsTypes } from "@/types/interfaces/users.interface";
 import { X } from "lucide-react";
 import React, { useState } from "react";
 import { postData, putData } from "@/Utility/funtion";
-import { flaskApi } from "@/Api/Api";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 interface ICustomModalTypes {
   action: string;
@@ -30,7 +30,6 @@ const TenancyCreateAndEditModal = ({
       : ""
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -38,7 +37,7 @@ const TenancyCreateAndEditModal = ({
       setIsLoading(true);
       if (action === "add") {
         const postParams = {
-          baseURL: flaskUrl,
+          baseURL: FLASK_URL,
           url: flaskApi.DefTenants,
           setLoading: setIsLoading,
           payload: {
@@ -51,11 +50,10 @@ const TenancyCreateAndEditModal = ({
         await postData(postParams);
       } else {
         const putParams = {
-          baseURL: flaskUrl,
-          url: `/tenants/${selectedTenancyRows?.[0].tenant_id}`,
+          baseURL: FLASK_URL,
+          url: `${flaskApi.DefTenants}?tenant_id=${selectedTenancyRows?.[0].tenant_id}`,
           setLoading: setIsLoading,
           payload: { tenant_name: tenantName },
-          isConsole: true,
           accessToken: `${token.access_token}`,
         };
         const res = await putData(putParams);

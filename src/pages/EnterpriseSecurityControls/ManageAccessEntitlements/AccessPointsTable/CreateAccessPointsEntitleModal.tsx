@@ -26,14 +26,11 @@ import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { loadData, postData } from "@/Utility/funtion";
 import { toast } from "@/components/ui/use-toast";
 const AccessPointsEntitleModal = () => {
-  const {
-    selectedManageAccessEntitlements,
-    isLoadingAccessPoints,
-    setIsLoadingAccessPoints,
-    fetchAccessPointsByEntitlementId,
-  } = useManageAccessEntitlementsContext();
-  const { token } = useGlobalContext();
+  const { selectedManageAccessEntitlements, fetchAccessPointsByEntitlementId } =
+    useManageAccessEntitlementsContext();
+  const { token, setIsOpenModal } = useGlobalContext();
   const [dataSources, setDataSources] = useState<IDataSourceTypes[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const res = async () => {
@@ -49,17 +46,18 @@ const AccessPointsEntitleModal = () => {
   }, [token.access_token]);
 
   const FormSchema = z.object({
-    access_point_name: z.string(),
-    description: z.string(),
-    def_data_source_id: z.string(),
-    platform: z.string(),
-    access_point_type: z.string(),
-    access_control: z.string(),
-    change_control: z.string(),
-    audit: z.string(),
+    access_point_name: z.string().min(1, "Required"),
+    description: z.string().min(1, "Required"),
+    def_data_source_id: z.string().min(1, "Required"),
+    platform: z.string().min(1, "Required"),
+    access_point_type: z.string().min(1, "Required"),
+    access_control: z.string().min(1, "Required"),
+    change_control: z.string().min(1, "Required"),
+    audit: z.string().min(1, "Required"),
   });
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
+    mode: "onChange",
     defaultValues: {
       access_point_name: "",
       description: "",
@@ -91,9 +89,9 @@ const AccessPointsEntitleModal = () => {
         url: flaskApi.DefAccessPoints,
         payload: postPayload,
         accessToken: token.access_token,
-        setLoading: setIsLoadingAccessPoints,
+        setLoading: setIsLoading,
       });
-      // setSave((prevSave) => prevSave + 1);
+
       if (res.status === 201) {
         toast({
           description: `Added successfully.`,
@@ -102,6 +100,7 @@ const AccessPointsEntitleModal = () => {
           selectedManageAccessEntitlements?.def_entitlement_id
         );
         form.reset();
+        setIsOpenModal("");
       }
     })();
     // await fetchAccessPointsEntitlement(selected[0]);
@@ -258,15 +257,21 @@ const AccessPointsEntitleModal = () => {
           />
         </div>
         <div className="flex justify-end">
-          <Button type="submit">
-            {isLoadingAccessPoints ? (
-              <l-ring
+          <Button
+            type="submit"
+            disabled={!form.formState.isValid || isLoading}
+            className={
+              !form.formState.isValid || isLoading ? "cursor-not-allowed" : ""
+            }
+          >
+            {isLoading ? (
+              <l-tailspin
                 size="20"
                 stroke="5"
-                bg-opacity="0"
                 speed="2"
+                bg-opacity="0"
                 color="white"
-              ></l-ring>
+              />
             ) : (
               "Submit"
             )}
