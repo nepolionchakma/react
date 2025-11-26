@@ -1,4 +1,4 @@
-import { FLASK_URL } from "@/Api/Api";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -64,8 +64,6 @@ const EnterpriseCreateAndEditModal = ({
     };
   };
 
-  console.log(enterpriseName, "enterprice");
-
   useEffect(() => {
     if (enterpriseSetting?.user_invitation_validity) {
       const res = parseValidity(enterpriseSetting?.user_invitation_validity);
@@ -75,8 +73,6 @@ const EnterpriseCreateAndEditModal = ({
       });
     }
   }, [enterpriseSetting?.user_invitation_validity]);
-
-  console.log(userInvitationValidity.amount + userInvitationValidity.unit);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -99,7 +95,7 @@ const EnterpriseCreateAndEditModal = ({
 
     const params = {
       baseURL: FLASK_URL,
-      url: `/create_enterprise/${enterpriseSetting?.tenant_id}`,
+      url: `${flaskApi.EnterpriseSetup}?tenant_id=${enterpriseSetting?.tenant_id}`,
       setLoading: setIsLoading,
       payload: data,
       // isConsole?: boolean;

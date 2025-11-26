@@ -225,7 +225,6 @@ export function GlobalContextProvider({
             // setLoading: setIsCombinedUserLoading,
             accessToken: `${token.access_token}`,
           });
-          console.log(res.result);
           setEnterpriseSetting(res.result);
         }
       } catch (error) {
