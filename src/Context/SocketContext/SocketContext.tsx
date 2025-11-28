@@ -172,10 +172,10 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   // device Action
   useEffect(() => {
     const locationUpdate = async (device_id: number) => {
+      const location = await getUserLocation();
       try {
         if (!token || token?.user_id === 0 || device_id === 0) return;
 
-        const location = await getUserLocation();
         const response = await api.put(
           "/devices/update-device-location/" + device_id,
           {
