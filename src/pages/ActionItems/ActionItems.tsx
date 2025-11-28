@@ -106,7 +106,6 @@ const ActionItems = () => {
         accessToken: token.access_token,
       };
       const res = await loadData(searchQueryParams);
-      console.log(res, "aaa");
       if (res) {
         setActionItems(res.result);
         setTotalPage(res.pages);
@@ -163,8 +162,8 @@ const ActionItems = () => {
   const handleRefresh = async () => {
     setIsRefreshing(true);
     setQuery({ isEmpty: true, value: "" });
-    const result = await fetchActionItems();
-    if (result.items) {
+    const res = await fetchActionItems();
+    if (res.result.length > 0) {
       setIsRefreshing(false);
     }
   };
