@@ -173,7 +173,6 @@ export function SocketContextProvider({ children }: SocketContextProps) {
   useEffect(() => {
     const locationUpdate = async (device_id: number) => {
       const location = await getUserLocation();
-      console.log(location);
       try {
         if (!token || token?.user_id === 0 || device_id === 0) return;
 
