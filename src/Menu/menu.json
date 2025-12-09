@@ -163,7 +163,8 @@
       "/tools/enterprise-system-integrations",
       "/tools/enterprise-system-integrations/manage-data-sources",
       "/tools/manage-tenancy-and-enterprise-setup",
-      "/tools/mobile-app-admin-console"
+      "/tools/mobile-app-admin-console",
+      "/tools/materialized-view"
     ],
     "subMenus": [
       {
@@ -224,6 +225,10 @@
       {
         "name": "Mobile App Admin Console",
         "path": "/tools/mobile-app-admin-console"
+      },
+      {
+        "name": "Materialized View",
+        "path": "/tools/materialized-view"
       }
     ]
   },

@@ -68,6 +68,7 @@ import { ViewRequestTable } from "@/pages/AsynchronousRequestsAndTaskSchedules/V
 import ScheduleATaskComponent from "@/pages/AsynchronousRequestsAndTaskSchedules/ScheduleATask/ScheduleATask";
 import ResetPassword from "@/pages/ResetPassword/ResetPassword";
 import { ForgotPassword } from "@/pages/ForgotPassword/ForgotPassword";
+import MaterializedView from "@/pages/Tools/MaterializedView/MaterializedView";
 
 const routes = createBrowserRouter([
   {
@@ -238,6 +239,10 @@ const routes = createBrowserRouter([
           {
             path: "mobile-app-admin-console",
             element: <MobileAppAdminConsole />,
+          },
+          {
+            path: "materialized-view",
+            element: <MaterializedView />,
           },
         ],
       },
