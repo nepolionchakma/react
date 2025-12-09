@@ -53,6 +53,7 @@ const MaterializedView = () => {
     };
 
     await postData(postMaterializedView);
+    form.reset();
   }
   return (
     <div className="flex justify-center items-center h-96">
