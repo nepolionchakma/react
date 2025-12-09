@@ -76,7 +76,7 @@ export const columns: ColumnDef<IManageControlEnvironments>[] = [
     },
 
     cell: ({ row }) => (
-      <div className="capitalize min-w-[45rem]">
+      <div className="capitalize min-w-[45rem] max-w-[45rem] whitespace-normal break-words">
         {row.getValue("description")}
       </div>
     ),
