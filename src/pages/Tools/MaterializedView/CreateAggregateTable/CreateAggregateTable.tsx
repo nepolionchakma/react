@@ -59,7 +59,7 @@ const CreateAggregateTable = () => {
       <Card className="w-full">
         <CardHeader>
           <CardDescription>
-            Enter inputs for creating materialized view
+            Enter inputs for creating aggregate table
           </CardDescription>
         </CardHeader>
         <CardContent>
