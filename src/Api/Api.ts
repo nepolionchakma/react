@@ -57,6 +57,7 @@ export const flaskApi = {
   DefUserGrantedPrivileges: "/def_user_granted_privileges",
   DefPrevilegesAndRoles: "/def_user_granted_roles_privileges",
   CreateAggregateTable: "/create_aggregate_table",
+  CreateMaterializedView: "/create_mv",
 };
 
 // All Node api
