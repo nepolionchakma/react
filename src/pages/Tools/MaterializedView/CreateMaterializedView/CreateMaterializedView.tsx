@@ -121,6 +121,37 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <div className="flex flex-col gap-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <FormField
+                    control={form.control}
+                    name="from.schema"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>From Schema</FormLabel>
+                        <FormControl>
+                          <Input placeholder="public" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="from.table"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>From Table</FormLabel>
+                        <FormControl>
+                          <Input placeholder="readings" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </div>
               <div className="grid grid-cols-2 gap-3">
                 <FormField
                   control={form.control}
@@ -160,7 +191,7 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
 
               <div className="flex flex-col gap-3">
                 <div className="flex w-full justify-between items-center">
-                  <FormLabel>SelectColumns</FormLabel>
+                  <FormLabel>Select Columns</FormLabel>
                   <Button
                     type="button"
                     variant="outline"
@@ -235,38 +266,6 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
                     </Button>
                   </div>
                 ))}
-              </div>
-
-              <div className="flex flex-col gap-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <FormField
-                    control={form.control}
-                    name="from.schema"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>From Schema</FormLabel>
-                        <FormControl>
-                          <Input placeholder="public" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="from.table"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>From Table</FormLabel>
-                        <FormControl>
-                          <Input placeholder="readings" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
               </div>
 
               <div className="flex flex-col gap-3">
