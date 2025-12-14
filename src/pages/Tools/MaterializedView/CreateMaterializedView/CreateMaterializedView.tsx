@@ -51,7 +51,7 @@ const JoinConditions = ({
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center">
-        <FormLabel>Conditions</FormLabel>
+        <FormLabel className="uppercase">On Conditions</FormLabel>
         <Button
           type="button"
           variant="outline"
@@ -67,7 +67,7 @@ const JoinConditions = ({
             name={`joins.${joinIndex}.conditions.${condIndex}.left`}
             render={({ field }) => (
               <FormItem className="col-span-4">
-                <FormLabel>Left</FormLabel>
+                <FormLabel>Left Column</FormLabel>
                 <FormControl>
                   <Input placeholder="left column" {...field} />
                 </FormControl>
@@ -84,7 +84,6 @@ const JoinConditions = ({
                 <FormLabel>Operator</FormLabel>
                 <FormControl>
                   <Select
-                    required
                     onValueChange={(value) => {
                       field.onChange(value);
                     }}
@@ -114,7 +113,7 @@ const JoinConditions = ({
             name={`joins.${joinIndex}.conditions.${condIndex}.right`}
             render={({ field }) => (
               <FormItem className="col-span-3">
-                <FormLabel>Right</FormLabel>
+                <FormLabel>Right Column</FormLabel>
                 <FormControl>
                   <Input placeholder="right column" {...field} />
                 </FormControl>
@@ -135,6 +134,61 @@ const JoinConditions = ({
     </div>
   );
 };
+const FunctionArgs = ({
+  control,
+  name,
+}: {
+  control: Control<any>;
+  name: string;
+}) => {
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: name,
+  });
+
+  return (
+    <div className="space-y-2 flex flex-col gap-1">
+      <div className="flex w-full justify-between items-center">
+        <FormLabel>Arguments (optional)</FormLabel>
+        <Button
+          type="button"
+          variant="outline"
+          className="h-5"
+          onClick={() => append("")}
+        >
+          + Add Function Argument
+        </Button>
+      </div>
+      <div className="flex gap-2 mt-2">
+        {fields.map((condition, condIndex) => (
+          <div key={condition.id} className="flex items-center">
+            <FormField
+              control={control}
+              //name={`select.${index}.function.args`}
+              name={`${name}.${condIndex}`}
+              render={({ field }) => (
+                <FormItem className="col-span-4">
+                  {/* <FormLabel>Argument {condIndex + 1}</FormLabel> */}
+                  <FormControl>
+                    <Input placeholder="argument" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              onClick={() => remove(condIndex)}
+            >
+              ✕
+            </Button>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const CreateMaterializedView = ({ setTabName }: Props) => {
   const { token } = useGlobalContext();
@@ -142,34 +196,48 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
 
   /** select item */
   const SelectItemSchema = z.object({
-    column: z.string(),
+    column: z.string().optional(),
     alias: z.string().optional(),
     aggregate: z.enum(["COUNT", "SUM", "AVG", "MIN", "MAX"]).optional(),
+    function: z
+      .object({
+        name: z.string().optional(),
+        args: z.array(z.string()).optional(),
+      })
+      .optional(),
+    distinct: z.boolean().optional(),
   });
 
   /** FROM clause */
   const FromSchema = z.object({
-    schema: z.string(),
-    table: z.string(),
+    schema: z.string().min(1, "Schema is required"),
+    table: z.string().min(1, "Table is required"),
+    alias: z.string().optional(),
   });
 
   /** GROUP BY item */
   const GroupBySchema = z.object({
-    column: z.string(),
+    column: z.string().optional(),
+    function: z
+      .object({
+        name: z.string().optional(),
+        args: z.array(z.string()).optional(),
+      })
+      .optional(),
   });
 
   const JoinConditionSchema = z.object({
-    left: z.string().min(1, "Left column is required"),
-    op: z.string().min(1, "Operator is required"),
-    right: z.string().min(1, "Right column is required"),
+    left: z.string(),
+    op: z.string(),
+    right: z.string(),
   });
 
   /** Joins item */
   const Joins = z.object({
-    type: z.string().min(1, "Join type is required"),
-    schema: z.string().min(1, "Schema is required"),
-    table: z.string().min(1, "Table is required"),
-    alias: z.string().min(1, "Alias is required"),
+    type: z.string(),
+    schema: z.string(),
+    table: z.string(),
+    alias: z.string(),
     conditions: z
       .array(JoinConditionSchema)
       .min(1, "At least one condition is required"),
@@ -177,17 +245,15 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
 
   /** Main form schema */
   const formSchema = z.object({
+    from: FromSchema,
     mv_name: z.string().min(1, "Materialized view name is required"),
     mv_schema: z.string().min(1, "Materialized view schema name is required"),
 
     select: z
       .array(SelectItemSchema)
       .min(2, "At least two select column is required"),
-
-    from: FromSchema,
-
     group_by: z.array(GroupBySchema).min(2, "At least 2 columns is required"),
-    joins: z.array(Joins).min(1, "At least one join is required"),
+    joins: z.array(Joins),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -204,7 +270,7 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
 
   const {
     fields: selectFields,
-    append: addSelect,
+    prepend: addSelect,
     remove: removeSelect,
   } = useFieldArray({
     control: form.control,
@@ -213,7 +279,7 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
 
   const {
     fields: groupByFields,
-    append: addGroupBy,
+    prepend: addGroupBy,
     remove: removeGroupBy,
   } = useFieldArray({
     control: form.control,
@@ -222,13 +288,13 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
 
   const {
     fields: joinsFields,
-    append: addJoins,
+    prepend: addJoins,
     remove: removeJoins,
   } = useFieldArray({
     control: form.control,
     name: "joins",
   });
-
+  console.log(joinsFields, "joinsFields");
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     console.log(values);
     const postMaterializedView = {
@@ -247,7 +313,7 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
     form.reset();
   };
   return (
-    <div>
+    <div className="">
       <Card className="w-full">
         <CardHeader>
           <CardDescription>
@@ -257,37 +323,51 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="flex flex-col gap-3">
-                <div className="grid grid-cols-2 gap-3">
-                  <FormField
-                    control={form.control}
-                    name="from.schema"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>From Schema</FormLabel>
-                        <FormControl>
-                          <Input placeholder="public" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+              {/* From */}
+              <div className="grid grid-cols-3 gap-3">
+                <FormField
+                  control={form.control}
+                  name="from.schema"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>From Schema</FormLabel>
+                      <FormControl>
+                        <Input placeholder="public" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
-                  <FormField
-                    control={form.control}
-                    name="from.table"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>From Table</FormLabel>
-                        <FormControl>
-                          <Input placeholder="readings" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                <FormField
+                  control={form.control}
+                  name="from.table"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>From Table</FormLabel>
+                      <FormControl>
+                        <Input placeholder="readings" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="from.alias"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>From Alias (optional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="o" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
+              {/* Materialized View Name */}
               <div className="grid grid-cols-2 gap-3">
                 <FormField
                   control={form.control}
@@ -324,7 +404,8 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
                   )}
                 />
               </div>
-
+              <hr />
+              {/* Select Columns */}
               <div className="flex flex-col gap-3">
                 <div className="flex w-full justify-between items-center">
                   <FormLabel>Select Columns</FormLabel>
@@ -341,69 +422,129 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
 
                 {selectFields.map((field, index) => (
                   <div key={field.id} className="grid grid-cols-10 gap-3">
-                    <div className="grid grid-cols-3 gap-3 col-span-9">
-                      {/* Column */}
-                      <FormField
-                        control={form.control}
-                        name={`select.${index}.column`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input placeholder="column" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+                    <div className="grid col-span-9 gap-3 border p-2 rounded shadow">
+                      <div className="grid grid-cols-4 gap-3">
+                        {/* Column */}
+                        <FormField
+                          control={form.control}
+                          name={`select.${index}.column`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Column Name</FormLabel>
+                              <FormControl>
+                                <Input placeholder="column" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
 
-                      {/* Aggregate */}
-                      <FormField
-                        control={form.control}
-                        name={`select.${index}.aggregate`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <select
-                                className="w-full border rounded px-2 py-2"
-                                {...field}
+                        {/* Aggregate */}
+                        <FormField
+                          control={form.control}
+                          name={`select.${index}.aggregate`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Aggregate (optional)</FormLabel>
+                              <FormControl>
+                                <select
+                                  className="w-full border rounded px-2 py-2"
+                                  {...field}
+                                >
+                                  <option value="">—</option>
+                                  <option value="COUNT">COUNT</option>
+                                  <option value="SUM">SUM</option>
+                                  <option value="AVG">AVG</option>
+                                  <option value="MIN">MIN</option>
+                                  <option value="MAX">MAX</option>
+                                </select>
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Alias */}
+                        <FormField
+                          control={form.control}
+                          name={`select.${index}.alias`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Alias (optional)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="alias" {...field} />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+
+                        <FormField
+                          control={form.control}
+                          name={`select.${index}.distinct`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Distinct (optional)</FormLabel>
+                              <Select
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                }}
+                                value={field.value?.toString()}
                               >
-                                <option value="">—</option>
-                                <option value="COUNT">COUNT</option>
-                                <option value="SUM">SUM</option>
-                                <option value="AVG">AVG</option>
-                                <option value="MIN">MIN</option>
-                                <option value="MAX">MAX</option>
-                              </select>
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a distinct" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  {[true, false].map((item, i) => (
+                                    <SelectItem key={i} value={item.toString()}>
+                                      {item.toString()}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
 
-                      {/* Alias */}
-                      <FormField
-                        control={form.control}
-                        name={`select.${index}.alias`}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormControl>
-                              <Input placeholder="alias" {...field} />
-                            </FormControl>
-                          </FormItem>
-                        )}
-                      />
+                      <div className="grid grid-cols-4 col-span-1 gap-3">
+                        {/* Function */}
+                        <FormField
+                          control={form.control}
+                          name={`select.${index}.function.name`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Function Name (optional)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="date_trunc" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <div className="col-span-3">
+                          <FunctionArgs
+                            control={form.control}
+                            name={`select.${index}.function.args`}
+                          />
+                        </div>
+                      </div>
                     </div>
                     {/* Remove */}
                     <Button
                       type="button"
                       variant="destructive"
                       onClick={() => removeSelect(index)}
+                      className="col-span-1"
                     >
                       Remove
                     </Button>
                   </div>
                 ))}
               </div>
-
+              <hr />
+              {/* Group By Columns */}
               <div className="flex flex-col gap-3">
                 <div className="flex w-full justify-between items-center">
                   <FormLabel>Group By Columns</FormLabel>
@@ -417,19 +558,46 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
                 </div>
 
                 {groupByFields.map((field, index) => (
-                  <div key={field.id} className="flex gap-3">
-                    <FormField
-                      control={form.control}
-                      name={`group_by.${index}.column`}
-                      render={({ field }) => (
-                        <FormItem className="flex-1">
-                          <FormControl>
-                            <Input placeholder="column" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                  <div key={field.id} className="grid grid-cols-10 gap-3">
+                    <div className="grid col-span-9 gap-3 border p-2 rounded shadow">
+                      <div className="">
+                        <FormField
+                          control={form.control}
+                          name={`group_by.${index}.column`}
+                          render={({ field }) => (
+                            <FormItem className="flex-1">
+                              <FormLabel>Column Name</FormLabel>
+                              <FormControl>
+                                <Input placeholder="column" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="grid grid-cols-4 col-span-1 gap-3">
+                        {/* Function */}
+                        <FormField
+                          control={form.control}
+                          name={`group_by.${index}.function.name`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Function Name (optional)</FormLabel>
+                              <FormControl>
+                                <Input placeholder="date_trunc" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        <div className="col-span-3">
+                          <FunctionArgs
+                            control={form.control}
+                            name={`group_by.${index}.function.args`}
+                          />
+                        </div>
+                      </div>
+                    </div>
 
                     <Button
                       type="button"
@@ -441,10 +609,11 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
                   </div>
                 ))}
               </div>
-
+              <hr />
+              {/* Joins */}
               <div className="flex flex-col gap-3">
                 <div className="flex w-full justify-between items-center">
-                  <FormLabel>Joins</FormLabel>
+                  <FormLabel>Joins (optional)</FormLabel>
                   <Button
                     type="button"
                     variant="outline"
@@ -464,7 +633,7 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
 
                 {joinsFields.map((field, index) => (
                   <div key={field.id} className="grid grid-cols-10 gap-3">
-                    <div className="grid col-span-9 gap-3 border p-2 rounded">
+                    <div className="grid col-span-9 gap-3 border p-2 rounded shadow">
                       <div className="grid grid-cols-4 gap-3">
                         {/* Type */}
                         <FormField
@@ -474,7 +643,6 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
                             <FormItem>
                               <FormLabel>Join Type</FormLabel>
                               <Select
-                                required
                                 onValueChange={(value) => {
                                   field.onChange(value);
                                 }}
@@ -505,7 +673,7 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
                           name={`joins.${index}.schema`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Schema</FormLabel>
+                              <FormLabel>Schema Table</FormLabel>
                               <FormControl>
                                 <Input placeholder="public" {...field} />
                               </FormControl>
@@ -520,7 +688,7 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
                           name={`joins.${index}.table`}
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Table</FormLabel>
+                              <FormLabel>Table Name</FormLabel>
                               <FormControl>
                                 <Input placeholder="orders" {...field} />
                               </FormControl>
@@ -563,13 +731,10 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
                   </div>
                 ))}
               </div>
-
+              <hr />
+              {/* Submit */}
               <div className="flex w-full justify-center">
-                <Button
-                  type="submit"
-                  disabled={isLoading}
-                  onClick={() => setTabName("MaterializedView")}
-                >
+                <Button type="submit" disabled={isLoading}>
                   {isLoading ? <Spinner size="25" color="white" /> : "Submit"}
                 </Button>
               </div>
