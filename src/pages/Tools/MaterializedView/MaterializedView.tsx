@@ -7,7 +7,7 @@ const MaterializedView = () => {
   const [tabName, setTabName] = useState<string>("createMaterializedView");
   return (
     <div>
-      <Tabs defaultValue="createMaterializedView" className="w-full">
+      <Tabs value={tabName} className="w-full">
         <TabsList className="grid w-1/2  grid-cols-3 mb-1">
           <TabsTrigger
             disabled={tabName !== "createMaterializedView"}

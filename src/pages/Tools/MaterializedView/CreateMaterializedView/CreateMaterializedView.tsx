@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useFieldArray } from "react-hook-form";
+import { useForm, useFieldArray, Control } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -23,10 +23,118 @@ import { useState } from "react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { postData } from "@/Utility/funtion";
 import Spinner from "@/components/Spinner/Spinner";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Props {
   setTabName: React.Dispatch<React.SetStateAction<string>>;
 }
+const JoinConditions = ({
+  control,
+  joinIndex,
+}: {
+  control: Control<any>;
+  joinIndex: number;
+}) => {
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name: `joins.${joinIndex}.conditions`,
+  });
+
+  return (
+    <div className="space-y-2">
+      <div className="flex justify-between items-center">
+        <FormLabel>Conditions</FormLabel>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => append({ left: "", op: "=", right: "" })}
+        >
+          + Add Condition
+        </Button>
+      </div>
+      {fields.map((condition, condIndex) => (
+        <div key={condition.id} className="grid grid-cols-10 gap-2">
+          <FormField
+            control={control}
+            name={`joins.${joinIndex}.conditions.${condIndex}.left`}
+            render={({ field }) => (
+              <FormItem className="col-span-4">
+                <FormLabel>Left</FormLabel>
+                <FormControl>
+                  <Input placeholder="left column" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name={`joins.${joinIndex}.conditions.${condIndex}.op`}
+            render={({ field }) => (
+              <FormItem className="col-span-2">
+                <FormLabel>Operator</FormLabel>
+                <FormControl>
+                  <Select
+                    required
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                    }}
+                    value={field.value}
+                  >
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select a Operator" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Operators</SelectLabel>
+                        <SelectItem value="=">=</SelectItem>
+                        <SelectItem value="!=">!=</SelectItem>
+                        <SelectItem value=">">{">"}</SelectItem>
+                        <SelectItem value="<">{"<"}</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name={`joins.${joinIndex}.conditions.${condIndex}.right`}
+            render={({ field }) => (
+              <FormItem className="col-span-3">
+                <FormLabel>Right</FormLabel>
+                <FormControl>
+                  <Input placeholder="right column" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => remove(condIndex)}
+          >
+            ✕
+          </Button>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 const CreateMaterializedView = ({ setTabName }: Props) => {
   const { token } = useGlobalContext();
@@ -50,6 +158,23 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
     column: z.string(),
   });
 
+  const JoinConditionSchema = z.object({
+    left: z.string().min(1, "Left column is required"),
+    op: z.string().min(1, "Operator is required"),
+    right: z.string().min(1, "Right column is required"),
+  });
+
+  /** Joins item */
+  const Joins = z.object({
+    type: z.string().min(1, "Join type is required"),
+    schema: z.string().min(1, "Schema is required"),
+    table: z.string().min(1, "Table is required"),
+    alias: z.string().min(1, "Alias is required"),
+    conditions: z
+      .array(JoinConditionSchema)
+      .min(1, "At least one condition is required"),
+  });
+
   /** Main form schema */
   const formSchema = z.object({
     mv_name: z.string().min(1, "Materialized view name is required"),
@@ -62,6 +187,7 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
     from: FromSchema,
 
     group_by: z.array(GroupBySchema).min(2, "At least 2 columns is required"),
+    joins: z.array(Joins).min(1, "At least one join is required"),
   });
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -72,6 +198,7 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
       select: [],
       from: { schema: "", table: "" },
       group_by: [],
+      joins: [],
     },
   });
 
@@ -91,6 +218,15 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
   } = useFieldArray({
     control: form.control,
     name: "group_by",
+  });
+
+  const {
+    fields: joinsFields,
+    append: addJoins,
+    remove: removeJoins,
+  } = useFieldArray({
+    control: form.control,
+    name: "joins",
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -306,8 +442,134 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
                 ))}
               </div>
 
+              <div className="flex flex-col gap-3">
+                <div className="flex w-full justify-between items-center">
+                  <FormLabel>Joins</FormLabel>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() =>
+                      addJoins({
+                        type: "",
+                        alias: "",
+                        schema: "",
+                        table: "",
+                        conditions: [],
+                      })
+                    }
+                  >
+                    + Add
+                  </Button>
+                </div>
+
+                {joinsFields.map((field, index) => (
+                  <div key={field.id} className="grid grid-cols-10 gap-3">
+                    <div className="grid col-span-9 gap-3 border p-2 rounded">
+                      <div className="grid grid-cols-4 gap-3">
+                        {/* Type */}
+                        <FormField
+                          control={form.control}
+                          name={`joins.${index}.type`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Join Type</FormLabel>
+                              <Select
+                                required
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                }}
+                                value={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a type" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectGroup>
+                                    <SelectLabel>Types</SelectLabel>
+                                    <SelectItem value="LEFT">Left</SelectItem>
+                                    <SelectItem value="RIGHT">Right</SelectItem>
+                                    <SelectItem value="FULL">Full</SelectItem>
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Schema */}
+                        <FormField
+                          control={form.control}
+                          name={`joins.${index}.schema`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Schema</FormLabel>
+                              <FormControl>
+                                <Input placeholder="public" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+
+                        {/* Table */}
+                        <FormField
+                          control={form.control}
+                          name={`joins.${index}.table`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Table</FormLabel>
+                              <FormControl>
+                                <Input placeholder="orders" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                        {/* Alias */}
+                        <FormField
+                          control={form.control}
+                          name={`joins.${index}.alias`}
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Alias</FormLabel>
+                              <FormControl>
+                                <Input placeholder="o" {...field} />
+                              </FormControl>
+                              <FormMessage />
+                            </FormItem>
+                          )}
+                        />
+                      </div>
+                      <div className="col-span-1">
+                        {/* Conditions */}
+                        <JoinConditions
+                          control={form.control}
+                          joinIndex={index}
+                        />
+                      </div>
+                    </div>
+                    {/* Remove */}
+                    <Button
+                      type="button"
+                      variant="destructive"
+                      onClick={() => removeJoins(index)}
+                      className="col-span-1"
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                ))}
+              </div>
+
               <div className="flex w-full justify-center">
-                <Button type="submit" disabled={isLoading}>
+                <Button
+                  type="submit"
+                  disabled={isLoading}
+                  onClick={() => setTabName("MaterializedView")}
+                >
                   {isLoading ? <Spinner size="25" color="white" /> : "Submit"}
                 </Button>
               </div>
