@@ -36,104 +36,105 @@ import {
 interface Props {
   setTabName: React.Dispatch<React.SetStateAction<string>>;
 }
-const JoinConditions = ({
-  control,
-  joinIndex,
-}: {
-  control: Control<any>;
-  joinIndex: number;
-}) => {
-  const { fields, append, remove } = useFieldArray({
-    control,
-    name: `joins.${joinIndex}.conditions`,
-  });
+// const JoinConditions = ({
+//   control,
+//   joinIndex,
+// }: {
+//   control: Control<any>;
+//   joinIndex: number;
+// }) => {
+//   const { fields, append, remove } = useFieldArray({
+//     control,
+//     name: `joins.${joinIndex}.conditions`,
+//   });
 
-  return (
-    <div className="space-y-2">
-      <div className="flex justify-between items-center">
-        <FormLabel className="uppercase">On Conditions</FormLabel>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => append({ left: "", op: "=", right: "" })}
-        >
-          + Add Condition
-        </Button>
-      </div>
-      {fields.map((condition, condIndex) => (
-        <div key={condition.id} className="grid grid-cols-10 gap-2">
-          <FormField
-            control={control}
-            name={`joins.${joinIndex}.conditions.${condIndex}.left`}
-            render={({ field }) => (
-              <FormItem className="col-span-4">
-                <FormLabel>Left Column</FormLabel>
-                <FormControl>
-                  <Input placeholder="left column" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+//   return (
+//     <div className="space-y-2">
+//       <div className="flex justify-between items-center">
+//         <FormLabel className="uppercase">On Conditions</FormLabel>
+//         <Button
+//           type="button"
+//           variant="outline"
+//           onClick={() => append({ left: "", op: "=", right: "" })}
+//         >
+//           + Add Condition
+//         </Button>
+//       </div>
+//       {fields.map((condition, condIndex) => (
+//         <div key={condition.id} className="grid grid-cols-10 gap-2">
+//           <FormField
+//             control={control}
+//             name={`joins.${joinIndex}.conditions.${condIndex}.left`}
+//             render={({ field }) => (
+//               <FormItem className="col-span-4">
+//                 <FormLabel>Left Column</FormLabel>
+//                 <FormControl>
+//                   <Input placeholder="left column" {...field} />
+//                 </FormControl>
+//                 <FormMessage />
+//               </FormItem>
+//             )}
+//           />
 
-          <FormField
-            control={control}
-            name={`joins.${joinIndex}.conditions.${condIndex}.op`}
-            render={({ field }) => (
-              <FormItem className="col-span-2">
-                <FormLabel>Operator</FormLabel>
-                <FormControl>
-                  <Select
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                    }}
-                    value={field.value}
-                  >
-                    <SelectTrigger className="w-[180px]">
-                      <SelectValue placeholder="Select a Operator" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectGroup>
-                        <SelectLabel>Operators</SelectLabel>
-                        <SelectItem value="=">=</SelectItem>
-                        <SelectItem value="!=">!=</SelectItem>
-                        <SelectItem value=">">{">"}</SelectItem>
-                        <SelectItem value="<">{"<"}</SelectItem>
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+//           <FormField
+//             control={control}
+//             name={`joins.${joinIndex}.conditions.${condIndex}.op`}
+//             render={({ field }) => (
+//               <FormItem className="col-span-2">
+//                 <FormLabel>Operator</FormLabel>
+//                 <FormControl>
+//                   <Select
+//                     onValueChange={(value) => {
+//                       field.onChange(value);
+//                     }}
+//                     value={field.value}
+//                   >
+//                     <SelectTrigger className="w-[180px]">
+//                       <SelectValue placeholder="Select a Operator" />
+//                     </SelectTrigger>
+//                     <SelectContent>
+//                       <SelectGroup>
+//                         <SelectLabel>Operators</SelectLabel>
+//                         <SelectItem value="=">=</SelectItem>
+//                         <SelectItem value="!=">!=</SelectItem>
+//                         <SelectItem value=">">{">"}</SelectItem>
+//                         <SelectItem value="<">{"<"}</SelectItem>
+//                       </SelectGroup>
+//                     </SelectContent>
+//                   </Select>
+//                 </FormControl>
+//                 <FormMessage />
+//               </FormItem>
+//             )}
+//           />
 
-          <FormField
-            control={control}
-            name={`joins.${joinIndex}.conditions.${condIndex}.right`}
-            render={({ field }) => (
-              <FormItem className="col-span-3">
-                <FormLabel>Right Column</FormLabel>
-                <FormControl>
-                  <Input placeholder="right column" {...field} />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+//           <FormField
+//             control={control}
+//             name={`joins.${joinIndex}.conditions.${condIndex}.right`}
+//             render={({ field }) => (
+//               <FormItem className="col-span-3">
+//                 <FormLabel>Right Column</FormLabel>
+//                 <FormControl>
+//                   <Input placeholder="right column" {...field} />
+//                 </FormControl>
+//                 <FormMessage />
+//               </FormItem>
+//             )}
+//           />
 
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() => remove(condIndex)}
-          >
-            ✕
-          </Button>
-        </div>
-      ))}
-    </div>
-  );
-};
+//           <Button
+//             type="button"
+//             variant="ghost"
+//             onClick={() => remove(condIndex)}
+//           >
+//             ✕
+//           </Button>
+//         </div>
+//       ))}
+//     </div>
+//   );
+// };
+
 const FunctionArgs = ({
   control,
   name,
@@ -294,7 +295,7 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
     control: form.control,
     name: "joins",
   });
-  console.log(joinsFields, "joinsFields");
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     console.log(values);
     const postMaterializedView = {
@@ -323,50 +324,6 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              {/* From */}
-              <div className="grid grid-cols-3 gap-3">
-                <FormField
-                  control={form.control}
-                  name="from.schema"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>From Schema</FormLabel>
-                      <FormControl>
-                        <Input placeholder="public" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="from.table"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>From Table</FormLabel>
-                      <FormControl>
-                        <Input placeholder="readings" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="from.alias"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>From Alias (optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="o" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
               {/* Materialized View Name */}
               <div className="grid grid-cols-2 gap-3">
                 <FormField
@@ -485,7 +442,9 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
                               <FormLabel>Distinct (optional)</FormLabel>
                               <Select
                                 onValueChange={(value) => {
-                                  field.onChange(value);
+                                  field.onChange(
+                                    value === "true" ? true : false
+                                  );
                                 }}
                                 value={field.value?.toString()}
                               >
@@ -495,9 +454,9 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  {[true, false].map((item, i) => (
-                                    <SelectItem key={i} value={item.toString()}>
-                                      {item.toString()}
+                                  {["true", "false"].map((item, i) => (
+                                    <SelectItem key={i} value={item}>
+                                      {item}
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
@@ -542,6 +501,51 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
                     </Button>
                   </div>
                 ))}
+              </div>
+              <hr />
+              {/* From */}
+              <div className="grid grid-cols-3 gap-3">
+                <FormField
+                  control={form.control}
+                  name="from.schema"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>From Schema</FormLabel>
+                      <FormControl>
+                        <Input placeholder="public" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="from.table"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>From Table</FormLabel>
+                      <FormControl>
+                        <Input placeholder="readings" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="from.alias"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>From Alias (optional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="o" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               </div>
               <hr />
               {/* Group By Columns */}
@@ -711,12 +715,76 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
                           )}
                         />
                       </div>
-                      <div className="col-span-1">
+                      <div>
                         {/* Conditions */}
-                        <JoinConditions
-                          control={form.control}
-                          joinIndex={index}
-                        />
+                        <FormLabel className="uppercase">
+                          On Conditions
+                        </FormLabel>
+                        <div className="grid grid-cols-3 gap-3">
+                          <FormField
+                            control={form.control}
+                            name={`joins.${index}.conditions.${0}.left`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Left Column</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="left column" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name={`joins.${index}.conditions.${0}.op`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Operator</FormLabel>
+                                <FormControl>
+                                  <Select
+                                    onValueChange={(value) => {
+                                      field.onChange(value);
+                                    }}
+                                    value={field.value}
+                                    defaultValue="="
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select a Operator" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectGroup>
+                                        <SelectLabel>Operators</SelectLabel>
+                                        <SelectItem value="=">=</SelectItem>
+                                        <SelectItem value="!=">!=</SelectItem>
+                                        <SelectItem value=">">{">"}</SelectItem>
+                                        <SelectItem value="<">{"<"}</SelectItem>
+                                      </SelectGroup>
+                                    </SelectContent>
+                                  </Select>
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+
+                          <FormField
+                            control={form.control}
+                            name={`joins.${index}.conditions.${0}.right`}
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Right Column</FormLabel>
+                                <FormControl>
+                                  <Input
+                                    placeholder="right column"
+                                    {...field}
+                                  />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
                       </div>
                     </div>
                     {/* Remove */}
