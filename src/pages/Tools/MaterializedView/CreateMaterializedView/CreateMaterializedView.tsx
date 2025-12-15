@@ -289,7 +289,7 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
 
   const {
     fields: joinsFields,
-    prepend: addJoins,
+    append: addJoins,
     remove: removeJoins,
   } = useFieldArray({
     control: form.control,
@@ -314,8 +314,8 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
     form.reset();
   };
   return (
-    <div className="">
-      <Card className="w-full">
+    <div>
+      <Card>
         <CardHeader>
           <CardDescription>
             Enter inputs for creating materialized view
@@ -743,18 +743,14 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
                                 <FormLabel>Operator</FormLabel>
                                 <FormControl>
                                   <Select
-                                    onValueChange={(value) => {
-                                      field.onChange(value);
-                                    }}
+                                    onValueChange={field.onChange}
                                     value={field.value}
-                                    defaultValue="="
                                   >
                                     <SelectTrigger>
-                                      <SelectValue placeholder="Select a Operator" />
+                                      <SelectValue placeholder="Select an  Operator" />
                                     </SelectTrigger>
                                     <SelectContent>
                                       <SelectGroup>
-                                        <SelectLabel>Operators</SelectLabel>
                                         <SelectItem value="=">=</SelectItem>
                                         <SelectItem value="!=">!=</SelectItem>
                                         <SelectItem value=">">{">"}</SelectItem>

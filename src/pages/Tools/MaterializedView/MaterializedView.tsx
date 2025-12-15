@@ -7,34 +7,34 @@ const MaterializedView = () => {
   const [tabName, setTabName] = useState<string>("createMaterializedView");
   return (
     <div>
-      <Tabs value={tabName} className="w-full">
-        <TabsList className="grid w-1/2  grid-cols-3 mb-1">
+      <Tabs value={tabName}>
+        <TabsList className="grid w-1/2 grid-cols-2 mb-1">
           <TabsTrigger
-            disabled={tabName !== "createMaterializedView"}
+            // disabled={tabName !== "createMaterializedView"}
             value="createMaterializedView"
-            className={
-              tabName !== "createMaterializedView"
-                ? "cursor-not-allowed"
-                : "cursor-pointer"
-            }
-            // onClick={() => setTabName("CreateMaterializedView")}
+            // className={
+            //   tabName !== "createMaterializedView"
+            //     ? "cursor-not-allowed"
+            //     : "cursor-pointer"
+            // }
+            onClick={() => setTabName("createMaterializedView")}
           >
             Create Materialized View
           </TabsTrigger>
           <TabsTrigger
-            disabled={tabName !== "createAggregateTable"}
+            // disabled={tabName !== "createAggregateTable"}
             value="createAggregateTable"
-            className={
-              tabName !== "createAggregateTable"
-                ? "cursor-not-allowed"
-                : "cursor-pointer"
-            }
-            // onClick={() => setTabName("CreateAggregateTable")}
+            // className={
+            //   tabName !== "createAggregateTable"
+            //     ? "cursor-not-allowed"
+            //     : "cursor-pointer"
+            // }
+            onClick={() => setTabName("createAggregateTable")}
           >
             Create Aggregate Table
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="createMaterializedView">
+        <TabsContent className="overflow-hidden" value="createMaterializedView">
           <CreateMaterializedView setTabName={setTabName} />
         </TabsContent>
         <TabsContent value="createAggregateTable">
