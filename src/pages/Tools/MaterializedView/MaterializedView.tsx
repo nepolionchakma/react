@@ -34,7 +34,7 @@ const MaterializedView = () => {
             Create Aggregate Table
           </TabsTrigger>
         </TabsList>
-        <TabsContent className="overflow-hidden" value="createMaterializedView">
+        <TabsContent value="createMaterializedView">
           <CreateMaterializedView setTabName={setTabName} />
         </TabsContent>
         <TabsContent value="createAggregateTable">

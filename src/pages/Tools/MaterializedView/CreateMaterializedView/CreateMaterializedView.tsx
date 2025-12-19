@@ -19,9 +19,9 @@ import {
   CardHeader,
 } from "@/components/ui/card";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import { postData } from "@/Utility/funtion";
+import { loadData, postData } from "@/Utility/funtion";
 import Spinner from "@/components/Spinner/Spinner";
 import {
   Select,
@@ -32,6 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { IColumns } from "@/types/interfaces/tables.interface";
 
 interface Props {
   setTabName: React.Dispatch<React.SetStateAction<string>>;
@@ -194,6 +195,7 @@ const FunctionArgs = ({
 const CreateMaterializedView = ({ setTabName }: Props) => {
   const { token } = useGlobalContext();
   const [isLoading, setIsLoading] = useState(false);
+  const [columns, setColumns] = useState<IColumns[]>([]);
 
   /** select item */
   const SelectItemSchema = z.object({
@@ -296,6 +298,20 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
     name: "joins",
   });
 
+  useEffect(() => {
+    const fetchCloumns = async () => {
+      const fetchColumnsParams = {
+        baseURL: FLASK_URL,
+        url: `${flaskApi.Table}//readings?schema=public`,
+        accessToken: token.access_token,
+      };
+
+      const res = await loadData(fetchColumnsParams);
+      setColumns(res.columns);
+    };
+    fetchCloumns();
+  }, [token.access_token]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     console.log(values);
     const postMaterializedView = {
@@ -313,6 +329,7 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
     }
     form.reset();
   };
+
   return (
     <div>
       <Card>
@@ -362,6 +379,51 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
                 />
               </div>
               <hr />
+              {/* From */}
+              <div className="grid grid-cols-3 gap-3">
+                <FormField
+                  control={form.control}
+                  name="from.schema"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>From Schema</FormLabel>
+                      <FormControl>
+                        <Input placeholder="public" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="from.table"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>From Table</FormLabel>
+                      <FormControl>
+                        <Input placeholder="readings" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="from.alias"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>From Alias (optional)</FormLabel>
+                      <FormControl>
+                        <Input placeholder="o" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <hr />
               {/* Select Columns */}
               <div className="flex flex-col gap-3">
                 <div className="flex w-full justify-between items-center">
@@ -388,9 +450,28 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Column Name</FormLabel>
-                              <FormControl>
-                                <Input placeholder="column" {...field} />
-                              </FormControl>
+                              <Select
+                                onValueChange={(value) => {
+                                  field.onChange(value);
+                                }}
+                                value={field.value}
+                              >
+                                <FormControl>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a column name" />
+                                  </SelectTrigger>
+                                </FormControl>
+                                <SelectContent>
+                                  <SelectGroup>
+                                    <SelectLabel>Column Name</SelectLabel>
+                                    {columns.map((item, i) => (
+                                      <SelectItem key={i} value={item.name}>
+                                        {item.name}
+                                      </SelectItem>
+                                    ))}
+                                  </SelectGroup>
+                                </SelectContent>
+                              </Select>
                               <FormMessage />
                             </FormItem>
                           )}
@@ -404,17 +485,30 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
                             <FormItem>
                               <FormLabel>Aggregate (optional)</FormLabel>
                               <FormControl>
-                                <select
-                                  className="w-full border rounded px-2 py-2"
-                                  {...field}
+                                <Select
+                                  onValueChange={(value) => {
+                                    field.onChange(value);
+                                  }}
+                                  value={field.value}
                                 >
-                                  <option value="">—</option>
-                                  <option value="COUNT">COUNT</option>
-                                  <option value="SUM">SUM</option>
-                                  <option value="AVG">AVG</option>
-                                  <option value="MIN">MIN</option>
-                                  <option value="MAX">MAX</option>
-                                </select>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select an Aggregate" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectGroup>
+                                      <SelectLabel>Aggregate Name</SelectLabel>
+                                      <SelectItem value="COUNT">
+                                        COUNT
+                                      </SelectItem>
+                                      <SelectItem value="SUM">SUM</SelectItem>
+                                      <SelectItem value="AVG">AVG</SelectItem>
+                                      <SelectItem value="MIN">MIN</SelectItem>
+                                      <SelectItem value="MAX">MAX</SelectItem>
+                                    </SelectGroup>
+                                  </SelectContent>
+                                </Select>
                               </FormControl>
                             </FormItem>
                           )}
@@ -503,51 +597,7 @@ const CreateMaterializedView = ({ setTabName }: Props) => {
                 ))}
               </div>
               <hr />
-              {/* From */}
-              <div className="grid grid-cols-3 gap-3">
-                <FormField
-                  control={form.control}
-                  name="from.schema"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>From Schema</FormLabel>
-                      <FormControl>
-                        <Input placeholder="public" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
 
-                <FormField
-                  control={form.control}
-                  name="from.table"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>From Table</FormLabel>
-                      <FormControl>
-                        <Input placeholder="readings" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="from.alias"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>From Alias (optional)</FormLabel>
-                      <FormControl>
-                        <Input placeholder="o" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <hr />
               {/* Group By Columns */}
               <div className="flex flex-col gap-3">
                 <div className="flex w-full justify-between items-center">
