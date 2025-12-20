@@ -37,9 +37,10 @@ const Modal1 = ({ setTwoStepModal1 }: Props) => {
           accessToken: token.access_token,
         };
         const resData = await loadData(getDataParams);
+
         if (resData) {
           setData(
-            resData.data.filter(
+            resData.filter(
               (item: IProfilesType) => item.profile_type === checkedMethod
             )
           );
