@@ -1,12 +1,32 @@
 import { ChevronDown, ChevronRight, Key } from "lucide-react";
-import { useState } from "react";
-import Modal1 from "./Modals/Modal1";
-
+import { useEffect, useState } from "react";
 import EnableMFA from "./MFAModals/EnableMFA";
+import { loadData } from "@/Utility/funtion";
+import { NODE_URL } from "@/Api/Api";
+import { nodeApi } from "@/Api/Api";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 
 const TwoStep = () => {
+  const { token } = useGlobalContext();
   const [isOpenAccordion, setIsOpenAccordion] = useState(false);
   const [twoStepModal1, setTwoStepModal1] = useState(false);
+  const [isMfaEnabled, setIsMfaEnabled] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      const res = await loadData({
+        baseURL: NODE_URL,
+        url: `${nodeApi.MFA}/check-is-enabled`,
+        setLoading: () => {},
+        accessToken: token.access_token,
+      });
+      console.log(res, "res");
+      if (res) {
+        setIsMfaEnabled(res.mfa_enabled);
+      }
+    })();
+  }, [token.access_token, isMfaEnabled]);
+
   return (
     <div
       className={`flex flex-col gap-2 ${
@@ -31,7 +51,9 @@ const TwoStep = () => {
       </div>
       {isOpenAccordion && (
         <div
-          className="flex gap-2 p-[10px] bg-white w-[111px] border rounded-md cursor-pointer"
+          className={`flex gap-2 p-[10px]  w-[111px] border rounded-md cursor-pointer ${
+            isMfaEnabled ? "bg-green-300" : "bg-white"
+          }`}
           onClick={() => setTwoStepModal1(true)}
         >
           <Key /> <h3 className="w-full">Turn on</h3>
@@ -40,7 +62,11 @@ const TwoStep = () => {
       {/* Modal 1 */}
       {twoStepModal1 && (
         <>
-          <EnableMFA setTwoStepModal1={setTwoStepModal1} />
+          <EnableMFA
+            setTwoStepModal1={setTwoStepModal1}
+            isMfaEnabled={isMfaEnabled}
+            setIsMfaEnabled={setIsMfaEnabled}
+          />
         </>
       )}
       {/* {twoStepModal1 && (
