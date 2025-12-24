@@ -2,6 +2,8 @@ import { ChevronDown, ChevronRight, Key } from "lucide-react";
 import { useState } from "react";
 import Modal1 from "./Modals/Modal1";
 
+import EnableMFA from "./MFAModals/EnableMFA";
+
 const TwoStep = () => {
   const [isOpenAccordion, setIsOpenAccordion] = useState(false);
   const [twoStepModal1, setTwoStepModal1] = useState(false);
@@ -38,9 +40,14 @@ const TwoStep = () => {
       {/* Modal 1 */}
       {twoStepModal1 && (
         <>
-          <Modal1 setTwoStepModal1={setTwoStepModal1} />
+          <EnableMFA setTwoStepModal1={setTwoStepModal1} />
         </>
       )}
+      {/* {twoStepModal1 && (
+        <>
+          <Modal1 setTwoStepModal1={setTwoStepModal1} />
+        </>
+      )} */}
     </div>
   );
 };
