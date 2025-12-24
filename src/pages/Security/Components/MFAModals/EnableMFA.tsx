@@ -9,6 +9,7 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { IMFAListType } from "@/types/interfaces/mfa.interface";
 import { getDaysAgo } from "@/Utility/DaysCheck";
 import { deleteData, loadData, postData } from "@/Utility/funtion";
+import { AxiosError } from "axios";
 import {
   ArrowLeft,
   Check,
@@ -36,7 +37,10 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
   // const [isMfaEnabled, setIsMfaEnabled] = useState(false);
   const [isAddNewMFA, setIsAddNewMFA] = useState(false);
   const [mfaList, setMfaList] = useState<IMFAListType[]>([]);
-  console.log(isMfaEnabled, "isMfaEnabled");
+  const [isClickAddButton, setIsClickAddButton] = useState(false);
+  const [password, setPassword] = useState("");
+  const [isPasswordValid, setIsPasswordValid] = useState(false);
+
   useEffect(() => {
     (async () => {
       const res = await loadData({
@@ -65,7 +69,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
   };
 
   const handleSelectMfaType = async (type: string) => {
-    setIsAddNewMFA(true);
+    setIsClickAddButton(true);
     const res = await postData({
       baseURL: NODE_URL,
       url: `${nodeApi.MFA}/setup`,
@@ -100,7 +104,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
   const handleEnableCode = async () => {
     const res = await postData({
       baseURL: NODE_URL,
-      url: `${nodeApi.MFA}/verify`,
+      url: `${nodeApi.MFA}/verify-otp`,
       setLoading: setIsLoading,
       payload: {
         otp: code,
@@ -113,12 +117,40 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
     });
     if (res.status === 200) {
       setIsMfaEnabled(true);
+      setIsClickAddButton(false);
+      setIsClickAddButton(false);
+      setIsCopyURL(false);
       toast({ description: res.data.message });
     }
   };
 
+  const handleEnterUserCurrentPassword = async () => {
+    try {
+      const res = await postData({
+        baseURL: NODE_URL,
+        payload: { password },
+        url: `${nodeApi.MFA}/check-password`,
+        setLoading: setIsLoading,
+        accessToken: token.access_token,
+      });
+      console.log(res, "res");
+      if (res) {
+        setIsPasswordValid(res.data.is_valid_password);
+        await handleSelectMfaType(mfa_type);
+      }
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.log(error, "error");
+        toast({
+          description: `${error.response?.data?.message}`,
+          variant: "destructive",
+        });
+      }
+    }
+  };
+
   const mfaTypes = [
-    { name: "Authenticator", value: "TOTP" },
+    { name: "Authenticator App", value: "TOTP" },
     { name: "Phone", value: "SMS" },
   ];
 
@@ -135,16 +167,26 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
     if (resDelete) {
       setMfaList([]);
       setIsMfaEnabled(false);
-      setIsAddNewMFA(false);
+      setIsClickAddButton(false);
+      setIsPasswordValid(false);
       toast({ description: resDelete.data.message });
     }
+  };
+  const handleBackClick = () => {
+    setMfa_type("");
+    setPassword("");
+    setIsClickAddButton(false);
+    setIsPasswordValid(false);
+    setMfaList([]);
+    setIsMfaEnabled(false);
+    setIsCopyURL(false);
   };
 
   return (
     <>
-      <CustomModal4 className="w-[500px] h-[350px]">
+      <CustomModal4 className="w-[500px] min-h-[350px] max-h-auto">
         <div className="flex justify-between bg-[#CEDEF2] px-4 py-[10px]">
-          <h3 className="font-semibold ">Enable Two-Step Authentication</h3>
+          <h3 className="font-semibold ">Multifactor Authentication</h3>
           <X
             onClick={() => setTwoStepModal1(false)}
             className="cursor-pointer"
@@ -161,15 +203,20 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
               <div className="p-2 flex flex-col gap-2">
                 {mfaTypes.map((type, i) => {
                   return (
-                    <div
+                    <button
+                      disabled={type.value === "SMS"}
                       key={i}
-                      className={`flex justify-between border rounded p-2 cursor-pointer hover:bg-[#cedef2]`}
+                      className={`flex justify-between border rounded p-2  hover:bg-[#cedef2] ${
+                        type.value === "SMS"
+                          ? "bg-slate-100 cursor-not-allowed"
+                          : "cursor-pointer"
+                      }`}
                       onClick={() => setMfa_type(type.value)}
                     >
                       <h3>{type.name}</h3>
                       {isMfaTypeMatch(type.value)}
                       <ChevronRight />
-                    </div>
+                    </button>
                   );
                 })}
               </div>
@@ -179,21 +226,43 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
               <div className="p-2 flex flex-col gap-2">
                 <div
                   className="flex gap-2 items-center cursor-pointer"
-                  onClick={() => setMfa_type("")}
+                  onClick={() => handleBackClick()}
                 >
                   <ArrowLeft />
-                  <p>Your authenticators</p>
+                  <p>back</p>
                 </div>
-                {mfaList.length === 0 && !isAddNewMFA && (
-                  <div>
-                    <span
-                      onClick={() => handleSelectMfaType("TOTP")}
-                      className="flex gap-2 cursor-pointer"
-                    >
-                      <Plus /> <>Add</>
-                    </span>
+                {mfaList.length === 0 &&
+                  // !isClickAddButton &&
+                  !isClickAddButton && (
+                    <div>
+                      <span
+                        onClick={() => {
+                          setIsClickAddButton(true);
+                          setPassword("");
+                        }}
+                        // onClick={() => handleSelectMfaType(mfa_type)}
+                        className="flex gap-2 cursor-pointer border rounded p-2 hover:bg-[#cedef2]"
+                      >
+                        <Plus /> <>Add</>
+                      </span>
+                    </div>
+                  )}
+
+                {isClickAddButton && !isPasswordValid && (
+                  <div className="flex flex-col gap-5 mt-5 items-center justify-center">
+                    <span>Please enter your current password</span>
+                    <Input
+                      value={password}
+                      placeholder="Enter current password"
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="w-[200px]"
+                    />
+                    <Button onClick={() => handleEnterUserCurrentPassword()}>
+                      Submit
+                    </Button>
                   </div>
                 )}
+
                 {mfaList &&
                   mfaList.length > 0 &&
                   mfaList
@@ -202,7 +271,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
                       return (
                         <div
                           key={mfa.mfa_id}
-                          className="flex flex-col gap-2 p-3 border rounded"
+                          className="flex flex-col gap-2 p-5 border rounded"
                         >
                           <div className="flex gap-2 w-full justify-between items-center ">
                             <div className="flex gap-4 items-center">
@@ -229,51 +298,54 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
             )}
 
             {/* Enter code */}
-            {mfa_type && isAddNewMFA && !isMfaEnabled && (
-              <div className="p-4 flex flex-col gap-2">
-                <div className="flex justify-center">
-                  <QRCodeCanvas
-                    value={JSON.stringify(secret)}
-                    title={"Secret"}
-                    size={150}
-                    // imageSettings={{
-                    //   src: "/favicon.svg",
-                    //   x: undefined,
-                    //   y: undefined,
-                    //   height: 24,
-                    //   width: 24,
-                    //   opacity: 1,
-                    //   excavate: true,
-                    // }}
-                  />
-                </div>
-                <div>
-                  <p>Copy the secret and paste it into the app</p>
-                  <div className="px-4 py-2 bg-white w-full flex justify-between border rounded">
-                    <p>Secret:</p>
-                    <p>{secret}</p>
-                    {isCopyURL ? (
-                      <Check
-                        onClick={handleCopy}
-                        className="cursor-pointer text-green-500"
-                      />
-                    ) : (
-                      <Copy
-                        onClick={handleCopy}
-                        className="cursor-pointer text-red-500"
-                      />
-                    )}
+            {mfa_type &&
+              isClickAddButton &&
+              !isMfaEnabled &&
+              isPasswordValid && (
+                <div className="p-4 flex flex-col gap-2">
+                  <div className="flex justify-center">
+                    <QRCodeCanvas
+                      value={JSON.stringify(secret)}
+                      title={"Secret"}
+                      size={150}
+                      // imageSettings={{
+                      //   src: "/favicon.svg",
+                      //   x: undefined,
+                      //   y: undefined,
+                      //   height: 24,
+                      //   width: 24,
+                      //   opacity: 1,
+                      //   excavate: true,
+                      // }}
+                    />
+                  </div>
+                  <div>
+                    <p>Copy the secret and paste it into the app</p>
+                    <div className="px-4 py-2 bg-white w-full flex justify-between border rounded">
+                      <p>Secret:</p>
+                      <p>{secret}</p>
+                      {isCopyURL ? (
+                        <Check
+                          onClick={handleCopy}
+                          className="cursor-pointer text-green-500"
+                        />
+                      ) : (
+                        <Copy
+                          onClick={handleCopy}
+                          className="cursor-pointer text-red-500"
+                        />
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Enter code"
+                      onChange={(e) => setCode(e.target.value)}
+                    />
+                    <Button onClick={() => handleEnableCode()}>Submit</Button>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Input
-                    placeholder="Enter code"
-                    onChange={(e) => setCode(e.target.value)}
-                  />
-                  <Button onClick={() => handleEnableCode()}>Submit</Button>
-                </div>
-              </div>
-            )}
+              )}
           </div>
         )}
       </CustomModal4>
