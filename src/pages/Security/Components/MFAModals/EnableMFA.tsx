@@ -35,7 +35,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
   const [secret, setSecret] = useState("");
   const [code, setCode] = useState("");
   // const [isMfaEnabled, setIsMfaEnabled] = useState(false);
-  const [isAddNewMFA, setIsAddNewMFA] = useState(false);
+  // const [isAddNewMFA, setIsAddNewMFA] = useState(false);
   const [mfaList, setMfaList] = useState<IMFAListType[]>([]);
   const [isClickAddButton, setIsClickAddButton] = useState(false);
   const [password, setPassword] = useState("");
