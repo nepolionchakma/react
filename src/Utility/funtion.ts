@@ -185,3 +185,13 @@ export async function deleteData(params: deleteDataParams) {
     }
   }
 }
+
+export function getFirstMiddleLast(str: string) {
+  if (!str || str.length === 0) return "";
+
+  const first = str[0];
+  const middle = str[Math.floor(str.length / 2)];
+  const last = str[str.length - 1];
+
+  return first + middle + last;
+}
