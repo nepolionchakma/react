@@ -36,6 +36,7 @@ const SignInForm = () => {
     setPresentDevice,
     presentDevice,
     setSignonId,
+    setMfaResponse,
   } = useGlobalContext();
   const navigate = useNavigate();
   const location = useLocation();
@@ -71,9 +72,11 @@ const SignInForm = () => {
       console.log(response, "response");
       if (!response.data) return;
 
-      setToken(response.data);
-
-      if (response.data) {
+      if (response?.data?.mfa_required) {
+        setMfaResponse(response?.data);
+        return;
+      } else if (response.data && !response?.data?.mfa_required) {
+        setToken(response.data);
         const newSignonID = uuidv4();
         const res = await api.post("/devices/add-device", {
           user_id: response.data.user_id,

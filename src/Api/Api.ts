@@ -67,4 +67,5 @@ export const nodeApi = {
   ForgotPassword: "/forgot_password_request",
   ResetPassword: "/def_user_credentials/reset_forgot_password",
   PrevilegesAndRoles: "/def_user_granted_roles_previleges",
+  MFA: "/mfa",
 };
