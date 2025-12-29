@@ -29,7 +29,7 @@ const Dropdown = () => {
   const userExample = {
     isLoggedIn: false,
     user_id: 0,
-
+    message: "",
     access_token: "",
     refresh_token: "",
   };
