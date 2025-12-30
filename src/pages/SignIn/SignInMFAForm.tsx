@@ -54,7 +54,7 @@ function SignInMFAForm() {
           url: `/login/send-email-mfa-code`,
           setLoading: setIsSendingCode,
         });
-        console.log(res, "res");
+        // console.log(res, "res");
         setCodeSentEmail(res.data.email);
       }
     })();
@@ -110,7 +110,7 @@ function SignInMFAForm() {
         // isToast: true,
         // accessToken: token.access_token,
       });
-      console.log(response, "res");
+      // console.log(response, "res");
       if (response.status === 200) {
         handleSetTokenData(response.data);
       }
@@ -155,7 +155,7 @@ function SignInMFAForm() {
       setLoading: setIsSendingCode,
     });
     if (res.status === 200) {
-      setTimeLeft(10);
+      setTimeLeft(5 * 60);
       setIsResendCode(true);
       setResendCodeCounter(resendCodeCounter - 1);
       toast({
@@ -163,14 +163,11 @@ function SignInMFAForm() {
         variant: "default",
       });
     }
-    // setTimeLeft(10);
-    // setIsResendCode(true);
-    // setResendCodeCounter(resendCodeCounter - 1);
   };
-  const [timeLeft, setTimeLeft] = useState(10);
+  const [timeLeft, setTimeLeft] = useState(5 * 60);
   const [isResendCode, setIsResendCode] = useState(false);
   const [resendCodeCounter, setResendCodeCounter] = useState(3);
-  console.log(timeLeft, "timeleft");
+  // console.log(timeLeft, "timeleft");
   useEffect(() => {
     if (codeSentEmail.length > 0) {
       const interval = setInterval(() => {
@@ -213,12 +210,13 @@ function SignInMFAForm() {
               onChange={(e) => setCode(e.target.value)}
             />
             <div className="flex justify-end">
-              <span
+              <Button
+                variant="link"
                 className="text-blue-500 cursor-pointer"
                 onClick={() => setIsTryAnotherWay(true)}
               >
                 Try another way
-              </span>
+              </Button>
             </div>
             <Button
               disabled={isLoading || code.length === 0}
