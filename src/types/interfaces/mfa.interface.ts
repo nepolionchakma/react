@@ -18,6 +18,7 @@ export interface IMFAListType {
   mfa_secret: string;
   mfa_enabled: boolean;
   is_primary: boolean;
+  is_validated: boolean;
   failed_attempts: number;
   locked_until: string;
   last_verified_at: string;

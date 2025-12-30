@@ -4,6 +4,7 @@ import CustomModal4 from "@/components/CustomModal/CustomModal4";
 import Spinner from "@/components/Spinner/Spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/use-toast";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { IMFAListType } from "@/types/interfaces/mfa.interface";
@@ -40,6 +41,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
   const [isClickAddButton, setIsClickAddButton] = useState(false);
   const [password, setPassword] = useState("");
   const [isPasswordValid, setIsPasswordValid] = useState(false);
+  const [identifierName, setIdentifierName] = useState("");
 
   useEffect(() => {
     (async () => {
@@ -63,7 +65,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
 
     return (
       <div className="flex items-center gap-2 text-sm text-green-600">
-        <span>{getDaysAgo(isMatch.updated_at)}</span>
+        <span>{getDaysAgo(isMatch.created_at)}</span>
       </div>
     );
   };
@@ -110,6 +112,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
         otp: code,
         mfa_id,
         mfa_type,
+        identifier: identifierName,
       },
       // isConsole: true,
       // isToast: true,
@@ -133,7 +136,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
         setLoading: setIsLoading,
         accessToken: token.access_token,
       });
-      console.log(res, "res");
+      // console.log(res, "res");
       if (res) {
         setIsPasswordValid(res.data.is_valid_password);
         await handleSelectMfaType(mfa_type);
@@ -163,7 +166,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
       },
       accessToken: token.access_token,
     });
-    console.log(resDelete, "delete");
+    // console.log(resDelete, "delete");
     if (resDelete) {
       setMfaList([]);
       setIsMfaEnabled(false);
@@ -172,6 +175,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
       toast({ description: resDelete.data.message });
     }
   };
+
   const handleBackClick = () => {
     setMfa_type("");
     setPassword("");
@@ -180,6 +184,33 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
     setMfaList([]);
     setIsMfaEnabled(false);
     setIsCopyURL(false);
+  };
+
+  const switchFunc = async (mfa: IMFAListType) => {
+    try {
+      (async () => {
+        const res = await postData({
+          baseURL: NODE_URL,
+          payload: { mfa_id: mfa.mfa_id, mfa_enabled: !mfa.mfa_enabled },
+          url: `/mfa/switch-mfa`,
+          setLoading: setIsLoading,
+          accessToken: token.access_token,
+        });
+
+        if (res.status === 200) {
+          setIsMfaEnabled(!mfa.mfa_enabled);
+          toast({ description: res.data.message });
+        }
+      })();
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.log(error, "error");
+        toast({
+          description: `${error.response?.data?.message}`,
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   return (
@@ -253,6 +284,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
                     <span>Please enter your current password</span>
                     <Input
                       value={password}
+                      type="password"
                       placeholder="Enter current password"
                       onChange={(e) => setPassword(e.target.value)}
                       className="w-[200px]"
@@ -277,16 +309,30 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
                             <div className="flex gap-4 items-center">
                               <ScanBarcode />
                               <div className="flex flex-col">
-                                <span>Authenticator</span>
+                                <span>{mfa.identifier}</span>
                                 <span>{isMfaTypeMatch(mfa.mfa_type)}</span>
                               </div>
                             </div>
-                            <Alert
-                              disabled={false}
-                              tooltipTitle="Delete"
-                              actionName="delete"
-                              onContinue={() => handleMFADelete(mfa.mfa_id)}
-                            />
+                            <div className="flex gap-2">
+                              <Switch
+                                className={`${
+                                  mfa.mfa_enabled &&
+                                  "data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300  transition-colors"
+                                }`}
+                                checked={
+                                  mfa.mfa_enabled === true ? true : false
+                                }
+                                onCheckedChange={() => {
+                                  switchFunc(mfa);
+                                }}
+                              />
+                              <Alert
+                                disabled={false}
+                                tooltipTitle="Delete"
+                                actionName="delete"
+                                onContinue={() => handleMFADelete(mfa.mfa_id)}
+                              />
+                            </div>
                           </div>
                           <span className="cursor-not-allowed text-slate-300">
                             Change authenticator app
@@ -338,6 +384,10 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
                     </div>
                   </div>
                   <div className="flex gap-2">
+                    <Input
+                      placeholder="Identifier name"
+                      onChange={(e) => setIdentifierName(e.target.value)}
+                    />
                     <Input
                       placeholder="Enter code"
                       onChange={(e) => setCode(e.target.value)}
