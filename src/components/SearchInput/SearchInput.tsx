@@ -1,16 +1,8 @@
 import { Input } from "../ui/input";
 
 interface SearchInputProps {
-  query: {
-    isEmpty: boolean;
-    value: string;
-  };
-  setQuery: React.Dispatch<
-    React.SetStateAction<{
-      isEmpty: boolean;
-      value: string;
-    }>
-  >;
+  query: string;
+  setQuery: React.Dispatch<React.SetStateAction<string>>;
   placeholder: string;
   setPage: React.Dispatch<React.SetStateAction<number>>;
 }
@@ -22,13 +14,8 @@ export default function SearchInput({
   setPage,
 }: SearchInputProps) {
   const handleQuery = (e: string) => {
-    if (e === "") {
-      setQuery({ isEmpty: true, value: e });
-      setPage(1);
-    } else {
-      setQuery({ isEmpty: false, value: e });
-      setPage(1);
-    }
+    setQuery(e);
+    setPage(1);
   };
 
   return (
@@ -36,7 +23,7 @@ export default function SearchInput({
       className="w-[24rem] px-4 py-2"
       placeholder={placeholder}
       type="text"
-      value={query.value}
+      value={query}
       onChange={(e) => handleQuery(e.target.value)}
     />
   );

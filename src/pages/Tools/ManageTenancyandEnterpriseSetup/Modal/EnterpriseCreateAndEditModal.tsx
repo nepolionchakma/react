@@ -2,7 +2,6 @@ import { FLASK_URL, flaskApi } from "@/Api/Api";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-// import { toast } from "@/components/ui/use-toast";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { IEnterprisesTypes } from "@/types/interfaces/users.interface";
 import { postData } from "@/Utility/funtion";
@@ -76,15 +75,6 @@ const EnterpriseCreateAndEditModal = ({
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    // const match = /^(\d+)([mhdw])$/.exec(userInvitationValidity);
-    // if (!match) {
-    //   toast({
-    //     title:
-    //       "Invalid User Invitation Validiy format. Use like 15m, 2h, 3d, 1w.",
-    //     variant: "destructive",
-    //   });
-    //   return;
-    // }
 
     const data = {
       enterprise_name: enterpriseName,
@@ -109,46 +99,6 @@ const EnterpriseCreateAndEditModal = ({
       handleClose();
       setStateChanged(Math.random() + 23 * 3000);
     }
-
-    // try {
-
-    //   if (action === "edit") {
-    //     const res = await api.put(
-    //       `/update_enterprise/${selectedEnterpriseRows?.[0].tenant_id}`,
-    //       data,
-    //       {
-    //         baseURL: flaskUrl,
-    //       }
-    //     );
-    //     if (res.status === 200) {
-    //       toast({
-    //         description: `${res.data.message}`,
-    //       });
-    //       setSelectedEnterpriseRows([]);
-    //     }
-    //   } else {
-    //     const res = await api.post(
-    //       `/create_enterprise/${selectedEnterpriseRows?.[0].tenant_id}`,
-    //       data,
-    //       {
-    //         baseURL: flaskUrl,
-    //       }
-    //     );
-    //     if (res.status === 200) {
-    //       toast({
-    //         description: `${res.data.message}`,
-    //       });
-    //       setSelectedEnterpriseRows([]);
-    //     }
-    //   }
-    // } catch (error) {
-    //   if (error instanceof Error) {
-    //     toast({ title: error.message, variant: "destructive" });
-    //   }
-    // } finally {
-    //   setIsLoading(false);
-
-    // }
   };
 
   const handleClose = () => {
@@ -244,13 +194,6 @@ const EnterpriseCreateAndEditModal = ({
                 </Select>
               </div>
             </div>
-            {/* <Input
-              type="text"
-              name="user_invitation_validity"
-              id="user_invitation_validity"
-              value={userInvitationValidity}
-              onChange={(e) => setUserInvitationValidity(e.target.value)}
-            /> */}
           </div>
           <div className="flex justify-end">
             <Button type="submit">

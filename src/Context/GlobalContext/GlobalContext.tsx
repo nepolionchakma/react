@@ -32,7 +32,7 @@ import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import useUserDevice from "@/hooks/useUserDevice";
 import { ARMContextProvider } from "../ARMContext/ARMContext";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
-import { deleteData, loadData, postData, putData } from "@/Utility/funtion";
+import { deleteData, loadData, putData } from "@/Utility/funtion";
 
 interface GlobalContextProviderProps {
   children: ReactNode;
@@ -60,7 +60,6 @@ interface GlobalContex {
   setIsCombinedUserLoading: Dispatch<SetStateAction<boolean>>;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setUpdateProfileImage: React.Dispatch<React.SetStateAction<number>>;
-  createDataSource: (postData: IDataSourcePostTypes) => Promise<void>;
   updateDataSource: (
     id: number,
     postData: IDataSourcePostTypes
@@ -436,57 +435,7 @@ export function GlobalContextProvider({
       throw error;
     }
   };
-  const createDataSource = async (data: IDataSourcePostTypes) => {
-    const {
-      datasource_name,
-      description,
-      application_type,
-      application_type_version,
-      last_access_synchronization_status,
-      last_access_synchronization_date,
-      last_transaction_synchronization_status,
-      last_transaction_synchronization_date,
-      default_datasource,
-      created_by,
-      last_updated_by,
-    } = data;
-    try {
-      const postPayload = {
-        datasource_name,
-        description,
-        application_type,
-        application_type_version,
-        last_access_synchronization_status,
-        last_access_synchronization_date,
-        last_transaction_synchronization_status,
-        last_transaction_synchronization_date,
-        default_datasource,
-        created_by,
-        last_updated_by,
-      };
 
-      const res = await postData({
-        baseURL: FLASK_URL,
-        url: `${flaskApi.DefDataSources}`,
-        setLoading: setIsLoading,
-        payload: postPayload,
-        // isConsole: true,
-        // isToast: true,
-        accessToken: token.access_token,
-      });
-      if (res.status === 201) {
-        toast({
-          description: `${res.data.message}`,
-        });
-      }
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        description: `Failed to add data.`,
-      });
-      console.log(error);
-    }
-  };
   const updateDataSource = async (
     id: number,
     postData: IDataSourcePostTypes
@@ -575,7 +524,6 @@ export function GlobalContextProvider({
         setIsCombinedUserLoading,
         setIsLoading,
         setUpdateProfileImage,
-        createDataSource,
         updateDataSource,
         deleteDataSource,
         combinedUser,
