@@ -33,6 +33,7 @@ import useUserDevice from "@/hooks/useUserDevice";
 import { ARMContextProvider } from "../ARMContext/ARMContext";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { deleteData, loadData, putData } from "@/Utility/funtion";
+import { IMFA } from "@/types/interfaces/mfa.interface";
 
 interface GlobalContextProviderProps {
   children: ReactNode;
@@ -109,12 +110,14 @@ interface GlobalContex {
   enterpriseSetting: IEnterprisesTypes | undefined;
   setEnterpriseSetting: Dispatch<SetStateAction<IEnterprisesTypes | undefined>>;
   fetchJobTitles: () => Promise<IJobTitle[]>;
+  mfaResponse: IMFA | undefined;
+  setMfaResponse: Dispatch<SetStateAction<IMFA | undefined>>;
 }
 
 export const userExample = {
   isLoggedIn: false,
   user_id: 0,
-
+  message: "",
   access_token: "",
   refresh_token: "",
 };
@@ -163,6 +166,7 @@ export function GlobalContextProvider({
   const [enterpriseSetting, setEnterpriseSetting] = useState<
     IEnterprisesTypes | undefined
   >(undefined);
+  const [mfaResponse, setMfaResponse] = useState<IMFA | undefined>();
 
   useEffect(() => {
     const storedValue = localStorage.getItem("signonId");
@@ -559,6 +563,8 @@ export function GlobalContextProvider({
         enterpriseSetting,
         setEnterpriseSetting,
         fetchJobTitles,
+        mfaResponse,
+        setMfaResponse,
       }}
     >
       <SocketContextProvider>
