@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
@@ -55,6 +55,28 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
   const [isTesting, setIsTesting] = useState<boolean>(false);
   const [versions, setVersions] = useState<string[]>([]);
 
+  const mapAdditionalParamsToArray = (
+    params?: Record<string, string | number | boolean>
+  ) => {
+    if (!params) return [];
+
+    return Object.entries(params).map(([key, value]) => ({
+      key,
+      value: String(value),
+    }));
+  };
+
+  const getAdditionalParams = () => {
+    const params = dataSourceForm.getValues("additional_params");
+
+    const paramsObject = params?.reduce((acc, cur) => {
+      acc[cur.key] = cur.value;
+      return acc;
+    }, {} as Record<string, string>);
+
+    return paramsObject;
+  };
+
   const dataSourceSchema = z.object({
     datasource_name: z
       .string()
@@ -81,9 +103,6 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
     default_datasource: z
       .string()
       .min(2, { message: "Default Datasource must be at least 2 characters." }),
-  });
-
-  const connectorSchema = z.object({
     connection_type: z
       .string()
       .min(2, { message: "Database Type must be at least 2 characters." }),
@@ -98,23 +117,25 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
     password: z
       .string()
       .min(2, { message: "Password must be at least 2 characters." }),
-    additional_params: z.object({}).optional(),
+    additional_params: z
+      .array(
+        z.object({
+          key: z.string().min(1, "Key is required"),
+          value: z.string().min(1, "Value is required"),
+        })
+      )
+      .optional(),
   });
-  const connectorForm = useForm<z.infer<typeof connectorSchema>>({
-    resolver: zodResolver(connectorSchema),
-    defaultValues: {
-      connection_type:
-        action === "update" ? connectorProperties?.connection_type : "",
-      host: action === "update" ? connectorProperties?.host : "",
-      database_name:
-        action === "update" ? connectorProperties?.database_name : "",
-      port: action === "update" ? connectorProperties?.port?.toString() : "",
-      username: action === "update" ? connectorProperties?.username : "",
-      password: action === "update" ? connectorProperties?.password : "",
-      additional_params:
-        action === "update" ? connectorProperties?.additional_params : "",
-    },
-  });
+
+  // const connectorSchema = z.object({
+
+  // });
+  // const connectorForm = useForm<z.infer<typeof connectorSchema>>({
+  //   resolver: zodResolver(connectorSchema),
+  //   defaultValues: {
+
+  //   },
+  // });
   const dataSourceForm = useForm<z.infer<typeof dataSourceSchema>>({
     resolver: zodResolver(dataSourceSchema),
     defaultValues: {
@@ -141,7 +162,24 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
           : "COMPLETED",
       default_datasource:
         action === "update" ? selected[0].default_datasource : "false",
+      connection_type:
+        action === "update" ? connectorProperties?.connection_type : "",
+      host: action === "update" ? connectorProperties?.host : "",
+      database_name:
+        action === "update" ? connectorProperties?.database_name : "",
+      port: action === "update" ? connectorProperties?.port?.toString() : "",
+      username: action === "update" ? connectorProperties?.username : "",
+      password: action === "update" ? connectorProperties?.password : "",
+      additional_params:
+        action === "update"
+          ? mapAdditionalParamsToArray(connectorProperties?.additional_params)
+          : [],
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: dataSourceForm.control,
+    name: "additional_params",
   });
 
   useEffect(() => {
@@ -151,14 +189,17 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
           const result = await fetchDataSource(selected[0].def_data_source_id);
           dataSourceForm.reset(result);
           if (connectorProperties) {
-            connectorForm.reset({
+            dataSourceForm.reset({
+              ...dataSourceForm,
               connection_type: connectorProperties.connection_type,
               host: connectorProperties.host,
               username: connectorProperties.username,
               password: connectorProperties.password,
               database_name: connectorProperties.database_name,
               port: connectorProperties.port?.toString(),
-              additional_params: connectorProperties.additional_params,
+              additional_params: mapAdditionalParamsToArray(
+                connectorProperties.additional_params
+              ),
             });
           }
           // Sync form with fetched data
@@ -173,7 +214,6 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
     fetchDataSource,
     dataSourceForm,
     connectorProperties,
-    connectorForm,
   ]);
 
   useEffect(() => {
@@ -208,28 +248,21 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
     fetchVersions();
   }, [token.access_token, applicationType]);
 
-  const onSubmit = async () => {
+  const onSubmit = async (data: z.infer<typeof dataSourceSchema>) => {
     // setRowSelection({});
     const dataSourcePayload = {
-      datasource_name: dataSourceForm.getValues("datasource_name"),
-      description: dataSourceForm.getValues("description"),
-      application_type: dataSourceForm.getValues("application_type"),
-      application_type_version: dataSourceForm.getValues(
-        "application_type_version"
-      ),
-      last_access_synchronization_date: dataSourceForm.getValues(
-        "last_access_synchronization_date"
-      ),
-      last_access_synchronization_status: dataSourceForm.getValues(
-        "last_access_synchronization_status"
-      ),
-      last_transaction_synchronization_date: dataSourceForm.getValues(
-        "last_transaction_synchronization_date"
-      ),
-      last_transaction_synchronization_status: dataSourceForm.getValues(
-        "last_transaction_synchronization_status"
-      ),
-      default_datasource: dataSourceForm.getValues("default_datasource"),
+      datasource_name: data.datasource_name,
+      description: data.description,
+      application_type: data.application_type,
+      application_type_version: data.application_type_version,
+      last_access_synchronization_date: data.last_access_synchronization_date,
+      last_access_synchronization_status:
+        data.last_access_synchronization_status,
+      last_transaction_synchronization_date:
+        data.last_transaction_synchronization_date,
+      last_transaction_synchronization_status:
+        data.last_transaction_synchronization_status,
+      default_datasource: data.default_datasource,
     };
 
     if (action === "add") {
@@ -246,12 +279,13 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
       if (res.status === 201) {
         const propertyPayload = {
           def_data_source_id: res.data.result.def_data_source_id,
-          connection_type: connectorForm.getValues("connection_type"),
-          host: connectorForm.getValues("host"),
-          database_name: connectorForm.getValues("database_name"),
-          port: Number(connectorForm.getValues("port")),
-          username: connectorForm.getValues("username"),
-          password: connectorForm.getValues("password"),
+          connection_type: data.connection_type,
+          host: data.host,
+          database_name: data.database_name,
+          port: data.port ? Number(data.port) : null,
+          username: data.username,
+          password: data.password,
+          additional_params: getAdditionalParams(),
         };
 
         const propertyPostParams = {
@@ -285,12 +319,13 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
       if (dataSourceRes.status === 200) {
         const propertyPayload = {
           def_data_source_id: connectorProperties?.def_data_source_id,
-          connection_type: connectorForm.getValues("connection_type"),
-          host: connectorForm.getValues("host"),
-          database_name: connectorForm.getValues("database_name"),
-          port: Number(connectorForm.getValues("port")),
-          username: connectorForm.getValues("username"),
-          password: connectorForm.getValues("password"),
+          connection_type: data.connection_type,
+          host: data.host,
+          database_name: data.database_name,
+          port: data.port ? Number(data.port) : null,
+          username: data.username,
+          password: data.password,
+          additional_params: getAdditionalParams(),
         };
         const propertyPutParams = {
           baseURL: FLASK_URL,
@@ -312,13 +347,13 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
 
   const handleTestConnection = async () => {
     const payoload = {
-      connection_type: connectorForm.getValues("connection_type"),
-      host: connectorForm.getValues("host"),
-      database_name: connectorForm.getValues("database_name"),
-      port: connectorForm.getValues("port"),
-      username: connectorForm.getValues("username"),
-      password: connectorForm.getValues("password"),
-      additional_params: connectorForm.getValues("additional_params"),
+      connection_type: dataSourceForm.getValues("connection_type"),
+      host: dataSourceForm.getValues("host"),
+      database_name: dataSourceForm.getValues("database_name"),
+      port: dataSourceForm.getValues("port"),
+      username: dataSourceForm.getValues("username"),
+      password: dataSourceForm.getValues("password"),
+      additional_params: getAdditionalParams(),
     };
 
     const postParams = {
@@ -344,9 +379,10 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
   return (
     <div className="max-h-[75vh] overflow-auto scrollbar-thin">
       <Form {...dataSourceForm}>
-        <form>
+        <form onSubmit={dataSourceForm.handleSubmit(onSubmit)}>
           <div className="flex gap-3 pb-2">
             <Button
+              type="button"
               disabled={isTesting}
               onClick={handleTestConnection}
               className="bg-slate-400"
@@ -364,7 +400,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
                 dataSourceForm.getValues().description === "" ||
                 isLoading
               }
-              onClick={onSubmit}
+              type="submit"
               className="bg-slate-900 hover:bg-slate-800 hover:text-white text-white"
             >
               {isLoading ? <Spinner size="20" color="white" /> : "Submit"}
@@ -520,11 +556,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
             </label>
             <p className="w-[50%]">Transaction, Access</p>
           </div>
-        </form>
-      </Form>
 
-      <Form {...connectorForm}>
-        <form>
           {/* Connector Properties */}
           <div
             className={`${
@@ -542,7 +574,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
             </div>
             <div className={`${open ? "block" : "hidden"}`}>
               <FormField
-                control={connectorForm.control}
+                control={dataSourceForm.control}
                 name="connection_type"
                 render={({ field }) => (
                   <FormItem className="flex items-center gap-3">
@@ -560,7 +592,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
                 )}
               />
               <FormField
-                control={connectorForm.control}
+                control={dataSourceForm.control}
                 name="host"
                 render={({ field }) => (
                   <FormItem className="flex items-center gap-3">
@@ -578,7 +610,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
                 )}
               />
               <FormField
-                control={connectorForm.control}
+                control={dataSourceForm.control}
                 name="database_name"
                 render={({ field }) => (
                   <FormItem className="flex items-center gap-3">
@@ -596,7 +628,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
                 )}
               />
               <FormField
-                control={connectorForm.control}
+                control={dataSourceForm.control}
                 name="port" // Renamed to "password" to match field name
                 render={({ field }) => (
                   <FormItem className="flex items-center gap-3">
@@ -614,7 +646,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
                 )}
               />
               <FormField
-                control={connectorForm.control}
+                control={dataSourceForm.control}
                 name="username" // Renamed to "password" to match field name
                 render={({ field }) => (
                   <FormItem className="flex items-center gap-3">
@@ -633,7 +665,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
               />
 
               <FormField
-                control={connectorForm.control}
+                control={dataSourceForm.control}
                 name="password"
                 render={({ field }) => (
                   <FormItem className="flex items-center gap-3">
@@ -650,10 +682,67 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
                   </FormItem>
                 )}
               />
+
+              <div className="mt-4">
+                <div className="flex justify-between items-center mb-2">
+                  <h5 className="font-semibold text-slate-700">
+                    Additional Parameters
+                  </h5>
+                  <button
+                    type="button"
+                    onClick={() => append({ key: "", value: "" })}
+                    className="text-sm text-blue-600"
+                  >
+                    + Add
+                  </button>
+                </div>
+
+                {fields.map((field, index) => (
+                  <div key={field.id} className="flex gap-2 mb-2">
+                    <FormField
+                      control={dataSourceForm.control}
+                      name={`additional_params.${index}.key`}
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          placeholder="Key"
+                          className="w-[45%]"
+                        />
+                      )}
+                    />
+
+                    <FormField
+                      control={dataSourceForm.control}
+                      name={`additional_params.${index}.value`}
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          placeholder="Value"
+                          className="w-[45%]"
+                        />
+                      )}
+                    />
+
+                    <button
+                      type="button"
+                      onClick={() => remove(index)}
+                      className="text-red-500 text-sm"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </form>
       </Form>
+
+      {/* <Form {...datasource}>
+        <form>
+         
+        </form>
+      </Form> */}
     </div>
   );
 };
