@@ -60,7 +60,7 @@ const ActionItems = () => {
 
   const [actionItems, setActionItems] = useState<IActionItems[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [query, setQuery] = useState({ isEmpty: true, value: "" });
+  const [query, setQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -84,7 +84,7 @@ const ActionItems = () => {
   const fetchActionItems = useCallback(async () => {
     const actionItemsParams = {
       baseURL: FLASK_URL,
-      url: `${flaskApi.DefActionItems}?user_id=${token.user_id}&status=${selectedOption}&page=${currentPage}&limit=${limit}`,
+      url: `${flaskApi.DefActionItems}?user_id=${token.user_id}&action_item_name=${query}&status=${selectedOption}&page=${currentPage}&limit=${limit}`,
       setLoading: setIsLoading,
       accessToken: token.access_token,
     };
@@ -94,45 +94,33 @@ const ActionItems = () => {
       setTotalPage(res.pages);
       return res;
     }
-  }, [currentPage, selectedOption, token.user_id, token.access_token]);
+  }, [token.user_id, token.access_token, query, selectedOption, currentPage]);
 
-  /** Search Functionality */
-  const fetchSearchActionItems = useCallback(
-    async (q: string) => {
-      const searchQueryParams = {
-        baseURL: FLASK_URL,
-        url: `${flaskApi.DefActionItems}?user_id=${token.user_id}&action_item_name=${q}&status=${selectedOption}&page=${currentPage}&limit=${limit}`,
-        setLoading: setIsLoading,
-        accessToken: token.access_token,
-      };
-      const res = await loadData(searchQueryParams);
-      if (res) {
-        setActionItems(res.result);
-        setTotalPage(res.pages);
-      }
-    },
-    [currentPage, selectedOption, token.user_id, token.access_token]
-  );
+  // /** Search Functionality */
+  // const fetchSearchActionItems = useCallback(
+  //   async (q: string) => {
+  //     const searchQueryParams = {
+  //       baseURL: FLASK_URL,
+  //       url: `${flaskApi.DefActionItems}?user_id=${token.user_id}&action_item_name=${q}&status=${selectedOption}&page=${currentPage}&limit=${limit}`,
+  //       setLoading: setIsLoading,
+  //       accessToken: token.access_token,
+  //     };
+  //     const res = await loadData(searchQueryParams);
+  //     if (res) {
+  //       setActionItems(res.result);
+  //       setTotalPage(res.pages);
+  //     }
+  //   },
+  //   [currentPage, selectedOption, token.user_id, token.access_token]
+  // );
 
   useEffect(() => {
-    if (query.isEmpty) {
+    const delayDebounce = setTimeout(() => {
       fetchActionItems();
-    } else {
-      const delayDebounce = setTimeout(() => {
-        fetchSearchActionItems(query.value);
-      }, 1000);
+    }, 1000);
 
-      return () => clearTimeout(delayDebounce);
-    }
-  }, [
-    query,
-    token.user_id,
-    selectedOption,
-    currentPage,
-    query.isEmpty,
-    fetchActionItems,
-    fetchSearchActionItems,
-  ]);
+    return () => clearTimeout(delayDebounce);
+  }, [fetchActionItems]);
 
   /** close progressbar */
   useEffect(() => {
@@ -161,7 +149,7 @@ const ActionItems = () => {
   /** reload data by clicking refresh button */
   const handleRefresh = async () => {
     setIsRefreshing(true);
-    setQuery({ isEmpty: true, value: "" });
+    setQuery("");
     const res = await fetchActionItems();
     if (res.result.length > 0) {
       setIsRefreshing(false);

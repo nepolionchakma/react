@@ -33,13 +33,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Checkbox } from "@/components/ui/checkbox";
 import columns from "./Columns";
-import { Input } from "@/components/ui/input";
 import { ChevronDown, FileEdit, Plus } from "lucide-react";
 import { convertToTitleCase } from "@/Utility/general";
 import { Button } from "@/components/ui/button";
 import Alert from "@/components/Alert/Alert";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import Modal from "./Modal";
+import SearchInput from "@/components/SearchInput/SearchInput";
 
 const ManageApplicationTypes = () => {
   const { token } = useGlobalContext();
@@ -220,11 +220,11 @@ const ManageApplicationTypes = () => {
           </ActionButtons>
 
           {/* Search  */}
-          <Input
+          <SearchInput
             placeholder="Search Application Type"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-[20rem] px-4 py-2"
+            query={query}
+            setQuery={setQuery}
+            setPage={setCurrentPage}
           />
         </div>
 
