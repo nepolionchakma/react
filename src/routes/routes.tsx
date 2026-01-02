@@ -69,6 +69,7 @@ import ScheduleATaskComponent from "@/pages/AsynchronousRequestsAndTaskSchedules
 import ResetPassword from "@/pages/ResetPassword/ResetPassword";
 import { ForgotPassword } from "@/pages/ForgotPassword/ForgotPassword";
 import MaterializedView from "@/pages/Tools/MaterializedView/MaterializedView";
+import ManageApplicationTypes from "@/pages/Tools/EnterpriseSystemIntegrations/ManageApplicationTypes/ManageApplicationTypes";
 
 const routes = createBrowserRouter([
   {
@@ -229,6 +230,10 @@ const routes = createBrowserRouter([
               {
                 path: "manage-data-sources",
                 element: <ManageDataSources />,
+              },
+              {
+                path: "manage-application-types",
+                element: <ManageApplicationTypes />,
               },
             ],
           },

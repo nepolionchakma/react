@@ -57,7 +57,7 @@ const ManageControlEnvironments = () => {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [isLoading, setIsLoading] = useState(true);
-  const [query, setQuery] = useState({ isEmpty: true, value: "" });
+  const [query, setQuery] = useState("");
   const [isSelectAll, setIsSelectAll] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [selectedItems, setSelectedItems] = useState<
@@ -109,7 +109,7 @@ const ManageControlEnvironments = () => {
     const fetchControlEnvironments = async () => {
       const actionItemsParams = {
         baseURL: FLASK_URL,
-        url: `${flaskApi.DefControlEnvironments}?name=${query.value}&page=${page}&limit=${limit}`,
+        url: `${flaskApi.DefControlEnvironments}?name=${query}&page=${page}&limit=${limit}`,
         setLoading: setIsLoading,
         accessToken: token.access_token,
       };
@@ -125,7 +125,7 @@ const ManageControlEnvironments = () => {
     }, 1000);
 
     return () => clearTimeout(delayDebounce);
-  }, [limit, page, query.value, token.access_token, state]);
+  }, [limit, page, query, token.access_token, state]);
 
   useEffect(() => {
     if (controlEnvironments.length > 0) {

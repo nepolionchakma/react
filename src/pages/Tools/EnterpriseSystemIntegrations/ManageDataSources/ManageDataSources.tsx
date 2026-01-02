@@ -4,7 +4,6 @@ import { tailspin } from "ldrs";
 import { Button } from "@/components/ui/button";
 
 import {
-  ColumnDef,
   ColumnFiltersState,
   SortingState,
   VisibilityState,
@@ -15,7 +14,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, FileEdit, Plus } from "lucide-react";
+import { ChevronDown, FileEdit, Plus } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogContent,
@@ -25,7 +24,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-
+import columns from "./Columns";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
@@ -41,8 +40,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import DataSourceDataAdd from "@/components/DataSourceDataAdd/DataSourceDataAdd";
-import { IDataSourceTypes } from "@/types/interfaces/datasource.interface";
+import {
+  IDataSourceConnectorProperties,
+  IDataSourceTypes,
+} from "@/types/interfaces/datasource.interface";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
@@ -55,17 +56,16 @@ import Alert from "@/components/Alert/Alert";
 import Rows from "@/components/Rows/Rows";
 import SearchInput from "@/components/SearchInput/SearchInput";
 import { convertToTitleCase } from "@/Utility/general";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { loadData } from "@/Utility/funtion";
+import Modal from "./Modal";
 
 const ManageDataSources = () => {
-  const {
-    fetchDataSources,
-    totalPage,
-    deleteDataSource,
-    getSearchDataSources,
-  } = useGlobalContext();
+  const { totalPage, deleteDataSource, getSearchDataSources, token } =
+    useGlobalContext();
   const [data, setData] = React.useState<IDataSourceTypes[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
-  const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
+  const [query, setQuery] = React.useState("");
   const [save, setSave] = React.useState<number>(0);
   const [page, setPage] = React.useState<number>(1);
   const [limit, setLimit] = React.useState<number>(8);
@@ -84,6 +84,9 @@ const ManageDataSources = () => {
   const [selectedDataSourceItems, setSelectedDataSourceItems] = React.useState<
     IDataSourceTypes[]
   >([]);
+  const [connectorProperties, setConnectorProperties] = React.useState<
+    undefined | IDataSourceConnectorProperties
+  >(undefined);
   const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
   const [isSelectAll, setIsSelectAll] = React.useState(false);
 
@@ -91,16 +94,9 @@ const ManageDataSources = () => {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        if (!query.isEmpty) {
-          const results = await getSearchDataSources(page, limit, query.value);
-          if (results) {
-            setData(results);
-          }
-        } else {
-          const res = await fetchDataSources(page, limit);
-          if (res) {
-            setData(res);
-          }
+        const results = await getSearchDataSources(page, limit, query);
+        if (results) {
+          setData(results);
         }
       } catch (error) {
         console.log(error);
@@ -118,6 +114,21 @@ const ManageDataSources = () => {
   }, [query, page, save, limit]);
 
   React.useEffect(() => {
+    const fetchConnectorProperties = async () => {
+      const loadParams = {
+        baseURL: FLASK_URL,
+        url: `${flaskApi.DatasourceConnectorProperties}?def_data_source_id=${selectedDataSourceItems[0].def_data_source_id}`,
+        accessToken: token.access_token,
+        setLoading: setIsLoading,
+      };
+
+      const res = await loadData(loadParams);
+      setConnectorProperties(res.result[0]);
+    };
+    fetchConnectorProperties();
+  }, [selectedDataSourceItems, token.access_token]);
+
+  React.useEffect(() => {
     if (selectedDataSourceItems.length !== data.length || data.length === 0) {
       setIsSelectAll(false);
     } else {
@@ -125,7 +136,7 @@ const ManageDataSources = () => {
     }
     const ids = selectedDataSourceItems.map((data) => data.def_data_source_id);
     setSelectedIds(ids);
-  }, [selectedDataSourceItems.length, data.length]);
+  }, [selectedDataSourceItems.length, data.length, selectedDataSourceItems]);
 
   // select row
 
@@ -149,251 +160,6 @@ const ManageDataSources = () => {
       setSelectedDataSourceItems((prev) => [...prev, rowData]);
     }
   };
-
-  const columns: ColumnDef<IDataSourceTypes>[] = [
-    {
-      id: "select",
-      size: 24,
-      minSize: 24,
-      maxSize: 24,
-      enableSorting: false,
-      enableHiding: false,
-      enableResizing: false,
-    },
-    {
-      accessorKey: "datasource_name",
-      enableResizing: true,
-      sortingFn: (rowA, rowB, columnId) => {
-        const a = rowA.getValue(columnId) as string;
-        const b = rowB.getValue(columnId) as string;
-
-        return a.localeCompare(b, undefined, { sensitivity: "base" });
-      },
-      header: ({ column }) => {
-        return (
-          <div
-            className="min-w-max"
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          >
-            Datasource Name{" "}
-            <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
-          </div>
-        );
-      },
-
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("datasource_name")}</div>
-      ),
-    },
-    {
-      accessorKey: "description",
-      sortingFn: (rowA, rowB, columnId) => {
-        const a = rowA.getValue(columnId) as string;
-        const b = rowB.getValue(columnId) as string;
-
-        return a.localeCompare(b, undefined, { sensitivity: "base" });
-      },
-      header: ({ column }) => {
-        return (
-          <div
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="min-w-[20rem] cursor-pointer"
-          >
-            Description
-            <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
-          </div>
-        );
-      },
-
-      enableResizing: true,
-      cell: ({ row }) => (
-        <div className="capitalize min-w-[20rem]">
-          {row.getValue("description")}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "application_type",
-      enableResizing: true,
-      sortingFn: (rowA, rowB, columnId) => {
-        const a = rowA.getValue(columnId) as string;
-        const b = rowB.getValue(columnId) as string;
-
-        return a.localeCompare(b, undefined, { sensitivity: "base" });
-      },
-      header: ({ column }) => {
-        return (
-          <div
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="min-w-max cursor-pointer"
-          >
-            Application Type
-            <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
-          </div>
-        );
-      },
-
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("application_type")}</div>
-      ),
-    },
-    {
-      accessorKey: "application_type_version",
-      enableResizing: true,
-      sortingFn: (rowA, rowB, columnId) => {
-        const a = rowA.getValue(columnId) as string;
-        const b = rowB.getValue(columnId) as string;
-
-        return a.localeCompare(b, undefined, { sensitivity: "base" });
-      },
-      header: ({ column }) => {
-        return (
-          <div
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="min-w-max cursor-pointer"
-          >
-            Application Type Version
-            <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
-          </div>
-        );
-      },
-      cell: ({ row }) => (
-        <div className="capitalize">
-          {row.getValue("application_type_version")}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "last_access_synchronization_date",
-      enableResizing: true,
-      sortingFn: (rowA, rowB, columnId) => {
-        const a = new Date(rowA.getValue(columnId));
-        const b = new Date(rowB.getValue(columnId));
-        return a.getTime() - b.getTime();
-      },
-      header: ({ column }) => {
-        return (
-          <div
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="min-w-max cursor-pointer"
-          >
-            Last Access Synchronization Date
-            <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
-          </div>
-        );
-      },
-      cell: ({ row }) => {
-        const date = new Date(
-          row.getValue("last_access_synchronization_date")
-        ).toLocaleString();
-
-        return <div className="capitalize">{date}</div>;
-      },
-    },
-    {
-      accessorKey: "last_access_synchronization_status",
-      enableResizing: true,
-      sortingFn: (rowA, rowB, columnId) => {
-        const a = rowA.getValue(columnId) as string;
-        const b = rowB.getValue(columnId) as string;
-
-        return a.localeCompare(b, undefined, { sensitivity: "base" });
-      },
-      header: ({ column }) => {
-        return (
-          <div
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="min-w-max cursor-pointer"
-          >
-            Last Access Synchronization Status
-            <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
-          </div>
-        );
-      },
-      cell: ({ row }) => (
-        <div className="capitalize">
-          {row.getValue("last_access_synchronization_status")}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "last_transaction_synchronization_date",
-      enableResizing: true,
-      sortingFn: (rowA, rowB, columnId) => {
-        const a = new Date(rowA.getValue(columnId));
-        const b = new Date(rowB.getValue(columnId));
-        return a.getTime() - b.getTime();
-      },
-      header: ({ column }) => {
-        return (
-          <div
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="min-w-max cursor-pointer"
-          >
-            Last Transaction Synchronization Date
-            <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
-          </div>
-        );
-      },
-      cell: ({ row }) => {
-        const date = new Date(
-          row.getValue("last_transaction_synchronization_date")
-        ).toLocaleString();
-
-        return <div className="capitalize">{date}</div>;
-      },
-    },
-    {
-      accessorKey: "last_transaction_synchronization_status",
-      enableResizing: true,
-      sortingFn: (rowA, rowB, columnId) => {
-        const a = rowA.getValue(columnId) as string;
-        const b = rowB.getValue(columnId) as string;
-
-        return a.localeCompare(b, undefined, { sensitivity: "base" });
-      },
-      header: ({ column }) => {
-        return (
-          <div
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="min-w-max cursor-pointer"
-          >
-            Last Transaction Synchronization Status
-            <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
-          </div>
-        );
-      },
-      cell: ({ row }) => (
-        <div className="capitalize">
-          {row.getValue("last_transaction_synchronization_status")}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "default_datasource",
-      enableResizing: true,
-      sortingFn: (rowA, rowB, columnId) => {
-        const a = rowA.getValue(columnId) as string;
-        const b = rowB.getValue(columnId) as string;
-
-        return a.localeCompare(b, undefined, { sensitivity: "base" });
-      },
-      header: ({ column }) => {
-        return (
-          <div
-            onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-            className="min-w-max cursor-pointer"
-          >
-            Default Datasource
-            <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
-          </div>
-        );
-      },
-      cell: ({ row }) => (
-        <div className="capitalize">{row.getValue("default_datasource")}</div>
-      ),
-    },
-  ];
 
   const table = useReactTable({
     data,
@@ -484,13 +250,14 @@ const ManageDataSources = () => {
                     <AlertDialogDescription></AlertDialogDescription>
                   </AlertDialogHeader>
                   <div>
-                    <DataSourceDataAdd
-                      props="add"
+                    <Modal
+                      action="add"
                       maxID={maxID}
                       setSave={setSave}
                       selected={selectedDataSourceItems}
                       setRowSelection={setRowSelection}
                       setSelectedDataSourceItems={setSelectedDataSourceItems}
+                      connectorProperties={connectorProperties}
                     />
                   </div>
                   <AlertDialogFooter></AlertDialogFooter>
@@ -498,7 +265,7 @@ const ManageDataSources = () => {
               </AlertDialog>
               <AlertDialog>
                 <AlertDialogTrigger
-                  disabled={selectedDataSourceItems.length !== 1}
+                  disabled={selectedDataSourceItems.length !== 1 || isLoading}
                   className={`${
                     selectedDataSourceItems.length !== 1 &&
                     "text-slate-200 cursor-not-allowed"
@@ -525,13 +292,14 @@ const ManageDataSources = () => {
                     <AlertDialogDescription></AlertDialogDescription>
                   </AlertDialogHeader>
                   <div>
-                    <DataSourceDataAdd
-                      props="update"
+                    <Modal
+                      action="update"
                       selected={selectedDataSourceItems}
                       editAble={true}
                       setSave={setSave}
                       setRowSelection={setRowSelection}
                       setSelectedDataSourceItems={setSelectedDataSourceItems}
+                      connectorProperties={connectorProperties}
                     />
                   </div>
                 </AlertDialogContent>

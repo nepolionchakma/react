@@ -54,8 +54,6 @@ const ManagePriviedgesAndRoles = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
-  // const [expandRoles, setExpandRoles] = useState<string | null>(null);
-  // const [expandPrevilege, setExpandPrevilege] = useState<string | null>(null);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [query, setQuery] = useState({ isEmpty: true, value: "" });
@@ -69,13 +67,7 @@ const ManagePriviedgesAndRoles = () => {
 
   const table = useReactTable({
     data,
-    columns: getColumns(
-      tenants
-      // expandRoles,
-      // expandPrevilege,
-      // setExpandRoles,
-      // setExpandPrevilege
-    ),
+    columns: getColumns(tenants),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -191,18 +183,6 @@ const ManagePriviedgesAndRoles = () => {
                 />
               </CustomTooltip>
             </button>
-            {/* Delete 
-            <Alert
-              disabled={
-                !selectedItem?.user_id ||
-                combinedUser?.user_type?.toLocaleLowerCase() !== "system"
-              } // disable condition
-              tooltipTitle="Delete" // tooltip title
-              actionName="delete" // Cancel/Reschedule
-              onContinue={handleDelete} // function
-            >
-              <span>Username : {selectedItem?.user_name}</span>
-            </Alert> */}
           </ActionButtons>
 
           {/* Search  */}
