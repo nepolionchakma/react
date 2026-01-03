@@ -20,7 +20,7 @@ const TwoStep = () => {
         setLoading: () => {},
         accessToken: token.access_token,
       });
-      console.log(res, "res");
+
       if (res) {
         setIsMfaEnabled(res.mfa_enabled);
       }

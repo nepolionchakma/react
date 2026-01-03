@@ -202,18 +202,13 @@ export function SocketContextProvider({ children }: SocketContextProps) {
     try {
       if (!token || (token?.user_id === 0 && !presentDevice.id)) return;
       if (data.id === presentDevice.id) {
-        try {
-          await api.get(`/logout`);
-          handleDisconnect();
-          setToken(userExample);
-          window.location.href = "/login";
-          localStorage.removeItem("presentDeviceInfo");
-        } catch (error) {
-          console.log(error);
-        }
+        await api.get(`/logout`);
+        handleDisconnect();
+        setToken(userExample);
+        localStorage.removeItem("presentDeviceInfo");
       }
     } catch (error) {
-      console.log("error");
+      console.error("Error in deviceSync:", error);
     }
   };
 
