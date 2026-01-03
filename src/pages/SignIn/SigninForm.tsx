@@ -13,11 +13,9 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 // import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { AxiosError } from "axios";
-import { api, NODE_URL } from "@/Api/Api";
+import { NODE_URL } from "@/Api/Api";
 // import useInitialUserInfo from "@/hooks/useInitialUserInfo";
 import { v4 as uuidv4 } from "uuid";
-import useUserIP from "@/hooks/useUserIP";
-import { getUserLocation } from "@/Utility/locationUtils";
 import { postData } from "@/Utility/funtion";
 
 const loginSchema = z.object({
@@ -37,10 +35,11 @@ const SignInForm = () => {
     presentDevice,
     setSignonId,
     setMfaResponse,
+    userIpAddress,
+    userLocation,
   } = useGlobalContext();
   const navigate = useNavigate();
   const location = useLocation();
-  const userIp = useUserIP();
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -51,11 +50,9 @@ const SignInForm = () => {
   });
 
   const handleSubmit = async (data: z.infer<typeof loginSchema>) => {
-    const ipAddress = await userIp();
-    const userLocation = await getUserLocation();
     const deviceData = {
       ...presentDevice,
-      ip_address: ipAddress ? ipAddress : "Unknown",
+      ip_address: userIpAddress ? userIpAddress : "Unknown",
       location: userLocation ? userLocation : "Unknown (Location off)",
     };
 
@@ -69,7 +66,7 @@ const SignInForm = () => {
         isToast: true,
       };
       const response = await postData(loginParams);
-      console.log(response, "response");
+
       if (!response.data) return;
 
       if (response?.data?.mfa_required) {
@@ -78,15 +75,20 @@ const SignInForm = () => {
       } else if (response.data && !response?.data?.mfa_required) {
         setToken(response.data);
         const newSignonID = uuidv4();
-        const res = await api.post("/devices/add-device", {
-          user_id: response.data.user_id,
-          deviceInfo: deviceData,
-          signon_audit: {
-            signon_id: newSignonID,
-            login: new Date(),
-            logout: "",
-            session_log: [],
+        const res = await postData({
+          baseURL: NODE_URL,
+          payload: {
+            user_id: response.data.user_id,
+            deviceInfo: deviceData,
+            signon_audit: {
+              signon_id: newSignonID,
+              login: new Date(),
+              logout: "",
+              session_log: [],
+            },
           },
+          setLoading: setIsLoading,
+          url: "/devices/add-device",
         });
 
         setSignonId(newSignonID);

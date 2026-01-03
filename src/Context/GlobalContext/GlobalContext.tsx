@@ -34,6 +34,8 @@ import { ARMContextProvider } from "../ARMContext/ARMContext";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { deleteData, loadData, putData } from "@/Utility/funtion";
 import { IMFA } from "@/types/interfaces/mfa.interface";
+import { getUserLocation } from "@/Utility/locationUtils";
+import getUserIP from "@/hooks/useUserIP";
 
 interface GlobalContextProviderProps {
   children: ReactNode;
@@ -112,6 +114,10 @@ interface GlobalContex {
   fetchJobTitles: () => Promise<IJobTitle[]>;
   mfaResponse: IMFA | undefined;
   setMfaResponse: Dispatch<SetStateAction<IMFA | undefined>>;
+  userIpAddress: string | null;
+  setUserIpAddress: Dispatch<SetStateAction<string | null>>;
+  userLocation: string | null;
+  setUserLocation: Dispatch<SetStateAction<string | null>>;
 }
 
 export const userExample = {
@@ -163,10 +169,13 @@ export function GlobalContextProvider({
   const [presentDevice, setPresentDevice] = useState<IUserLinkedDevices>(
     userDevice()
   );
+
   const [enterpriseSetting, setEnterpriseSetting] = useState<
     IEnterprisesTypes | undefined
   >(undefined);
   const [mfaResponse, setMfaResponse] = useState<IMFA | undefined>();
+  const [userIpAddress, setUserIpAddress] = useState<string | null>(null);
+  const [userLocation, setUserLocation] = useState<string | null>(null);
 
   useEffect(() => {
     const storedValue = localStorage.getItem("signonId");
@@ -182,6 +191,22 @@ export function GlobalContextProvider({
       setPresentDevice(parsed);
     }
   }, [presentDevice.id]);
+  useEffect(() => {
+    (async () => {
+      try {
+        const location = await getUserLocation();
+        const ip = await getUserIP();
+
+        setUserLocation(location);
+        setUserIpAddress(ip);
+      } catch (error) {
+        console.log(error, "err");
+        if (error instanceof AxiosError) {
+          console.log("IP/location fetch failed:", error);
+        }
+      }
+    })();
+  }, []);
 
   //get user (when refresh page user must be needed)
   useEffect(() => {
@@ -565,6 +590,10 @@ export function GlobalContextProvider({
         fetchJobTitles,
         mfaResponse,
         setMfaResponse,
+        userIpAddress,
+        setUserIpAddress,
+        userLocation,
+        setUserLocation,
       }}
     >
       <SocketContextProvider>

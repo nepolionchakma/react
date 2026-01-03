@@ -15,6 +15,7 @@ import {
   ArrowLeft,
   Check,
   ChevronRight,
+  ClipboardList,
   Copy,
   Plus,
   ScanBarcode,
@@ -213,6 +214,15 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
     }
   };
 
+  const pasteClipboard = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      setCode(text);
+    } catch (err) {
+      console.error("Failed to read clipboard contents: ", err);
+    }
+  };
+
   return (
     <>
       <CustomModal4 className="w-[500px] min-h-[350px] max-h-auto">
@@ -290,7 +300,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
                       className="w-[200px]"
                     />
                     <Button onClick={() => handleEnterUserCurrentPassword()}>
-                      Submit
+                      Verify
                     </Button>
                   </div>
                 )}
@@ -383,16 +393,40 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
                       )}
                     </div>
                   </div>
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Identifier name"
-                      onChange={(e) => setIdentifierName(e.target.value)}
-                    />
-                    <Input
-                      placeholder="Enter code"
-                      onChange={(e) => setCode(e.target.value)}
-                    />
-                    <Button onClick={() => handleEnableCode()}>Submit</Button>
+                  <div className="flex gap-2 justify-between">
+                    <div>
+                      <Input
+                        placeholder="Identifier name"
+                        onChange={(e) => setIdentifierName(e.target.value)}
+                        required
+                        value={identifierName}
+                        autoFocus
+                      />
+                    </div>
+                    <div
+                      className="relative"
+                      title="Enter the 6-digit code from your authenticator app"
+                    >
+                      <Input
+                        value={code}
+                        placeholder="Enter code"
+                        onChange={(e) => setCode(e.target.value)}
+                        maxLength={6}
+                        type="number"
+                      />
+                      <span title="Paste">
+                        <ClipboardList
+                          className="absolute right-3 top-2 cursor-pointer"
+                          onClick={pasteClipboard}
+                        />
+                      </span>
+                    </div>
+                    <Button
+                      onClick={() => handleEnableCode()}
+                      disabled={!code || code.length !== 6 || !identifierName}
+                    >
+                      Add
+                    </Button>
                   </div>
                 </div>
               )}

@@ -66,6 +66,7 @@ export const flaskApi = {
 // All Node api
 export const nodeApi = {
   Alerts: "/alerts",
+  Devices: "/devices",
   ForgotPassword: "/forgot_password_request",
   ResetPassword: "/def_user_credentials/reset_forgot_password",
   PrevilegesAndRoles: "/def_user_granted_roles_previleges",

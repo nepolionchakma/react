@@ -1,16 +1,14 @@
-import { api, NODE_URL } from "@/Api/Api";
+import { NODE_URL } from "@/Api/Api";
 import Spinner from "@/components/Spinner/Spinner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import useUserIP from "@/hooks/useUserIP";
 import { Token } from "@/types/interfaces/users.interface";
 import { postData } from "@/Utility/funtion";
 import { maskEmail } from "@/Utility/general";
-import { getUserLocation } from "@/Utility/locationUtils";
 import { AxiosError } from "axios";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ClipboardList } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { v4 as uuidv4 } from "uuid";
@@ -25,10 +23,11 @@ function SignInMFAForm() {
     setSignonId,
     mfaResponse,
     setMfaResponse,
+    userIpAddress,
+    userLocation,
   } = useGlobalContext();
   const navigate = useNavigate();
   const location = useLocation();
-  const userIp = useUserIP();
 
   const [code, setCode] = useState("");
   const [isTryAnotherWay, setIsTryAnotherWay] = useState(false);
@@ -58,30 +57,34 @@ function SignInMFAForm() {
         setCodeSentEmail(res.data.email);
       }
     })();
-  }, [viaEmailOrSms]);
+  }, [mfaResponse?.mfa_token, viaEmailOrSms]);
 
   const handleSetTokenData = async (response: Token) => {
     clearAllFields();
     setToken(response);
     toast({ description: response.message });
-    const ipAddress = await userIp();
-    const userLocation = await getUserLocation();
+
     const deviceData = {
       ...presentDevice,
-      ip_address: ipAddress ? ipAddress : "Unknown",
+      ip_address: userIpAddress ? userIpAddress : "Unknown",
       location: userLocation ? userLocation : "Unknown (Location off)",
     };
 
     const newSignonID = uuidv4();
-    const res = await api.post("/devices/add-device", {
-      user_id: response.user_id,
-      deviceInfo: deviceData,
-      signon_audit: {
-        signon_id: newSignonID,
-        login: new Date(),
-        logout: "",
-        session_log: [],
+    const res = await postData({
+      baseURL: NODE_URL,
+      payload: {
+        user_id: response.user_id,
+        deviceInfo: deviceData,
+        signon_audit: {
+          signon_id: newSignonID,
+          login: new Date(),
+          logout: "",
+          session_log: [],
+        },
       },
+      setLoading: setIsLoading,
+      url: "/devices/add-device",
     });
 
     setSignonId(newSignonID);
@@ -192,6 +195,15 @@ function SignInMFAForm() {
   // Convert seconds into MM:SS format
   const minutes = Math.floor(timeLeft / 60);
   const seconds = timeLeft % 60;
+
+  const pasteClipboard = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      setCode(text);
+    } catch (err) {
+      console.error("Failed to read clipboard contents: ", err);
+    }
+  };
   return (
     <div className="w-full h-full justify-center items-center flex">
       <div className="w-1/3 flex flex-col gap-5 border rounded p-5">
@@ -205,10 +217,24 @@ function SignInMFAForm() {
         {!isTryAnotherWay && (
           <div className="flex flex-col gap-5">
             <p>Please enter the 6 digits MFA TOTP code </p>
-            <Input
-              placeholder="Enter code"
-              onChange={(e) => setCode(e.target.value)}
-            />
+            <div
+              className="relative"
+              title="Enter the 6-digit code from your authenticator app"
+            >
+              <Input
+                value={code}
+                placeholder="Enter code"
+                onChange={(e) => setCode(e.target.value)}
+                maxLength={6}
+                type="number"
+              />
+              <span title="Paste">
+                <ClipboardList
+                  className="absolute right-3 top-2 cursor-pointer"
+                  onClick={pasteClipboard}
+                />
+              </span>
+            </div>
             <div className="flex justify-end">
               <Button
                 variant="link"
@@ -225,7 +251,7 @@ function SignInMFAForm() {
               {isLoading ? (
                 <l-tailspin size="15" stroke="3" speed="0.9" color="white" />
               ) : (
-                "Submit"
+                "Verify"
               )}
             </Button>
           </div>
@@ -254,11 +280,24 @@ function SignInMFAForm() {
           <div className="flex flex-col gap-5">
             <div className="flex flex-col gap-5">
               <p>The OTP code has been sent to {maskEmail(codeSentEmail)}</p>
-              <Input
-                required
-                placeholder="Enter code"
-                onChange={(e) => setCode(e.target.value)}
-              />
+              <div
+                className="relative"
+                title="Enter the 6-digit code from your authenticator app"
+              >
+                <Input
+                  value={code}
+                  placeholder="Enter code"
+                  onChange={(e) => setCode(e.target.value)}
+                  maxLength={6}
+                  type="number"
+                />
+                <span title="Paste">
+                  <ClipboardList
+                    className="absolute right-3 top-2 cursor-pointer"
+                    onClick={pasteClipboard}
+                  />
+                </span>
+              </div>
               <div className="flex justify-between items-center">
                 <span>left - {resendCodeCounter}</span>
                 <span>
@@ -281,7 +320,7 @@ function SignInMFAForm() {
                 {isLoading ? (
                   <l-tailspin size="15" stroke="3" speed="0.9" color="white" />
                 ) : (
-                  "Submit"
+                  "Verify"
                 )}
               </Button>
             </div>
