@@ -1,3 +1,8 @@
+export interface ISchema {
+  schema: string;
+  tables: string[];
+}
+
 export interface IColumns {
   default: string;
   name: string;

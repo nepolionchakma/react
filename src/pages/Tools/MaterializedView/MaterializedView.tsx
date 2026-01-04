@@ -35,7 +35,9 @@ const MaterializedView = () => {
           </TabsTrigger>
         </TabsList>
         <TabsContent value="createMaterializedView">
-          <CreateMaterializedView setTabName={setTabName} />
+          <CreateMaterializedView
+          //  setTabName={setTabName}
+          />
         </TabsContent>
         <TabsContent value="createAggregateTable">
           <CreateAggregateTable />
