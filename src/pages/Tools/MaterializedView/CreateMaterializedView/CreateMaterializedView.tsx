@@ -1183,6 +1183,10 @@ const CreateMaterializedView = () => {
                         column: "",
                         aggregate: undefined,
                         alias: "",
+                        function: {
+                          name: "",
+                          args: [],
+                        },
                       });
                       form.trigger("select");
                     }}
@@ -1424,7 +1428,13 @@ const CreateMaterializedView = () => {
                     type="button"
                     variant="outline"
                     onClick={() => {
-                      addGroupBy({ column: "" });
+                      addGroupBy({
+                        column: "",
+                        function: {
+                          name: "",
+                          args: [],
+                        },
+                      });
                       form.trigger("group_by");
                     }}
                   >
