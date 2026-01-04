@@ -39,6 +39,7 @@ interface deleteDataParams {
   payload?: any;
   accessToken?: string;
   isToast?: boolean;
+  setLoading?: Dispatch<SetStateAction<boolean>>;
 }
 
 export async function loadData(params: loadDataParams) {
@@ -152,6 +153,9 @@ export async function putData(params: putDataParams) {
 }
 
 export async function deleteData(params: deleteDataParams) {
+  if (params.setLoading) {
+    params.setLoading(true);
+  }
   try {
     const res = await api.delete(`${params.url}`, {
       baseURL: params.baseURL,
@@ -182,6 +186,10 @@ export async function deleteData(params: deleteDataParams) {
         toast({ title: error as any, variant: "destructive" });
         throw error;
       }
+    }
+  } finally {
+    if (params.setLoading) {
+      params.setLoading(false);
     }
   }
 }

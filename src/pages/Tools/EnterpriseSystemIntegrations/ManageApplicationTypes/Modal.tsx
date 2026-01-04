@@ -8,7 +8,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { IApplicationType } from "@/types/interfaces/datasource.interface";
@@ -20,6 +19,7 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { loadData, postData, putData } from "@/Utility/funtion";
 import Spinner from "@/components/Spinner/Spinner";
 import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Props {
   action: string;
@@ -51,7 +51,10 @@ const Modal = ({
         })
       )
       .min(1, "At least one version is required"),
-    description: z.string().optional(),
+    description: z
+      .string()
+      .max(250, "Description must be within 250 characters.")
+      .optional(),
   });
 
   type ApplicationTypeForm = z.infer<typeof applicationTypeSchema>;
@@ -182,7 +185,6 @@ const Modal = ({
                               placeholder="application type"
                             />
                           </FormControl>
-                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -233,8 +235,6 @@ const Modal = ({
                               </div>
                             ))}
                           </div>
-
-                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -246,9 +246,8 @@ const Modal = ({
                         <FormItem className="flex flex-col">
                           <label>Description</label>
                           <FormControl>
-                            <Input {...field} type="text" />
+                            <Textarea {...field} />
                           </FormControl>
-                          <FormMessage />
                         </FormItem>
                       )}
                     />
