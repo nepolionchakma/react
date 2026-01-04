@@ -21,7 +21,6 @@ import {
   ScanBarcode,
   X,
 } from "lucide-react";
-import { QRCodeCanvas } from "qrcode.react";
 import { useEffect, useState } from "react";
 interface Props {
   setTwoStepModal1: (value: boolean) => void;
@@ -36,6 +35,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [secret, setSecret] = useState("");
   const [code, setCode] = useState("");
+  const [qrCodeImage, setQrCodeImage] = useState("");
   // const [isMfaEnabled, setIsMfaEnabled] = useState(false);
   // const [isAddNewMFA, setIsAddNewMFA] = useState(false);
   const [mfaList, setMfaList] = useState<IMFAListType[]>([]);
@@ -43,6 +43,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
   const [password, setPassword] = useState("");
   const [isPasswordValid, setIsPasswordValid] = useState(false);
   const [identifierName, setIdentifierName] = useState("");
+  const [addedMFAId, setAddedMFAId] = useState(0);
 
   useEffect(() => {
     (async () => {
@@ -56,11 +57,13 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
         setMfaList(res.result);
       }
     })();
-  }, [token.access_token, isMfaEnabled]);
+  }, [token.access_token, isMfaEnabled, mfa_type, addedMFAId]);
 
   const isMfaTypeMatch = (type: string) => {
     if (!mfaList || !Array.isArray(mfaList)) return false;
-    const isMatch = mfaList.find((mfa: IMFAListType) => mfa?.mfa_type === type);
+    const isMatch = mfaList.find(
+      (mfa: IMFAListType) => mfa?.identifier === type || mfa.mfa_type === type
+    );
 
     if (!isMatch) return "";
 
@@ -85,6 +88,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
       accessToken: token.access_token,
     });
     if (res.status === 200) {
+      setQrCodeImage(res.data.qrCode);
       setSecret(res.data.result.mfa_secret);
       setMfa_id(res.data.result.mfa_id);
     }
@@ -105,29 +109,49 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
   };
 
   const handleEnableCode = async () => {
-    const res = await postData({
-      baseURL: NODE_URL,
-      url: `${nodeApi.MFA}/verify-otp`,
-      setLoading: setIsLoading,
-      payload: {
-        otp: code,
-        mfa_id,
-        mfa_type,
-        identifier: identifierName,
-      },
-      // isConsole: true,
-      // isToast: true,
-      accessToken: token.access_token,
-    });
-    if (res.status === 200) {
-      setIsMfaEnabled(true);
-      setIsClickAddButton(false);
-      setIsClickAddButton(false);
-      setIsCopyURL(false);
-      toast({ description: res.data.message });
+    try {
+      const res = await postData({
+        baseURL: NODE_URL,
+        url: `${nodeApi.MFA}/verify-otp`,
+        setLoading: setIsLoading,
+        payload: {
+          otp: code,
+          mfa_id,
+          mfa_type,
+          identifier: identifierName,
+        },
+        // isConsole: true,
+        // isToast: true,
+        accessToken: token.access_token,
+      });
+
+      if (res.status === 200) {
+        setIsMfaEnabled(true);
+        setIsClickAddButton(false);
+        setIsCopyURL(false);
+        toast({ description: res.data.message });
+        setAddedMFAId(res.data.result.mfa_id);
+        clearAll();
+      }
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        console.log(error, "error");
+        toast({
+          description: `${error.response?.data?.message}`,
+          variant: "destructive",
+        });
+      }
     }
   };
-
+  const clearAll = () => {
+    setPassword("");
+    setIsPasswordValid(false);
+    setIdentifierName("");
+    setCode("");
+    setQrCodeImage("");
+    setSecret("");
+    setMfa_id("");
+  };
   const handleEnterUserCurrentPassword = async () => {
     try {
       const res = await postData({
@@ -183,7 +207,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
     setIsClickAddButton(false);
     setIsPasswordValid(false);
     setMfaList([]);
-    setIsMfaEnabled(false);
+    // setIsMfaEnabled(false);
     setIsCopyURL(false);
   };
 
@@ -234,8 +258,8 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
           />
         </div>
         {isLoading ? (
-          <div className="flex flex-col h-[60%] justify-center items-center">
-            <Spinner size="100" color="red"></Spinner>
+          <div className="flex flex-col min-h-[300px] justify-center items-center">
+            <Spinner size="50" color="red"></Spinner>
           </div>
         ) : (
           <div>
@@ -265,16 +289,15 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
 
             {mfa_type === "TOTP" && (
               <div className="p-2 flex flex-col gap-2">
-                <div
-                  className="flex gap-2 items-center cursor-pointer"
-                  onClick={() => handleBackClick()}
-                >
-                  <ArrowLeft />
-                  <p>back</p>
-                </div>
-                {mfaList.length === 0 &&
-                  // !isClickAddButton &&
-                  !isClickAddButton && (
+                <div className="flex justify-between">
+                  <div
+                    className="flex gap-2 items-center cursor-pointer"
+                    onClick={() => handleBackClick()}
+                  >
+                    <ArrowLeft />
+                    <p>back</p>
+                  </div>
+                  {mfaList.length === 0 && !isClickAddButton && (
                     <div>
                       <span
                         onClick={() => {
@@ -284,10 +307,11 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
                         // onClick={() => handleSelectMfaType(mfa_type)}
                         className="flex gap-2 cursor-pointer border rounded p-2 hover:bg-[#cedef2]"
                       >
-                        <Plus /> <>Add</>
+                        <Plus />
                       </span>
                     </div>
                   )}
+                </div>
 
                 {isClickAddButton && !isPasswordValid && (
                   <div className="flex flex-col gap-5 mt-5 items-center justify-center">
@@ -304,80 +328,81 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
                     </Button>
                   </div>
                 )}
-
-                {mfaList &&
-                  mfaList.length > 0 &&
-                  mfaList
-                    .filter((mfa) => mfa.mfa_type === mfa_type)
-                    .map((mfa) => {
-                      return (
-                        <div
-                          key={mfa.mfa_id}
-                          className="flex flex-col gap-2 p-5 border rounded"
-                        >
-                          <div className="flex gap-2 w-full justify-between items-center ">
-                            <div className="flex gap-4 items-center">
-                              <ScanBarcode />
-                              <div className="flex flex-col">
-                                <span>{mfa.identifier}</span>
-                                <span>{isMfaTypeMatch(mfa.mfa_type)}</span>
+                {!isClickAddButton && mfaList && mfaList.length > 0 && (
+                  <div className="h-[240px] overflow-y-scroll gap-2 flex flex-col">
+                    {mfaList
+                      .filter((mfa) => mfa.mfa_type === mfa_type)
+                      .sort((a, b) => b.mfa_id - a.mfa_id)
+                      .map((mfa) => {
+                        return (
+                          <div
+                            key={mfa.mfa_id}
+                            className="flex flex-col gap-2 p-3 border rounded"
+                          >
+                            <div className="flex gap-2 w-full justify-between items-center ">
+                              <div className="flex gap-4 items-center">
+                                <ScanBarcode />
+                                <div className="flex flex-col">
+                                  <span>{mfa.identifier}</span>
+                                  <span>{isMfaTypeMatch(mfa.identifier)}</span>
+                                </div>
+                              </div>
+                              <div className="flex gap-2">
+                                <Switch
+                                  className={`${
+                                    mfa.mfa_enabled &&
+                                    "data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300  transition-colors"
+                                  }`}
+                                  checked={
+                                    mfa.mfa_enabled === true ? true : false
+                                  }
+                                  onCheckedChange={() => {
+                                    switchFunc(mfa);
+                                  }}
+                                />
+                                <Alert
+                                  disabled={false}
+                                  tooltipTitle="Delete"
+                                  actionName="delete"
+                                  onContinue={() => handleMFADelete(mfa.mfa_id)}
+                                />
                               </div>
                             </div>
-                            <div className="flex gap-2">
-                              <Switch
-                                className={`${
-                                  mfa.mfa_enabled &&
-                                  "data-[state=checked]:bg-green-600 data-[state=unchecked]:bg-gray-300  transition-colors"
-                                }`}
-                                checked={
-                                  mfa.mfa_enabled === true ? true : false
-                                }
-                                onCheckedChange={() => {
-                                  switchFunc(mfa);
-                                }}
-                              />
-                              <Alert
-                                disabled={false}
-                                tooltipTitle="Delete"
-                                actionName="delete"
-                                onContinue={() => handleMFADelete(mfa.mfa_id)}
-                              />
-                            </div>
+                            <span className="cursor-not-allowed text-slate-300">
+                              Change authenticator app
+                            </span>
                           </div>
-                          <span className="cursor-not-allowed text-slate-300">
-                            Change authenticator app
-                          </span>
-                        </div>
-                      );
-                    })}
+                        );
+                      })}
+                  </div>
+                )}
+
+                {!isClickAddButton && mfaList.length === 0 && (
+                  <div className="flex flex-col gap-2 p-5 items-center">
+                    <p className="text-slate-300">No MFA records!</p>
+                  </div>
+                )}
               </div>
             )}
 
             {/* Enter code */}
             {mfa_type &&
               isClickAddButton &&
-              !isMfaEnabled &&
+              // !isMfaEnabled &&
               isPasswordValid && (
-                <div className="p-4 flex flex-col gap-2">
+                <div className="flex flex-col gap-1">
                   <div className="flex justify-center">
-                    <QRCodeCanvas
-                      value={JSON.stringify(secret)}
-                      title={"Secret"}
-                      size={150}
-                      // imageSettings={{
-                      //   src: "/favicon.svg",
-                      //   x: undefined,
-                      //   y: undefined,
-                      //   height: 24,
-                      //   width: 24,
-                      //   opacity: 1,
-                      //   excavate: true,
-                      // }}
-                    />
+                    {qrCodeImage && (
+                      <img
+                        src={qrCodeImage}
+                        className="h-[140px]"
+                        alt="QR secret"
+                      />
+                    )}
                   </div>
-                  <div>
+                  <div className="px-4 gap-2 flex flex-col">
                     <p>Copy the secret and paste it into the app</p>
-                    <div className="px-4 py-2 bg-white w-full flex justify-between border rounded">
+                    <div className="px-4 py-1 bg-white w-full flex justify-between border rounded">
                       <p>Secret:</p>
                       <p>{secret}</p>
                       {isCopyURL ? (
@@ -392,41 +417,41 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
                         />
                       )}
                     </div>
-                  </div>
-                  <div className="flex gap-2 justify-between">
-                    <div>
-                      <Input
-                        placeholder="Identifier name"
-                        onChange={(e) => setIdentifierName(e.target.value)}
-                        required
-                        value={identifierName}
-                        autoFocus
-                      />
-                    </div>
-                    <div
-                      className="relative"
-                      title="Enter the 6-digit code from your authenticator app"
-                    >
-                      <Input
-                        value={code}
-                        placeholder="Enter code"
-                        onChange={(e) => setCode(e.target.value)}
-                        maxLength={6}
-                        type="number"
-                      />
-                      <span title="Paste">
-                        <ClipboardList
-                          className="absolute right-3 top-2 cursor-pointer"
-                          onClick={pasteClipboard}
+                    <div className="flex justify-between">
+                      <div>
+                        <Input
+                          placeholder="Identifier name"
+                          onChange={(e) => setIdentifierName(e.target.value)}
+                          required
+                          value={identifierName}
+                          autoFocus
                         />
-                      </span>
+                      </div>
+                      <div
+                        className="relative"
+                        title="Enter the 6-digit code from your authenticator app"
+                      >
+                        <Input
+                          value={code}
+                          placeholder="Enter code"
+                          onChange={(e) => setCode(e.target.value)}
+                          maxLength={6}
+                          type="number"
+                        />
+                        <span title="Paste">
+                          <ClipboardList
+                            className="absolute right-3 top-2 cursor-pointer"
+                            onClick={pasteClipboard}
+                          />
+                        </span>
+                      </div>
+                      <Button
+                        onClick={() => handleEnableCode()}
+                        disabled={!code || code.length !== 6 || !identifierName}
+                      >
+                        Add
+                      </Button>
                     </div>
-                    <Button
-                      onClick={() => handleEnableCode()}
-                      disabled={!code || code.length !== 6 || !identifierName}
-                    >
-                      Add
-                    </Button>
                   </div>
                 </div>
               )}
