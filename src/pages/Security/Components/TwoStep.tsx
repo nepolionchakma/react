@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronRight, Key } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import EnableMFA from "./MFAModals/EnableMFA";
 import { loadData } from "@/Utility/funtion";
 import { NODE_URL } from "@/Api/Api";
@@ -12,20 +12,22 @@ const TwoStep = () => {
   const [twoStepModal1, setTwoStepModal1] = useState(false);
   const [isMfaEnabled, setIsMfaEnabled] = useState(false);
 
-  useEffect(() => {
-    (async () => {
-      const res = await loadData({
-        baseURL: NODE_URL,
-        url: `${nodeApi.MFA}/check-is-enabled`,
-        setLoading: () => {},
-        accessToken: token.access_token,
-      });
+  const checkMfaStatus = useCallback(async () => {
+    const res = await loadData({
+      baseURL: NODE_URL,
+      url: `${nodeApi.MFA}/check-is-enabled`,
+      setLoading: () => {},
+      accessToken: token.access_token,
+    });
 
-      if (res) {
-        setIsMfaEnabled(res.mfa_enabled);
-      }
-    })();
-  }, [token.access_token, isMfaEnabled]);
+    if (res) {
+      setIsMfaEnabled(res.mfa_enabled);
+    }
+  }, [token.access_token]);
+
+  useEffect(() => {
+    checkMfaStatus();
+  }, [checkMfaStatus, isMfaEnabled]);
 
   return (
     <div

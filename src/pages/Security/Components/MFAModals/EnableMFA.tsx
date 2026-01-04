@@ -21,7 +21,6 @@ import {
   ScanBarcode,
   X,
 } from "lucide-react";
-import { QRCodeCanvas } from "qrcode.react";
 import { useEffect, useState } from "react";
 interface Props {
   setTwoStepModal1: (value: boolean) => void;
@@ -36,6 +35,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [secret, setSecret] = useState("");
   const [code, setCode] = useState("");
+  const [qrCodeImage, setQrCodeImage] = useState("");
   // const [isMfaEnabled, setIsMfaEnabled] = useState(false);
   // const [isAddNewMFA, setIsAddNewMFA] = useState(false);
   const [mfaList, setMfaList] = useState<IMFAListType[]>([]);
@@ -56,11 +56,13 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
         setMfaList(res.result);
       }
     })();
-  }, [token.access_token, isMfaEnabled]);
+  }, [token.access_token, isMfaEnabled, mfa_type]);
 
   const isMfaTypeMatch = (type: string) => {
     if (!mfaList || !Array.isArray(mfaList)) return false;
-    const isMatch = mfaList.find((mfa: IMFAListType) => mfa?.mfa_type === type);
+    const isMatch = mfaList.find(
+      (mfa: IMFAListType) => mfa?.identifier === type || mfa.mfa_type === type
+    );
 
     if (!isMatch) return "";
 
@@ -85,6 +87,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
       accessToken: token.access_token,
     });
     if (res.status === 200) {
+      setQrCodeImage(res.data.qrCode);
       setSecret(res.data.result.mfa_secret);
       setMfa_id(res.data.result.mfa_id);
     }
@@ -183,7 +186,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
     setIsClickAddButton(false);
     setIsPasswordValid(false);
     setMfaList([]);
-    setIsMfaEnabled(false);
+    // setIsMfaEnabled(false);
     setIsCopyURL(false);
   };
 
@@ -234,8 +237,8 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
           />
         </div>
         {isLoading ? (
-          <div className="flex flex-col h-[60%] justify-center items-center">
-            <Spinner size="100" color="red"></Spinner>
+          <div className="flex flex-col min-h-[300px] justify-center items-center">
+            <Spinner size="50" color="red"></Spinner>
           </div>
         ) : (
           <div>
@@ -265,29 +268,33 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
 
             {mfa_type === "TOTP" && (
               <div className="p-2 flex flex-col gap-2">
-                <div
-                  className="flex gap-2 items-center cursor-pointer"
-                  onClick={() => handleBackClick()}
-                >
-                  <ArrowLeft />
-                  <p>back</p>
+                <div className="flex justify-between">
+                  <div
+                    className="flex gap-2 items-center cursor-pointer"
+                    onClick={() => handleBackClick()}
+                  >
+                    <ArrowLeft />
+                    <p>back</p>
+                  </div>
+                  {
+                    // mfaList.length === 0 &&
+                    // !isClickAddButton &&
+                    !isClickAddButton && (
+                      <div>
+                        <span
+                          onClick={() => {
+                            setIsClickAddButton(true);
+                            setPassword("");
+                          }}
+                          // onClick={() => handleSelectMfaType(mfa_type)}
+                          className="flex gap-2 cursor-pointer border rounded p-2 hover:bg-[#cedef2]"
+                        >
+                          <Plus />
+                        </span>
+                      </div>
+                    )
+                  }
                 </div>
-                {mfaList.length === 0 &&
-                  // !isClickAddButton &&
-                  !isClickAddButton && (
-                    <div>
-                      <span
-                        onClick={() => {
-                          setIsClickAddButton(true);
-                          setPassword("");
-                        }}
-                        // onClick={() => handleSelectMfaType(mfa_type)}
-                        className="flex gap-2 cursor-pointer border rounded p-2 hover:bg-[#cedef2]"
-                      >
-                        <Plus /> <>Add</>
-                      </span>
-                    </div>
-                  )}
 
                 {isClickAddButton && !isPasswordValid && (
                   <div className="flex flex-col gap-5 mt-5 items-center justify-center">
@@ -305,7 +312,8 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
                   </div>
                 )}
 
-                {mfaList &&
+                {!isClickAddButton &&
+                  mfaList &&
                   mfaList.length > 0 &&
                   mfaList
                     .filter((mfa) => mfa.mfa_type === mfa_type)
@@ -320,7 +328,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
                               <ScanBarcode />
                               <div className="flex flex-col">
                                 <span>{mfa.identifier}</span>
-                                <span>{isMfaTypeMatch(mfa.mfa_type)}</span>
+                                <span>{isMfaTypeMatch(mfa.identifier)}</span>
                               </div>
                             </div>
                             <div className="flex gap-2">
@@ -360,20 +368,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
               isPasswordValid && (
                 <div className="p-4 flex flex-col gap-2">
                   <div className="flex justify-center">
-                    <QRCodeCanvas
-                      value={JSON.stringify(secret)}
-                      title={"Secret"}
-                      size={150}
-                      // imageSettings={{
-                      //   src: "/favicon.svg",
-                      //   x: undefined,
-                      //   y: undefined,
-                      //   height: 24,
-                      //   width: 24,
-                      //   opacity: 1,
-                      //   excavate: true,
-                      // }}
-                    />
+                    {qrCodeImage && <img src={qrCodeImage} alt="QR secret" />}
                   </div>
                   <div>
                     <p>Copy the secret and paste it into the app</p>
