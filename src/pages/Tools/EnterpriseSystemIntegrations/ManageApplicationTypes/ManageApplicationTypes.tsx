@@ -40,6 +40,7 @@ import Alert from "@/components/Alert/Alert";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import Modal from "./Modal";
 import SearchInput from "@/components/SearchInput/SearchInput";
+import Spinner from "@/components/Spinner/Spinner";
 
 const ManageApplicationTypes = () => {
   const { token } = useGlobalContext();
@@ -322,12 +323,7 @@ const ManageApplicationTypes = () => {
                   colSpan={columns.length}
                   className="h-[16rem] text-center"
                 >
-                  <l-tailspin
-                    size="40"
-                    stroke="5"
-                    speed="0.9"
-                    color="black"
-                  ></l-tailspin>
+                  <Spinner size="40" color="black" />
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows?.length ? (
@@ -367,12 +363,7 @@ const ManageApplicationTypes = () => {
                   colSpan={columns.length}
                   className="h-[16rem] text-center"
                 >
-                  <l-tailspin
-                    size="40"
-                    stroke="5"
-                    speed="0.9"
-                    color="black"
-                  ></l-tailspin>
+                  <Spinner size="40" color="black" />
                 </TableCell>
               </TableRow>
             ) : (

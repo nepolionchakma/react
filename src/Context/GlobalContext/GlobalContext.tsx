@@ -32,7 +32,7 @@ import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import useUserDevice from "@/hooks/useUserDevice";
 import { ARMContextProvider } from "../ARMContext/ARMContext";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
-import { deleteData, loadData, putData } from "@/Utility/funtion";
+import { loadData, putData } from "@/Utility/funtion";
 import { IMFA } from "@/types/interfaces/mfa.interface";
 
 interface GlobalContextProviderProps {
@@ -50,11 +50,6 @@ interface GlobalContex {
     page: number,
     limit: number
   ) => Promise<IDataSourceTypes[] | undefined>;
-  getSearchDataSources: (
-    page: number,
-    limit: number,
-    dataSourceName: string
-  ) => Promise<IDataSourceTypes[]>;
   fetchDataSource: (id: number) => Promise<IDataSourceTypes>;
   isLoading: boolean;
   isCombinedUserLoading: boolean;
@@ -65,7 +60,6 @@ interface GlobalContex {
     id: number,
     postData: IDataSourcePostTypes
   ) => Promise<void>;
-  deleteDataSource: (id: number) => Promise<void>;
   combinedUser: IUsersInfoTypes | undefined;
   setCombinedUser: React.Dispatch<
     React.SetStateAction<IUsersInfoTypes | undefined>
@@ -238,7 +232,7 @@ export function GlobalContextProvider({
     };
 
     fetchUsers();
-  }, [api, token?.user_id, updateProfileImage]);
+  }, [api, token.access_token, token?.user_id, updateProfileImage]);
 
   //user info
   const fetchCombinedUser = async (
@@ -383,33 +377,6 @@ export function GlobalContextProvider({
         url: `${flaskApi.DefDataSources}?page=${page}&limit=${limit}`,
         accessToken: token.access_token,
       });
-      // const response = await api.get<{
-      //   items: IDataSourceTypes[];
-      //   pages: number;
-      //   page: number;
-      // }>(`/def-data-sources/${page}/${limit}`);
-      setTotalPage(response.pages);
-      setCurrentPage(response.page);
-      return response.result;
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const getSearchDataSources = async (
-    page: number,
-    limit: number,
-    dataSourceName: string
-  ) => {
-    try {
-      const response = await loadData({
-        baseURL: FLASK_URL,
-        url: `${flaskApi.DefDataSources}?datasource_name=${dataSourceName}&page=${page}&limit=${limit}`,
-        accessToken: token.access_token,
-      });
-      // const resultLazyLoading = await api.get(
-      //   `/def-data-sources/search/${page}/${limit}?datasource_name=${dataSourceName}`
-      // );
 
       setTotalPage(response.pages);
       setCurrentPage(response.page);
@@ -475,30 +442,6 @@ export function GlobalContextProvider({
       console.log(error);
     }
   };
-  const deleteDataSource = async (id: number) => {
-    try {
-      const res = await deleteData({
-        baseURL: FLASK_URL,
-        url: `${flaskApi.DefDataSources}?def_data_source_id=${id}`,
-        accessToken: token.access_token,
-      });
-      if (res.status === 200) {
-        toast({
-          description: `${res.data.message}`,
-        });
-      }
-    } catch (error) {
-      if (error instanceof AxiosError && error.response) {
-        if (error?.status === 500) {
-          toast({
-            title: "Info",
-            description: `Error : ${error.message}`,
-          });
-        }
-      }
-      console.log(error);
-    }
-  };
 
   const fetchJobTitles = async () => {
     const params = {
@@ -521,7 +464,6 @@ export function GlobalContextProvider({
         setToken,
         users,
         fetchDataSources,
-        getSearchDataSources,
         fetchDataSource,
         isLoading,
         isCombinedUserLoading,
@@ -529,7 +471,6 @@ export function GlobalContextProvider({
         setIsLoading,
         setUpdateProfileImage,
         updateDataSource,
-        deleteDataSource,
         combinedUser,
         setCombinedUser,
         // usersInfo,

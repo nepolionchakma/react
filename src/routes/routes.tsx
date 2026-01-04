@@ -8,7 +8,6 @@ import SingleMessage from "@/pages/Notifications/SingleMessage";
 import ActionItems from "@/pages/ActionItems/ActionItems";
 import Home from "@/pages/Home/Home";
 import SingleSent from "@/pages/Notifications/SingleSent";
-import ManageDataSources from "@/pages/Tools/EnterpriseSystemIntegrations/ManageDataSources/ManageDataSources";
 import Users from "@/pages/Tools/SecurityConsole/ManageUsers/SetupAndAdministration";
 // import ManageGlobaConditions from "@/pages/EnterpriseSecurityControls/ManageGlobalConditions/ManageGlobalConditions";
 // import ManageLocalConditions from "@/pages/EnterpriseSecurityControls/ManageLocalConditions/ManageLocalConditions";
@@ -70,6 +69,7 @@ import ResetPassword from "@/pages/ResetPassword/ResetPassword";
 import { ForgotPassword } from "@/pages/ForgotPassword/ForgotPassword";
 import MaterializedView from "@/pages/Tools/MaterializedView/MaterializedView";
 import ManageApplicationTypes from "@/pages/Tools/EnterpriseSystemIntegrations/ManageApplicationTypes/ManageApplicationTypes";
+import ManageDataSource from "@/pages/Tools/EnterpriseSystemIntegrations/ManageDataSources/ManageDataSource";
 
 const routes = createBrowserRouter([
   {
@@ -229,7 +229,7 @@ const routes = createBrowserRouter([
               },
               {
                 path: "manage-data-sources",
-                element: <ManageDataSources />,
+                element: <ManageDataSource />,
               },
               {
                 path: "manage-application-types",
