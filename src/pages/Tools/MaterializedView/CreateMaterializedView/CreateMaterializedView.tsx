@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, useFieldArray, Control, FieldPath } from "react-hook-form";
+import { useForm, useFieldArray, Control } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -21,7 +21,7 @@ import {
 import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { useEffect, useState } from "react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import { getFirstMiddleLast, loadData, postData } from "@/Utility/funtion";
+import { loadData, postData } from "@/Utility/funtion";
 import Spinner from "@/components/Spinner/Spinner";
 import {
   Select,
@@ -35,112 +35,10 @@ import {
 import { IColumns, ISchema } from "@/types/interfaces/tables.interface";
 
 interface selectedTable {
-  id: number;
+  id: string;
   name: string;
   alias: string;
 }
-
-// interface Props {
-//   setTabName: React.Dispatch<React.SetStateAction<string>>;
-// }
-// const JoinConditions = ({
-//   control,
-//   joinIndex,
-// }: {
-//   control: Control<any>;
-//   joinIndex: number;
-// }) => {
-//   const { fields, append, remove } = useFieldArray({
-//     control,
-//     name: `joins.${joinIndex}.conditions`,
-//   });
-
-//   return (
-//     <div className="space-y-2">
-//       <div className="flex justify-between items-center">
-//         <FormLabel className="uppercase">On Conditions</FormLabel>
-//         <Button
-//           type="button"
-//           variant="outline"
-//           onClick={() => append({ left: "", op: "=", right: "" })}
-//         >
-//           + Add Condition
-//         </Button>
-//       </div>
-//       {fields.map((condition, condIndex) => (
-//         <div key={condition.id} className="grid grid-cols-10 gap-2">
-//           <FormField
-//             control={control}
-//             name={`joins.${joinIndex}.conditions.${condIndex}.left`}
-//             render={({ field }) => (
-//               <FormItem className="col-span-4">
-//                 <FormLabel>Left Column</FormLabel>
-//                 <FormControl>
-//                   <Input placeholder="left column" {...field} />
-//                 </FormControl>
-//                 <FormMessage />
-//               </FormItem>
-//             )}
-//           />
-
-//           <FormField
-//             control={control}
-//             name={`joins.${joinIndex}.conditions.${condIndex}.op`}
-//             render={({ field }) => (
-//               <FormItem className="col-span-2">
-//                 <FormLabel>Operator</FormLabel>
-//                 <FormControl>
-//                   <Select
-//                     onValueChange={(value) => {
-//                       field.onChange(value);
-//                     }}
-//                     value={field.value}
-//                   >
-//                     <SelectTrigger className="w-[180px]">
-//                       <SelectValue placeholder="Select a Operator" />
-//                     </SelectTrigger>
-//                     <SelectContent>
-//                       <SelectGroup>
-//                         <SelectLabel>Operators</SelectLabel>
-//                         <SelectItem value="=">=</SelectItem>
-//                         <SelectItem value="!=">!=</SelectItem>
-//                         <SelectItem value=">">{">"}</SelectItem>
-//                         <SelectItem value="<">{"<"}</SelectItem>
-//                       </SelectGroup>
-//                     </SelectContent>
-//                   </Select>
-//                 </FormControl>
-//                 <FormMessage />
-//               </FormItem>
-//             )}
-//           />
-
-//           <FormField
-//             control={control}
-//             name={`joins.${joinIndex}.conditions.${condIndex}.right`}
-//             render={({ field }) => (
-//               <FormItem className="col-span-3">
-//                 <FormLabel>Right Column</FormLabel>
-//                 <FormControl>
-//                   <Input placeholder="right column" {...field} />
-//                 </FormControl>
-//                 <FormMessage />
-//               </FormItem>
-//             )}
-//           />
-
-//           <Button
-//             type="button"
-//             variant="ghost"
-//             onClick={() => remove(condIndex)}
-//           >
-//             ✕
-//           </Button>
-//         </div>
-//       ))}
-//     </div>
-//   );
-// };
 
 /** select item */
 const SelectItemSchema = z.object({
@@ -208,49 +106,161 @@ const formSchema = z.object({
 const FunctionArgs = ({
   control,
   name,
+  selectedTables,
+  argTableName,
+  setArgTableName,
+  argColumns,
+  handleFetchArgColumns,
+  isColumnLoading,
 }: {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   control: Control<any>;
   name: string;
+  selectedTables: selectedTable[];
+  argTableName: Record<string, string>;
+  argColumns: Record<string, IColumns[]>;
+  isColumnLoading: Record<string, boolean>;
+  setArgTableName: React.Dispatch<React.SetStateAction<Record<string, string>>>;
+  handleFetchArgColumns: (fieldId: string, tableName: string) => Promise<void>;
 }) => {
   const { fields, append, remove } = useFieldArray({
     control,
     name: name,
   });
 
+  const [argTypes, setArgTypes] = useState<("input" | "column")[]>([]);
+
+  const handleAddInputArg = () => {
+    append("");
+    setArgTypes((prev) => [...prev, "input"]);
+  };
+
+  const handleAddColumnArg = () => {
+    append("");
+    setArgTypes((prev) => [...prev, "column"]);
+  };
+
   return (
     <div className="space-y-2 flex flex-col gap-1">
       <div className="flex w-full justify-between items-center">
         <FormLabel>Arguments (optional)</FormLabel>
-        <Button
-          type="button"
-          variant="outline"
-          className="h-5"
-          onClick={() => append("")}
-        >
-          + Add Function Argument
-        </Button>
+        <div className="flex flex-col justify-center items-center">
+          <Button
+            type="button"
+            variant="outline"
+            className="h-5"
+            onClick={handleAddInputArg}
+          >
+            + Add Function Argument
+          </Button>
+          <p>or</p>
+          <Button
+            type="button"
+            variant="outline"
+            className="h-5"
+            onClick={handleAddColumnArg}
+          >
+            + Add column Argument
+          </Button>
+        </div>
       </div>
-      <div className="flex gap-2 mt-2">
+      <div className="flex gap-2 mt-2 flex-wrap">
         {fields.map((condition, condIndex) => (
-          <div key={condition.id} className="flex items-center">
-            <FormField
-              control={control}
-              //name={`select.${index}.function.args`}
-              name={`${name}.${condIndex}`}
-              render={({ field }) => (
-                <FormItem className="col-span-4">
-                  {/* <FormLabel>Argument {condIndex + 1}</FormLabel> */}
-                  <FormControl>
-                    <Input placeholder="argument" {...field} />
-                  </FormControl>
+          <div key={condition.id} className="flex">
+            {argTypes[condIndex] === "input" ? (
+              <FormField
+                control={control}
+                //name={`select.${index}.function.args`}
+                name={`${name}.${condIndex}`}
+                render={({ field }) => (
+                  <FormItem className="col-span-4">
+                    {/* <FormLabel>Argument {condIndex + 1}</FormLabel> */}
+                    <FormControl>
+                      <Input placeholder="argument" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            ) : (
+              <div className="flex gap-2">
+                <FormItem>
+                  <Select
+                    disabled={selectedTables.length < 1}
+                    value={argTableName[condition.id] || ""}
+                    onValueChange={(value) => {
+                      setArgTableName((prev) => ({
+                        ...prev,
+                        [condition.id]: value,
+                      }));
+                      handleFetchArgColumns(condition.id, value);
+                    }}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Table Name" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Table Name</SelectLabel>
+                        {selectedTables?.map((item, index) => (
+                          <SelectItem key={index} value={item.name}>
+                            {item.name}
+                          </SelectItem>
+                        ))}
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
                   <FormMessage />
                 </FormItem>
-              )}
-            />
+
+                <FormField
+                  control={control}
+                  name={`${name}.${condIndex}`}
+                  render={({ field }) => (
+                    <FormItem>
+                      <Select
+                        disabled={
+                          !argTableName[condition.id] ||
+                          isColumnLoading[condition.id]
+                        }
+                        value={field.value?.split(".")[1] || ""}
+                        onValueChange={(value) => {
+                          const selectedTableName =
+                            argTableName?.[condition.id];
+                          const table = selectedTables.find(
+                            (t) => t.name === selectedTableName
+                          );
+                          const column = `${table?.alias}.${value}`;
+                          field.onChange(column);
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select Column Name" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectGroup>
+                            <SelectLabel>Column Name</SelectLabel>
+                            {argColumns[condition.id]?.map((item, index) => (
+                              <SelectItem key={index} value={item.name}>
+                                {item.name}
+                              </SelectItem>
+                            ))}
+                          </SelectGroup>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            )}
             <Button
               type="button"
               variant="ghost"
-              onClick={() => remove(condIndex)}
+              onClick={() => {
+                remove(condIndex);
+                setArgTypes((prev) => prev.filter((_, i) => i !== condIndex));
+              }}
             >
               ✕
             </Button>
@@ -265,33 +275,68 @@ const CreateMaterializedView = () => {
   const { token } = useGlobalContext();
   const [isLoading, setIsLoading] = useState(false);
   const [schemas, setSchemas] = useState<ISchema[]>([]);
-  const [rightSchemaName, setRightSchemaName] = useState<string>();
-  const [leftSchemaName, setLeftSchemaName] = useState<string>();
   const [schemaName, setSchemaName] = useState<string>();
   const [tables, setTables] = useState<string[]>([]);
-  const [tableName, setTableName] = useState<string>();
-  const [leftTableName, setLeftTableName] = useState<{
-    index: number;
-    name: string;
-  }>();
-  const [rightTableName, setRightTableName] = useState<{
-    index: number;
-    name: string;
-  }>();
-  const [leftTables, setLeftTables] = useState<string[]>([]);
-  const [rightTables, setRightTables] = useState<string[]>([]);
-  const [columns, setColumns] = useState<IColumns[]>([]);
-  const [rightColumns, setRightColumns] = useState<Record<number, IColumns[]>>(
+  const [leftTableName, setLeftTableName] = useState<Record<number, string>>(
     {}
   );
   const [leftColumns, setLeftColumns] = useState<Record<number, IColumns[]>>(
     {}
   );
-  const [selectColumns, setSelectColumns] = useState<IColumns[]>([]);
-  const [selectColumnName, setSelectColumnName] = useState<string>();
+  const [rightSchemaName, setRightSchemaName] = useState<
+    Record<string, string>
+  >({});
+  const [rightTables, setRightTables] = useState<Record<string, string[]>>({});
+  const [rightTableName, setRightTableName] = useState<Record<string, string>>(
+    {}
+  );
+  const [rightColumns, setRightColumns] = useState<Record<string, IColumns[]>>(
+    {}
+  );
+  const [grouoByTableName, setGroupByTableName] = useState<
+    Record<string, string>
+  >({});
+  const [groupByColumns, setGroupByColumns] = useState<
+    Record<string, IColumns[]>
+  >({});
+  const [groupByArgTableName, setGroupByArgTableName] = useState<
+    Record<string, string>
+  >({});
+  const [selectArgTableName, setSelectArgTableName] = useState<
+    Record<string, string>
+  >({});
+  const [groupByArgColumns, setGroupByArgColumns] = useState<
+    Record<string, IColumns[]>
+  >({});
+  const [selectArgColumns, setSelectArgColumns] = useState<
+    Record<string, IColumns[]>
+  >({});
+  const [selectColumns, setSelectColumns] = useState<
+    Record<string, IColumns[]>
+  >({});
   const [selectedTables, setSelectedTables] = useState<selectedTable[]>([]);
-  const [leftJoinAlias, setLeftJoinAlias] = useState("");
-
+  const [isFromLoading, setIsFromLoading] = useState(true);
+  const [isLeftColumnLoading, setIsLeftColumnLoading] = useState<
+    Record<string, boolean>
+  >({});
+  const [isRightTableLoading, setIsRightTableLoading] = useState<
+    Record<string, boolean>
+  >({});
+  const [isRightColumnLoading, setIsRightColumnLoading] = useState<
+    Record<string, boolean>
+  >({});
+  const [isSelectColumnLoading, setIsSelectColumnLoading] = useState<
+    Record<string, boolean>
+  >({});
+  const [isSelectArgColumnLoading, setIsSelectArgColumnLoading] = useState<
+    Record<string, boolean>
+  >({});
+  const [isGroupByColumnLoading, setIsGroupByColumnLoading] = useState<
+    Record<string, boolean>
+  >({});
+  const [isGroupByArgColumnLoading, setIsGroupByArgColumnLoading] = useState<
+    Record<string, boolean>
+  >({});
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -354,6 +399,7 @@ const CreateMaterializedView = () => {
         baseURL: FLASK_URL,
         url: `${flaskApi.Table}?schema=${schemaName}`,
         accessToken: token.access_token,
+        setLoading: setIsFromLoading,
       };
 
       const res = await loadData(fetchTableParams);
@@ -362,106 +408,241 @@ const CreateMaterializedView = () => {
     fetchTables();
   }, [token.access_token, schemaName]);
 
-  /** left tables (Joins)*/
-  useEffect(() => {
-    if (!leftSchemaName) return;
-    const fetchTables = async () => {
-      const fetchTableParams = {
-        baseURL: FLASK_URL,
-        url: `${flaskApi.Table}?schema=${leftSchemaName}`,
-        accessToken: token.access_token,
-      };
-      const res = await loadData(fetchTableParams);
-      console.log(res, "sdfs");
-      setLeftTables(res.schemas[0].tables);
-    };
-    fetchTables();
-  }, [token.access_token, leftSchemaName]);
-
   /** right tables (Joins)*/
-  useEffect(() => {
-    if (!rightSchemaName) return;
-    const fetchTables = async () => {
+  const fetchRightTables = async (fieldId: string, schema: string) => {
+    if (!schema) return;
+    setIsRightTableLoading((prev) => ({
+      ...prev,
+      [fieldId]: true,
+    }));
+    try {
       const fetchTableParams = {
         baseURL: FLASK_URL,
-        url: `${flaskApi.Table}?schema=${rightSchemaName}`,
+        url: `${flaskApi.Table}?schema=${schema}`,
         accessToken: token.access_token,
       };
 
       const res = await loadData(fetchTableParams);
-      setRightTables(res.schemas[0].tables);
-    };
-    fetchTables();
-  }, [token.access_token, rightSchemaName]);
+      setRightTables((prev) => ({
+        ...prev,
+        [fieldId]: res.schemas[0].tables,
+      }));
+    } finally {
+      setIsRightTableLoading((prev) => ({
+        ...prev,
+        [fieldId]: false,
+      }));
+    }
+  };
 
-  /** left columns (joins)*/
-  useEffect(() => {
-    if (!leftTableName?.name) return;
-    const fetchColumns = async () => {
+  const handleFetchLeftColumn = async (index: number, tableName: string) => {
+    setIsLeftColumnLoading((prev) => ({
+      ...prev,
+      [index]: true,
+    }));
+
+    try {
       const fetchColumnParams = {
         baseURL: FLASK_URL,
-        url: `${flaskApi.Table}?table=${leftTableName.name}`,
+        url: `${flaskApi.Table}?table=${tableName}`,
         accessToken: token.access_token,
       };
 
       const res = await loadData(fetchColumnParams);
+
       setLeftColumns((prev) => ({
         ...prev,
-        [leftTableName.index]: res.columns,
+        [index]: res.columns || [],
       }));
-    };
-    fetchColumns();
-  }, [token.access_token, leftTableName]);
+    } finally {
+      setIsLeftColumnLoading((prev) => ({
+        ...prev,
+        [index]: false,
+      }));
+    }
+  };
+  const handleFetchRightColumns = async (
+    fieldId: string,
+    tableName: string
+  ) => {
+    setIsRightColumnLoading((prev) => ({
+      ...prev,
+      [fieldId]: true,
+    }));
 
-  /** right columns */
-  useEffect(() => {
-    if (!rightTableName?.name) return;
-    const fetchColumns = async () => {
+    try {
       const fetchColumnParams = {
         baseURL: FLASK_URL,
-        url: `${flaskApi.Table}?table=${rightTableName.name}`,
+        url: `${flaskApi.Table}?table=${tableName}`,
         accessToken: token.access_token,
       };
 
       const res = await loadData(fetchColumnParams);
+
       setRightColumns((prev) => ({
         ...prev,
-        [rightTableName.index]: res.columns,
+        [fieldId]: res.columns,
       }));
-    };
-    fetchColumns();
-  }, [token.access_token, rightTableName]);
+    } finally {
+      setIsRightColumnLoading((prev) => ({
+        ...prev,
+        [fieldId]: false,
+      }));
+    }
+  };
 
-  /** select columns */
-  useEffect(() => {
-    if (!selectColumnName) return;
-    const fetchColumns = async () => {
+  const handleFetchSelectColumns = async (
+    fieldId: string,
+    tableName: string
+  ) => {
+    setIsSelectColumnLoading((prev) => ({
+      ...prev,
+      [fieldId]: true,
+    }));
+    if (!tableName) return;
+    try {
       const fetchColumnParams = {
         baseURL: FLASK_URL,
-        url: `${flaskApi.Table}?table=${selectColumnName}`,
+        url: `${flaskApi.Table}?table=${tableName}`,
         accessToken: token.access_token,
       };
 
       const res = await loadData(fetchColumnParams);
-      setSelectColumns(res.columns);
-    };
-    fetchColumns();
-  }, [token.access_token, selectColumnName]);
+      setSelectColumns((prev) => ({
+        ...prev,
+        [tableName]: res.columns,
+      }));
+    } finally {
+      setIsSelectColumnLoading((prev) => ({
+        ...prev,
+        [fieldId]: false,
+      }));
+    }
+  };
+  const handleFetchGroupByColumns = async (
+    fieldId: string,
+    tableName: string
+  ) => {
+    if (!tableName) return;
+    setIsGroupByColumnLoading((prev) => ({
+      ...prev,
+      [fieldId]: true,
+    }));
+    try {
+      const fetchColumnParams = {
+        baseURL: FLASK_URL,
+        url: `${flaskApi.Table}?table=${tableName}`,
+        accessToken: token.access_token,
+      };
+
+      const res = await loadData(fetchColumnParams);
+      setGroupByColumns((prev) => ({
+        ...prev,
+        [fieldId]: res?.columns,
+      }));
+    } finally {
+      setIsGroupByColumnLoading((prev) => ({
+        ...prev,
+        [fieldId]: false,
+      }));
+    }
+  };
+
+  const handleFetchGroupByArgColumns = async (
+    fieldId: string,
+    tableName: string
+  ) => {
+    if (!tableName) return;
+    setIsGroupByArgColumnLoading((prev) => ({
+      ...prev,
+      [fieldId]: true,
+    }));
+    try {
+      const fetchColumnParams = {
+        baseURL: FLASK_URL,
+        url: `${flaskApi.Table}?table=${tableName}`,
+        accessToken: token.access_token,
+      };
+
+      const res = await loadData(fetchColumnParams);
+      setGroupByArgColumns((prev) => ({
+        ...prev,
+        [fieldId]: res.columns,
+      }));
+    } finally {
+      setIsGroupByArgColumnLoading((prev) => ({
+        ...prev,
+        [fieldId]: false,
+      }));
+    }
+  };
+
+  const handleFetchSelectArgColumns = async (
+    fieldId: string,
+    tableName: string
+  ) => {
+    setIsSelectArgColumnLoading((prev) => ({
+      ...prev,
+      [fieldId]: true,
+    }));
+    if (!tableName) return;
+    try {
+      const fetchColumnParams = {
+        baseURL: FLASK_URL,
+        url: `${flaskApi.Table}?table=${tableName}`,
+        accessToken: token.access_token,
+      };
+
+      const res = await loadData(fetchColumnParams);
+      setSelectArgColumns((prev) => ({
+        ...prev,
+        [fieldId]: res.columns,
+      }));
+    } finally {
+      setIsSelectArgColumnLoading((prev) => ({
+        ...prev,
+        [fieldId]: false,
+      }));
+    }
+  };
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    const cleanedSelect = values.select.map((item) => {
+      if (item.column === "") {
+        const rest = { ...item };
+        delete rest.column;
+        return rest;
+      }
+      return item;
+    });
+    const cleanedGroupBy = values.group_by.map((item) => {
+      if (item.column === "") {
+        const rest = { ...item };
+        delete rest.column;
+        return rest;
+      }
+      return item;
+    });
+    const data = {
+      ...values,
+      select: cleanedSelect,
+      group_by: cleanedGroupBy,
+    };
+
     const postMaterializedView = {
       baseURL: FLASK_URL,
       url: flaskApi.CreateMaterializedView,
       setLoading: setIsLoading,
-      payload: values,
+      payload: data,
       isToast: true,
       accessToken: token.access_token,
     };
 
-    // await postData(postMaterializedView);
+    const res = await postData(postMaterializedView);
 
-    // form.reset();
+    if (res.status === 201) {
+      form.reset();
+    }
   };
 
   const handleSelectedTable = (value: selectedTable) => {
@@ -489,15 +670,7 @@ const CreateMaterializedView = () => {
     });
   };
 
-  // const handleAlias = (values: z.infer<typeof FromSchema>) => {
-  //   setSelectedTables((prev) =>
-  //     prev.map((t) =>
-  //       t.name === values.table ? { ...t, alias: values.alias } : t
-  //     )
-  //   );
-  // };
-
-  console.log(selectedTables, "selected");
+  console.log(selectedTables, "selectedTables");
 
   return (
     <div>
@@ -590,16 +763,14 @@ const CreateMaterializedView = () => {
                     <FormItem>
                       <FormLabel>From Table</FormLabel>
                       <Select
+                        disabled={schemaName == "" || isFromLoading}
                         onValueChange={(value) => {
-                          // const alias = getFirstMiddleLast(value);
-                          setTableName(value);
                           handleSelectedTable({
-                            id: 1,
+                            id: "1",
                             name: value,
                             alias: form.getValues("from.alias"),
                           });
                           field.onChange(value);
-                          // form.setValue("from.alias", alias);
                         }}
                         value={field.value}
                       >
@@ -608,7 +779,7 @@ const CreateMaterializedView = () => {
                             <SelectValue placeholder="Select a table" />
                           </SelectTrigger>
                         </FormControl>
-                        <SelectContent>
+                        <SelectContent className="overflow-y-auto max-h-[15rem]">
                           <SelectGroup>
                             <SelectLabel>Table Name</SelectLabel>
                             {tables?.map((item, i) => (
@@ -637,7 +808,7 @@ const CreateMaterializedView = () => {
                             field.onChange(e);
 
                             handleSelectedTable({
-                              id: 1,
+                              id: "1",
                               alias: e.target.value,
                               name: form.getValues("from.table"),
                             });
@@ -650,7 +821,6 @@ const CreateMaterializedView = () => {
                 />
               </div>
               <hr />
-
               {/* Joins */}
               <div className="flex flex-col gap-3">
                 <div className="flex w-full justify-between items-center">
@@ -708,52 +878,54 @@ const CreateMaterializedView = () => {
                           )}
                         />
                         {/* Left Table */}
-                        <FormField
-                          name={""}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Left Table</FormLabel>
-                              <Select
-                                onValueChange={(value) => {
-                                  setLeftTableName({ index, name: value });
-                                  field.onChange(value);
-                                }}
-                                value={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select a table" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectGroup>
-                                    <SelectLabel>Table Name</SelectLabel>
-                                    {selectedTables?.map((item, i) => (
-                                      <SelectItem key={i} value={item.name}>
-                                        {item.name}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectGroup>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+                        <FormItem>
+                          <FormLabel>Left Table</FormLabel>
+                          <Select
+                            disabled={selectedTables.length < 1}
+                            value={leftTableName[index] || ""}
+                            onValueChange={(value) => {
+                              setLeftTableName((prev) => ({
+                                ...prev,
+                                [index]: value,
+                              }));
+                              handleFetchLeftColumn(index, value);
+                            }}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a table" />
+                            </SelectTrigger>
+
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectLabel>Table Name</SelectLabel>
+                                {selectedTables?.map((item, i) => (
+                                  <SelectItem key={i} value={item.name}>
+                                    {item.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                          <FormMessage />
+                        </FormItem>
 
                         {/* Right Schema */}
                         <FormField
                           control={form.control}
                           name={`joins.${index}.schema`}
-                          render={({ field }) => (
+                          render={({ field: formfield }) => (
                             <FormItem>
                               <FormLabel>Right Table Schema</FormLabel>
                               <Select
                                 onValueChange={(value) => {
-                                  setRightSchemaName(value);
-                                  field.onChange(value);
+                                  setRightSchemaName((prev) => ({
+                                    ...prev,
+                                    [field.id]: value,
+                                  }));
+                                  formfield.onChange(value);
+                                  fetchRightTables(field.id, value);
                                 }}
-                                value={field.value}
+                                value={formfield.value}
                               >
                                 <FormControl>
                                   <SelectTrigger>
@@ -780,34 +952,41 @@ const CreateMaterializedView = () => {
                         <FormField
                           control={form.control}
                           name={`joins.${index}.table`}
-                          render={({ field }) => (
+                          render={({ field: formField }) => (
                             <FormItem>
-                              <FormLabel>Right Table Name</FormLabel>
+                              <FormLabel>Right Table</FormLabel>
                               <Select
+                                disabled={
+                                  !rightSchemaName[field.id] ||
+                                  isRightTableLoading[field.id]
+                                }
                                 onValueChange={(value) => {
-                                  // const alias = getFirstMiddleLast(value);
-                                  setRightTableName({ index, name: value });
+                                  setRightTableName((prev) => ({
+                                    ...prev,
+                                    [field.id]: value,
+                                  }));
+
                                   handleSelectedTable({
-                                    id: index + 2,
+                                    id: field.id,
                                     name: value,
                                     alias: form.getValues(
                                       `joins.${index}.alias`
                                     ),
                                   });
-                                  field.onChange(value);
-                                  // form.setValue(`joins.${index}.alias`, alias);
+                                  formField.onChange(value);
+                                  handleFetchRightColumns(field.id, value);
                                 }}
-                                value={field.value}
+                                value={formField.value}
                               >
                                 <FormControl>
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select a table" />
                                   </SelectTrigger>
                                 </FormControl>
-                                <SelectContent>
+                                <SelectContent className="overflow-y-auto max-h-[15rem]">
                                   <SelectGroup>
                                     <SelectLabel>Table Name</SelectLabel>
-                                    {rightTables?.map((item, i) => (
+                                    {rightTables[field.id]?.map((item, i) => (
                                       <SelectItem key={i} value={item}>
                                         {item}
                                       </SelectItem>
@@ -819,42 +998,23 @@ const CreateMaterializedView = () => {
                             </FormItem>
                           )}
                         />
-                        {/* left Alias */}
-                        <FormField
-                          name=""
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Left Alias</FormLabel>
-                              <FormControl>
-                                <Input
-                                  placeholder="o"
-                                  {...field}
-                                  onChange={(e) => {
-                                    field.onChange(e);
-                                    setLeftJoinAlias(e.target.value);
-                                  }}
-                                />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
+
                         {/* right Alias */}
                         <FormField
                           control={form.control}
                           name={`joins.${index}.alias`}
-                          render={({ field }) => (
+                          render={({ field: formField }) => (
                             <FormItem>
-                              <FormLabel>Right Alias</FormLabel>
+                              <FormLabel>Alias</FormLabel>
                               <FormControl>
                                 <Input
                                   placeholder="o"
-                                  {...field}
+                                  {...formField}
                                   onChange={(e) => {
-                                    field.onChange(e);
+                                    formField.onChange(e);
 
                                     handleSelectedTable({
-                                      id: index + 2,
+                                      id: field.id,
                                       alias: e.target.value,
                                       name: form.getValues(
                                         `joins.${index}.table`
@@ -881,8 +1041,16 @@ const CreateMaterializedView = () => {
                               <FormItem>
                                 <FormLabel>Left Column</FormLabel>
                                 <Select
+                                  disabled={
+                                    !leftTableName[index] ||
+                                    isLeftColumnLoading[index]
+                                  }
                                   onValueChange={(value) => {
-                                    const left = `${leftJoinAlias}.${value}`;
+                                    const column = selectedTables.find(
+                                      (item) =>
+                                        item.name === leftTableName[index]
+                                    );
+                                    const left = `${column?.alias}.${value}`;
                                     field.onChange(left);
                                   }}
                                   value={field.value?.split(".")[1]}
@@ -940,19 +1108,23 @@ const CreateMaterializedView = () => {
                           <FormField
                             control={form.control}
                             name={`joins.${index}.conditions.${0}.right`}
-                            render={({ field }) => (
+                            render={({ field: formField }) => (
                               <FormItem>
                                 <FormLabel>Right Column</FormLabel>
                                 <Select
+                                  disabled={
+                                    !rightTableName[field.id] ||
+                                    isRightColumnLoading[field.id]
+                                  }
                                   onValueChange={(value) => {
                                     const alias = form.getValues(
                                       `joins.${index}.alias`
                                     );
                                     const right = `${alias}.${value}`;
 
-                                    field.onChange(right);
+                                    formField.onChange(right);
                                   }}
-                                  value={field.value?.split(".")[1]}
+                                  value={formField.value?.split(".")[1]}
                                 >
                                   <FormControl>
                                     <SelectTrigger>
@@ -962,11 +1134,13 @@ const CreateMaterializedView = () => {
                                   <SelectContent>
                                     <SelectGroup>
                                       <SelectLabel>Column Name</SelectLabel>
-                                      {rightColumns[index]?.map((item, i) => (
-                                        <SelectItem key={i} value={item.name}>
-                                          {item.name}
-                                        </SelectItem>
-                                      ))}
+                                      {rightColumns[field.id]?.map(
+                                        (item, i) => (
+                                          <SelectItem key={i} value={item.name}>
+                                            {item.name}
+                                          </SelectItem>
+                                        )
+                                      )}
                                     </SelectGroup>
                                   </SelectContent>
                                 </Select>
@@ -981,7 +1155,13 @@ const CreateMaterializedView = () => {
                     <Button
                       type="button"
                       variant="destructive"
-                      onClick={() => removeJoins(index)}
+                      onClick={() => {
+                        const joinTableId = field.id;
+                        setSelectedTables((prev) =>
+                          prev.filter((item) => item.id !== joinTableId)
+                        );
+                        removeJoins(index);
+                      }}
                       className="col-span-1"
                     >
                       Remove
@@ -1019,15 +1199,16 @@ const CreateMaterializedView = () => {
                         <FormField
                           control={form.control}
                           name={`select.${index}.table`}
-                          render={({ field }) => (
+                          render={({ field: formField }) => (
                             <FormItem>
                               <FormLabel>Table Name</FormLabel>
                               <Select
+                                disabled={selectedTables.length < 1}
                                 onValueChange={(value) => {
-                                  field.onChange(value);
-                                  setSelectColumnName(value);
+                                  formField.onChange(value);
+                                  handleFetchSelectColumns(field.id, value);
                                 }}
-                                value={field.value}
+                                value={formField.value}
                               >
                                 <FormControl>
                                   <SelectTrigger>
@@ -1052,36 +1233,52 @@ const CreateMaterializedView = () => {
                         <FormField
                           control={form.control}
                           name={`select.${index}.column`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Column Name</FormLabel>
-                              <Select
-                                onValueChange={(value) => {
-                                  const alias = form.getValues("from.alias");
-                                  const column = `${alias}.${value}`;
-                                  field.onChange(column);
-                                }}
-                                value={field.value?.split(".")[1]}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select a column name" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectGroup>
-                                    <SelectLabel>Column Name</SelectLabel>
-                                    {selectColumns?.map((item, i) => (
-                                      <SelectItem key={i} value={item.name}>
-                                        {item.name}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectGroup>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+                          render={({ field: formField }) => {
+                            const tableName = form.watch(
+                              `select.${index}.table`
+                            );
+                            const table = selectedTables.find(
+                              (t) => t.name === tableName
+                            );
+
+                            return (
+                              <FormItem>
+                                <FormLabel>Column Name</FormLabel>
+                                <Select
+                                  disabled={
+                                    !tableName ||
+                                    isSelectColumnLoading[field.id]
+                                  }
+                                  value={formField.value?.split(".")[1] ?? ""}
+                                  onValueChange={(value) => {
+                                    formField.onChange(
+                                      `${table?.alias}.${value}`
+                                    );
+                                  }}
+                                >
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select a column name" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectGroup>
+                                      <SelectLabel>Column Name</SelectLabel>
+                                      {tableName &&
+                                        selectColumns[tableName]?.map((col) => (
+                                          <SelectItem
+                                            key={col.name}
+                                            value={col.name}
+                                          >
+                                            {col.name}
+                                          </SelectItem>
+                                        ))}
+                                    </SelectGroup>
+                                  </SelectContent>
+                                </Select>
+                              </FormItem>
+                            );
+                          }}
                         />
 
                         {/* Aggregate */}
@@ -1187,6 +1384,12 @@ const CreateMaterializedView = () => {
                           <FunctionArgs
                             control={form.control}
                             name={`select.${index}.function.args`}
+                            selectedTables={selectedTables}
+                            argTableName={selectArgTableName}
+                            handleFetchArgColumns={handleFetchSelectArgColumns}
+                            setArgTableName={setSelectArgTableName}
+                            argColumns={selectArgColumns}
+                            isColumnLoading={isSelectArgColumnLoading}
                           />
                         </div>
                       </div>
@@ -1233,39 +1436,83 @@ const CreateMaterializedView = () => {
                   <div key={field.id} className="grid grid-cols-10 gap-3">
                     <div className="grid col-span-9 gap-3 border p-2 rounded shadow">
                       <div className="">
+                        <FormItem>
+                          <FormLabel>Table Name</FormLabel>
+
+                          <Select
+                            disabled={selectedTables.length < 1}
+                            value={grouoByTableName[field.id] || ""}
+                            onValueChange={(value) => {
+                              setGroupByTableName((prev) => ({
+                                ...prev,
+                                [field.id]: value,
+                              }));
+                              handleFetchGroupByColumns(field.id, value);
+                            }}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a table" />
+                            </SelectTrigger>
+
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectLabel>Table Name</SelectLabel>
+                                {selectedTables?.map((item) => (
+                                  <SelectItem key={item.name} value={item.name}>
+                                    {item.name}
+                                  </SelectItem>
+                                ))}
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </FormItem>
+
                         <FormField
                           control={form.control}
                           name={`group_by.${index}.column`}
-                          render={({ field }) => (
-                            <FormItem className="flex-1">
-                              <FormLabel>Column Name</FormLabel>
-                              <Select
-                                onValueChange={(value) => {
-                                  const alias = form.getValues("from.alias");
-                                  const column = `${alias}.${value}`;
-                                  field.onChange(column);
-                                }}
-                                value={field.value?.split(".")[1]}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select a column name" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectGroup>
-                                    <SelectLabel>Column Name</SelectLabel>
-                                    {columns?.map((item, i) => (
-                                      <SelectItem key={i} value={item.name}>
-                                        {item.name}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectGroup>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
+                          render={({ field: formField }) => {
+                            const selectedTableName =
+                              grouoByTableName[field.id];
+                            const table = selectedTables.find(
+                              (t) => t.name === selectedTableName
+                            );
+
+                            return (
+                              <FormItem className="flex-1">
+                                <FormLabel>Column Name</FormLabel>
+                                <Select
+                                  value={formField.value?.split(".")[1] || ""}
+                                  onValueChange={(value) => {
+                                    const column = `${table?.alias}.${value}`;
+                                    formField.onChange(column);
+                                  }}
+                                  disabled={
+                                    !selectedTableName ||
+                                    isGroupByColumnLoading[field.id]
+                                  }
+                                >
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select a column" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectGroup>
+                                      <SelectLabel>Column Name</SelectLabel>
+                                      {groupByColumns[field.id]?.map(
+                                        (item, i) => (
+                                          <SelectItem key={i} value={item.name}>
+                                            {item.name}
+                                          </SelectItem>
+                                        )
+                                      )}
+                                    </SelectGroup>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            );
+                          }}
                         />
                       </div>
                       <div className="grid grid-cols-4 col-span-1 gap-3">
@@ -1287,6 +1534,12 @@ const CreateMaterializedView = () => {
                           <FunctionArgs
                             control={form.control}
                             name={`group_by.${index}.function.args`}
+                            selectedTables={selectedTables}
+                            argTableName={groupByArgTableName}
+                            handleFetchArgColumns={handleFetchGroupByArgColumns}
+                            setArgTableName={setGroupByArgTableName}
+                            argColumns={groupByArgColumns}
+                            isColumnLoading={isGroupByArgColumnLoading}
                           />
                         </div>
                       </div>
