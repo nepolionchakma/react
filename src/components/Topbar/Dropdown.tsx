@@ -10,16 +10,22 @@ import { NavLink } from "react-router-dom";
 import { LogOut, Settings, ShieldBan, User } from "lucide-react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useSocketContext } from "@/Context/SocketContext/SocketContext";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { loadData, putData } from "@/Utility/funtion";
+import { NODE_URL, nodeApi } from "@/Api/Api";
 // const Loading = "/public/profile/loading.gif";
 
 const Dropdown = () => {
-  const api = useAxiosPrivate();
   const apiUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
-  const { token, setToken, combinedUser, presentDevice, setSignonId } =
-    useGlobalContext();
+  const {
+    token,
+    setToken,
+    combinedUser,
+    presentDevice,
+    setPresentDevice,
+    setSignonId,
+  } = useGlobalContext();
 
   const { handleDisconnect, setLinkedDevices, inactiveDevice } =
     useSocketContext();
@@ -29,35 +35,40 @@ const Dropdown = () => {
   const userExample = {
     isLoggedIn: false,
     user_id: 0,
-
+    message: "",
     access_token: "",
     refresh_token: "",
   };
   const handleSignOut = async () => {
     try {
-      setIsLoading(true);
-      const response = await api.get(`/logout`);
-      if (response.status === 200) {
-        const res = await api.put(
-          `/devices/inactive-device/${token.user_id}/${presentDevice.id}`,
-          {
+      const [res, response] = await Promise.all([
+        await putData({
+          baseURL: NODE_URL,
+          payload: {
             is_active: 0,
-          }
-        );
-
-        if (res.status === 200) {
-          setIsLoading(false);
-          setToken(userExample);
-          setLinkedDevices([]);
-          navigate("/login");
-          inactiveDevice([res.data]);
-          setSignonId("");
-          localStorage.removeItem("signonId");
-          localStorage.removeItem("presentDeviceInfo");
-        }
+          },
+          setLoading: setIsLoading,
+          url: `${nodeApi.Devices}/inactive-device/${token?.user_id}/${presentDevice?.id}`,
+        }),
+        await loadData({
+          baseURL: NODE_URL,
+          url: `/logout`,
+          setLoading: setIsLoading,
+        }),
+      ]);
+      console.log(response, "res");
+      if (res.status === 200) {
+        setToken(userExample);
+        setLinkedDevices([]);
+        setPresentDevice({ ...presentDevice, id: 0 });
+        inactiveDevice([res.data]);
+        setSignonId("");
+        localStorage.removeItem("signonId");
+        localStorage.removeItem("presentDeviceInfo");
+        navigate("/login");
       }
     } catch (error) {
-      console.log("Error while deactivating device");
+      console.log(error, "Error while deactivating device");
     } finally {
       handleDisconnect();
     }

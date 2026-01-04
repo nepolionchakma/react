@@ -32,8 +32,10 @@ import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import useUserDevice from "@/hooks/useUserDevice";
 import { ARMContextProvider } from "../ARMContext/ARMContext";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
-import { deleteData, loadData, postData, putData } from "@/Utility/funtion";
+import { deleteData, loadData, putData } from "@/Utility/funtion";
 import { IMFA } from "@/types/interfaces/mfa.interface";
+import { getUserLocation } from "@/Utility/locationUtils";
+import getUserIP from "@/hooks/useUserIP";
 
 interface GlobalContextProviderProps {
   children: ReactNode;
@@ -61,7 +63,6 @@ interface GlobalContex {
   setIsCombinedUserLoading: Dispatch<SetStateAction<boolean>>;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   setUpdateProfileImage: React.Dispatch<React.SetStateAction<number>>;
-  createDataSource: (postData: IDataSourcePostTypes) => Promise<void>;
   updateDataSource: (
     id: number,
     postData: IDataSourcePostTypes
@@ -113,12 +114,16 @@ interface GlobalContex {
   fetchJobTitles: () => Promise<IJobTitle[]>;
   mfaResponse: IMFA | undefined;
   setMfaResponse: Dispatch<SetStateAction<IMFA | undefined>>;
+  userIpAddress: string | null;
+  setUserIpAddress: Dispatch<SetStateAction<string | null>>;
+  userLocation: string | null;
+  setUserLocation: Dispatch<SetStateAction<string | null>>;
 }
 
 export const userExample = {
   isLoggedIn: false,
   user_id: 0,
-
+  message: "",
   access_token: "",
   refresh_token: "",
 };
@@ -164,10 +169,13 @@ export function GlobalContextProvider({
   const [presentDevice, setPresentDevice] = useState<IUserLinkedDevices>(
     userDevice()
   );
+
   const [enterpriseSetting, setEnterpriseSetting] = useState<
     IEnterprisesTypes | undefined
   >(undefined);
   const [mfaResponse, setMfaResponse] = useState<IMFA | undefined>();
+  const [userIpAddress, setUserIpAddress] = useState<string | null>(null);
+  const [userLocation, setUserLocation] = useState<string | null>(null);
 
   useEffect(() => {
     const storedValue = localStorage.getItem("signonId");
@@ -183,6 +191,22 @@ export function GlobalContextProvider({
       setPresentDevice(parsed);
     }
   }, [presentDevice.id]);
+  useEffect(() => {
+    (async () => {
+      try {
+        const location = await getUserLocation();
+        const ip = await getUserIP();
+
+        setUserLocation(location);
+        setUserIpAddress(ip);
+      } catch (error) {
+        console.log(error, "err");
+        if (error instanceof AxiosError) {
+          console.log("IP/location fetch failed:", error);
+        }
+      }
+    })();
+  }, []);
 
   //get user (when refresh page user must be needed)
   useEffect(() => {
@@ -440,57 +464,7 @@ export function GlobalContextProvider({
       throw error;
     }
   };
-  const createDataSource = async (data: IDataSourcePostTypes) => {
-    const {
-      datasource_name,
-      description,
-      application_type,
-      application_type_version,
-      last_access_synchronization_status,
-      last_access_synchronization_date,
-      last_transaction_synchronization_status,
-      last_transaction_synchronization_date,
-      default_datasource,
-      created_by,
-      last_updated_by,
-    } = data;
-    try {
-      const postPayload = {
-        datasource_name,
-        description,
-        application_type,
-        application_type_version,
-        last_access_synchronization_status,
-        last_access_synchronization_date,
-        last_transaction_synchronization_status,
-        last_transaction_synchronization_date,
-        default_datasource,
-        created_by,
-        last_updated_by,
-      };
 
-      const res = await postData({
-        baseURL: FLASK_URL,
-        url: `${flaskApi.DefDataSources}`,
-        setLoading: setIsLoading,
-        payload: postPayload,
-        // isConsole: true,
-        // isToast: true,
-        accessToken: token.access_token,
-      });
-      if (res.status === 201) {
-        toast({
-          description: `${res.data.message}`,
-        });
-      }
-    } catch (error) {
-      toast({
-        variant: "destructive",
-        description: `Failed to add data.`,
-      });
-      console.log(error);
-    }
-  };
   const updateDataSource = async (
     id: number,
     postData: IDataSourcePostTypes
@@ -579,7 +553,6 @@ export function GlobalContextProvider({
         setIsCombinedUserLoading,
         setIsLoading,
         setUpdateProfileImage,
-        createDataSource,
         updateDataSource,
         deleteDataSource,
         combinedUser,
@@ -617,6 +590,10 @@ export function GlobalContextProvider({
         fetchJobTitles,
         mfaResponse,
         setMfaResponse,
+        userIpAddress,
+        setUserIpAddress,
+        userLocation,
+        setUserLocation,
       }}
     >
       <SocketContextProvider>

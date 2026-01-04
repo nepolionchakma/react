@@ -20,6 +20,8 @@ export const flaskApi = {
   DefGlobalConditionLogicAttributes: "/def_global_condition_logic_attributes",
   DefGlobalConditionLogicExtend: "/def_global_condition_logic_extend",
   DefDataSources: "/def_data_sources",
+  DatasourceConnectorProperties: "/def_data_source_connections",
+  ApplicationTypes: "/def_application_types",
   DefAccessModels: "/def_access_models",
   DefAccessModelLogics: "/def_access_model_logics",
   DefAccessModelLogicAttributes: "/def_access_model_logic_attributes",
@@ -64,6 +66,7 @@ export const flaskApi = {
 // All Node api
 export const nodeApi = {
   Alerts: "/alerts",
+  Devices: "/devices",
   ForgotPassword: "/forgot_password_request",
   ResetPassword: "/def_user_credentials/reset_forgot_password",
   PrevilegesAndRoles: "/def_user_granted_roles_previleges",

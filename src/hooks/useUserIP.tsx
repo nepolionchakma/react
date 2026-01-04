@@ -1,15 +1,15 @@
-const useUserIP = () => {
-  const getUserIP = async (): Promise<string | null> => {
-    try {
-      const response = await fetch(`https://api4.ipify.org/?format=json`);
+import axios from "axios";
 
-      const data = await response.json();
-      return data.ip;
-    } catch (error) {
-      console.error("Error fetching IP address:", error);
-      return null;
-    }
-  };
-  return getUserIP;
+const getUserIP = async (): Promise<string | null> => {
+  try {
+    const response = await axios.get("https://ifconfig.me/ip", {
+      withCredentials: false,
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching IP address:", error);
+    return null;
+  }
 };
-export default useUserIP;
+export default getUserIP;
