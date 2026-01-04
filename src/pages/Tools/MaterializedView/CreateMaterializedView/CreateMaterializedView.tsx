@@ -185,7 +185,31 @@ const FunctionArgs = ({
             ) : (
               <div className="flex gap-2">
                 <FormItem>
-                  <Select
+                  <select
+                    className="w-full border text-sm p-2 rounded-md"
+                    disabled={selectedTables.length < 1}
+                    value={argTableName[condition.id] || ""}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setArgTableName((prev) => ({
+                        ...prev,
+                        [condition.id]: value,
+                      }));
+                      handleFetchArgColumns(condition.id, value);
+                    }}
+                  >
+                    <option value="" disabled>
+                      Select Table Name
+                    </option>
+
+                    {selectedTables?.map((item, index) => (
+                      <option key={index} value={item.name}>
+                        {item.name}
+                      </option>
+                    ))}
+                  </select>
+
+                  {/* <Select
                     disabled={selectedTables.length < 1}
                     value={argTableName[condition.id] || ""}
                     onValueChange={(value) => {
@@ -209,7 +233,7 @@ const FunctionArgs = ({
                         ))}
                       </SelectGroup>
                     </SelectContent>
-                  </Select>
+                  </Select> */}
                   <FormMessage />
                 </FormItem>
 
@@ -218,7 +242,36 @@ const FunctionArgs = ({
                   name={`${name}.${condIndex}`}
                   render={({ field }) => (
                     <FormItem>
-                      <Select
+                      <select
+                        className="w-full border p-2 rounded-md text-sm"
+                        disabled={
+                          !argTableName[condition.id] ||
+                          isColumnLoading[condition.id]
+                        }
+                        value={field.value?.split(".")[1] || ""}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          const selectedTableName =
+                            argTableName?.[condition.id];
+                          const table = selectedTables.find(
+                            (t) => t.name === selectedTableName
+                          );
+                          const column = `${table?.alias}.${value}`;
+                          field.onChange(column);
+                        }}
+                      >
+                        <option value="" disabled>
+                          Select Column Name
+                        </option>
+
+                        {argColumns[condition.id]?.map((item, index) => (
+                          <option key={index} value={item.name}>
+                            {item.name}
+                          </option>
+                        ))}
+                      </select>
+
+                      {/* <Select
                         disabled={
                           !argTableName[condition.id] ||
                           isColumnLoading[condition.id]
@@ -247,7 +300,7 @@ const FunctionArgs = ({
                             ))}
                           </SelectGroup>
                         </SelectContent>
-                      </Select>
+                      </Select> */}
                       <FormMessage />
                     </FormItem>
                   )}
@@ -670,8 +723,6 @@ const CreateMaterializedView = () => {
     });
   };
 
-  console.log(selectedTables, "selectedTables");
-
   return (
     <div>
       <Card>
@@ -853,18 +904,29 @@ const CreateMaterializedView = () => {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Join Type</FormLabel>
-                              <Select
+                              {/* <Select
                                 onValueChange={(value) => {
                                   field.onChange(value);
                                 }}
                                 value={field.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
+                              > */}
+                              <FormControl className="flex flex-col">
+                                <select
+                                  {...field}
+                                  className="w-full rounded-md border p-2 text-sm"
+                                >
+                                  <option value="" disabled>
+                                    Select a type
+                                  </option>
+                                  <option value="LEFT">Left</option>
+                                  <option value="RIGHT">Right</option>
+                                  <option value="FULL">Full</option>
+                                </select>
+                                {/* <SelectTrigger>
                                     <SelectValue placeholder="Select a type" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
+                                  </SelectTrigger> */}
+                              </FormControl>
+                              {/* <SelectContent>
                                   <SelectGroup>
                                     <SelectLabel>Types</SelectLabel>
                                     <SelectItem value="LEFT">Left</SelectItem>
@@ -872,7 +934,7 @@ const CreateMaterializedView = () => {
                                     <SelectItem value="FULL">Full</SelectItem>
                                   </SelectGroup>
                                 </SelectContent>
-                              </Select>
+                              </Select> */}
                               <FormMessage />
                             </FormItem>
                           )}
@@ -880,7 +942,31 @@ const CreateMaterializedView = () => {
                         {/* Left Table */}
                         <FormItem>
                           <FormLabel>Left Table</FormLabel>
-                          <Select
+                          <select
+                            className="w-full rounded-md border p-2 text-sm"
+                            disabled={selectedTables.length < 1}
+                            value={leftTableName[index] || ""}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setLeftTableName((prev) => ({
+                                ...prev,
+                                [index]: value,
+                              }));
+                              handleFetchLeftColumn(index, value);
+                            }}
+                          >
+                            <option value="" disabled>
+                              Select a table
+                            </option>
+
+                            {selectedTables?.map((item, i) => (
+                              <option key={i} value={item.name}>
+                                {item.name}
+                              </option>
+                            ))}
+                          </select>
+
+                          {/* <Select
                             disabled={selectedTables.length < 1}
                             value={leftTableName[index] || ""}
                             onValueChange={(value) => {
@@ -905,7 +991,7 @@ const CreateMaterializedView = () => {
                                 ))}
                               </SelectGroup>
                             </SelectContent>
-                          </Select>
+                          </Select> */}
                           <FormMessage />
                         </FormItem>
 
@@ -916,7 +1002,33 @@ const CreateMaterializedView = () => {
                           render={({ field: formfield }) => (
                             <FormItem>
                               <FormLabel>Right Table Schema</FormLabel>
-                              <Select
+                              <select
+                                className="w-full rounded-md border p-2 text-sm"
+                                value={formfield.value || ""}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+
+                                  setRightSchemaName((prev) => ({
+                                    ...prev,
+                                    [field.id]: value,
+                                  }));
+
+                                  formfield.onChange(value);
+                                  fetchRightTables(field.id, value);
+                                }}
+                              >
+                                <option value="" disabled>
+                                  Select a Schema
+                                </option>
+
+                                {schemas?.map((item, i) => (
+                                  <option key={i} value={item.schema}>
+                                    {item.schema}
+                                  </option>
+                                ))}
+                              </select>
+
+                              {/* <Select
                                 onValueChange={(value) => {
                                   setRightSchemaName((prev) => ({
                                     ...prev,
@@ -942,7 +1054,7 @@ const CreateMaterializedView = () => {
                                     ))}
                                   </SelectGroup>
                                 </SelectContent>
-                              </Select>
+                              </Select> */}
                               <FormMessage />
                             </FormItem>
                           )}
@@ -955,7 +1067,45 @@ const CreateMaterializedView = () => {
                           render={({ field: formField }) => (
                             <FormItem>
                               <FormLabel>Right Table</FormLabel>
-                              <Select
+                              <select
+                                className="w-full rounded-md border p-2 text-sm"
+                                disabled={
+                                  !rightSchemaName[field.id] ||
+                                  isRightTableLoading[field.id]
+                                }
+                                value={formField.value || ""}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+
+                                  setRightTableName((prev) => ({
+                                    ...prev,
+                                    [field.id]: value,
+                                  }));
+
+                                  handleSelectedTable({
+                                    id: field.id,
+                                    name: value,
+                                    alias: form.getValues(
+                                      `joins.${index}.alias`
+                                    ),
+                                  });
+
+                                  formField.onChange(value);
+                                  handleFetchRightColumns(field.id, value);
+                                }}
+                              >
+                                <option value="" disabled>
+                                  Select a table
+                                </option>
+
+                                {rightTables[field.id]?.map((item, i) => (
+                                  <option key={i} value={item}>
+                                    {item}
+                                  </option>
+                                ))}
+                              </select>
+
+                              {/* <Select
                                 disabled={
                                   !rightSchemaName[field.id] ||
                                   isRightTableLoading[field.id]
@@ -993,7 +1143,7 @@ const CreateMaterializedView = () => {
                                     ))}
                                   </SelectGroup>
                                 </SelectContent>
-                              </Select>
+                              </Select> */}
                               <FormMessage />
                             </FormItem>
                           )}
@@ -1040,7 +1190,37 @@ const CreateMaterializedView = () => {
                             render={({ field }) => (
                               <FormItem>
                                 <FormLabel>Left Column</FormLabel>
-                                <Select
+                                <select
+                                  className="w-full p-2 rounded-md border text-sm"
+                                  disabled={
+                                    !leftTableName[index] ||
+                                    isLeftColumnLoading[index]
+                                  }
+                                  value={field.value?.split(".")[1] || ""}
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+
+                                    const column = selectedTables.find(
+                                      (item) =>
+                                        item.name === leftTableName[index]
+                                    );
+
+                                    const left = `${column?.alias}.${value}`;
+                                    field.onChange(left);
+                                  }}
+                                >
+                                  <option value="" disabled>
+                                    Select left column
+                                  </option>
+
+                                  {leftColumns[index]?.map((item, i) => (
+                                    <option key={i} value={item.name}>
+                                      {item.name}
+                                    </option>
+                                  ))}
+                                </select>
+
+                                {/* <Select
                                   disabled={
                                     !leftTableName[index] ||
                                     isLeftColumnLoading[index]
@@ -1070,7 +1250,7 @@ const CreateMaterializedView = () => {
                                       ))}
                                     </SelectGroup>
                                   </SelectContent>
-                                </Select>
+                                </Select> */}
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -1083,7 +1263,24 @@ const CreateMaterializedView = () => {
                               <FormItem>
                                 <FormLabel>Operator</FormLabel>
                                 <FormControl>
-                                  <Select
+                                  <select
+                                    className="w-full p-2 rounded-md border text-sm"
+                                    value={field.value || ""}
+                                    onChange={(e) =>
+                                      field.onChange(e.target.value)
+                                    }
+                                  >
+                                    <option value="" disabled>
+                                      Select an Operator
+                                    </option>
+
+                                    <option value="=">=</option>
+                                    <option value="!=">!=</option>
+                                    <option value=">">{">"}</option>
+                                    <option value="<">{"<"}</option>
+                                  </select>
+
+                                  {/* <Select
                                     onValueChange={field.onChange}
                                     value={field.value}
                                   >
@@ -1098,7 +1295,7 @@ const CreateMaterializedView = () => {
                                         <SelectItem value="<">{"<"}</SelectItem>
                                       </SelectGroup>
                                     </SelectContent>
-                                  </Select>
+                                  </Select> */}
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -1111,7 +1308,36 @@ const CreateMaterializedView = () => {
                             render={({ field: formField }) => (
                               <FormItem>
                                 <FormLabel>Right Column</FormLabel>
-                                <Select
+                                <select
+                                  className="w-full p-2 rounded-md border text-sm"
+                                  disabled={
+                                    !rightTableName[field.id] ||
+                                    isRightColumnLoading[field.id]
+                                  }
+                                  value={formField.value?.split(".")[1] || ""}
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+
+                                    const alias = form.getValues(
+                                      `joins.${index}.alias`
+                                    );
+                                    const right = `${alias}.${value}`;
+
+                                    formField.onChange(right);
+                                  }}
+                                >
+                                  <option value="" disabled>
+                                    Select a column name
+                                  </option>
+
+                                  {rightColumns[field.id]?.map((item, i) => (
+                                    <option key={i} value={item.name}>
+                                      {item.name}
+                                    </option>
+                                  ))}
+                                </select>
+
+                                {/* <Select
                                   disabled={
                                     !rightTableName[field.id] ||
                                     isRightColumnLoading[field.id]
@@ -1143,7 +1369,7 @@ const CreateMaterializedView = () => {
                                       )}
                                     </SelectGroup>
                                   </SelectContent>
-                                </Select>
+                                </Select> */}
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -1206,7 +1432,29 @@ const CreateMaterializedView = () => {
                           render={({ field: formField }) => (
                             <FormItem>
                               <FormLabel>Table Name</FormLabel>
-                              <Select
+                              <select
+                                className="w-full p-2 rounded-md border text-sm"
+                                disabled={selectedTables.length < 1}
+                                value={formField.value || ""}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+
+                                  formField.onChange(value);
+                                  handleFetchSelectColumns(field.id, value);
+                                }}
+                              >
+                                <option value="" disabled>
+                                  Select a Table
+                                </option>
+
+                                {selectedTables?.map((item, i) => (
+                                  <option key={i} value={item.name}>
+                                    {item.name}
+                                  </option>
+                                ))}
+                              </select>
+
+                              {/* <Select
                                 disabled={selectedTables.length < 1}
                                 onValueChange={(value) => {
                                   formField.onChange(value);
@@ -1229,7 +1477,7 @@ const CreateMaterializedView = () => {
                                     ))}
                                   </SelectGroup>
                                 </SelectContent>
-                              </Select>
+                              </Select> */}
                               <FormMessage />
                             </FormItem>
                           )}
@@ -1248,7 +1496,33 @@ const CreateMaterializedView = () => {
                             return (
                               <FormItem>
                                 <FormLabel>Column Name</FormLabel>
-                                <Select
+                                <select
+                                  className="w-full p-2 rounded-md border text-sm"
+                                  disabled={
+                                    !tableName ||
+                                    isSelectColumnLoading[field.id]
+                                  }
+                                  value={formField.value?.split(".")[1] || ""}
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+                                    formField.onChange(
+                                      `${table?.alias}.${value}`
+                                    );
+                                  }}
+                                >
+                                  <option value="" disabled>
+                                    Select a column name
+                                  </option>
+
+                                  {tableName &&
+                                    selectColumns[tableName]?.map((col) => (
+                                      <option key={col.name} value={col.name}>
+                                        {col.name}
+                                      </option>
+                                    ))}
+                                </select>
+
+                                {/* <Select
                                   disabled={
                                     !tableName ||
                                     isSelectColumnLoading[field.id]
@@ -1279,7 +1553,7 @@ const CreateMaterializedView = () => {
                                         ))}
                                     </SelectGroup>
                                   </SelectContent>
-                                </Select>
+                                </Select> */}
                               </FormItem>
                             );
                           }}
@@ -1293,7 +1567,25 @@ const CreateMaterializedView = () => {
                             <FormItem>
                               <FormLabel>Aggregate (optional)</FormLabel>
                               <FormControl>
-                                <Select
+                                <select
+                                  className="w-full p-2 rounded-md border text-sm"
+                                  value={field.value || ""}
+                                  onChange={(e) =>
+                                    field.onChange(e.target.value)
+                                  }
+                                >
+                                  <option value="" disabled>
+                                    Select an Aggregate
+                                  </option>
+
+                                  <option value="COUNT">COUNT</option>
+                                  <option value="SUM">SUM</option>
+                                  <option value="AVG">AVG</option>
+                                  <option value="MIN">MIN</option>
+                                  <option value="MAX">MAX</option>
+                                </select>
+
+                                {/* <Select
                                   onValueChange={(value) => {
                                     field.onChange(value);
                                   }}
@@ -1316,7 +1608,7 @@ const CreateMaterializedView = () => {
                                       <SelectItem value="MAX">MAX</SelectItem>
                                     </SelectGroup>
                                   </SelectContent>
-                                </Select>
+                                </Select> */}
                               </FormControl>
                             </FormItem>
                           )}
@@ -1342,7 +1634,23 @@ const CreateMaterializedView = () => {
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Distinct (optional)</FormLabel>
-                              <Select
+                              <select
+                                className="w-full p-2 rounded-md border text-sm"
+                                value={field.value?.toString() || ""}
+                                onChange={(e) => {
+                                  const value = e.target.value;
+                                  field.onChange(value === "true");
+                                }}
+                              >
+                                <option value="" disabled>
+                                  Select a distinct
+                                </option>
+
+                                <option value="true">true</option>
+                                <option value="false">false</option>
+                              </select>
+
+                              {/* <Select
                                 onValueChange={(value) => {
                                   field.onChange(
                                     value === "true" ? true : false
@@ -1362,7 +1670,7 @@ const CreateMaterializedView = () => {
                                     </SelectItem>
                                   ))}
                                 </SelectContent>
-                              </Select>
+                              </Select> */}
                               <FormMessage />
                             </FormItem>
                           )}
@@ -1445,11 +1753,34 @@ const CreateMaterializedView = () => {
                 {groupByFields.map((field, index) => (
                   <div key={field.id} className="grid grid-cols-10 gap-3">
                     <div className="grid col-span-9 gap-3 border p-2 rounded shadow">
-                      <div className="">
-                        <FormItem>
+                      <div className="flex justify-between items-center gap-2">
+                        <FormItem className="flex-1">
                           <FormLabel>Table Name</FormLabel>
+                          <select
+                            className="w-full p-2 rounded-md border text-sm"
+                            disabled={selectedTables.length < 1}
+                            value={grouoByTableName[field.id] || ""}
+                            onChange={(e) => {
+                              const value = e.target.value;
+                              setGroupByTableName((prev) => ({
+                                ...prev,
+                                [field.id]: value,
+                              }));
+                              handleFetchGroupByColumns(field.id, value);
+                            }}
+                          >
+                            <option value="" disabled>
+                              Select a table
+                            </option>
 
-                          <Select
+                            {selectedTables?.map((item) => (
+                              <option key={item.name} value={item.name}>
+                                {item.name}
+                              </option>
+                            ))}
+                          </select>
+
+                          {/* <Select
                             disabled={selectedTables.length < 1}
                             value={grouoByTableName[field.id] || ""}
                             onValueChange={(value) => {
@@ -1474,9 +1805,8 @@ const CreateMaterializedView = () => {
                                 ))}
                               </SelectGroup>
                             </SelectContent>
-                          </Select>
+                          </Select> */}
                         </FormItem>
-
                         <FormField
                           control={form.control}
                           name={`group_by.${index}.column`}
@@ -1490,7 +1820,31 @@ const CreateMaterializedView = () => {
                             return (
                               <FormItem className="flex-1">
                                 <FormLabel>Column Name</FormLabel>
-                                <Select
+                                <select
+                                  className="w-full p-2 rounded-md border text-sm"
+                                  value={formField.value?.split(".")[1] || ""}
+                                  onChange={(e) => {
+                                    const value = e.target.value;
+                                    const column = `${table?.alias}.${value}`;
+                                    formField.onChange(column);
+                                  }}
+                                  disabled={
+                                    !selectedTableName ||
+                                    isGroupByColumnLoading[field.id]
+                                  }
+                                >
+                                  <option value="" disabled>
+                                    Select a column
+                                  </option>
+
+                                  {groupByColumns[field.id]?.map((item, i) => (
+                                    <option key={i} value={item.name}>
+                                      {item.name}
+                                    </option>
+                                  ))}
+                                </select>
+
+                                {/* <Select
                                   value={formField.value?.split(".")[1] || ""}
                                   onValueChange={(value) => {
                                     const column = `${table?.alias}.${value}`;
@@ -1518,7 +1872,7 @@ const CreateMaterializedView = () => {
                                       )}
                                     </SelectGroup>
                                   </SelectContent>
-                                </Select>
+                                </Select> */}
                                 <FormMessage />
                               </FormItem>
                             );
