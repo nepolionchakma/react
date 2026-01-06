@@ -439,7 +439,7 @@ const CreateMaterializedView = () => {
       };
 
       const res = await loadData(fetchSchemaParams);
-      setSchemas(res.schemas);
+      setSchemas(res?.schemas);
     };
     fetchSchema();
   }, [token.access_token]);
@@ -505,7 +505,7 @@ const CreateMaterializedView = () => {
 
       setLeftColumns((prev) => ({
         ...prev,
-        [index]: res.columns || [],
+        [index]: res?.columns || [],
       }));
     } finally {
       setIsLeftColumnLoading((prev) => ({
@@ -534,7 +534,7 @@ const CreateMaterializedView = () => {
 
       setRightColumns((prev) => ({
         ...prev,
-        [fieldId]: res.columns,
+        [fieldId]: res?.columns,
       }));
     } finally {
       setIsRightColumnLoading((prev) => ({
@@ -563,7 +563,7 @@ const CreateMaterializedView = () => {
       const res = await loadData(fetchColumnParams);
       setSelectColumns((prev) => ({
         ...prev,
-        [tableName]: res.columns,
+        [tableName]: res?.columns,
       }));
     } finally {
       setIsSelectColumnLoading((prev) => ({
@@ -620,7 +620,7 @@ const CreateMaterializedView = () => {
       const res = await loadData(fetchColumnParams);
       setGroupByArgColumns((prev) => ({
         ...prev,
-        [fieldId]: res.columns,
+        [fieldId]: res?.columns,
       }));
     } finally {
       setIsGroupByArgColumnLoading((prev) => ({
@@ -649,7 +649,7 @@ const CreateMaterializedView = () => {
       const res = await loadData(fetchColumnParams);
       setSelectArgColumns((prev) => ({
         ...prev,
-        [fieldId]: res.columns,
+        [fieldId]: res?.columns,
       }));
     } finally {
       setIsSelectArgColumnLoading((prev) => ({
