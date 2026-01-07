@@ -61,6 +61,7 @@ export const flaskApi = {
   CreateAggregateTable: "/create_aggregate_table",
   CreateMaterializedView: "/create_mv",
   Table: "/tables",
+  DataSourceMetadata: "/datasource/metadata",
 };
 
 // All Node api

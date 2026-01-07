@@ -64,3 +64,9 @@ export interface IApplicationType {
   last_updated_by: number;
   last_update_date: Date;
 }
+
+export interface IDataTable {
+  schema: string;
+  table: string;
+  columns: string[];
+}

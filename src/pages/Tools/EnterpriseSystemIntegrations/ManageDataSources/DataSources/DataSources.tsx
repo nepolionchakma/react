@@ -48,9 +48,14 @@ import CustomTooltip from "@/components/Tooltip/Tooltip";
 interface Props {
   dataSourceLimit: number;
   setDataSourceLimit: React.Dispatch<React.SetStateAction<number>>;
+  setDataSourceName: React.Dispatch<React.SetStateAction<string>>;
 }
 
-const DataSources = ({ dataSourceLimit, setDataSourceLimit }: Props) => {
+const DataSources = ({
+  dataSourceLimit,
+  setDataSourceLimit,
+  setDataSourceName,
+}: Props) => {
   const { token } = useGlobalContext();
   const [data, setData] = React.useState<IDataSourceTypes[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -117,6 +122,7 @@ const DataSources = ({ dataSourceLimit, setDataSourceLimit }: Props) => {
 
   const handleRowSelection = (rowData: IDataSourceTypes) => {
     setSelectedDataSourceItem(rowData);
+    setDataSourceName(rowData.datasource_name);
   };
 
   const handleAdd = () => {
