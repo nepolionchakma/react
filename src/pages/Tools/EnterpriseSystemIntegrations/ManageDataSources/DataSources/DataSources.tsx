@@ -88,6 +88,7 @@ const DataSources = ({
         baseURL: FLASK_URL,
         url: `${flaskApi.DefDataSources}?datasource_name=${query}&page=${currentPage}&limit=${dataSourceLimit}`,
         accessToken: token.access_token,
+        setLoading: setIsLoading,
       });
 
       if (response) {

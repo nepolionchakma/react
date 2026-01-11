@@ -21,6 +21,7 @@ const ManageDataSource = () => {
   const [isSchemaLoaded, setIsSchemaLoaded] = useState(false);
   const [tables, setTables] = useState<string[]>([]);
   const [selectedTable, setSelectedTable] = useState("");
+  const [isSchemaLoading, setIsSchemaLoading] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,7 +29,7 @@ const ManageDataSource = () => {
         baseURL: FLASK_URL,
         url: `${flaskApi.DataSourceMetadata}?datasource_name=${dataSourceName}`,
         accessToken: token.access_token,
-        // setLoading: setIsLoading,
+        setLoading: setIsSchemaLoading,
       });
       // console.log(response);
       if (response) {
@@ -70,6 +71,7 @@ const ManageDataSource = () => {
           setSelectedSchema={setSelectedSchema}
           setSelectedTable={setSelectedTable}
           isSchemaLoaded={isSchemaLoaded}
+          isSchemaLoading={isSchemaLoading}
         />
       </div>
     </>
