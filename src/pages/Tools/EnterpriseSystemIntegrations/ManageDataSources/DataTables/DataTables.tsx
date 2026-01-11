@@ -46,6 +46,7 @@ interface Props {
   isSchemaLoaded: boolean;
   tables: string[];
   setSelectedTable: React.Dispatch<React.SetStateAction<string>>;
+  isSchemaLoading: boolean;
 }
 
 type DynamicRow = Record<string, unknown>;
@@ -61,6 +62,7 @@ const DataTables = ({
   isSchemaLoaded,
   tables,
   setSelectedTable,
+  isSchemaLoading,
 }: Props) => {
   const { token } = useGlobalContext();
   const [sorting, setSorting] = useState<SortingState>([]);
@@ -185,8 +187,17 @@ const DataTables = ({
             <label>Schema: </label>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant={"outline"} disabled={!isSchemaLoaded}>
-                  {selectedSchema ? toTitleCase(selectedSchema) : "Schemas"}
+                <Button
+                  variant={"outline"}
+                  disabled={!isSchemaLoaded && isSchemaLoading}
+                >
+                  {isSchemaLoading ? (
+                    <Spinner size="20" color="black" />
+                  ) : selectedSchema ? (
+                    toTitleCase(selectedSchema)
+                  ) : (
+                    "Schemas"
+                  )}
                   <ChevronDown className="ml-2 h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
