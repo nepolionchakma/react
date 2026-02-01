@@ -23,18 +23,24 @@ import { useARMContext } from "@/Context/ARMContext/ARMContext";
 
 import { IARMAsynchronousTasksTypes } from "@/types/interfaces/ARM.interface";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { EllipsisVertical, X } from "lucide-react";
+import { EllipsisVertical, Play, X } from "lucide-react";
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ShapeNode } from "../../shape/types";
 import { Edge, useUpdateNodeInternals } from "@xyflow/react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface EditNodeProps {
   theme: string;
   setNodes: (
-    payload: ShapeNode[] | ((nodes: ShapeNode[]) => ShapeNode[])
+    payload: ShapeNode[] | ((nodes: ShapeNode[]) => ShapeNode[]),
   ) => void;
   setEdges: (payload: Edge[] | ((edges: Edge[]) => Edge[])) => void;
   selectedNode: ShapeNode | undefined;
@@ -75,30 +81,33 @@ const EditNode: FC<EditNodeProps> = ({
 
   const FormSchema = z.object(
     selectedNode
-      ? Object.keys(selectedNode.data).reduce((acc, key) => {
-          const value =
-            selectedNode.data[key as keyof typeof selectedNode.data];
-          if (key === "label") {
-            acc[key] = z.string();
-          } else if (key === "step_function") {
-            acc[key] = z.string();
-          } else if (key === "attributes" && Array.isArray(value)) {
-            acc[key] = z
-              .array(
-                z.object({
-                  id: z.number(),
-                  attribute_name: z.string(),
-                  attribute_value: z.string(),
-                })
-              )
-              .optional();
-          } else {
-            acc[key] = z.unknown().optional();
-          }
+      ? Object.keys(selectedNode.data).reduce(
+          (acc, key) => {
+            const value =
+              selectedNode.data[key as keyof typeof selectedNode.data];
+            if (key === "label") {
+              acc[key] = z.string();
+            } else if (key === "step_function") {
+              acc[key] = z.string();
+            } else if (key === "attributes" && Array.isArray(value)) {
+              acc[key] = z
+                .array(
+                  z.object({
+                    id: z.number(),
+                    attribute_name: z.string(),
+                    attribute_value: z.string(),
+                  }),
+                )
+                .optional();
+            } else {
+              acc[key] = z.unknown().optional();
+            }
 
-          return acc;
-        }, {} as Record<string, z.ZodType<any>>)
-      : {}
+            return acc;
+          },
+          {} as Record<string, z.ZodType<any>>,
+        )
+      : {},
   );
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -141,14 +150,14 @@ const EditNode: FC<EditNodeProps> = ({
   const handleDelete = () => {
     if (selectedNode) {
       setNodes((prevNodes: ShapeNode[]) =>
-        prevNodes.filter((node: ShapeNode) => node.id !== selectedNode.id)
+        prevNodes.filter((node: ShapeNode) => node.id !== selectedNode.id),
       );
 
       setEdges((prevEdges) =>
         prevEdges.filter(
           (edge) =>
-            edge.source !== selectedNode.id && edge.target !== selectedNode.id
-        )
+            edge.source !== selectedNode.id && edge.target !== selectedNode.id,
+        ),
       );
       setSelectedNode(undefined);
     }
@@ -163,11 +172,11 @@ const EditNode: FC<EditNodeProps> = ({
               data: {
                 ...prevNode.data,
                 attributes: prevNode?.data?.attributes.filter(
-                  (attr: any) => attr.id !== id
+                  (attr: any) => attr.id !== id,
                 ),
               },
             }
-          : prevNode
+          : prevNode,
       );
     }
   };
@@ -207,11 +216,11 @@ const EditNode: FC<EditNodeProps> = ({
                   : node.data.edge_connection_position,
             },
           };
-        })
+        }),
       );
 
       setEdges((prevEdges) =>
-        prevEdges.filter((edge) => !edgesToRemove.includes(edge.id))
+        prevEdges.filter((edge) => !edgesToRemove.includes(edge.id)),
       );
 
       // Force React Flow to update the node's internal handles
@@ -231,38 +240,56 @@ const EditNode: FC<EditNodeProps> = ({
             theme === "dark" ? "bg-[#1e293b] text-white" : "bg-[#f7f7f7]"
           }`}
         >
-          <div className="flex items-center justify-between">
-            <div>Properties</div>
-            <Popover>
-              <PopoverTrigger asChild>
-                <button>
-                  <EllipsisVertical size={20} />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-40">
-                <span
-                  onClick={() => setIsAddAttribute(true)}
-                  className="cursor-pointer"
-                >
-                  Add Attribute
-                </span>
-              </PopoverContent>
-            </Popover>
-            <X
-              size={20}
-              className="cursor-pointer"
-              onClick={() => setSelectedNode(undefined)}
-            />
-          </div>
+          <TooltipProvider>
+            <div className="flex items-center justify-between">
+              <div>Properties</div>
+              <div className="flex items-center gap-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Play size={20} className="cursor-pointer" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Play</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <EllipsisVertical size={20} />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>More</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-40">
+                    <span
+                      onClick={() => setIsAddAttribute(true)}
+                      className="cursor-pointer"
+                    >
+                      Add Attribute
+                    </span>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <X
+                size={20}
+                className="cursor-pointer"
+                onClick={() => setSelectedNode(undefined)}
+              />
+            </div>
+          </TooltipProvider>
           <hr className="my-2" />
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
                 {displayOrder.map((key) => {
                   if (
                     Object.prototype.hasOwnProperty.call(
                       selectedNode?.data,
-                      key
+                      key,
                     )
                   ) {
                     if (key === "edge_connection_position") {
@@ -304,7 +331,7 @@ const EditNode: FC<EditNodeProps> = ({
                                       >
                                         {item}
                                       </div>
-                                    )
+                                    ),
                                   )}
                                 </div>
                               </FormControl>
@@ -460,7 +487,7 @@ const EditNode: FC<EditNodeProps> = ({
                                             };
                                           }
                                           return prev;
-                                        }
+                                        },
                                       );
                                     }}
                                     className={`${
@@ -473,7 +500,7 @@ const EditNode: FC<EditNodeProps> = ({
                               </FormItem>
                             )}
                           />
-                        )
+                        ),
                       );
                     }
                   }

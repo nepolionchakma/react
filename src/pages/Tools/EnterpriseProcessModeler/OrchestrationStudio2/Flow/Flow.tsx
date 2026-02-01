@@ -98,7 +98,7 @@ const ShapesProExampleApp = ({
   const [selectedFlowData, setSelectedFlowData] =
     useState<IOrchestrationDataTypes2>();
   const [selectedNode, setSelectedNode] = useState<ShapeNode | undefined>(
-    undefined
+    undefined,
   );
   const [selectedEdge, setSelectedEdge] = useState<Edge | undefined>(undefined);
 
@@ -137,7 +137,7 @@ const ShapesProExampleApp = ({
         if (selectedFlowName !== "") {
           setIsLoading(true);
           const res = await api.get(
-            `/orchestration-studio-process/${selectedFlowName}`
+            `/orchestration-studio-process/${selectedFlowName}`,
           );
           setSelectedFlowData(res.data);
           setEdges(res.data.process_structure.edges);
@@ -224,7 +224,26 @@ const ShapesProExampleApp = ({
     // this will convert the pixel position of the node to the react flow coordinate system
     // so that a node is added at the correct position even when viewport is translated and/or zoomed in
     const position = screenToFlowPosition({ x: evt.clientX, y: evt.clientY });
-
+    const dynamicTypeName = (type: string) => {
+      switch (type) {
+        case "Start":
+          return "Start";
+        case "round-rectangle":
+          return "Automated Task";
+        case "rectangle":
+          return "Manual Task";
+        case "hexagon":
+          return "Approval";
+        case "diamond":
+          return "Decision";
+        case "parallelogram":
+          return "Script";
+        case "Stop":
+          return "Stop";
+        default:
+          return type;
+      }
+    };
     const newNode: ShapeNode = {
       // id: Date.now().toString(),
       id: `node-${Math.random().toString(36).substr(2, 9)}`,
@@ -232,7 +251,7 @@ const ShapesProExampleApp = ({
       position,
       style: { width: 100, height: 100 },
       data: {
-        label: type,
+        label: dynamicTypeName(type),
         step_function: "",
         attributes: [],
         type,
@@ -241,8 +260,8 @@ const ShapesProExampleApp = ({
           type === "Start"
             ? ["Bottom"]
             : type === "Stop"
-            ? ["Top"]
-            : ["Top", "Bottom", "Left", "Right"],
+              ? ["Top"]
+              : ["Top", "Bottom", "Left", "Right"],
         edges: [],
       },
       selected: true,
@@ -251,14 +270,14 @@ const ShapesProExampleApp = ({
       type === "Start"
         ? ["Bottom"]
         : type === "Stop"
-        ? ["Top"]
-        : ["Top", "Bottom", "Left", "Right"]
+          ? ["Top"]
+          : ["Top", "Bottom", "Left", "Right"],
     );
     setSelectedNode(newNode);
     setNodes((nodes) =>
       (nodes.map((n) => ({ ...n, selected: false })) as ShapeNode[]).concat([
         newNode,
-      ])
+      ]),
     );
     setSelectedEdge(undefined);
   };
@@ -270,7 +289,7 @@ const ShapesProExampleApp = ({
       setSelectedNode({ ...node, selected: true });
       setEdgeConnectionPosition(node.data.edge_connection_position);
     },
-    []
+    [],
   );
 
   const onEdgeClick = (event: React.MouseEvent, edge: Edge) => {
@@ -326,7 +345,7 @@ const ShapesProExampleApp = ({
                 ],
               },
             }
-          : prevNode
+          : prevNode,
       );
     }
     setAttributeName("");
@@ -334,7 +353,7 @@ const ShapesProExampleApp = ({
   const handleDeleteFlow = async () => {
     try {
       const res = await api.delete(
-        `/orchestration-studio-process/${selectedFlowData?.process_id}`
+        `/orchestration-studio-process/${selectedFlowData?.process_id}`,
       );
       if (res) {
         closeAllProgress();
@@ -351,7 +370,7 @@ const ShapesProExampleApp = ({
   };
 
   const handleSave = async (
-    e: React.MouseEvent<HTMLDivElement, MouseEvent>
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => {
     e.stopPropagation();
     // const id = Math.floor(Math.random() * 1000);
@@ -367,7 +386,7 @@ const ShapesProExampleApp = ({
         if (selectedFlowData) {
           const res = await api.put(
             `/orchestration-studio-process/${selectedFlowData.process_id}`,
-            JSON.stringify(putData)
+            JSON.stringify(putData),
           );
 
           if (res) {
@@ -391,7 +410,7 @@ const ShapesProExampleApp = ({
 
         // Count how many edges are connected to this node
         const connectedEdges = edges.filter(
-          (edge) => edge.source === node.id || edge.target === node.id
+          (edge) => edge.source === node.id || edge.target === node.id,
         ).length;
 
         return connectedEdges >= expected;
@@ -402,6 +421,17 @@ const ShapesProExampleApp = ({
 
     checkIfAllNodesConnected();
   }, [nodes, edges]);
+
+  const { fitView } = useReactFlow();
+  useEffect(() => {
+    if (nodes.length === 0) return;
+
+    fitView({
+      padding: 0.2,
+      maxZoom: 0.9,
+      duration: 300,
+    });
+  }, [fitView, nodes]);
 
   return (
     <div className="dndflow h-[calc(100vh-6rem)]">
@@ -422,7 +452,7 @@ const ShapesProExampleApp = ({
           onNodesChange={onNodesChange}
           onEdgesChange={onEdgesChange}
           defaultEdgeOptions={defaultEdgeOptions}
-          fitView
+          // fitView
           onDrop={onDrop}
           onDragOver={onDragOver}
           snapGrid={[10, 10]}
@@ -498,7 +528,7 @@ const ShapesProExampleApp = ({
                           onClick={() => {
                             setIsEditFlowName(true);
                             setNewProcessName(
-                              selectedFlowData?.process_name ?? ""
+                              selectedFlowData?.process_name ?? "",
                             );
                           }}
                           className={`cursor-pointer p-1 border rounded-full ${

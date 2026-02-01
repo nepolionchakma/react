@@ -43,6 +43,27 @@ function SidebarItem({ type }: SidebarItemProps) {
     }
   };
 
+  const dynamicTypeName = (type: string) => {
+    switch (type) {
+      case "Start":
+        return "Start";
+      case "round-rectangle":
+        return "Automated Task";
+      case "rectangle":
+        return "Manual Task";
+      case "hexagon":
+        return "Approval";
+      case "diamond":
+        return "Decision";
+      case "parallelogram":
+        return "Script";
+      case "Stop":
+        return "Stop";
+      default:
+        return type;
+    }
+  };
+
   return (
     <TooltipProvider>
       <Tooltip>
@@ -73,7 +94,7 @@ function SidebarItem({ type }: SidebarItemProps) {
           </button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>{type}</p>
+          <p>{dynamicTypeName(type)}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
