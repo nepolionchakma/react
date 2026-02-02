@@ -23,23 +23,35 @@ import { useARMContext } from "@/Context/ARMContext/ARMContext";
 
 import { IARMAsynchronousTasksTypes } from "@/types/interfaces/ARM.interface";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { EllipsisVertical, X } from "lucide-react";
+import { EllipsisVertical, Play, StopCircle, X } from "lucide-react";
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ShapeNode } from "../../shape/types";
 import { Edge, useUpdateNodeInternals } from "@xyflow/react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import axios from "axios";
+import { tailspin } from "ldrs";
+import { toast } from "@/components/ui/use-toast";
 
 interface EditNodeProps {
   theme: string;
   setNodes: (
-    payload: ShapeNode[] | ((nodes: ShapeNode[]) => ShapeNode[])
+    payload: ShapeNode[] | ((nodes: ShapeNode[]) => ShapeNode[]),
   ) => void;
   setEdges: (payload: Edge[] | ((edges: Edge[]) => Edge[])) => void;
   selectedNode: ShapeNode | undefined;
   setSelectedNode: Dispatch<SetStateAction<ShapeNode | undefined>>;
   setIsAddAttribute: Dispatch<SetStateAction<boolean>>;
+  // processExecutionId: string;
+  setProcessExecutionId: Dispatch<SetStateAction<string>>;
+  workFlowId: number | undefined;
 }
 
 const EditNode: FC<EditNodeProps> = ({
@@ -49,14 +61,18 @@ const EditNode: FC<EditNodeProps> = ({
   selectedNode,
   setSelectedNode,
   setIsAddAttribute,
+  // processExecutionId,
+  setProcessExecutionId,
+  workFlowId,
 }) => {
   const { getAsyncTasks } = useARMContext();
   const [stepFunctionTasks, setStepFunctionTasks] = useState<
     IARMAsynchronousTasksTypes[]
   >([]);
-  const { edgeConnectionPosition, setEdgeConnectionPosition } =
+  const { token, edgeConnectionPosition, setEdgeConnectionPosition } =
     useGlobalContext();
-
+  const [isLoading, setIsLoading] = useState(false);
+  tailspin.register();
   const updateNodeInternals = useUpdateNodeInternals(); // Updating node internals dynamically
 
   useEffect(() => {
@@ -75,30 +91,33 @@ const EditNode: FC<EditNodeProps> = ({
 
   const FormSchema = z.object(
     selectedNode
-      ? Object.keys(selectedNode.data).reduce((acc, key) => {
-          const value =
-            selectedNode.data[key as keyof typeof selectedNode.data];
-          if (key === "label") {
-            acc[key] = z.string();
-          } else if (key === "step_function") {
-            acc[key] = z.string();
-          } else if (key === "attributes" && Array.isArray(value)) {
-            acc[key] = z
-              .array(
-                z.object({
-                  id: z.number(),
-                  attribute_name: z.string(),
-                  attribute_value: z.string(),
-                })
-              )
-              .optional();
-          } else {
-            acc[key] = z.unknown().optional();
-          }
+      ? Object.keys(selectedNode.data).reduce(
+          (acc, key) => {
+            const value =
+              selectedNode.data[key as keyof typeof selectedNode.data];
+            if (key === "label") {
+              acc[key] = z.string();
+            } else if (key === "step_function") {
+              acc[key] = z.string();
+            } else if (key === "attributes" && Array.isArray(value)) {
+              acc[key] = z
+                .array(
+                  z.object({
+                    id: z.number(),
+                    attribute_name: z.string(),
+                    attribute_value: z.string(),
+                  }),
+                )
+                .optional();
+            } else {
+              acc[key] = z.unknown().optional();
+            }
 
-          return acc;
-        }, {} as Record<string, z.ZodType<any>>)
-      : {}
+            return acc;
+          },
+          {} as Record<string, z.ZodType<any>>,
+        )
+      : {},
   );
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -141,14 +160,14 @@ const EditNode: FC<EditNodeProps> = ({
   const handleDelete = () => {
     if (selectedNode) {
       setNodes((prevNodes: ShapeNode[]) =>
-        prevNodes.filter((node: ShapeNode) => node.id !== selectedNode.id)
+        prevNodes.filter((node: ShapeNode) => node.id !== selectedNode.id),
       );
 
       setEdges((prevEdges) =>
         prevEdges.filter(
           (edge) =>
-            edge.source !== selectedNode.id && edge.target !== selectedNode.id
-        )
+            edge.source !== selectedNode.id && edge.target !== selectedNode.id,
+        ),
       );
       setSelectedNode(undefined);
     }
@@ -163,11 +182,11 @@ const EditNode: FC<EditNodeProps> = ({
               data: {
                 ...prevNode.data,
                 attributes: prevNode?.data?.attributes.filter(
-                  (attr: any) => attr.id !== id
+                  (attr: any) => attr.id !== id,
                 ),
               },
             }
-          : prevNode
+          : prevNode,
       );
     }
   };
@@ -207,11 +226,11 @@ const EditNode: FC<EditNodeProps> = ({
                   : node.data.edge_connection_position,
             },
           };
-        })
+        }),
       );
 
       setEdges((prevEdges) =>
-        prevEdges.filter((edge) => !edgesToRemove.includes(edge.id))
+        prevEdges.filter((edge) => !edgesToRemove.includes(edge.id)),
       );
 
       // Force React Flow to update the node's internal handles
@@ -222,6 +241,101 @@ const EditNode: FC<EditNodeProps> = ({
       return updatedPositions;
     });
   };
+  console.log(selectedNode, "selectedNode");
+
+  // Trigger the workflow via a standard POST request
+  const startWorkflow = async () => {
+    try {
+      setIsLoading(true);
+      const response = await axios.post(
+        `https://procg.datafluent.team/api/v2/workflow/run/${workFlowId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token.access_token}`,
+          },
+        },
+      );
+
+      toast({
+        description: `${response.data.message}`,
+        variant: "default",
+      });
+      const executionId = response.data.def_process_execution_id;
+      setProcessExecutionId(executionId);
+
+      const eventSource = new EventSource(
+        `https://procg.datafluent.team/api/v2/workflow/execution_stream/${executionId}?access_token=${token.access_token}`,
+      );
+
+      eventSource.onmessage = (event) => {
+        const payload = JSON.parse(event.data);
+
+        console.log("Workflow Update:", event);
+
+        if (payload.type === "step") {
+          // handle step update
+        }
+      };
+
+      eventSource.addEventListener("step", (event) => {
+        const step = JSON.parse(event.data);
+        console.log(step, "step");
+        if (step.status === "RUNNING") {
+          console.log("Currently executing:", step.node_label);
+        }
+      });
+
+      eventSource.addEventListener("complete", (event) => {
+        console.log("Workflow finished successfully!");
+        const parseEvent = JSON.parse(event.data);
+        toast({
+          title: parseEvent.execution_status,
+          description: `
+          Process Execution ID: ${parseEvent.def_process_execution_id},
+          Process ID: ${parseEvent.def_process_execution_id}`,
+        });
+        eventSource.close();
+      });
+
+      eventSource.onerror = (error) => {
+        console.error("SSE connection error:", error);
+        eventSource.close();
+      };
+    } catch (err) {
+      console.error("Failed to start workflow:", err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePlay = async () => {
+    startWorkflow();
+    // const postParams = {
+    //   baseURL: FLASK_URL,
+    //   url: `${flaskApi.RunFlow}/20`,
+    //   setLoading: () => {},
+    //   payload: {},
+    //   accessToken: token.access_token,
+    // };
+    // console.log(postParams);
+    // const res = await postData({
+    //   baseURL: FLASK_URL,
+    //   url: `${flaskApi.RunFlow}/20`,
+    //   setLoading: setIsLoading,
+    //   payload: {},
+    //   accessToken: token.access_token,
+    // });
+
+    // const res = await axios.get(`${FLASK_URL}${flaskApi.RunFlowStream}/35`, {
+    //   headers: {
+    //     Authorization: `Bearer ${token.access_token}`,
+    //   },
+    // });
+    // console.log(token.access_token, "token.access_token");
+    // console.log(res, "res....");
+    // console.log("res....");
+  };
 
   return (
     <>
@@ -231,38 +345,96 @@ const EditNode: FC<EditNodeProps> = ({
             theme === "dark" ? "bg-[#1e293b] text-white" : "bg-[#f7f7f7]"
           }`}
         >
-          <div className="flex items-center justify-between">
-            <div>Properties</div>
-            <Popover>
-              <PopoverTrigger asChild>
-                <button>
-                  <EllipsisVertical size={20} />
-                </button>
-              </PopoverTrigger>
-              <PopoverContent className="w-40">
-                <span
-                  onClick={() => setIsAddAttribute(true)}
-                  className="cursor-pointer"
-                >
-                  Add Attribute
-                </span>
-              </PopoverContent>
-            </Popover>
-            <X
-              size={20}
-              className="cursor-pointer"
-              onClick={() => setSelectedNode(undefined)}
-            />
-          </div>
+          <TooltipProvider>
+            <div className="flex items-center justify-between">
+              <div>Properties</div>
+              <div className="flex items-center gap-2">
+                {selectedNode?.data?.type === "Start" && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      {isLoading ? (
+                        <l-tailspin
+                          size="20"
+                          stroke="3"
+                          speed="1"
+                          color="green"
+                        ></l-tailspin>
+                      ) : (
+                        <Play
+                          size={20}
+                          className="cursor-pointer"
+                          color="green"
+                          onClick={handlePlay}
+                        />
+                      )}
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Play</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+                {selectedNode?.data?.type === "Stop" && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <StopCircle
+                        size={20}
+                        className="cursor-pointer"
+                        color="red"
+                        onClick={() => {}}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Stop</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+
+                <Popover>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <PopoverTrigger asChild>
+                        <button>
+                          <EllipsisVertical size={20} />
+                        </button>
+                      </PopoverTrigger>
+                    </TooltipTrigger>
+
+                    <TooltipContent>
+                      <p>More options</p>
+                    </TooltipContent>
+                  </Tooltip>
+
+                  <PopoverContent className="w-40">
+                    <span
+                      onClick={() => setIsAddAttribute(true)}
+                      className="cursor-pointer"
+                    >
+                      Add Attribute
+                    </span>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <X
+                size={20}
+                className="cursor-pointer"
+                onClick={() => {
+                  setNodes((nodes) =>
+                    nodes.map((node) => ({ ...node, selected: false })),
+                  );
+                  setSelectedNode(undefined);
+                }}
+              />
+            </div>
+          </TooltipProvider>
           <hr className="my-2" />
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-              <div className="flex flex-col gap-4">
+              <div className="flex flex-col gap-2">
                 {displayOrder.map((key) => {
                   if (
                     Object.prototype.hasOwnProperty.call(
                       selectedNode?.data,
-                      key
+                      key,
                     )
                   ) {
                     if (key === "edge_connection_position") {
@@ -304,7 +476,7 @@ const EditNode: FC<EditNodeProps> = ({
                                       >
                                         {item}
                                       </div>
-                                    )
+                                    ),
                                   )}
                                 </div>
                               </FormControl>
@@ -460,7 +632,7 @@ const EditNode: FC<EditNodeProps> = ({
                                             };
                                           }
                                           return prev;
-                                        }
+                                        },
                                       );
                                     }}
                                     className={`${
@@ -473,7 +645,7 @@ const EditNode: FC<EditNodeProps> = ({
                               </FormItem>
                             )}
                           />
-                        )
+                        ),
                       );
                     }
                   }

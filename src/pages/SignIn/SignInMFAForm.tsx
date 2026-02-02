@@ -98,7 +98,7 @@ function SignInMFAForm() {
     }
   };
 
-  const handleEnableCode = async () => {
+  const handleVerifyCode = async () => {
     try {
       const response = await postData({
         baseURL: NODE_URL,
@@ -246,7 +246,7 @@ function SignInMFAForm() {
             </div>
             <Button
               disabled={isLoading || code.length === 0}
-              onClick={() => handleEnableCode()}
+              onClick={() => handleVerifyCode()}
             >
               {isLoading ? (
                 <l-tailspin size="15" stroke="3" speed="0.9" color="white" />

@@ -34,6 +34,11 @@ export type AttributesProps = {
   attribute_name: string;
   attribute_value: string;
 };
+export type NodeStatus = {
+  status: string;
+  result?: string;
+};
+
 export type ShapeNode = Node<{
   label: string;
   step_function: string;
@@ -42,4 +47,5 @@ export type ShapeNode = Node<{
   color: string;
   edge_connection_position: string[];
   edges: string[];
+  status: NodeStatus;
 }>;

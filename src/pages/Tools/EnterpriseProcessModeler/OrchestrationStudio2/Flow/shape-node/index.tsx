@@ -24,7 +24,8 @@ function useNodeDimensions(id: string) {
 }
 
 function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
-  const { label, attributes, color, type, edge_connection_position } = data;
+  const { label, attributes, color, type, edge_connection_position, status } =
+    data;
   const { setNodes } = useReactFlow();
   const { width, height } = useNodeDimensions(id);
   const shiftKeyPressed = useKeyPress("Shift");
@@ -44,7 +45,7 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
         }
 
         return node;
-      })
+      }),
     );
   };
   // const renderHandles = useMemo(() => {
@@ -64,6 +65,60 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
   //   return handles;
   // }, [color, edge_connection_position]);
 
+  // Status indicator style
+  const statusStyle = {
+    position: "absolute" as const,
+    right: "-150%", // Position to the left of the node
+    top: "20%",
+    transform: "translateY(-50%)",
+    backgroundColor: "#f8f9fa",
+    padding: "1px 2px",
+    borderRadius: "4px",
+    border: "1px solid #dee2e6",
+    fontSize: "12px",
+    // minWidth: "36px",
+    textAlign: "center" as const,
+    boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
+    zIndex: 10,
+    overFlow: "hidden",
+  };
+
+  // Status color based on status
+  const getStatusColor = (status?: string) => {
+    if (!status) return "#6c757d"; // Default gray
+    switch (status.toLowerCase()) {
+      case "passed":
+        return "#28a745";
+      case "completed":
+        return "#28a745";
+      case "failed":
+        return "#dc3545";
+      case "running":
+        return "#ffc107";
+      case "pending":
+        return "#17a2b8";
+      default:
+        return "#6c757d";
+    }
+  };
+
+  const formatResult = (result: any) => {
+    if (result === null || result === undefined) {
+      return "";
+    }
+
+    if (typeof result === "object") {
+      if (Array.isArray(result)) {
+        return result.join(", ");
+      }
+      return Object.entries(result)
+        .map(([key, value]) => `${key}: ${value}`)
+        .join(", ");
+    }
+
+    return String(result);
+  };
+
   return (
     <>
       <ShapeNodeToolbar onColorChange={onColorChange} activeColor={color} />
@@ -72,6 +127,39 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
         keepAspectRatio={shiftKeyPressed}
         isVisible={selected}
       />
+      {/* Status Indicator */}
+      {status?.status && selected && (
+        <div style={statusStyle}>
+          <div
+            style={{
+              color: getStatusColor(status.status),
+              fontWeight: "bold",
+              marginBottom: "2px",
+              fontSize: "10px",
+              padding: "2px 3px",
+            }}
+          >
+            {status.status}
+          </div>
+
+          {status.result && (
+            <div
+              style={{
+                color: "#212529",
+                fontSize: "10px",
+                wordBreak: "break-word",
+                maxWidth: "100px",
+                maxHeight: "80px",
+                overflow: "auto",
+                textOverflow: "ellipsis",
+                padding: "2px 3px",
+              }}
+            >
+              {formatResult(status.result)}
+            </div>
+          )}
+        </div>
+      )}
       <Shape
         type={type}
         width={width}
@@ -112,7 +200,12 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
           })}
         </>
       )}
-      <NodeData label={label} attributes={attributes} />
+      <NodeData
+        label={label}
+        attributes={attributes}
+        width={width}
+        height={height}
+      />
     </>
   );
 }
