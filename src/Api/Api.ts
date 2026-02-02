@@ -64,6 +64,7 @@ export const flaskApi = {
   RunFlow: "/workflow/run",
   RunFlowStream: "/workflow/execution_stream",
   NodeStatusCheck: "/workflow/execution_steps",
+  DataSourceMetadata: "/datasource/metadata",
 };
 
 // All Node api

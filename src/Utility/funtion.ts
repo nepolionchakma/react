@@ -39,6 +39,7 @@ interface deleteDataParams {
   payload?: any;
   accessToken?: string;
   isToast?: boolean;
+  setLoading?: Dispatch<SetStateAction<boolean>>;
 }
 
 export async function loadData(params: loadDataParams) {
@@ -152,6 +153,9 @@ export async function putData(params: putDataParams) {
 }
 
 export async function deleteData(params: deleteDataParams) {
+  if (params.setLoading) {
+    params.setLoading(true);
+  }
   try {
     const res = await api.delete(`${params.url}`, {
       baseURL: params.baseURL,
@@ -183,5 +187,19 @@ export async function deleteData(params: deleteDataParams) {
         throw error;
       }
     }
+  } finally {
+    if (params.setLoading) {
+      params.setLoading(false);
+    }
   }
+}
+
+export function getFirstMiddleLast(str: string) {
+  if (!str || str.length === 0) return "";
+
+  const first = str[0];
+  const middle = str[Math.floor(str.length / 2)];
+  const last = str[str.length - 1];
+
+  return first + middle + last;
 }
