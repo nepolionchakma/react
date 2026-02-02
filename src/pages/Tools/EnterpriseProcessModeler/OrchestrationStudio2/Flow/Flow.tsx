@@ -297,10 +297,16 @@ const ShapesProExampleApp = ({
     setSelectedNode(undefined);
     setSelectedEdge(edge);
   };
-  const onPaneClick = () => {
+  const onPaneClick = useCallback(() => {
+    setNodes((nodes) =>
+      nodes.map((node) => ({
+        ...node,
+        selected: false,
+      })),
+    );
     setSelectedNode(undefined);
     setSelectedEdge(undefined);
-  };
+  }, [setNodes]);
 
   const closeAllProgress = () => {
     setEdges([]);
@@ -368,6 +374,8 @@ const ShapesProExampleApp = ({
       console.log(error);
     }
   };
+
+  console.log(nodes, edges, "nodes edges");
 
   const handleSave = async (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,

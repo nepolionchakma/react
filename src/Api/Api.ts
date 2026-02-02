@@ -61,6 +61,8 @@ export const flaskApi = {
   CreateAggregateTable: "/create_aggregate_table",
   CreateMaterializedView: "/create_mv",
   Table: "/tables",
+  RunFlow: "/workflow/run",
+  RunFlowStream: "/workflow/execution_stream",
 };
 
 // All Node api

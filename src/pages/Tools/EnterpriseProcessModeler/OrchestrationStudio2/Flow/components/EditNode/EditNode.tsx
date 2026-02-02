@@ -23,7 +23,7 @@ import { useARMContext } from "@/Context/ARMContext/ARMContext";
 
 import { IARMAsynchronousTasksTypes } from "@/types/interfaces/ARM.interface";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { EllipsisVertical, Play, X } from "lucide-react";
+import { EllipsisVertical, Play, StopCircle, X } from "lucide-react";
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -36,6 +36,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import axios from "axios";
 
 interface EditNodeProps {
   theme: string;
@@ -60,7 +61,7 @@ const EditNode: FC<EditNodeProps> = ({
   const [stepFunctionTasks, setStepFunctionTasks] = useState<
     IARMAsynchronousTasksTypes[]
   >([]);
-  const { edgeConnectionPosition, setEdgeConnectionPosition } =
+  const { token, edgeConnectionPosition, setEdgeConnectionPosition } =
     useGlobalContext();
 
   const updateNodeInternals = useUpdateNodeInternals(); // Updating node internals dynamically
@@ -231,6 +232,84 @@ const EditNode: FC<EditNodeProps> = ({
       return updatedPositions;
     });
   };
+  console.log(selectedNode, "selectedNode");
+
+  // 1. Trigger the workflow via a standard POST request
+  async function startWorkflow() {
+    try {
+      const response = await axios.post(
+        "https://procg.datafluent.team/api/v2/workflow/run/20",
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token.access_token}`,
+          },
+        },
+      );
+
+      const executionId = response.data.def_process_execution_id;
+      let isCompleted = false;
+
+      const eventSource = new EventSource(
+        `https://procg.datafluent.team/api/v2/workflow/execution_stream/${executionId}?access_token=${token.access_token}`,
+      );
+
+      eventSource.onmessage = (event) => {
+        const payload = JSON.parse(event.data);
+
+        console.log("Workflow Update:", payload);
+
+        if (payload.type === "step") {
+          // handle step update
+        }
+
+        // ✅ THIS is the real completion signal
+        if (payload.type === "complete") {
+          console.log("Workflow finished successfully!");
+          isCompleted = true;
+          eventSource.close();
+        }
+      };
+
+      eventSource.onerror = (error) => {
+        // 👇 Backend closes connection after completion → this fires
+        if (!isCompleted) {
+          console.error("SSE connection error:", error);
+        }
+        eventSource.close();
+      };
+    } catch (err) {
+      console.error("Failed to start workflow:", err);
+    }
+  }
+
+  const handlePlay = async () => {
+    startWorkflow();
+    // const postParams = {
+    //   baseURL: FLASK_URL,
+    //   url: `${flaskApi.RunFlow}/20`,
+    //   setLoading: () => {},
+    //   payload: {},
+    //   accessToken: token.access_token,
+    // };
+    // console.log(postParams);
+    // const res = await postData({
+    //   baseURL: FLASK_URL,
+    //   url: `${flaskApi.RunFlow}/20`,
+    //   setLoading: setIsLoading,
+    //   payload: {},
+    //   accessToken: token.access_token,
+    // });
+
+    // const res = await axios.get(`${FLASK_URL}${flaskApi.RunFlowStream}/35`, {
+    //   headers: {
+    //     Authorization: `Bearer ${token.access_token}`,
+    //   },
+    // });
+    // console.log(token.access_token, "token.access_token");
+    // console.log(res, "res....");
+    // console.log("res....");
+  };
 
   return (
     <>
@@ -244,26 +323,52 @@ const EditNode: FC<EditNodeProps> = ({
             <div className="flex items-center justify-between">
               <div>Properties</div>
               <div className="flex items-center gap-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Play size={20} className="cursor-pointer" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Play</p>
-                  </TooltipContent>
-                </Tooltip>
+                {selectedNode?.data?.type === "Start" && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Play
+                        size={20}
+                        className="cursor-pointer"
+                        color="green"
+                        onClick={handlePlay}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Play</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
+                {selectedNode?.data?.type === "Stop" && (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <StopCircle
+                        size={20}
+                        className="cursor-pointer"
+                        color="red"
+                        onClick={() => {}}
+                      />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Stop</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
 
                 <Popover>
-                  <PopoverTrigger asChild>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <EllipsisVertical size={20} />
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>More</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </PopoverTrigger>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <PopoverTrigger asChild>
+                        <button>
+                          <EllipsisVertical size={20} />
+                        </button>
+                      </PopoverTrigger>
+                    </TooltipTrigger>
+
+                    <TooltipContent>
+                      <p>More options</p>
+                    </TooltipContent>
+                  </Tooltip>
+
                   <PopoverContent className="w-40">
                     <span
                       onClick={() => setIsAddAttribute(true)}
@@ -277,7 +382,12 @@ const EditNode: FC<EditNodeProps> = ({
               <X
                 size={20}
                 className="cursor-pointer"
-                onClick={() => setSelectedNode(undefined)}
+                onClick={() => {
+                  setNodes((nodes) =>
+                    nodes.map((node) => ({ ...node, selected: false })),
+                  );
+                  setSelectedNode(undefined);
+                }}
               />
             </div>
           </TooltipProvider>
