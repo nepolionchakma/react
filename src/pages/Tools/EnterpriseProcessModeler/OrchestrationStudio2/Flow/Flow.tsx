@@ -266,6 +266,10 @@ const ShapesProExampleApp = ({
               ? ["Top"]
               : ["Top", "Bottom", "Left", "Right"],
         edges: [],
+        status: {
+          status: "",
+          result: "",
+        },
       },
       selected: true,
     };
