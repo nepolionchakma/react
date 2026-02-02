@@ -63,6 +63,7 @@ export const flaskApi = {
   Table: "/tables",
   RunFlow: "/workflow/run",
   RunFlowStream: "/workflow/execution_stream",
+  NodeStatusCheck: "/workflow/execution_steps",
 };
 
 // All Node api

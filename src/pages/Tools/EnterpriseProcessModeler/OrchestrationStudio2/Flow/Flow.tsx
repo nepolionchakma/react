@@ -62,6 +62,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import { loadData } from "@/Utility/funtion";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
 // import Alert from "@/components/Alert/Alert";
 
 const nodeTypes: NodeTypes = {
@@ -92,7 +94,7 @@ const ShapesProExampleApp = ({
   const api = useAxiosPrivate();
   const reactFlowWrapper = useRef(null);
   const { screenToFlowPosition } = useReactFlow();
-  const { setEdgeConnectionPosition } = useGlobalContext();
+  const { token, setEdgeConnectionPosition } = useGlobalContext();
   const [nodes, setNodes, onNodesChange] = useNodesState<ShapeNode>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [selectedFlowData, setSelectedFlowData] =
@@ -112,6 +114,7 @@ const ShapesProExampleApp = ({
   const [isLoading, setIsLoading] = useState(false);
   const [flowsData, setFlowsData] = useState<IOrchestrationDataTypes2[]>([]);
   const [attributeName, setAttributeName] = useState("");
+  const [processExecutionId, setProcessExecutionId] = useState<string>("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -375,7 +378,8 @@ const ShapesProExampleApp = ({
     }
   };
 
-  console.log(nodes, edges, "nodes edges");
+  console.log(nodes, "nodes");
+  console.log(edges, "edges");
 
   const handleSave = async (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -385,7 +389,16 @@ const ShapesProExampleApp = ({
     if (edges?.length > 0 && nodes?.length > 0) {
       const putData = {
         process_structure: {
-          nodes,
+          nodes: nodes.map((node) => ({
+            ...node,
+            data: {
+              ...node.data,
+              status: {
+                result: "",
+                status: "",
+              },
+            },
+          })),
           edges,
         },
       };
@@ -436,10 +449,63 @@ const ShapesProExampleApp = ({
 
     fitView({
       padding: 0.2,
-      maxZoom: 0.9,
+      maxZoom: 1.4,
       duration: 300,
     });
   }, [fitView, nodes]);
+
+  useEffect(() => {
+    (async () => {
+      if (!processExecutionId || !selectedNode?.id) return;
+
+      try {
+        const loadNodeRes = await loadData({
+          baseURL: FLASK_URL,
+          url: `${flaskApi.NodeStatusCheck}?def_process_execution_id=${processExecutionId}&node_id=${selectedNode?.id}`,
+          accessToken: token.access_token,
+        });
+
+        // Update the node with the status information
+        if (loadNodeRes && loadNodeRes.result) {
+          setNodes((nds) =>
+            nds.map((node) => {
+              if (node.id === selectedNode.id) {
+                return {
+                  ...node,
+                  data: {
+                    ...node.data,
+                    status: {
+                      result: loadNodeRes.result?.result ?? "",
+                      status: loadNodeRes.result?.status ?? "",
+                    },
+                  },
+                };
+              }
+              return node;
+            }),
+          );
+
+          // Also update the selectedNode reference
+          setSelectedNode((prev) =>
+            prev
+              ? {
+                  ...prev,
+                  data: {
+                    ...prev.data,
+                    status: {
+                      result: loadNodeRes.result?.result ?? "",
+                      status: loadNodeRes.result?.status ?? "",
+                    },
+                  },
+                }
+              : prev,
+          );
+        }
+      } catch (error) {
+        console.error("Error loading node status:", error);
+      }
+    })();
+  }, [processExecutionId, selectedNode?.id, token.access_token, setNodes]);
 
   return (
     <div className="dndflow h-[calc(100vh-6rem)]">
@@ -674,6 +740,9 @@ const ShapesProExampleApp = ({
                     selectedNode={selectedNode}
                     setSelectedNode={setSelectedNode}
                     setIsAddAttribute={setIsAddAttribute}
+                    // processExecutionId={processExecutionId}
+                    setProcessExecutionId={setProcessExecutionId}
+                    workFlowId={selectedFlowData?.process_id}
                   />
                 </>
               )}

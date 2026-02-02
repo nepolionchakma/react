@@ -37,6 +37,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import axios from "axios";
+import { tailspin } from "ldrs";
+import { toast } from "@/components/ui/use-toast";
 
 interface EditNodeProps {
   theme: string;
@@ -47,6 +49,9 @@ interface EditNodeProps {
   selectedNode: ShapeNode | undefined;
   setSelectedNode: Dispatch<SetStateAction<ShapeNode | undefined>>;
   setIsAddAttribute: Dispatch<SetStateAction<boolean>>;
+  // processExecutionId: string;
+  setProcessExecutionId: Dispatch<SetStateAction<string>>;
+  workFlowId: number | undefined;
 }
 
 const EditNode: FC<EditNodeProps> = ({
@@ -56,6 +61,9 @@ const EditNode: FC<EditNodeProps> = ({
   selectedNode,
   setSelectedNode,
   setIsAddAttribute,
+  // processExecutionId,
+  setProcessExecutionId,
+  workFlowId,
 }) => {
   const { getAsyncTasks } = useARMContext();
   const [stepFunctionTasks, setStepFunctionTasks] = useState<
@@ -63,7 +71,8 @@ const EditNode: FC<EditNodeProps> = ({
   >([]);
   const { token, edgeConnectionPosition, setEdgeConnectionPosition } =
     useGlobalContext();
-
+  const [isLoading, setIsLoading] = useState(false);
+  tailspin.register();
   const updateNodeInternals = useUpdateNodeInternals(); // Updating node internals dynamically
 
   useEffect(() => {
@@ -234,11 +243,12 @@ const EditNode: FC<EditNodeProps> = ({
   };
   console.log(selectedNode, "selectedNode");
 
-  // 1. Trigger the workflow via a standard POST request
-  async function startWorkflow() {
+  // Trigger the workflow via a standard POST request
+  const startWorkflow = async () => {
     try {
+      setIsLoading(true);
       const response = await axios.post(
-        "https://procg.datafluent.team/api/v2/workflow/run/20",
+        `https://procg.datafluent.team/api/v2/workflow/run/${workFlowId}`,
         {},
         {
           headers: {
@@ -247,8 +257,12 @@ const EditNode: FC<EditNodeProps> = ({
         },
       );
 
+      toast({
+        description: `${response.data.message}`,
+        variant: "default",
+      });
       const executionId = response.data.def_process_execution_id;
-      let isCompleted = false;
+      setProcessExecutionId(executionId);
 
       const eventSource = new EventSource(
         `https://procg.datafluent.team/api/v2/workflow/execution_stream/${executionId}?access_token=${token.access_token}`,
@@ -257,31 +271,43 @@ const EditNode: FC<EditNodeProps> = ({
       eventSource.onmessage = (event) => {
         const payload = JSON.parse(event.data);
 
-        console.log("Workflow Update:", payload);
+        console.log("Workflow Update:", event);
 
         if (payload.type === "step") {
           // handle step update
         }
-
-        // ✅ THIS is the real completion signal
-        if (payload.type === "complete") {
-          console.log("Workflow finished successfully!");
-          isCompleted = true;
-          eventSource.close();
-        }
       };
 
-      eventSource.onerror = (error) => {
-        // 👇 Backend closes connection after completion → this fires
-        if (!isCompleted) {
-          console.error("SSE connection error:", error);
+      eventSource.addEventListener("step", (event) => {
+        const step = JSON.parse(event.data);
+        console.log(step, "step");
+        if (step.status === "RUNNING") {
+          console.log("Currently executing:", step.node_label);
         }
+      });
+
+      eventSource.addEventListener("complete", (event) => {
+        console.log("Workflow finished successfully!");
+        const parseEvent = JSON.parse(event.data);
+        toast({
+          title: parseEvent.execution_status,
+          description: `
+          Process Execution ID: ${parseEvent.def_process_execution_id},
+          Process ID: ${parseEvent.def_process_execution_id}`,
+        });
+        eventSource.close();
+      });
+
+      eventSource.onerror = (error) => {
+        console.error("SSE connection error:", error);
         eventSource.close();
       };
     } catch (err) {
       console.error("Failed to start workflow:", err);
+    } finally {
+      setIsLoading(false);
     }
-  }
+  };
 
   const handlePlay = async () => {
     startWorkflow();
@@ -326,12 +352,21 @@ const EditNode: FC<EditNodeProps> = ({
                 {selectedNode?.data?.type === "Start" && (
                   <Tooltip>
                     <TooltipTrigger asChild>
-                      <Play
-                        size={20}
-                        className="cursor-pointer"
-                        color="green"
-                        onClick={handlePlay}
-                      />
+                      {isLoading ? (
+                        <l-tailspin
+                          size="20"
+                          stroke="3"
+                          speed="1"
+                          color="green"
+                        ></l-tailspin>
+                      ) : (
+                        <Play
+                          size={20}
+                          className="cursor-pointer"
+                          color="green"
+                          onClick={handlePlay}
+                        />
+                      )}
                     </TooltipTrigger>
                     <TooltipContent>
                       <p>Play</p>
