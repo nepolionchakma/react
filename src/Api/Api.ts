@@ -63,6 +63,7 @@ export const flaskApi = {
   Table: "/tables",
   RunFlow: "/workflow/run",
   RunFlowStream: "/workflow/execution_stream",
+  RequiredParams: "/workflow/required_params",
   NodeStatusCheck: "/workflow/execution_steps",
   DataSourceMetadata: "/datasource/metadata",
 };

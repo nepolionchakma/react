@@ -39,12 +39,17 @@ import {
 import axios from "axios";
 import { tailspin } from "ldrs";
 import { toast } from "@/components/ui/use-toast";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { postData } from "@/Utility/funtion";
+import { IRequiredAttributes } from "../../Flow";
 
 interface EditNodeProps {
   theme: string;
+  nodes: ShapeNode[];
   setNodes: (
     payload: ShapeNode[] | ((nodes: ShapeNode[]) => ShapeNode[]),
   ) => void;
+  edges: Edge[];
   setEdges: (payload: Edge[] | ((edges: Edge[]) => Edge[])) => void;
   selectedNode: ShapeNode | undefined;
   setSelectedNode: Dispatch<SetStateAction<ShapeNode | undefined>>;
@@ -52,11 +57,14 @@ interface EditNodeProps {
   // processExecutionId: string;
   setProcessExecutionId: Dispatch<SetStateAction<string>>;
   workFlowId: number | undefined;
+  setRequiredAttributes: Dispatch<SetStateAction<IRequiredAttributes[]>>;
 }
 
 const EditNode: FC<EditNodeProps> = ({
   theme,
+  nodes,
   setNodes,
+  edges,
   setEdges,
   selectedNode,
   setSelectedNode,
@@ -64,6 +72,7 @@ const EditNode: FC<EditNodeProps> = ({
   // processExecutionId,
   setProcessExecutionId,
   workFlowId,
+  setRequiredAttributes,
 }) => {
   const { getAsyncTasks } = useARMContext();
   const [stepFunctionTasks, setStepFunctionTasks] = useState<
@@ -74,6 +83,15 @@ const EditNode: FC<EditNodeProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   tailspin.register();
   const updateNodeInternals = useUpdateNodeInternals(); // Updating node internals dynamically
+
+  // {
+  //           "name": "EMPLOYEE_ID",
+  //           "required": true,
+  //           "source_label": "get employee name",
+  //           "source_task": "get_employee_name",
+  //           "type": "string",
+  //           "value": ""
+  //       }
 
   useEffect(() => {
     const fetchAsyncTasks = async () => {
@@ -247,61 +265,85 @@ const EditNode: FC<EditNodeProps> = ({
   const startWorkflow = async () => {
     try {
       setIsLoading(true);
-      const response = await axios.post(
-        `https://procg.datafluent.team/api/v2/workflow/run/${workFlowId}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token.access_token}`,
+      const response = await postData({
+        baseURL: FLASK_URL,
+        url: flaskApi.RequiredParams,
+        setLoading: setIsLoading,
+        payload: { nodes: nodes, edges: edges },
+        // isConsole: true,
+        // isToast: true,
+        accessToken: token.access_token,
+      });
+      // const response = await axios.post(
+      //   `${FLASK_URL}/workflow/required_params`,
+      //   { nodes: nodes, edges: edges },
+      //   {
+      //     headers: {
+      //       Authorization: `Bearer ${token.access_token}`,
+      //     },
+      //   },
+      // );
+      console.log(response.data.has_required_inputs, "response.....");
+      if (response.data.has_required_inputs) {
+        console.log(response.data.message);
+        setRequiredAttributes(response.data.workflow_inputs);
+      } else {
+        const response = await axios.post(
+          `${FLASK_URL}/workflow/run/${workFlowId}`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token.access_token}`,
+            },
           },
-        },
-      );
+        );
 
-      toast({
-        description: `${response.data.message}`,
-        variant: "default",
-      });
-      const executionId = response.data.def_process_execution_id;
-      setProcessExecutionId(executionId);
-
-      const eventSource = new EventSource(
-        `https://procg.datafluent.team/api/v2/workflow/execution_stream/${executionId}?access_token=${token.access_token}`,
-      );
-
-      eventSource.onmessage = (event) => {
-        const payload = JSON.parse(event.data);
-
-        console.log("Workflow Update:", event);
-
-        if (payload.type === "step") {
-          // handle step update
-        }
-      };
-
-      eventSource.addEventListener("step", (event) => {
-        const step = JSON.parse(event.data);
-        console.log(step, "step");
-        if (step.status === "RUNNING") {
-          console.log("Currently executing:", step.node_label);
-        }
-      });
-
-      eventSource.addEventListener("complete", (event) => {
-        console.log("Workflow finished successfully!");
-        const parseEvent = JSON.parse(event.data);
         toast({
-          title: parseEvent.execution_status,
-          description: `
+          description: `${response.data.message}`,
+          variant: "default",
+        });
+        const executionId = response.data.def_process_execution_id;
+        setProcessExecutionId(executionId);
+
+        const eventSource = new EventSource(
+          `${FLASK_URL}/workflow/execution_stream/${executionId}?access_token=${token.access_token}`,
+        );
+
+        eventSource.onmessage = (event) => {
+          const payload = JSON.parse(event.data);
+
+          console.log("Workflow Update:", event);
+
+          if (payload.type === "step") {
+            // handle step update
+          }
+        };
+
+        eventSource.addEventListener("step", (event) => {
+          const step = JSON.parse(event.data);
+          console.log(step, "step");
+          if (step.status === "RUNNING") {
+            console.log("Currently executing:", step.node_label);
+          }
+        });
+
+        eventSource.addEventListener("complete", (event) => {
+          console.log("Workflow finished successfully!");
+          const parseEvent = JSON.parse(event.data);
+          toast({
+            title: parseEvent.execution_status,
+            description: `
           Process Execution ID: ${parseEvent.def_process_execution_id},
           Process ID: ${parseEvent.def_process_execution_id}`,
+          });
+          eventSource.close();
         });
-        eventSource.close();
-      });
 
-      eventSource.onerror = (error) => {
-        console.error("SSE connection error:", error);
-        eventSource.close();
-      };
+        eventSource.onerror = (error) => {
+          console.error("SSE connection error:", error);
+          eventSource.close();
+        };
+      }
     } catch (err) {
       console.error("Failed to start workflow:", err);
     } finally {
