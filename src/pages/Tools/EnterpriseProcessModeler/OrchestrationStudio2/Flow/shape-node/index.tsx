@@ -118,7 +118,7 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
 
     return String(result);
   };
-
+  console.log(status?.status, "status........status");
   return (
     <>
       <ShapeNodeToolbar onColorChange={onColorChange} activeColor={color} />
@@ -168,6 +168,7 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
         strokeWidth={2}
         stroke={color}
         fillOpacity={0.8}
+        status={{ status: status?.status }}
       />
       {type === "Start" ? (
         <Handle

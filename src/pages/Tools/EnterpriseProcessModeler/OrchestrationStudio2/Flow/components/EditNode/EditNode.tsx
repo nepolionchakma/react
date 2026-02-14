@@ -54,7 +54,7 @@ interface EditNodeProps {
   selectedNode: ShapeNode | undefined;
   setSelectedNode: Dispatch<SetStateAction<ShapeNode | undefined>>;
   setIsAddAttribute: Dispatch<SetStateAction<boolean>>;
-  // processExecutionId: string;
+  processExecutionId: string;
   setProcessExecutionId: Dispatch<SetStateAction<string>>;
   workFlowId: number | undefined;
   setRequiredAttributes: Dispatch<SetStateAction<IRequiredAttributes[]>>;
@@ -69,7 +69,7 @@ const EditNode: FC<EditNodeProps> = ({
   selectedNode,
   setSelectedNode,
   setIsAddAttribute,
-  // processExecutionId,
+  processExecutionId,
   setProcessExecutionId,
   workFlowId,
   setRequiredAttributes,
@@ -259,7 +259,7 @@ const EditNode: FC<EditNodeProps> = ({
       return updatedPositions;
     });
   };
-  console.log(selectedNode, "selectedNode");
+  // console.log(selectedNode, "selectedNode");
 
   // Trigger the workflow via a standard POST request
   const startWorkflow = async () => {
@@ -283,9 +283,9 @@ const EditNode: FC<EditNodeProps> = ({
       //     },
       //   },
       // );
-      console.log(response.data.has_required_inputs, "response.....");
+      // console.log(response.data.has_required_inputs, "response.....");
       if (response.data.has_required_inputs) {
-        console.log(response.data.message);
+        // console.log(response.data.message);
         setRequiredAttributes(response.data.workflow_inputs);
       } else {
         const response = await axios.post(
@@ -304,45 +304,6 @@ const EditNode: FC<EditNodeProps> = ({
         });
         const executionId = response.data.def_process_execution_id;
         setProcessExecutionId(executionId);
-
-        const eventSource = new EventSource(
-          `${FLASK_URL}/workflow/execution_stream/${executionId}?access_token=${token.access_token}`,
-        );
-
-        eventSource.onmessage = (event) => {
-          const payload = JSON.parse(event.data);
-
-          console.log("Workflow Update:", event);
-
-          if (payload.type === "step") {
-            // handle step update
-          }
-        };
-
-        eventSource.addEventListener("step", (event) => {
-          const step = JSON.parse(event.data);
-          console.log(step, "step");
-          if (step.status === "RUNNING") {
-            console.log("Currently executing:", step.node_label);
-          }
-        });
-
-        eventSource.addEventListener("complete", (event) => {
-          console.log("Workflow finished successfully!");
-          const parseEvent = JSON.parse(event.data);
-          toast({
-            title: parseEvent.execution_status,
-            description: `
-          Process Execution ID: ${parseEvent.def_process_execution_id},
-          Process ID: ${parseEvent.def_process_execution_id}`,
-          });
-          eventSource.close();
-        });
-
-        eventSource.onerror = (error) => {
-          console.error("SSE connection error:", error);
-          eventSource.close();
-        };
       }
     } catch (err) {
       console.error("Failed to start workflow:", err);
@@ -351,33 +312,90 @@ const EditNode: FC<EditNodeProps> = ({
     }
   };
 
-  const handlePlay = async () => {
-    startWorkflow();
-    // const postParams = {
-    //   baseURL: FLASK_URL,
-    //   url: `${flaskApi.RunFlow}/20`,
-    //   setLoading: () => {},
-    //   payload: {},
-    //   accessToken: token.access_token,
-    // };
-    // console.log(postParams);
-    // const res = await postData({
-    //   baseURL: FLASK_URL,
-    //   url: `${flaskApi.RunFlow}/20`,
-    //   setLoading: setIsLoading,
-    //   payload: {},
-    //   accessToken: token.access_token,
-    // });
+  useEffect(() => {
+    const eventSource = new EventSource(
+      `${FLASK_URL}/workflow/execution_stream/${processExecutionId}?access_token=${token.access_token}`,
+    );
 
-    // const res = await axios.get(`${FLASK_URL}${flaskApi.RunFlowStream}/35`, {
-    //   headers: {
-    //     Authorization: `Bearer ${token.access_token}`,
-    //   },
-    // });
-    // console.log(token.access_token, "token.access_token");
-    // console.log(res, "res....");
-    // console.log("res....");
-  };
+    // 1. Connection opened
+    // eventSource.onopen = () => {
+    //   console.log("SSE connection opened");
+    // };
+
+    // 2. Listen specifically for 'heartbeat' events
+    eventSource.addEventListener("heartbeat", (event) => {
+      const data = JSON.parse(event.data);
+      console.log("💓 Heartbeat received:", data);
+
+      // You can update state here if needed
+      // setStatus(data.status);
+    });
+
+    // eventSource.onmessage = (event) => {
+    //   const payload = JSON.parse(event.data);
+
+    //   console.log("Workflow Update:", event);
+
+    //   if (payload.type === "step") {
+    //     // handle step update
+    //   }
+    // };
+
+    eventSource.addEventListener("step", (event) => {
+      const step = JSON.parse(event.data);
+
+      setNodes((nds) =>
+        nds.map((node) => {
+          if (node.id === step.node_id) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                status: {
+                  result: step.result,
+                  status: step.status,
+                },
+              },
+            };
+          }
+          return node;
+        }),
+      );
+      // if (step.status === "RUNNING") {
+      //   console.log("Currently executing:", step.node_label);
+      // }
+    });
+
+    eventSource.addEventListener("complete", (event) => {
+      console.log("Workflow finished successfully!");
+      const parseEvent = JSON.parse(event.data);
+      toast({
+        title: parseEvent.execution_status,
+        description: `
+                  Process Execution ID: ${parseEvent.def_process_execution_id},
+                  Process ID: ${parseEvent.def_process_execution_id}`,
+        variant:
+          parseEvent.execution_status.toLowerCase() === "failed"
+            ? "destructive"
+            : "default",
+      });
+      eventSource.close();
+    });
+
+    eventSource.onerror = (error) => {
+      console.error("SSE connection error:", error);
+      eventSource.close();
+    };
+    eventSource.addEventListener("error", (event) => {
+      console.log(event, "event...............");
+    });
+
+    // Cleanup on unmount
+    // return () => {
+    //   eventSource.close();
+    //   console.log("SSE connection closed");
+    // };
+  }, [processExecutionId, setNodes, token.access_token]);
 
   return (
     <>
@@ -406,7 +424,7 @@ const EditNode: FC<EditNodeProps> = ({
                           size={20}
                           className="cursor-pointer"
                           color="green"
-                          onClick={handlePlay}
+                          onClick={startWorkflow}
                         />
                       )}
                     </TooltipTrigger>
