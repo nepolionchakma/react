@@ -262,8 +262,22 @@ const EditNode: FC<EditNodeProps> = ({
   // console.log(selectedNode, "selectedNode");
 
   // Trigger the workflow via a standard POST request
-  const startWorkflow = async () => {
+  const handleStartWorkflow = async () => {
     try {
+      setNodes((nds) =>
+        nds.map((node) => {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              status: {
+                result: "",
+                status: "",
+              },
+            },
+          };
+        }),
+      );
       setIsLoading(true);
       const response = await postData({
         baseURL: FLASK_URL,
@@ -352,8 +366,8 @@ const EditNode: FC<EditNodeProps> = ({
               data: {
                 ...node.data,
                 status: {
-                  result: step.result,
-                  status: step.status,
+                  result: step.result || "",
+                  status: step.status || "",
                 },
               },
             };
@@ -424,7 +438,7 @@ const EditNode: FC<EditNodeProps> = ({
                           size={20}
                           className="cursor-pointer"
                           color="green"
-                          onClick={startWorkflow}
+                          onClick={handleStartWorkflow}
                         />
                       )}
                     </TooltipTrigger>

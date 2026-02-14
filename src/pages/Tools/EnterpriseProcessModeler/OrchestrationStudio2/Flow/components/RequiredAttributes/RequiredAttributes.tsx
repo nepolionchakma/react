@@ -1,5 +1,6 @@
 import { Controller } from "react-hook-form";
 import { IRequiredAttributes } from "../../Flow";
+import { convertToTitleCase } from "@/Utility/general";
 
 interface ValidationRules {
   required?: boolean | string | { value: boolean; message: string };
@@ -34,7 +35,7 @@ function RequiredAttributes({
 }: IRequiredAttributeProps) {
   return (
     <>
-      <div className="absolute left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%] bg-slate-300 p-3 pt-0 border rounded mb-2 shadow">
+      <div className="absolute left-[50%] top-[50%] z-50 translate-x-[-50%] translate-y-[-50%] bg-slate-300 p-3 pt-0 border border-red-500 rounded mb-2 shadow">
         <p className="text-red-600 py-2">
           Required Attribute{requiredAttributes.length > 1 && "s"}
         </p>
@@ -53,7 +54,7 @@ function RequiredAttributes({
               }}
               render={({ field: { value, onBlur }, fieldState: { error } }) => (
                 <>
-                  <p>{attribute.name}</p>
+                  <p>{convertToTitleCase(attribute.name)}</p>
                   <input
                     type="text"
                     value={value || ""}

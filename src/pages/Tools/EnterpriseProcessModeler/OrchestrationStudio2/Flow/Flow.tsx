@@ -597,8 +597,8 @@ const ShapesProExampleApp = ({
               data: {
                 ...node.data,
                 status: {
-                  result: step.result,
-                  status: step.status,
+                  result: step.result || "",
+                  status: step.status || "",
                 },
               },
             };
