@@ -38,7 +38,7 @@ import AnimatedSVGEdge from "./EdgeTypes/AnimatedSVGEdge";
 import { Pen, Plus, Save, SquareMenu, Trash } from "lucide-react";
 import CreateAFlow from "./components/CreateAFlow/CreateAFlow";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import Spinner from "@/components/Spinner/Spinner";
 import { toast } from "@/components/ui/use-toast";
 import EditNode from "./components/EditNode/EditNode";
@@ -64,7 +64,18 @@ import {
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { loadData } from "@/Utility/funtion";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
+import RequiredAttributes from "./components/RequiredAttributes/RequiredAttributes";
+import { useForm } from "react-hook-form";
 // import Alert from "@/components/Alert/Alert";
+
+export interface IRequiredAttributes {
+  name: string;
+  required: boolean;
+  source_label: string;
+  source_task: string;
+  type: string;
+  value: string;
+}
 
 const nodeTypes: NodeTypes = {
   shape: ShapeNodeComponent,
@@ -115,6 +126,9 @@ const ShapesProExampleApp = ({
   const [flowsData, setFlowsData] = useState<IOrchestrationDataTypes2[]>([]);
   const [attributeName, setAttributeName] = useState("");
   const [processExecutionId, setProcessExecutionId] = useState<string>("");
+  const [requiredAttributes, setRequiredAttributes] = useState<
+    IRequiredAttributes[]
+  >([]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -363,6 +377,7 @@ const ShapesProExampleApp = ({
     }
     setAttributeName("");
   };
+
   const handleDeleteFlow = async () => {
     try {
       const res = await api.delete(
@@ -381,9 +396,6 @@ const ShapesProExampleApp = ({
       console.log(error);
     }
   };
-
-  console.log(nodes, "nodes");
-  console.log(edges, "edges");
 
   const handleSave = async (
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
@@ -510,6 +522,125 @@ const ShapesProExampleApp = ({
       }
     })();
   }, [processExecutionId, selectedNode?.id, token.access_token, setNodes]);
+
+  interface IFormValues {
+    [key: string]: string | number;
+  }
+  const { control, handleSubmit, setValue } = useForm({
+    defaultValues: {} as IFormValues,
+  });
+
+  const onSubmit = async (data: IFormValues) => {
+    console.log({ context: data }, "required attributes data");
+    try {
+      const response = await axios.post(
+        `${FLASK_URL}/workflow/run/${selectedFlowData?.process_id}?access_token=${token.access_token}`,
+        { context: data },
+      );
+
+      if (response.status === 202) {
+        setRequiredAttributes([]);
+      }
+      // const res = await postData({
+      //   baseURL: FLASK_URL,
+      //   url: `${FLASK_URL}/workflow/run/${selectedFlowData?.process_id}?access_token=${token.access_token}`,
+      //   setLoading: setIsLoading,
+      //   payload: { context: data },
+      //   accessToken: token.access_token,
+      // });
+      // console.log(res, "res");
+      const executionId = response.data.def_process_execution_id;
+      setProcessExecutionId(executionId);
+    } catch (error) {
+      console.log(error, "error");
+    }
+    // reset();
+  };
+
+  useEffect(() => {
+    const eventSource = new EventSource(
+      `${FLASK_URL}/workflow/execution_stream/${processExecutionId}?access_token=${token.access_token}`,
+    );
+
+    // 1. Connection opened
+    // eventSource.onopen = () => {
+    //   console.log("SSE connection opened");
+    // };
+
+    // 2. Listen specifically for 'heartbeat' events
+    eventSource.addEventListener("heartbeat", (event) => {
+      const data = JSON.parse(event.data);
+      console.log("💓 Heartbeat received:", data);
+
+      // You can update state here if needed
+      // setStatus(data.status);
+    });
+
+    // eventSource.onmessage = (event) => {
+    //   const payload = JSON.parse(event.data);
+
+    //   console.log("Workflow Update:", event);
+
+    //   if (payload.type === "step") {
+    //     // handle step update
+    //   }
+    // };
+
+    eventSource.addEventListener("step", (event) => {
+      const step = JSON.parse(event.data);
+
+      setNodes((nds) =>
+        nds.map((node) => {
+          if (node.id === step.node_id) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                status: {
+                  result: step.result || "",
+                  status: step.status || "",
+                },
+              },
+            };
+          }
+          return node;
+        }),
+      );
+      // if (step.status === "RUNNING") {
+      //   console.log("Currently executing:", step.node_label);
+      // }
+    });
+
+    eventSource.addEventListener("complete", (event) => {
+      console.log("Workflow finished successfully!");
+      const parseEvent = JSON.parse(event.data);
+      toast({
+        title: parseEvent.execution_status,
+        description: `
+                Process Execution ID: ${parseEvent.def_process_execution_id},
+                Process ID: ${parseEvent.def_process_execution_id}`,
+        variant:
+          parseEvent.execution_status.toLowerCase() === "failed"
+            ? "destructive"
+            : "default",
+      });
+      eventSource.close();
+    });
+
+    eventSource.onerror = (error) => {
+      console.error("SSE connection error:", error);
+      eventSource.close();
+    };
+    eventSource.addEventListener("error", (event) => {
+      console.log(event, "event...............");
+    });
+
+    // Cleanup on unmount
+    // return () => {
+    //   eventSource.close();
+    //   console.log("SSE connection closed");
+    // };
+  }, [processExecutionId, setNodes, token.access_token]);
 
   return (
     <div className="dndflow h-[calc(100vh-6rem)]">
@@ -715,6 +846,15 @@ const ShapesProExampleApp = ({
                 setIsAddAttribute={setIsAddAttribute}
               />
             )}
+            {requiredAttributes.length > 0 && (
+              <RequiredAttributes
+                setValue={setValue}
+                control={control}
+                requiredAttributes={requiredAttributes}
+                setRequiredAttributes={setRequiredAttributes}
+                handleSetAttributesAndRunFlow={handleSubmit(onSubmit)}
+              />
+            )}
             {/* Create or Edit Flow */}
             {(createNewFlow || isEditFlowName) && (
               <CreateAFlow
@@ -739,14 +879,17 @@ const ShapesProExampleApp = ({
                 <>
                   <EditNode
                     theme={theme}
+                    nodes={nodes}
                     setNodes={setNodes}
+                    edges={edges}
                     setEdges={setEdges}
                     selectedNode={selectedNode}
                     setSelectedNode={setSelectedNode}
                     setIsAddAttribute={setIsAddAttribute}
-                    // processExecutionId={processExecutionId}
+                    processExecutionId={processExecutionId}
                     setProcessExecutionId={setProcessExecutionId}
                     workFlowId={selectedFlowData?.process_id}
+                    setRequiredAttributes={setRequiredAttributes}
                   />
                 </>
               )}
