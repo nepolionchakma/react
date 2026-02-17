@@ -534,8 +534,19 @@ const ShapesProExampleApp = ({
     console.log({ context: data }, "required attributes data");
     try {
       const response = await axios.post(
-        `${FLASK_URL}/workflow/run/${selectedFlowData?.process_id}?access_token=${token.access_token}`,
-        { context: data },
+        `${FLASK_URL}/workflow/run_dynamic`,
+        {
+          process_structure: {
+            nodes,
+            edges,
+          },
+          context: data,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token.access_token}`,
+          },
+        },
       );
 
       if (response.status === 202) {
@@ -641,7 +652,7 @@ const ShapesProExampleApp = ({
     //   console.log("SSE connection closed");
     // };
   }, [processExecutionId, setNodes, token.access_token]);
-
+  console.log(nodes, edges, "node..");
   return (
     <div className="dndflow h-[calc(100vh-6rem)]">
       <div className="reactflow-wrapper" ref={reactFlowWrapper}>

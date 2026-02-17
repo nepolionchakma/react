@@ -74,6 +74,7 @@ const EditNode: FC<EditNodeProps> = ({
   workFlowId,
   setRequiredAttributes,
 }) => {
+  console.log(workFlowId, "workflow ID");
   const { getAsyncTasks } = useARMContext();
   const [stepFunctionTasks, setStepFunctionTasks] = useState<
     IARMAsynchronousTasksTypes[]
@@ -288,23 +289,18 @@ const EditNode: FC<EditNodeProps> = ({
         // isToast: true,
         accessToken: token.access_token,
       });
-      // const response = await axios.post(
-      //   `${FLASK_URL}/workflow/required_params`,
-      //   { nodes: nodes, edges: edges },
-      //   {
-      //     headers: {
-      //       Authorization: `Bearer ${token.access_token}`,
-      //     },
-      //   },
-      // );
-      // console.log(response.data.has_required_inputs, "response.....");
       if (response.data.has_required_inputs) {
         // console.log(response.data.message);
         setRequiredAttributes(response.data.workflow_inputs);
       } else {
         const response = await axios.post(
-          `${FLASK_URL}/workflow/run/${workFlowId}`,
-          {},
+          `${FLASK_URL}/workflow/run_dynamic`,
+          {
+            process_structure: {
+              nodes,
+              edges,
+            },
+          },
           {
             headers: {
               Authorization: `Bearer ${token.access_token}`,
