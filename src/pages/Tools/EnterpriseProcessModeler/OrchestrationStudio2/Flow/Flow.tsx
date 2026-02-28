@@ -172,7 +172,8 @@ const ShapesProExampleApp = ({
   useEffect(() => {
     setToolsOpen(false);
   }, [!selectedFlowData]);
-
+  console.log(edges, "edges");
+  console.log(nodes, "nodes");
   const edgeTypes = {
     animatedEdge: AnimatedSVGEdge,
   };
@@ -182,6 +183,12 @@ const ShapesProExampleApp = ({
       ...params,
       id: `edge-${params.source}-${params.target}`,
       type: "animatedEdge",
+      data: {
+        field: "",
+        operator: "",
+        value: "",
+        default: true,
+      },
       animated: false,
     };
     setEdges((eds) => addEdge(edge, eds));
