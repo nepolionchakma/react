@@ -12,8 +12,8 @@ import Shape from "../shape";
 import ShapeNodeToolbar from "../toolbar";
 import { type ShapeNode } from "../shape/types";
 import NodeData from "./label";
-// import { useMemo } from "react";
-
+import { Play, StopCircle } from "lucide-react";
+import { useState } from "react";
 // this will return the current dimensions of the node (measured internally by react flow)
 function useNodeDimensions(id: string) {
   const node = useStore((state) => state.nodeLookup.get(id));
@@ -30,6 +30,7 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
   const { width, height } = useNodeDimensions(id);
   const shiftKeyPressed = useKeyPress("Shift");
   // const handleStyle = { backgroundColor: color };
+  console.log(data, "data");
 
   const onColorChange = (color: string) => {
     setNodes((nodes) =>
@@ -118,7 +119,8 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
 
     return String(result);
   };
-  console.log(status?.status, "status........status");
+
+  // console.log(status?.status, "status........status");
   return (
     <>
       <ShapeNodeToolbar onColorChange={onColorChange} activeColor={color} />
@@ -127,6 +129,17 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
         keepAspectRatio={shiftKeyPressed}
         isVisible={selected}
       />
+      {/* Start and Stop flow function */}
+      {selected && (
+        <div className="absolute -top-7 z-50">
+          {type === "Start" ? (
+            <Play color="green" className="cursor-pointer" />
+          ) : type === "Stop" && isLoading ? (
+            <StopCircle color="red" className="cursor-pointer" />
+          ) : null}
+        </div>
+      )}
+
       {/* Status Indicator */}
       {status?.status && selected && (
         <div style={statusStyle}>

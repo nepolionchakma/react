@@ -24,6 +24,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 
 interface EditNodeProps {
   theme: string;
+  nodes: ShapeNode[];
   setNodes: (
     payload: ShapeNode[] | ((nodes: ShapeNode[]) => ShapeNode[]),
   ) => void;
@@ -33,6 +34,7 @@ interface EditNodeProps {
 }
 const EditEdge: FC<EditNodeProps> = ({
   theme,
+  nodes,
   setNodes,
   setEdges,
   selectedEdge,
@@ -77,6 +79,15 @@ const EditEdge: FC<EditNodeProps> = ({
       });
     }
   }, [selectedEdge, form]);
+
+  // useEffect(() => {
+  // }, [nodes]);
+  console.log(nodes, "nodes....");
+  // check is node data type diamond
+  const isDiamond =
+    nodes.find((node) => node.id === selectedEdge.source)?.data?.type ===
+    "diamond";
+  console.log(isDiamond, "isDiamond....");
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     if (selectedEdge) {
@@ -125,6 +136,7 @@ const EditEdge: FC<EditNodeProps> = ({
       );
     }
   }, []);
+
   return (
     <>
       {selectedEdge && (
@@ -172,66 +184,70 @@ const EditEdge: FC<EditNodeProps> = ({
                         </FormItem>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="data.field"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Field</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              placeholder="Field"
-                              className={`${
-                                theme === "dark"
-                                  ? "border-white"
-                                  : "border-gray-400"
-                              }`}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="data.operator"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Operator</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              placeholder="Operator"
-                              className={`${
-                                theme === "dark"
-                                  ? "border-white"
-                                  : "border-gray-400"
-                              }`}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="data.value"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Value</FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              placeholder="Value"
-                              className={`${
-                                theme === "dark"
-                                  ? "border-white"
-                                  : "border-gray-400"
-                              }`}
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
+                    {isDiamond && (
+                      <>
+                        <FormField
+                          control={form.control}
+                          name="data.field"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Field</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="Field"
+                                  className={`${
+                                    theme === "dark"
+                                      ? "border-white"
+                                      : "border-gray-400"
+                                  }`}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="data.operator"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Operator</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="Operator"
+                                  className={`${
+                                    theme === "dark"
+                                      ? "border-white"
+                                      : "border-gray-400"
+                                  }`}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="data.value"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Value</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="Value"
+                                  className={`${
+                                    theme === "dark"
+                                      ? "border-white"
+                                      : "border-gray-400"
+                                  }`}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </>
+                    )}
                     <FormField
                       control={form.control}
                       name="animated"
@@ -257,21 +273,23 @@ const EditEdge: FC<EditNodeProps> = ({
                         </Select>
                       )}
                     />
-                    <FormField
-                      control={form.control}
-                      name="data.default"
-                      render={({ field }) => (
-                        <span className="flex gap-2">
-                          <Checkbox
-                            checked={field.value === true ? true : false}
-                            onCheckedChange={(checked) =>
-                              field.onChange(checked ? true : false)
-                            }
-                          />
-                          <FormLabel>Default</FormLabel>
-                        </span>
-                      )}
-                    />
+                    {isDiamond && (
+                      <FormField
+                        control={form.control}
+                        name="data.default"
+                        render={({ field }) => (
+                          <span className="flex gap-2">
+                            <Checkbox
+                              checked={field.value === true ? true : false}
+                              onCheckedChange={(checked) =>
+                                field.onChange(checked ? true : false)
+                              }
+                            />
+                            <FormLabel>Default</FormLabel>
+                          </span>
+                        )}
+                      />
+                    )}
                   </div>
                   <hr className="my-2" />
                   <div className="flex justify-between gap-1">

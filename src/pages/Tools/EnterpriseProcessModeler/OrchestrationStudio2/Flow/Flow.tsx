@@ -187,7 +187,7 @@ const ShapesProExampleApp = ({
         field: "",
         operator: "",
         value: "",
-        default: true,
+        default: false,
       },
       animated: false,
     };
@@ -466,16 +466,16 @@ const ShapesProExampleApp = ({
     checkIfAllNodesConnected();
   }, [nodes, edges]);
 
-  const { fitView } = useReactFlow();
-  useEffect(() => {
-    if (nodes.length === 0) return;
+  // const { fitView } = useReactFlow();
+  // useEffect(() => {
+  //   if (nodes.length === 0) return;
 
-    fitView({
-      padding: 0.2,
-      maxZoom: 1.4,
-      duration: 300,
-    });
-  }, [fitView, nodes]);
+  //   fitView({
+  //     // padding: 0.2,
+  //     // maxZoom: 1.4,
+  //     duration: 300,
+  //   });
+  // }, [fitView, nodes]);
 
   useEffect(() => {
     (async () => {
@@ -916,6 +916,7 @@ const ShapesProExampleApp = ({
                 <>
                   <EditEdge
                     theme={theme}
+                    nodes={nodes}
                     setNodes={setNodes}
                     setEdges={setEdges}
                     selectedEdge={selectedEdge}
