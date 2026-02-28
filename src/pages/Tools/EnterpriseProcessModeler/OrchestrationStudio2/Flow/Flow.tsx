@@ -38,9 +38,10 @@ import AnimatedSVGEdge from "./EdgeTypes/AnimatedSVGEdge";
 import { Pen, Plus, Save, SquareMenu, Trash } from "lucide-react";
 import CreateAFlow from "./components/CreateAFlow/CreateAFlow";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+import { postData } from "@/Utility/funtion";
 import axios, { AxiosError } from "axios";
-import Spinner from "@/components/Spinner/Spinner";
 import { toast } from "@/components/ui/use-toast";
+import Spinner from "@/components/Spinner/Spinner";
 import EditNode from "./components/EditNode/EditNode";
 import EditEdge from "./components/EditEdge/EditEdge";
 import AddAttribute from "./components/AddAttribute/AddAttribute";
@@ -76,10 +77,6 @@ export interface IRequiredAttributes {
   type: string;
   value: string;
 }
-
-const nodeTypes: NodeTypes = {
-  shape: ShapeNodeComponent,
-};
 
 const defaultEdgeOptions: DefaultEdgeOptions = {
   type: "smoothstep",
@@ -123,6 +120,7 @@ const ShapesProExampleApp = ({
   const [selectedFlowName, setSelectedFlowName] = useState<string>("");
   const [isNewFlowCreated, setIsNewFlowCreated] = useState<number>(0);
   const [isLoading, setIsLoading] = useState(false);
+  const [isWorkFlowRunning, setIsWorkFlowRunning] = useState(false);
   const [flowsData, setFlowsData] = useState<IOrchestrationDataTypes2[]>([]);
   const [attributeName, setAttributeName] = useState("");
   const [processExecutionId, setProcessExecutionId] = useState<string>("");
@@ -172,7 +170,8 @@ const ShapesProExampleApp = ({
   useEffect(() => {
     setToolsOpen(false);
   }, [!selectedFlowData]);
-
+  console.log(edges, "edges");
+  console.log(nodes, "nodes");
   const edgeTypes = {
     animatedEdge: AnimatedSVGEdge,
   };
@@ -182,6 +181,12 @@ const ShapesProExampleApp = ({
       ...params,
       id: `edge-${params.source}-${params.target}`,
       type: "animatedEdge",
+      data: {
+        field: "",
+        operator: "",
+        value: "",
+        is_default: false,
+      },
       animated: false,
     };
     setEdges((eds) => addEdge(edge, eds));
@@ -208,6 +213,75 @@ const ShapesProExampleApp = ({
       });
     });
   }, []);
+
+  const handleStartWorkflow = async () => {
+    try {
+      setNodes((nds) =>
+        nds.map((node) => {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              status: {
+                result: "",
+                status: "",
+              },
+            },
+          };
+        }),
+      );
+      setIsWorkFlowRunning(true);
+      const response = await postData({
+        baseURL: FLASK_URL,
+        url: flaskApi.RequiredParams,
+        setLoading: setIsWorkFlowRunning,
+        payload: { nodes: nodes, edges: edges },
+        // isConsole: true,
+        // isToast: true,
+        accessToken: token.access_token,
+      });
+      if (response.data.has_required_inputs) {
+        // console.log(response.data.message);
+        setRequiredAttributes(response.data.workflow_inputs);
+      } else {
+        const response = await axios.post(
+          `${FLASK_URL}/workflow/run_dynamic`,
+          {
+            process_structure: {
+              nodes,
+              edges,
+            },
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token.access_token}`,
+            },
+          },
+        );
+
+        toast({
+          description: `${response.data.message}`,
+          variant: "default",
+        });
+        const executionId = response.data.def_process_execution_id;
+        setProcessExecutionId(executionId);
+      }
+    } catch (err) {
+      console.error("Failed to start workflow:", err);
+    } finally {
+      setIsWorkFlowRunning(false);
+    }
+  };
+
+  const nodeTypes: NodeTypes = {
+    shape: (props) => (
+      <ShapeNodeComponent
+        {...props}
+        handleStartFlow={handleStartWorkflow}
+        isLoading={isWorkFlowRunning}
+      />
+    ),
+  };
 
   const onDragOver = (evt: DragEvent<HTMLDivElement>) => {
     evt.preventDefault();
@@ -459,16 +533,16 @@ const ShapesProExampleApp = ({
     checkIfAllNodesConnected();
   }, [nodes, edges]);
 
-  const { fitView } = useReactFlow();
-  useEffect(() => {
-    if (nodes.length === 0) return;
+  // const { fitView } = useReactFlow();
+  // useEffect(() => {
+  //   if (nodes.length === 0) return;
 
-    fitView({
-      padding: 0.2,
-      maxZoom: 1.4,
-      duration: 300,
-    });
-  }, [fitView, nodes]);
+  //   fitView({
+  //     // padding: 0.2,
+  //     // maxZoom: 1.4,
+  //     duration: 300,
+  //   });
+  // }, [fitView, nodes]);
 
   useEffect(() => {
     (async () => {
@@ -909,6 +983,7 @@ const ShapesProExampleApp = ({
                 <>
                   <EditEdge
                     theme={theme}
+                    nodes={nodes}
                     setNodes={setNodes}
                     setEdges={setEdges}
                     selectedEdge={selectedEdge}

@@ -20,11 +20,13 @@ import { Dispatch, FC, SetStateAction, useCallback, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ShapeNode } from "../../shape/types";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface EditNodeProps {
   theme: string;
+  nodes: ShapeNode[];
   setNodes: (
-    payload: ShapeNode[] | ((nodes: ShapeNode[]) => ShapeNode[])
+    payload: ShapeNode[] | ((nodes: ShapeNode[]) => ShapeNode[]),
   ) => void;
   setEdges: (payload: Edge[] | ((edges: Edge[]) => Edge[])) => void;
   selectedEdge: any;
@@ -32,6 +34,7 @@ interface EditNodeProps {
 }
 const EditEdge: FC<EditNodeProps> = ({
   theme,
+  nodes,
   setNodes,
   setEdges,
   selectedEdge,
@@ -39,6 +42,12 @@ const EditEdge: FC<EditNodeProps> = ({
 }) => {
   const FormSchema = z.object({
     label: z.string().optional(),
+    data: z.object({
+      field: z.string().optional(),
+      operator: z.string().optional(),
+      value: z.string().optional(),
+      is_default: z.boolean().optional(),
+    }),
     animated: z.string().optional(),
   });
 
@@ -46,6 +55,12 @@ const EditEdge: FC<EditNodeProps> = ({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       label: selectedEdge.label ?? "",
+      data: {
+        field: selectedEdge.data?.field ?? "",
+        operator: selectedEdge.data?.operator ?? "",
+        value: selectedEdge.data?.value ?? "",
+        is_default: selectedEdge.data?.default ?? false,
+      },
       animated: String(selectedEdge.animated) ?? "false",
     },
   });
@@ -54,10 +69,21 @@ const EditEdge: FC<EditNodeProps> = ({
     if (selectedEdge) {
       form.reset({
         label: selectedEdge.label ?? "",
+        data: {
+          field: selectedEdge.data?.field ?? "",
+          operator: selectedEdge.data?.operator ?? "",
+          value: selectedEdge.data?.value ?? "",
+          is_default: selectedEdge.data?.default ?? false,
+        },
         animated: selectedEdge.animated ?? "false",
       });
     }
   }, [selectedEdge, form]);
+
+  // check is node data type diamond
+  const isDiamond =
+    nodes.find((node) => node.id === selectedEdge.source)?.data?.type ===
+    "diamond";
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     if (selectedEdge) {
@@ -67,11 +93,18 @@ const EditEdge: FC<EditNodeProps> = ({
             return {
               ...edge,
               label: data.label,
+              data: {
+                ...edge.data,
+                field: data.data.field,
+                operator: data.data.operator,
+                value: data.data.value,
+                is_default: data.data.is_default,
+              },
               animated: data.animated === "true" ? true : false,
             };
           }
           return edge;
-        })
+        }),
       );
       setSelectedEdge(undefined);
     }
@@ -80,7 +113,7 @@ const EditEdge: FC<EditNodeProps> = ({
   const handleDelete = useCallback(() => {
     if (selectedEdge) {
       setEdges((prevEdges: Edge[]) =>
-        prevEdges.filter((edge: Edge) => edge.id !== selectedEdge.id)
+        prevEdges.filter((edge: Edge) => edge.id !== selectedEdge.id),
       );
       setSelectedEdge(undefined);
       setNodes((prevNodes: ShapeNode[]) =>
@@ -95,10 +128,11 @@ const EditEdge: FC<EditNodeProps> = ({
             };
           }
           return node;
-        })
+        }),
       );
     }
   }, []);
+
   return (
     <>
       {selectedEdge && (
@@ -125,7 +159,7 @@ const EditEdge: FC<EditNodeProps> = ({
                   onSubmit={form.handleSubmit(onSubmit)}
                   className="space-y-2"
                 >
-                  <div className="flex flex-col gap-4">
+                  <div className="flex flex-col gap-2">
                     <FormField
                       control={form.control}
                       name="label"
@@ -146,6 +180,70 @@ const EditEdge: FC<EditNodeProps> = ({
                         </FormItem>
                       )}
                     />
+                    {isDiamond && (
+                      <>
+                        <FormField
+                          control={form.control}
+                          name="data.field"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Field</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="Field"
+                                  className={`${
+                                    theme === "dark"
+                                      ? "border-white"
+                                      : "border-gray-400"
+                                  }`}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="data.operator"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Operator</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="Operator"
+                                  className={`${
+                                    theme === "dark"
+                                      ? "border-white"
+                                      : "border-gray-400"
+                                  }`}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                        <FormField
+                          control={form.control}
+                          name="data.value"
+                          render={({ field }) => (
+                            <FormItem>
+                              <FormLabel>Value</FormLabel>
+                              <FormControl>
+                                <Input
+                                  {...field}
+                                  placeholder="Value"
+                                  className={`${
+                                    theme === "dark"
+                                      ? "border-white"
+                                      : "border-gray-400"
+                                  }`}
+                                />
+                              </FormControl>
+                            </FormItem>
+                          )}
+                        />
+                      </>
+                    )}
                     <FormField
                       control={form.control}
                       name="animated"
@@ -171,6 +269,23 @@ const EditEdge: FC<EditNodeProps> = ({
                         </Select>
                       )}
                     />
+                    {isDiamond && (
+                      <FormField
+                        control={form.control}
+                        name="data.is_default"
+                        render={({ field }) => (
+                          <span className="flex gap-2">
+                            <Checkbox
+                              checked={field.value === true ? true : false}
+                              onCheckedChange={(checked) =>
+                                field.onChange(checked ? true : false)
+                              }
+                            />
+                            <FormLabel>Default</FormLabel>
+                          </span>
+                        )}
+                      />
+                    )}
                   </div>
                   <hr className="my-2" />
                   <div className="flex justify-between gap-1">

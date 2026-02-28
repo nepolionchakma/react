@@ -12,7 +12,8 @@ import Shape from "../shape";
 import ShapeNodeToolbar from "../toolbar";
 import { type ShapeNode } from "../shape/types";
 import NodeData from "./label";
-// import { useMemo } from "react";
+import { Play, StopCircle } from "lucide-react";
+import { tailspin } from "ldrs";
 
 // this will return the current dimensions of the node (measured internally by react flow)
 function useNodeDimensions(id: string) {
@@ -23,12 +24,24 @@ function useNodeDimensions(id: string) {
   };
 }
 
-function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
+interface ShapeNodeProps extends NodeProps<ShapeNode> {
+  handleStartFlow?: () => Promise<void>;
+  isLoading?: boolean;
+}
+
+function ShapeNode({
+  id,
+  selected,
+  data,
+  handleStartFlow,
+  isLoading,
+}: ShapeNodeProps) {
   const { label, attributes, color, type, edge_connection_position, status } =
     data;
   const { setNodes } = useReactFlow();
   const { width, height } = useNodeDimensions(id);
   const shiftKeyPressed = useKeyPress("Shift");
+  tailspin.register();
   // const handleStyle = { backgroundColor: color };
 
   const onColorChange = (color: string) => {
@@ -48,6 +61,7 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
       }),
     );
   };
+
   // const renderHandles = useMemo(() => {
   //   const handles: JSX.Element[] = [];
   //   edge_connection_position?.forEach((position: string) => {
@@ -66,6 +80,7 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
   // }, [color, edge_connection_position]);
 
   // Status indicator style
+
   const statusStyle = {
     position: "absolute" as const,
     right: "-150%", // Position to the left of the node
@@ -118,7 +133,7 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
 
     return String(result);
   };
-  console.log(status?.status, "status........status");
+
   return (
     <>
       <ShapeNodeToolbar onColorChange={onColorChange} activeColor={color} />
@@ -127,6 +142,33 @@ function ShapeNode({ id, selected, data }: NodeProps<ShapeNode>) {
         keepAspectRatio={shiftKeyPressed}
         isVisible={selected}
       />
+      {/* Start and Stop flow function */}
+      {selected && (
+        <div className="absolute -top-7 z-50">
+          {type === "Start" ? (
+            <>
+              {isLoading ? (
+                <l-tailspin
+                  size="20"
+                  stroke="3"
+                  speed="1"
+                  color="green"
+                ></l-tailspin>
+              ) : (
+                <Play
+                  size={20}
+                  className="cursor-pointer"
+                  color="green"
+                  onClick={handleStartFlow}
+                />
+              )}
+            </>
+          ) : type === "Stop" && isLoading ? (
+            <StopCircle color="red" className="cursor-pointer" />
+          ) : null}
+        </div>
+      )}
+
       {/* Status Indicator */}
       {status?.status && selected && (
         <div style={statusStyle}>
