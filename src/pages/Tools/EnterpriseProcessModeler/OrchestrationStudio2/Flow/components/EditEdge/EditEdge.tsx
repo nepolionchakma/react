@@ -46,7 +46,7 @@ const EditEdge: FC<EditNodeProps> = ({
       field: z.string().optional(),
       operator: z.string().optional(),
       value: z.string().optional(),
-      default: z.boolean().optional(),
+      is_default: z.boolean().optional(),
     }),
     animated: z.string().optional(),
   });
@@ -59,7 +59,7 @@ const EditEdge: FC<EditNodeProps> = ({
         field: selectedEdge.data?.field ?? "",
         operator: selectedEdge.data?.operator ?? "",
         value: selectedEdge.data?.value ?? "",
-        default: selectedEdge.data?.default ?? false,
+        is_default: selectedEdge.data?.default ?? false,
       },
       animated: String(selectedEdge.animated) ?? "false",
     },
@@ -73,21 +73,17 @@ const EditEdge: FC<EditNodeProps> = ({
           field: selectedEdge.data?.field ?? "",
           operator: selectedEdge.data?.operator ?? "",
           value: selectedEdge.data?.value ?? "",
-          default: selectedEdge.data?.default ?? false,
+          is_default: selectedEdge.data?.default ?? false,
         },
         animated: selectedEdge.animated ?? "false",
       });
     }
   }, [selectedEdge, form]);
 
-  // useEffect(() => {
-  // }, [nodes]);
-  console.log(nodes, "nodes....");
   // check is node data type diamond
   const isDiamond =
     nodes.find((node) => node.id === selectedEdge.source)?.data?.type ===
     "diamond";
-  console.log(isDiamond, "isDiamond....");
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     if (selectedEdge) {
@@ -102,7 +98,7 @@ const EditEdge: FC<EditNodeProps> = ({
                 field: data.data.field,
                 operator: data.data.operator,
                 value: data.data.value,
-                default: data.data.default,
+                is_default: data.data.is_default,
               },
               animated: data.animated === "true" ? true : false,
             };
@@ -276,7 +272,7 @@ const EditEdge: FC<EditNodeProps> = ({
                     {isDiamond && (
                       <FormField
                         control={form.control}
-                        name="data.default"
+                        name="data.is_default"
                         render={({ field }) => (
                           <span className="flex gap-2">
                             <Checkbox

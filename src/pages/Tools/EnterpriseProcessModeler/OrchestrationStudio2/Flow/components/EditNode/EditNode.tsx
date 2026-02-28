@@ -23,7 +23,7 @@ import { useARMContext } from "@/Context/ARMContext/ARMContext";
 
 import { IARMAsynchronousTasksTypes } from "@/types/interfaces/ARM.interface";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { EllipsisVertical, Play, StopCircle, X } from "lucide-react";
+import { EllipsisVertical, X } from "lucide-react";
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -36,11 +36,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import axios from "axios";
-import { tailspin } from "ldrs";
-import { toast } from "@/components/ui/use-toast";
-import { FLASK_URL, flaskApi } from "@/Api/Api";
-import { postData } from "@/Utility/funtion";
 import { IRequiredAttributes } from "../../Flow";
 
 interface EditNodeProps {
@@ -62,27 +57,21 @@ interface EditNodeProps {
 
 const EditNode: FC<EditNodeProps> = ({
   theme,
-  nodes,
   setNodes,
-  edges,
   setEdges,
   selectedNode,
   setSelectedNode,
   setIsAddAttribute,
-  processExecutionId,
-  setProcessExecutionId,
   workFlowId,
-  setRequiredAttributes,
 }) => {
   console.log(workFlowId, "workflow ID");
   const { getAsyncTasks } = useARMContext();
   const [stepFunctionTasks, setStepFunctionTasks] = useState<
     IARMAsynchronousTasksTypes[]
   >([]);
-  const { token, edgeConnectionPosition, setEdgeConnectionPosition } =
+  const { edgeConnectionPosition, setEdgeConnectionPosition } =
     useGlobalContext();
-  const [isLoading, setIsLoading] = useState(false);
-  tailspin.register();
+
   const updateNodeInternals = useUpdateNodeInternals(); // Updating node internals dynamically
 
   // {
@@ -260,152 +249,6 @@ const EditNode: FC<EditNodeProps> = ({
       return updatedPositions;
     });
   };
-  // console.log(selectedNode, "selectedNode");
-
-  // Trigger the workflow via a standard POST request
-  const handleStartWorkflow = async () => {
-    try {
-      setNodes((nds) =>
-        nds.map((node) => {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              status: {
-                result: "",
-                status: "",
-              },
-            },
-          };
-        }),
-      );
-      setIsLoading(true);
-      const response = await postData({
-        baseURL: FLASK_URL,
-        url: flaskApi.RequiredParams,
-        setLoading: setIsLoading,
-        payload: { nodes: nodes, edges: edges },
-        // isConsole: true,
-        // isToast: true,
-        accessToken: token.access_token,
-      });
-      if (response.data.has_required_inputs) {
-        // console.log(response.data.message);
-        setRequiredAttributes(response.data.workflow_inputs);
-      } else {
-        const response = await axios.post(
-          `${FLASK_URL}/workflow/run_dynamic`,
-          {
-            process_structure: {
-              nodes,
-              edges,
-            },
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token.access_token}`,
-            },
-          },
-        );
-
-        toast({
-          description: `${response.data.message}`,
-          variant: "default",
-        });
-        const executionId = response.data.def_process_execution_id;
-        setProcessExecutionId(executionId);
-      }
-    } catch (err) {
-      console.error("Failed to start workflow:", err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    const eventSource = new EventSource(
-      `${FLASK_URL}/workflow/execution_stream/${processExecutionId}?access_token=${token.access_token}`,
-    );
-
-    // 1. Connection opened
-    // eventSource.onopen = () => {
-    //   console.log("SSE connection opened");
-    // };
-
-    // 2. Listen specifically for 'heartbeat' events
-    eventSource.addEventListener("heartbeat", (event) => {
-      const data = JSON.parse(event.data);
-      console.log("💓 Heartbeat received:", data);
-
-      // You can update state here if needed
-      // setStatus(data.status);
-    });
-
-    // eventSource.onmessage = (event) => {
-    //   const payload = JSON.parse(event.data);
-
-    //   console.log("Workflow Update:", event);
-
-    //   if (payload.type === "step") {
-    //     // handle step update
-    //   }
-    // };
-
-    eventSource.addEventListener("step", (event) => {
-      const step = JSON.parse(event.data);
-
-      setNodes((nds) =>
-        nds.map((node) => {
-          if (node.id === step.node_id) {
-            return {
-              ...node,
-              data: {
-                ...node.data,
-                status: {
-                  result: step.result || "",
-                  status: step.status || "",
-                },
-              },
-            };
-          }
-          return node;
-        }),
-      );
-      // if (step.status === "RUNNING") {
-      //   console.log("Currently executing:", step.node_label);
-      // }
-    });
-
-    eventSource.addEventListener("complete", (event) => {
-      console.log("Workflow finished successfully!");
-      const parseEvent = JSON.parse(event.data);
-      toast({
-        title: parseEvent.execution_status,
-        description: `
-                  Process Execution ID: ${parseEvent.def_process_execution_id},
-                  Process ID: ${parseEvent.def_process_execution_id}`,
-        variant:
-          parseEvent.execution_status.toLowerCase() === "failed"
-            ? "destructive"
-            : "default",
-      });
-      eventSource.close();
-    });
-
-    eventSource.onerror = (error) => {
-      console.error("SSE connection error:", error);
-      eventSource.close();
-    };
-    eventSource.addEventListener("error", (event) => {
-      console.log(event, "event...............");
-    });
-
-    // Cleanup on unmount
-    // return () => {
-    //   eventSource.close();
-    //   console.log("SSE connection closed");
-    // };
-  }, [processExecutionId, setNodes, token.access_token]);
 
   return (
     <>
@@ -419,46 +262,6 @@ const EditNode: FC<EditNodeProps> = ({
             <div className="flex items-center justify-between">
               <div>Properties</div>
               <div className="flex items-center gap-2">
-                {selectedNode?.data?.type === "Start" && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      {isLoading ? (
-                        <l-tailspin
-                          size="20"
-                          stroke="3"
-                          speed="1"
-                          color="green"
-                        ></l-tailspin>
-                      ) : (
-                        <Play
-                          size={20}
-                          className="cursor-pointer"
-                          color="green"
-                          onClick={handleStartWorkflow}
-                        />
-                      )}
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Play</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
-                {selectedNode?.data?.type === "Stop" && (
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <StopCircle
-                        size={20}
-                        className="cursor-pointer"
-                        color="red"
-                        onClick={() => {}}
-                      />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Stop</p>
-                    </TooltipContent>
-                  </Tooltip>
-                )}
-
                 <Popover>
                   <Tooltip>
                     <TooltipTrigger asChild>
