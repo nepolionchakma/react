@@ -21,6 +21,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ShapeNode } from "../../shape/types";
 import { Checkbox } from "@/components/ui/checkbox";
+import { IdecisionEdgeData } from "@/types/interfaces/orchestration.interface";
+import Spinner from "@/components/Spinner/Spinner";
 
 interface EditNodeProps {
   theme: string;
@@ -31,7 +33,10 @@ interface EditNodeProps {
   setEdges: (payload: Edge[] | ((edges: Edge[]) => Edge[])) => void;
   selectedEdge: any;
   setSelectedEdge: Dispatch<SetStateAction<Edge | undefined>>;
+  decisionEdgeData: IdecisionEdgeData;
+  isLoading: boolean;
 }
+
 const EditEdge: FC<EditNodeProps> = ({
   theme,
   nodes,
@@ -39,6 +44,8 @@ const EditEdge: FC<EditNodeProps> = ({
   setEdges,
   selectedEdge,
   setSelectedEdge,
+  decisionEdgeData,
+  isLoading,
 }) => {
   const FormSchema = z.object({
     label: z.string().optional(),
@@ -132,9 +139,14 @@ const EditEdge: FC<EditNodeProps> = ({
       );
     }
   }, []);
-
   return (
     <>
+      {/* Loading process... */}
+      {isLoading && (
+        <div className="absolute left-[50%] top-[45%] z-50 translate-x-[-50%]">
+          <Spinner color="red" size="40" />
+        </div>
+      )}
       {selectedEdge && (
         <div
           className={`mt-1 rounded p-4 max-h-[60vh] overflow-y-auto scrollbar-thin ${
@@ -189,15 +201,33 @@ const EditEdge: FC<EditNodeProps> = ({
                             <FormItem>
                               <FormLabel>Field</FormLabel>
                               <FormControl>
-                                <Input
-                                  {...field}
-                                  placeholder="Field"
-                                  className={`${
-                                    theme === "dark"
-                                      ? "border-white"
-                                      : "border-gray-400"
-                                  }`}
-                                />
+                                <Select
+                                  onValueChange={(value) => {
+                                    field.onChange(value);
+                                    // handleGetParameters(value);
+                                  }}
+                                  defaultValue={field.value}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a Field" />
+                                  </SelectTrigger>
+                                  <SelectContent className="max-h-60">
+                                    {decisionEdgeData?.fields?.length > 0 ? (
+                                      decisionEdgeData?.fields?.map((item) => (
+                                        <SelectItem
+                                          key={item.value}
+                                          value={item.value}
+                                        >
+                                          {item.label} ({item.NodeSourceLabel})
+                                        </SelectItem>
+                                      ))
+                                    ) : (
+                                      <span className="text-gray-500 text-sm">
+                                        No Fields Found
+                                      </span>
+                                    )}
+                                  </SelectContent>
+                                </Select>
                               </FormControl>
                             </FormItem>
                           )}
@@ -209,15 +239,35 @@ const EditEdge: FC<EditNodeProps> = ({
                             <FormItem>
                               <FormLabel>Operator</FormLabel>
                               <FormControl>
-                                <Input
-                                  {...field}
-                                  placeholder="Operator"
-                                  className={`${
-                                    theme === "dark"
-                                      ? "border-white"
-                                      : "border-gray-400"
-                                  }`}
-                                />
+                                <Select
+                                  onValueChange={(value) => {
+                                    field.onChange(value);
+                                    // handleGetParameters(value);
+                                  }}
+                                  defaultValue={field.value}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select a Operator" />
+                                  </SelectTrigger>
+                                  <SelectContent className="max-h-60">
+                                    {decisionEdgeData?.operators?.length > 0 ? (
+                                      decisionEdgeData?.operators?.map(
+                                        (item) => (
+                                          <SelectItem
+                                            key={item.value}
+                                            value={item.value}
+                                          >
+                                            {item.label}
+                                          </SelectItem>
+                                        ),
+                                      )
+                                    ) : (
+                                      <span className="text-gray-500 text-sm">
+                                        No Operators Found
+                                      </span>
+                                    )}
+                                  </SelectContent>
+                                </Select>
                               </FormControl>
                             </FormItem>
                           )}
