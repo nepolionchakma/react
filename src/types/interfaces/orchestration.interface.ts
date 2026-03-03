@@ -46,7 +46,8 @@ export interface StructureTypes2 {
 }
 
 export interface IdecisionEdgeData {
-  fields: [{ name: string; source_label: string }];
+  fields: [{ label: string; value: string; NodeSourceLabel: string }];
+  operators: [{ label: string; value: string }];
 }
 
 // // Node

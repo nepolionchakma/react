@@ -391,9 +391,9 @@ const ShapesProExampleApp = ({
   );
 
   const diamondNode = () => nodes.find((node) => node.data.type === "diamond");
-  const [decisionEdgeData, setDecisionEdgeData] = useState<
-    IdecisionEdgeData | undefined
-  >(undefined);
+  const [decisionEdgeData, setDecisionEdgeData] = useState<IdecisionEdgeData>(
+    {} as IdecisionEdgeData,
+  );
   const [isEdgeDataLoading, setIsEdgeDataLoading] = useState(false);
   const onEdgeClick = async (event: React.MouseEvent, edge: Edge) => {
     console.log(event, "Edge event");
@@ -401,7 +401,7 @@ const ShapesProExampleApp = ({
     setSelectedEdge(edge);
     const decisionNode = diamondNode();
 
-    if (decisionNode?.data.edges.includes(edge.id)) {
+    if (decisionNode?.id === edge.source) {
       const response = await postData({
         baseURL: FLASK_URL,
         url: flaskApi.DecisionEdgePredecessorOutputs,
@@ -558,16 +558,16 @@ const ShapesProExampleApp = ({
     checkIfAllNodesConnected();
   }, [nodes, edges]);
 
-  // const { fitView } = useReactFlow();
-  // useEffect(() => {
-  //   if (nodes.length === 0) return;
-
-  //   fitView({
-  //     // padding: 0.2,
-  //     // maxZoom: 1.4,
-  //     duration: 300,
-  //   });
-  // }, [fitView, nodes]);
+  const { fitView } = useReactFlow();
+  useEffect(() => {
+    if (selectedFlowData) {
+      fitView({
+        padding: 0.2,
+        maxZoom: 1.4,
+        duration: 300,
+      });
+    }
+  }, [selectedFlowData, fitView]);
 
   useEffect(() => {
     (async () => {

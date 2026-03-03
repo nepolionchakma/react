@@ -33,16 +33,9 @@ interface EditNodeProps {
   setEdges: (payload: Edge[] | ((edges: Edge[]) => Edge[])) => void;
   selectedEdge: any;
   setSelectedEdge: Dispatch<SetStateAction<Edge | undefined>>;
-  decisionEdgeData: IdecisionEdgeData | undefined;
+  decisionEdgeData: IdecisionEdgeData;
   isLoading: boolean;
 }
-
-const operators = [
-  { name: "=", value: "=" },
-  { name: "!=", value: "!=" },
-  { name: ">", value: ">" },
-  { name: "<", value: "<" },
-];
 
 const EditEdge: FC<EditNodeProps> = ({
   theme,
@@ -146,7 +139,6 @@ const EditEdge: FC<EditNodeProps> = ({
       );
     }
   }, []);
-
   return (
     <>
       {/* Loading process... */}
@@ -209,16 +201,6 @@ const EditEdge: FC<EditNodeProps> = ({
                             <FormItem>
                               <FormLabel>Field</FormLabel>
                               <FormControl>
-                                {/* <Input
-                                  {...field}
-                                  placeholder="Field"
-                                  className={`${
-                                    theme === "dark"
-                                      ? "border-white"
-                                      : "border-gray-400"
-                                  }`}
-                                /> */}
-
                                 <Select
                                   onValueChange={(value) => {
                                     field.onChange(value);
@@ -227,17 +209,23 @@ const EditEdge: FC<EditNodeProps> = ({
                                   defaultValue={field.value}
                                 >
                                   <SelectTrigger>
-                                    <SelectValue placeholder="Select a Task" />
+                                    <SelectValue placeholder="Select a Field" />
                                   </SelectTrigger>
                                   <SelectContent className="max-h-60">
-                                    {decisionEdgeData?.fields?.map((item) => (
-                                      <SelectItem
-                                        key={item.name}
-                                        value={item.name}
-                                      >
-                                        {item.source_label}
-                                      </SelectItem>
-                                    ))}
+                                    {decisionEdgeData?.fields?.length > 0 ? (
+                                      decisionEdgeData?.fields?.map((item) => (
+                                        <SelectItem
+                                          key={item.value}
+                                          value={item.value}
+                                        >
+                                          {item.label} ({item.NodeSourceLabel})
+                                        </SelectItem>
+                                      ))
+                                    ) : (
+                                      <span className="text-gray-500 text-sm">
+                                        No Fields Found
+                                      </span>
+                                    )}
                                   </SelectContent>
                                 </Select>
                               </FormControl>
@@ -259,17 +247,25 @@ const EditEdge: FC<EditNodeProps> = ({
                                   defaultValue={field.value}
                                 >
                                   <SelectTrigger>
-                                    <SelectValue placeholder="Select a Task" />
+                                    <SelectValue placeholder="Select a Operator" />
                                   </SelectTrigger>
                                   <SelectContent className="max-h-60">
-                                    {operators.map((item) => (
-                                      <SelectItem
-                                        key={item.value}
-                                        value={item.value}
-                                      >
-                                        {item.name}
-                                      </SelectItem>
-                                    ))}
+                                    {decisionEdgeData?.operators?.length > 0 ? (
+                                      decisionEdgeData?.operators?.map(
+                                        (item) => (
+                                          <SelectItem
+                                            key={item.value}
+                                            value={item.value}
+                                          >
+                                            {item.label}
+                                          </SelectItem>
+                                        ),
+                                      )
+                                    ) : (
+                                      <span className="text-gray-500 text-sm">
+                                        No Operators Found
+                                      </span>
+                                    )}
                                   </SelectContent>
                                 </Select>
                               </FormControl>
