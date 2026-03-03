@@ -33,7 +33,10 @@ import MiniMapNode from "./minimap-node";
 import { ShapeNode, ShapeType } from "./shape/types";
 import "./ProFlow.css";
 import FlowItems from "./components/FlowItems/FlowItems";
-import { IOrchestrationDataTypes2 } from "@/types/interfaces/orchestration.interface";
+import {
+  IdecisionEdgeData,
+  IOrchestrationDataTypes2,
+} from "@/types/interfaces/orchestration.interface";
 import AnimatedSVGEdge from "./EdgeTypes/AnimatedSVGEdge";
 import { Pen, Plus, Save, SquareMenu, Trash } from "lucide-react";
 import CreateAFlow from "./components/CreateAFlow/CreateAFlow";
@@ -387,10 +390,32 @@ const ShapesProExampleApp = ({
     [],
   );
 
-  const onEdgeClick = (event: React.MouseEvent, edge: Edge) => {
+  const diamondNode = () => nodes.find((node) => node.data.type === "diamond");
+  const [decisionEdgeData, setDecisionEdgeData] = useState<
+    IdecisionEdgeData | undefined
+  >(undefined);
+  const [isEdgeDataLoading, setIsEdgeDataLoading] = useState(false);
+  const onEdgeClick = async (event: React.MouseEvent, edge: Edge) => {
     console.log(event, "Edge event");
     setSelectedNode(undefined);
     setSelectedEdge(edge);
+    const decisionNode = diamondNode();
+
+    if (decisionNode?.data.edges.includes(edge.id)) {
+      const response = await postData({
+        baseURL: FLASK_URL,
+        url: flaskApi.DecisionEdgePredecessorOutputs,
+        accessToken: token.access_token,
+        payload: {
+          decision_node_id: decisionNode?.id,
+          nodes,
+          edges,
+        },
+        setLoading: setIsEdgeDataLoading,
+      });
+
+      setDecisionEdgeData(response.data);
+    }
   };
   const onPaneClick = useCallback(() => {
     setNodes((nodes) =>
@@ -988,6 +1013,8 @@ const ShapesProExampleApp = ({
                     setEdges={setEdges}
                     selectedEdge={selectedEdge}
                     setSelectedEdge={setSelectedEdge}
+                    decisionEdgeData={decisionEdgeData}
+                    isLoading={isEdgeDataLoading}
                   />
                 </>
               )}

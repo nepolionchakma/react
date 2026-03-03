@@ -45,6 +45,10 @@ export interface StructureTypes2 {
   edges: Edge[];
 }
 
+export interface IdecisionEdgeData {
+  fields: [{ name: string; source_label: string }];
+}
+
 // // Node
 // export interface Node {
 //   id: number;

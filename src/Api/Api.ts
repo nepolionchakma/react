@@ -66,6 +66,7 @@ export const flaskApi = {
   RequiredParams: "/workflow/required_params",
   NodeStatusCheck: "/workflow/execution_steps",
   DataSourceMetadata: "/datasource/metadata",
+  DecisionEdgePredecessorOutputs: "/workflow/predecessor_outputs",
 };
 
 // All Node api
