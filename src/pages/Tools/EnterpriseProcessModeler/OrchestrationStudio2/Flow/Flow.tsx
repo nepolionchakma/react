@@ -680,6 +680,7 @@ const ShapesProExampleApp = ({
     // 2. Listen specifically for 'heartbeat' events
     eventSource.addEventListener("heartbeat", (event) => {
       const data = JSON.parse(event.data);
+      console.log(data, "data................");
       console.log("💓 Heartbeat received:", data);
 
       // You can update state here if needed
@@ -698,7 +699,7 @@ const ShapesProExampleApp = ({
 
     eventSource.addEventListener("step", (event) => {
       const step = JSON.parse(event.data);
-
+      console.log(step, "stepssssssssssssssssss");
       setNodes((nds) =>
         nds.map((node) => {
           if (node.id === step.node_id) {
@@ -751,7 +752,7 @@ const ShapesProExampleApp = ({
     //   console.log("SSE connection closed");
     // };
   }, [processExecutionId, setNodes, token.access_token]);
-  console.log(nodes, edges, "node..");
+
   return (
     <div className="dndflow h-[calc(100vh-6rem)]">
       <div className="reactflow-wrapper" ref={reactFlowWrapper}>

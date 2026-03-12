@@ -36,6 +36,13 @@ function Shape({
   status,
   ...svgAttributes
 }: ShapeComponentProps & { status?: NodeStatus }) {
+  const shapeRef = useRef<SVGGElement>(null);
+
+  // Add styles to the document head on component mount
+  useEffect(() => {
+    addStyles();
+  }, []);
+
   const ShapeComponent = ShapeComponents[type];
 
   if (!ShapeComponent || !width || !height) {
@@ -83,12 +90,6 @@ function Shape({
   };
 
   const statusStyles = getStatusStyles();
-  const shapeRef = useRef<SVGGElement>(null);
-
-  // Add styles to the document head on component mount
-  useEffect(() => {
-    addStyles();
-  }, []);
 
   return (
     <svg width={width} height={height} className="shape-svg">
