@@ -680,7 +680,6 @@ const ShapesProExampleApp = ({
     // 2. Listen specifically for 'heartbeat' events
     eventSource.addEventListener("heartbeat", (event) => {
       const data = JSON.parse(event.data);
-      console.log(data, "data................");
       console.log("💓 Heartbeat received:", data);
 
       // You can update state here if needed
@@ -699,7 +698,7 @@ const ShapesProExampleApp = ({
 
     eventSource.addEventListener("step", (event) => {
       const step = JSON.parse(event.data);
-      console.log(step, "stepssssssssssssssssss");
+
       setNodes((nds) =>
         nds.map((node) => {
           if (node.id === step.node_id) {
@@ -717,9 +716,37 @@ const ShapesProExampleApp = ({
           return node;
         }),
       );
-      // if (step.status === "RUNNING") {
-      //   console.log("Currently executing:", step.node_label);
-      // }
+
+      // Update edges animation based on node status
+      setEdges((eds) =>
+        eds.map((edge) => {
+          // Check if this edge is connected to the RUNNING node
+          const isSourceRunning =
+            step.node_id === edge.source && step.status === "RUNNING";
+          const isTargetRunning =
+            step.node_id === edge.target && step.status === "RUNNING";
+
+          // Animate edges connected to RUNNING nodes
+          if (isSourceRunning) {
+            return {
+              ...edge,
+              animated: true,
+              type: "animatedEdge",
+            };
+          }
+
+          // Remove animation from edges not connected to RUNNING nodes
+          if (edge.animated && !isSourceRunning && !isTargetRunning) {
+            return {
+              ...edge,
+              animated: false,
+              type: "animatedEdge",
+            };
+          }
+
+          return edge;
+        }),
+      );
     });
 
     eventSource.addEventListener("complete", (event) => {
@@ -751,7 +778,7 @@ const ShapesProExampleApp = ({
     //   eventSource.close();
     //   console.log("SSE connection closed");
     // };
-  }, [processExecutionId, setNodes, token.access_token]);
+  }, [processExecutionId, setNodes, setEdges, token.access_token]);
 
   return (
     <div className="dndflow h-[calc(100vh-6rem)]">
