@@ -33,7 +33,6 @@ interface DashboardData {
   workflows: DashboardSection;
 }
 const switchFunc = (title: string) => {
-  console.log(title);
   switch (title.toLocaleLowerCase()) {
     case "total":
       return "blue";
@@ -148,11 +147,10 @@ const Home = () => {
         setLoading: isManualRefresh ? setIsRefreshData : setIsLoading,
         accessToken: token?.access_token || "",
       };
-      console.log(alertDataParams, "alertDataParams");
+
       const res = await loadData(alertDataParams);
       setData(res);
       setLastUpdated(new Date());
-      console.log(res, "Dashboard data");
     },
     [token?.access_token],
   );
