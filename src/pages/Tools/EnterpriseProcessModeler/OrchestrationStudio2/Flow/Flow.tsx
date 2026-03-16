@@ -40,8 +40,7 @@ import {
 import AnimatedSVGEdge from "./EdgeTypes/AnimatedSVGEdge";
 import { Pen, Plus, Save, SquareMenu, Trash } from "lucide-react";
 import CreateAFlow from "./components/CreateAFlow/CreateAFlow";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
-import { postData } from "@/Utility/funtion";
+import { deleteData, postData, putData } from "@/Utility/funtion";
 import axios, { AxiosError } from "axios";
 import { toast } from "@/components/ui/use-toast";
 import Spinner from "@/components/Spinner/Spinner";
@@ -102,7 +101,6 @@ const ShapesProExampleApp = ({
   panOnScroll = true,
   zoomOnDoubleClick = false,
 }: ExampleProps) => {
-  const api = useAxiosPrivate();
   const reactFlowWrapper = useRef(null);
   const { screenToFlowPosition } = useReactFlow();
   const { token, setEdgeConnectionPosition } = useGlobalContext();
@@ -135,9 +133,12 @@ const ShapesProExampleApp = ({
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const resFlows = await api.get("/orchestration-studio-process");
-
-        setFlowsData(resFlows.data);
+        const resFlows = await loadData({
+          baseURL: FLASK_URL,
+          url: flaskApi.WorkFlow,
+          accessToken: token.access_token as string,
+        });
+        setFlowsData(resFlows.result);
       } catch (error) {
         if (error instanceof AxiosError && error.response) {
           console.log(error.response.data);
@@ -154,12 +155,14 @@ const ShapesProExampleApp = ({
       try {
         if (selectedFlowName !== "") {
           setIsLoading(true);
-          const res = await api.get(
-            `/orchestration-studio-process/${selectedFlowName}`,
-          );
-          setSelectedFlowData(res.data);
-          setEdges(res.data.process_structure.edges);
-          setNodes(res.data.process_structure.nodes);
+          const res = await loadData({
+            baseURL: FLASK_URL,
+            url: `${flaskApi.WorkFlow}?process_name=${selectedFlowName}`,
+            accessToken: token.access_token as string,
+          });
+          setSelectedFlowData(res.result);
+          setEdges(res.result.process_structure.edges);
+          setNodes(res.result.process_structure.nodes);
         }
       } catch (error) {
         console.log(error);
@@ -479,16 +482,19 @@ const ShapesProExampleApp = ({
 
   const handleDeleteFlow = async () => {
     try {
-      const res = await api.delete(
-        `/orchestration-studio-process/${selectedFlowData?.process_id}`,
-      );
+      const res = await deleteData({
+        baseURL: FLASK_URL,
+        url: `${flaskApi.WorkFlow}?process_id=${selectedFlowData?.process_id}`,
+        accessToken: token.access_token,
+      });
+      console.log(res, "delete");
       if (res) {
         closeAllProgress();
         setSelectedFlowData(undefined);
 
         toast({
-          title: "Success",
-          description: "Flow deleted successfully.",
+          // title: "Success",
+          description: `${res?.data?.message || "Flow deleted successfully."}`,
         });
       }
     } catch (error) {
@@ -502,7 +508,8 @@ const ShapesProExampleApp = ({
     e.stopPropagation();
     // const id = Math.floor(Math.random() * 1000);
     if (edges?.length > 0 && nodes?.length > 0) {
-      const putData = {
+      const updateData = {
+        process_name: selectedFlowData?.process_name || "",
         process_structure: {
           nodes: nodes.map((node) => ({
             ...node,
@@ -520,15 +527,18 @@ const ShapesProExampleApp = ({
 
       try {
         if (selectedFlowData) {
-          const res = await api.put(
-            `/orchestration-studio-process/${selectedFlowData.process_id}`,
-            JSON.stringify(putData),
-          );
+          const res2 = await putData({
+            baseURL: FLASK_URL,
+            payload: updateData,
+            setLoading: setIsLoading,
+            url: `${flaskApi.WorkFlow}?process_id=${selectedFlowData?.process_id}`,
+            accessToken: token.access_token,
+          });
 
-          if (res) {
+          if (res2) {
             toast({
-              title: "Success",
-              description: `Flow saved successfully.`,
+              // title: "Success",
+              description: `${res2.data.message}`,
             });
           }
         }
@@ -779,7 +789,7 @@ const ShapesProExampleApp = ({
     //   console.log("SSE connection closed");
     // };
   }, [processExecutionId, setNodes, setEdges, token.access_token]);
-
+  console.log(newProcessName, "newProcessName");
   return (
     <div className="dndflow h-[calc(100vh-6rem)]">
       <div className="reactflow-wrapper" ref={reactFlowWrapper}>

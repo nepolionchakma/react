@@ -1,10 +1,11 @@
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { loadData } from "@/Utility/funtion";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { useState } from "react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import Spinner from "@/components/Spinner/Spinner";
 import { Link } from "react-router-dom";
+import { RefreshCcw } from "lucide-react";
 
 interface DashboardItem {
   id: string;
@@ -31,19 +32,47 @@ interface DashboardData {
   enterprises: DashboardSection;
   workflows: DashboardSection;
 }
+const switchFunc = (title: string) => {
+  switch (title.toLocaleLowerCase()) {
+    case "total":
+      return "blue";
+    case "active":
+      return "green";
+    case "scheduled":
+      return "green";
+    case "cancelled":
+      return "red";
+    case "srs":
+      return "gray";
+    case "sf":
+      return "gray";
+    case "active tasks":
+      return "green";
+    case "total scheduled tasks":
+      return "orange";
+    case "total users":
+      return "gray";
+    case "total async tasks":
+      return "gray";
+    default:
+      return "black";
+  }
+};
 
 const StatCard = ({
   title,
   value,
-  color = "blue",
 }: {
   title: string;
   value: number | string | undefined;
-  color?: string;
 }) => (
-  <div className={`bg-${color}-50 border border-${color}-200 rounded-lg p-4`}>
+  <div
+    className={`bg-${switchFunc(title)}-50 border border-${switchFunc(title)}-200 rounded-lg p-4`}
+  >
     <h4 className="text-sm font-medium text-gray-600">{title}</h4>
-    <p className={`text-2xl font-bold text-${color}-600`}>{value}</p>
+    <p className={`text-2xl font-bold text-${switchFunc(title)}-600`}>
+      {value}
+    </p>
   </div>
 );
 
@@ -107,21 +136,37 @@ const Home = () => {
   const { token } = useGlobalContext();
   const [isLoading, setIsLoading] = useState(false);
   const [data, setData] = useState<DashboardData | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [isRefreshData, setIsRefreshData] = useState(false);
 
-  useEffect(() => {
-    (async () => {
+  const fetchDashboardData = useCallback(
+    async (isManualRefresh: boolean = false) => {
       const alertDataParams = {
         baseURL: FLASK_URL,
         url: `${flaskApi.Home}`,
-        setLoading: setIsLoading,
+        setLoading: isManualRefresh ? setIsRefreshData : setIsLoading,
         accessToken: token?.access_token || "",
       };
-      console.log(alertDataParams, "alertDataParams");
+
       const res = await loadData(alertDataParams);
       setData(res);
-      console.log(res, "Dashboard data");
-    })();
-  }, [token?.access_token]);
+      setLastUpdated(new Date());
+    },
+    [token?.access_token],
+  );
+
+  useEffect(() => {
+    fetchDashboardData(false);
+
+    // Auto-refresh every 30 seconds
+    // const interval = setInterval(fetchDashboardData, 30000);
+
+    // return () => clearInterval(interval);
+  }, [token?.access_token, fetchDashboardData]);
+
+  const handleManualRefresh = () => {
+    fetchDashboardData(true);
+  };
 
   if (isLoading) {
     return (
@@ -130,6 +175,14 @@ const Home = () => {
       </div>
     );
   }
+
+  // if (isRefreshData) {
+  //   return (
+  //     <div className="h-[65vh] flex items-center justify-center z-50 bg-transparent">
+  //       <Spinner size="80" color="red" />
+  //     </div>
+  //   );
+  // }
 
   if (!data) {
     return (
@@ -141,182 +194,125 @@ const Home = () => {
 
   return (
     <div className="space-y-6">
-      {/* <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
-        <p className="text-gray-600">
-          Overview of your system metrics and activities
-        </p>
-      </div> */}
+      {/* Dashboard Header */}
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="flex justify-between items-center">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">Dashboard</h1>
+            <p className="text-gray-600">
+              Overview of your system metrics and activities
+            </p>
+          </div>
+          <div className="flex items-center space-x-4">
+            <div className="text-sm text-gray-500">
+              {lastUpdated && (
+                <span>Last updated: {lastUpdated.toLocaleTimeString()}</span>
+              )}
+            </div>
+            <button
+              onClick={handleManualRefresh}
+              disabled={isLoading}
+              className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
+            >
+              <RefreshCcw
+                size={15}
+                className={isRefreshData ? "animate-spin" : ""}
+              />
+              <span>Refresh</span>
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard
-          title="Total Async Tasks"
-          value={data.async_tasks.total}
-          color="blue"
-        />
-        <StatCard
-          title="Active Tasks"
-          value={data.async_tasks.active}
-          color="green"
-        />
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard title="Total Async Tasks" value={data.async_tasks.total} />
+        <StatCard title="Active Tasks" value={data.async_tasks.active} />
         <StatCard
           title="Total Scheduled Tasks"
           value={data.scheduled_tasks.total}
-          color="purple"
         />
-        <StatCard title="Total Users" value={data.users.total} color="orange" />
-      </div>
-      {/* Other Sections Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Async Tasks Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            Async Tasks
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-4 mb-6">
-            <StatCard
-              title="Total"
-              value={data.async_tasks.total}
-              color="blue"
-            />
-            <StatCard
-              title="Active"
-              value={data.async_tasks.active}
-              color="green"
-            />
-            <StatCard
-              title="Cancelled"
-              value={data.async_tasks.cancelled}
-              color="red"
-            />
-            <StatCard title="SRS" value={data.async_tasks.srs} color="indigo" />
-            <StatCard title="SF" value={data.async_tasks.sf} color="indigo" />
-          </div>
-          <ItemsTable
-            items={data.async_tasks.items || []}
-            title="Recent Async Tasks"
-            url="/asynchronous-request-manager/development/register-edit-asynchronous-tasks"
-          />
-        </div>
-
-        {/* Scheduled Tasks Section */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            Scheduled Tasks
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
-            <StatCard
-              title="Total"
-              value={data.scheduled_tasks.total}
-              color="purple"
-            />
-            <StatCard
-              title="Scheduled"
-              value={data.scheduled_tasks.scheduled}
-              color="blue"
-            />
-            <StatCard
-              title="Cancelled"
-              value={data.scheduled_tasks.cancelled}
-              color="red"
-            />
-          </div>
-          <ItemsTable
-            items={data.scheduled_tasks.items || []}
-            title="Recent Scheduled Tasks"
-            url="/asynchronous-requests-and-task-schedules/view-edit-scheduled-tasks"
-          />
-        </div>
-
-        {/* Executors */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            Executors
-          </h2>
-          <div className="mb-4">
-            <StatCard
-              title="Total Executors"
-              value={data.executors.total}
-              color="teal"
-            />
-          </div>
-          <ItemsTable
-            items={data.executors.items || []}
-            title="Available Executors"
-            url="/asynchronous-request-manager/development/manage-execution-methods"
-          />
-        </div>
-
-        {/* Users */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Users</h2>
-          <div className="mb-4">
-            <StatCard
-              title="Total Users"
-              value={data.users.total}
-              color="orange"
-            />
-          </div>
-          <ItemsTable
-            items={data.users.items || []}
-            title="Recent Users"
-            url="/tools/security-console/manage-users"
-          />
-        </div>
-
-        {/* Tenants */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Tenants</h2>
-          <div className="mb-4">
-            <StatCard
-              title="Total Tenants"
-              value={data.tenants.total}
-              color="pink"
-            />
-          </div>
-          <ItemsTable
-            items={data.tenants.items || []}
-            title="Recent Tenants"
-            url="/tools/manage-tenancy-and-enterprise-setup"
-          />
-        </div>
-
-        {/* Enterprises */}
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">
-            Enterprises
-          </h2>
-          <div className="mb-4">
-            <StatCard
-              title="Total Enterprises"
-              value={data.enterprises.total}
-              color="yellow"
-            />
-          </div>
-          <ItemsTable
-            items={data.enterprises.items || []}
-            title="Recent Enterprises"
-            url="/tools/manage-tenancy-and-enterprise-setup"
-          />
-        </div>
+        <StatCard title="Total Users" value={data.users.total} />
       </div>
 
-      {/* Workflows Section */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">Workflows</h2>
-        <div className="mb-4">
-          <StatCard
-            title="Total Workflows"
-            value={data.workflows.total}
-            color="cyan"
-          />
-        </div>
-        <ItemsTable
-          items={data.workflows.items || []}
-          title="Recent Workflows"
-          url="/tools/enterprise-process-modeler/orchestration-studio"
-        />
+      {/* Dynamic Sections */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        {Object.keys(data).map((sectionKey, index, arr) => {
+          const section = data[sectionKey as keyof DashboardData];
+          const sectionTitle = sectionKey
+            .replace(/_/g, " ")
+            .replace(/\b\w/g, (l) => l.toUpperCase());
+          const isLast = index === arr.length - 1;
+
+          // Define URLs for different sections
+          const sectionUrls: { [key: string]: string } = {
+            async_tasks:
+              "/asynchronous-request-manager/development/register-edit-asynchronous-tasks",
+            scheduled_tasks:
+              "/asynchronous-requests-and-task-schedules/view-edit-scheduled-tasks",
+            executors:
+              "/asynchronous-request-manager/development/manage-execution-methods",
+            users: "/tools/security-console/manage-users",
+            tenants: "/tools/manage-tenancy-and-enterprise-setup",
+            enterprises: "/tools/manage-tenancy-and-enterprise-setup",
+            workflows: "/tools/enterprise-process-modeler/orchestration-studio",
+          };
+
+          // Define colors for different sections
+          // const sectionColors: { [key: string]: string } = {
+          //   async_tasks: "blue",
+          //   scheduled_tasks: "purple",
+          //   executors: "teal",
+          //   users: "orange",
+          //   tenants: "pink",
+          //   enterprises: "yellow",
+          //   workflows: "cyan",
+          // };
+
+          return (
+            <div
+              key={sectionKey}
+              className={`${
+                isLast ? "md:col-span-2" : " "
+              } bg-white rounded-lg shadow-sm border border-gray-200 p-6`}
+            >
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                {sectionTitle}
+              </h2>
+
+              {/* Stat Cards for this section */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">
+                {Object.keys(section).map((statKey) => {
+                  if (statKey === "items") return null;
+                  const value =
+                    section[statKey as keyof Omit<DashboardSection, "items">];
+                  if (typeof value === "number") {
+                    return (
+                      <StatCard
+                        key={statKey}
+                        title={
+                          statKey.charAt(0).toUpperCase() + statKey.slice(1)
+                        }
+                        value={value}
+                        // color={sectionColors[sectionKey] || "blue"}
+                      />
+                    );
+                  }
+                  return null;
+                })}
+              </div>
+
+              {/* Items Table for this section */}
+              {section.items && section.items.length > 0 && (
+                <ItemsTable
+                  items={section.items}
+                  title={`Recent ${sectionTitle}`}
+                  url={sectionUrls[sectionKey]}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -66,7 +66,7 @@ const EditEdge: FC<EditNodeProps> = ({
         field: selectedEdge.data?.field ?? "",
         operator: selectedEdge.data?.operator ?? "",
         value: selectedEdge.data?.value ?? "",
-        is_default: selectedEdge.data?.default ?? false,
+        is_default: selectedEdge.data?.is_default ?? false,
       },
       animated: String(selectedEdge.animated) ?? "false",
     },
@@ -80,7 +80,7 @@ const EditEdge: FC<EditNodeProps> = ({
           field: selectedEdge.data?.field ?? "",
           operator: selectedEdge.data?.operator ?? "",
           value: selectedEdge.data?.value ?? "",
-          is_default: selectedEdge.data?.default ?? false,
+          is_default: selectedEdge.data?.is_default ?? false,
         },
         animated: selectedEdge.animated ?? "false",
       });
@@ -208,7 +208,9 @@ const EditEdge: FC<EditNodeProps> = ({
                                   }}
                                   defaultValue={field.value}
                                 >
-                                  <SelectTrigger>
+                                  <SelectTrigger
+                                    disabled={form.getValues("data.is_default")}
+                                  >
                                     <SelectValue placeholder="Select a Field" />
                                   </SelectTrigger>
                                   <SelectContent className="max-h-60">
@@ -246,7 +248,9 @@ const EditEdge: FC<EditNodeProps> = ({
                                   }}
                                   defaultValue={field.value}
                                 >
-                                  <SelectTrigger>
+                                  <SelectTrigger
+                                    disabled={form.getValues("data.is_default")}
+                                  >
                                     <SelectValue placeholder="Select a Operator" />
                                   </SelectTrigger>
                                   <SelectContent className="max-h-60">
@@ -282,6 +286,7 @@ const EditEdge: FC<EditNodeProps> = ({
                                 <Input
                                   {...field}
                                   placeholder="Value"
+                                  disabled={form.getValues("data.is_default")}
                                   className={`${
                                     theme === "dark"
                                       ? "border-white"
@@ -326,9 +331,9 @@ const EditEdge: FC<EditNodeProps> = ({
                         render={({ field }) => (
                           <span className="flex gap-2">
                             <Checkbox
-                              checked={field.value === true ? true : false}
+                              checked={field.value}
                               onCheckedChange={(checked) =>
-                                field.onChange(checked ? true : false)
+                                field.onChange(checked)
                               }
                             />
                             <FormLabel>Default</FormLabel>

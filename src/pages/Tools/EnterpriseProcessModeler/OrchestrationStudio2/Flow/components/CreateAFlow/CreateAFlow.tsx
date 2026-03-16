@@ -1,6 +1,8 @@
+import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { toast } from "@/components/ui/use-toast";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { IOrchestrationDataTypes2 } from "@/types/interfaces/orchestration.interface";
+import { postData, putData } from "@/Utility/funtion";
 interface ICreateAFlowProps {
   actionType: string;
   flowsData: IOrchestrationDataTypes2[];
@@ -27,14 +29,14 @@ const CreateAFlow = ({
   setIsEditFlowName,
   closeAllProgress,
 }: ICreateAFlowProps) => {
-  const api = useAxiosPrivate();
-
+  const { token } = useGlobalContext();
+  console.log(selectedFlowData, "selectedFlowData");
   const handleCreateNewFlow = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       if (flowsData) {
         const flow = flowsData.find(
-          (flow) => flow.process_name === newProcessName
+          (flow) => flow.process_name === newProcessName,
         );
         if (flow) {
           toast({
@@ -42,45 +44,58 @@ const CreateAFlow = ({
             description: "Flow already exists.",
           });
         } else {
-          const maxID = Math.max(...flowsData.map((flw) => flw.process_id));
-          const postData = {
-            process_id: maxID + 1,
-            process_name: newProcessName,
-            process_structure: { nodes: [], edges: [] },
-          };
-          const putData = {
-            process_name: newProcessName,
-          };
-
           if (actionType === "CreateAFlow") {
-            const res = await api.post(
-              "/orchestration-studio-process",
-              postData
-            );
+            const res = await postData({
+              baseURL: FLASK_URL,
+              url: `${flaskApi.WorkFlow}`,
+              accessToken: token.access_token,
+              payload: {
+                process_name: newProcessName,
+                process_structure: { nodes: [], edges: [] },
+              },
+              setLoading: () => {},
+            });
 
-            if (res) {
+            if (res.data.result.created_by) {
               setSelectedFlowName(newProcessName);
               closeAllProgress();
               setCreateNewFlow(false);
-              setSelectedFlowData(postData);
+              setSelectedFlowData({
+                process_id: res.data.result.process_id,
+                process_name: res.data.result.process_name,
+                process_structure: { nodes: [], edges: [] },
+              });
 
               toast({
-                title: "Success",
-                description: "New flow created successfully.",
+                // title: "Success",
+                description: `${res.data.message}`,
               });
             }
           } else if (actionType === "EditFlowName") {
-            const res = await api.put(
-              `/orchestration-studio-process/process-name/${selectedFlowData?.process_id}`,
-              putData
+            console.log(
+              {
+                process_name: newProcessName || "",
+                process_structure: selectedFlowData?.process_structure,
+              },
+              "selectedFlowData?.process_structure",
             );
-
+            const res = await putData({
+              baseURL: FLASK_URL,
+              payload: {
+                process_name: newProcessName || "",
+                process_structure: selectedFlowData?.process_structure,
+              },
+              setLoading: () => {},
+              url: `${flaskApi.WorkFlow}?process_id=${selectedFlowData?.process_id}`,
+              accessToken: token.access_token,
+            });
+            console.log(res, "res");
             if (res) {
               setIsEditFlowName(false);
               setSelectedFlowName(newProcessName);
               toast({
-                title: "Success",
-                description: "Flow name updated successfully.",
+                // title: "Success",
+                description: `${res.data.message}`,
               });
             }
           }
