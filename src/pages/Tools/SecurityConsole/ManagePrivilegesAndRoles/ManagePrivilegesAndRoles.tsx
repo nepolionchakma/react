@@ -47,7 +47,7 @@ import { loadData } from "@/Utility/funtion";
 import EditPrivilegeAndRole from "./EditPrivilegeAndRole";
 
 const ManagePriviedgesAndRoles = () => {
-  const { token } = useGlobalContext();
+  const { token, combinedUser } = useGlobalContext();
   const [data, setData] = useState<IPrivilegeAndRole[] | []>([]);
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
@@ -59,7 +59,7 @@ const ManagePriviedgesAndRoles = () => {
   const [query, setQuery] = useState({ isEmpty: true, value: "" });
   const [limit, setLimit] = useState<number>(8);
   const [selectedItem, setSelectedItem] = useState<IPrivilegeAndRole | null>(
-    null
+    null,
   );
   const [tenants, setTenants] = useState<ITenantsTypes[]>([]);
   const [isOpenModal, setIsOpenModal] = useState(false);
@@ -119,10 +119,14 @@ const ManagePriviedgesAndRoles = () => {
   useEffect(() => {
     const previlegesAndRolesParams = {
       baseURL: FLASK_URL,
-      url: `${flaskApi.DefPrevilegesAndRoles}?user_name=${query.value}&page=${page}&limit=${limit}`,
+      url: `${flaskApi.DefPrevilegesAndRoles}?user_name=${query.value}&page=${page}&limit=${limit}&tenant_id=${combinedUser?.tenant_id}`,
       accessToken: `${token.access_token}`,
       setLoading: setIsLoading,
     };
+
+    console.log(
+      `${flaskApi.DefPrevilegesAndRoles}?user_name=${query.value}&page=${page}&limit=${limit}&tenant_id=${combinedUser?.tenant_id}`,
+    );
 
     const loadPrevilegesAndRolesData = async () => {
       const res = await loadData(previlegesAndRolesParams);
@@ -254,7 +258,7 @@ const ManagePriviedgesAndRoles = () => {
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                         {header.id !== "select" && (
                           <div
@@ -282,7 +286,7 @@ const ManagePriviedgesAndRoles = () => {
                   <TableCell
                     colSpan={
                       getColumns(
-                        tenants
+                        tenants,
                         // expandPrevilege,
                         // expandRoles,
                         // setExpandPrevilege,
@@ -333,7 +337,7 @@ const ManagePriviedgesAndRoles = () => {
                         ) : (
                           flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )
                         )}
                       </TableCell>
@@ -345,7 +349,7 @@ const ManagePriviedgesAndRoles = () => {
                   <TableCell
                     colSpan={
                       getColumns(
-                        tenants
+                        tenants,
                         // expandPrevilege,
                         // expandRoles,
                         // setExpandPrevilege,

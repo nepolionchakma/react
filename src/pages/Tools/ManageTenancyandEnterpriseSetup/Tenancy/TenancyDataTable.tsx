@@ -54,39 +54,40 @@ export function TenancyDataTable({
   tabName,
   action,
   setAction,
-  selectedTenancyRows,
-  setSelectedTenancyRows,
   tenancyLimit,
   setTenancyLimit,
 }: ITenantsDataProps) {
-  const { token } = useGlobalContext();
+  const { token, combinedUser } = useGlobalContext();
   const api = useAxiosPrivate();
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [data, setData] = React.useState<ITenantsTypes[]>([]);
+  const [selectedTenancy, setSelectedTenancy] = React.useState<
+    ITenantsTypes | undefined
+  >(undefined);
   const [page, setPage] = React.useState<number>(1);
   const [totalPage, setTotalPage] = React.useState<number>(1);
   const [stateChanged, setStateChanged] = React.useState<number>(0);
-  const [isSelectAll, setIsSelectAll] = React.useState(false);
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
   const [colSizing, setColSizing] = React.useState<ColumnSizingState>({});
 
-  React.useEffect(() => {
-    if (selectedTenancyRows.length !== data.length || data.length === 0) {
-      setIsSelectAll(false);
-    } else {
-      setIsSelectAll(true);
-    }
+  console.log(selectedTenancy);
 
-    const selected = selectedTenancyRows.map((sel) => sel.tenant_id);
-    setSelectedIds(selected);
-  }, [selectedTenancyRows.length, data.length]);
+  // React.useEffect(() => {
+  //   if (selectedTenancyRows.length !== data.length || data.length === 0) {
+  //     setIsSelectAll(false);
+  //   } else {
+  //     setIsSelectAll(true);
+  //   }
+
+  //   const selected = selectedTenancyRows.map((sel) => sel.tenant_id);
+  //   setSelectedIds(selected);
+  // }, [selectedTenancyRows.length, data.length, selectedTenancyRows]);
 
   // const selectedTenancyRowsID = selectedTenancyRows.map((row) => row.tenant_id);
 
@@ -117,34 +118,34 @@ export function TenancyDataTable({
     },
   });
 
-  const handleSelectAll = () => {
-    if (isSelectAll) {
-      setIsSelectAll(false);
-      setSelectedTenancyRows([]);
-    } else {
-      setIsSelectAll(true);
-      setSelectedTenancyRows(data);
-    }
-  };
+  // const handleSelectAll = () => {
+  //   if (isSelectAll) {
+  //     setIsSelectAll(false);
+  //     setSelectedTenancyRows([]);
+  //   } else {
+  //     setIsSelectAll(true);
+  //     setSelectedTenancyRows(data);
+  //   }
+  // };
 
-  const handleRowSelection = (rowSelection: ITenantsTypes) => {
-    if (selectedIds.includes(rowSelection.tenant_id)) {
-      const newSelected = selectedTenancyRows.filter(
-        (row) => row.tenant_id !== rowSelection.tenant_id
-      );
-      setSelectedTenancyRows(newSelected);
-    } else {
-      setSelectedTenancyRows((prev) => [...prev, rowSelection]);
-    }
-  };
+  // const handleRowSelection = (rowSelection: ITenantsTypes) => {
+  //   if (selectedIds.includes(rowSelection.tenant_id)) {
+  //     const newSelected = selectedTenancyRows.filter(
+  //       (row) => row.tenant_id !== rowSelection.tenant_id,
+  //     );
+  //     setSelectedTenancyRows(newSelected);
+  //   } else {
+  //     setSelectedTenancyRows((prev) => [...prev, rowSelection]);
+  //   }
+  // };
 
   const handleCloseModal = () => {
     setAction("");
   };
 
-  React.useEffect(() => {
-    handleCloseModal();
-  }, [page, stateChanged, tenancyLimit]);
+  // React.useEffect(() => {
+  //   handleCloseModal();
+  // }, [page, stateChanged, tenancyLimit]);
 
   React.useEffect(() => {
     const tenancyDataParams = {
@@ -162,6 +163,21 @@ export function TenancyDataTable({
     fetch();
   }, [api, page, stateChanged, token.access_token, tenancyLimit]);
 
+  React.useEffect(() => {
+    const tenancyDataParams = {
+      baseURL: FLASK_URL,
+      url: `/tenants/${combinedUser?.tenant_id}`,
+      setLoading: setIsLoading,
+      accessToken: `${token.access_token}`,
+    };
+
+    const fetchTenancy = async () => {
+      const res = await loadData(tenancyDataParams);
+      setSelectedTenancy(res);
+    };
+    fetchTenancy();
+  }, [combinedUser?.tenant_id, token.access_token]);
+
   return (
     <div className="w-full">
       <>
@@ -169,21 +185,16 @@ export function TenancyDataTable({
           <TenancyCreateAndEditModal
             action={action}
             tabName={tabName}
-            selectedTenancyRows={selectedTenancyRows}
-            setSelectedTenancyRows={setSelectedTenancyRows}
+            selectedTenancy={selectedTenancy}
             setStateChanged={setStateChanged}
             handleCloseModal={handleCloseModal}
+            setSelectedTenancy={setSelectedTenancy}
           />
         )}
       </>
       {/* Action Items */}
       <div className="flex items-center justify-between py-1">
-        <ActionItems
-          selectedTenancyRows={selectedTenancyRows}
-          setAction={setAction}
-          setStateChanged={setStateChanged}
-          setSelectedTenancyRows={setSelectedTenancyRows}
-        />
+        <ActionItems setAction={setAction} />
         <div className="flex items-center gap-2">
           <Rows limit={tenancyLimit} setLimit={setTenancyLimit} />
 
@@ -244,15 +255,15 @@ export function TenancyDataTable({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
-                      {header.id === "select" && (
+                      {/* {header.id === "select" && (
                         <Checkbox
                           checked={isSelectAll}
                           onClick={handleSelectAll}
                           aria-label="Select all"
                         />
-                      )}
+                      )} */}
                       {header.id !== "select" && (
                         <div
                           {...{
@@ -306,13 +317,18 @@ export function TenancyDataTable({
                       {index === 0 ? (
                         <Checkbox
                           className="mt-1"
-                          checked={selectedIds.includes(row.original.tenant_id)}
-                          onClick={() => handleRowSelection(row.original)}
+                          checked={
+                            row.original.tenant_id === combinedUser?.tenant_id
+                          }
+                          disabled={
+                            row.original.tenant_id !== combinedUser?.tenant_id
+                          }
+                          // onClick={() => handleRowSelection(row.original)}
                         />
                       ) : (
                         flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )
                       )}
                     </TableCell>
@@ -461,11 +477,11 @@ export function TenancyDataTable({
             )}
           </TableBody>
         </Table> */}
-        <div className="flex justify-between p-1">
-          <div className="flex-1 text-sm text-gray-600">
-            {selectedTenancyRows.length} of{" "}
+        <div className="flex justify-end p-1">
+          {/* <div className="flex-1 text-sm text-gray-600">
+            {sele.length} of{" "}
             {table.getFilteredRowModel().rows.length} row(s) selected.
-          </div>
+          </div> */}
           <Pagination5
             currentPage={page}
             setCurrentPage={setPage}
