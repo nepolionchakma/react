@@ -60,7 +60,7 @@ export function JobTitlesDataTable({
   setJobTitlesLimit,
 }: IJobTitlesDataProps) {
   const api = useAxiosPrivate();
-  const { token } = useGlobalContext();
+  const { token, combinedUser } = useGlobalContext();
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [data, setData] = React.useState<IJobTitle[]>([]);
   const [page, setPage] = React.useState<number>(1);
@@ -70,7 +70,7 @@ export function JobTitlesDataTable({
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -129,7 +129,7 @@ export function JobTitlesDataTable({
   const handleRowSelection = (rowSelection: IJobTitle) => {
     if (selectedIds.includes(rowSelection.job_title_id)) {
       const newSelected = selectedJobTitlesRows.filter(
-        (row) => row.job_title_id !== rowSelection.job_title_id
+        (row) => row.job_title_id !== rowSelection.job_title_id,
       );
       setSelectedJobTitlesRows(newSelected);
     } else {
@@ -148,7 +148,7 @@ export function JobTitlesDataTable({
   React.useEffect(() => {
     const jobTitlesParams = {
       baseURL: FLASK_URL,
-      url: `${flaskApi.JobTitles}?page=${page}&limit=${jobTitlesLimit}`,
+      url: `${flaskApi.JobTitles}?page=${page}&limit=${jobTitlesLimit}&tenant_id=${combinedUser?.tenant_id}`,
       setLoading: setIsLoading,
       accessToken: `${token.access_token}`,
     };
@@ -159,7 +159,14 @@ export function JobTitlesDataTable({
       setTotalPage(res.pages);
     };
     fetch();
-  }, [api, page, stateChanged, token.access_token, jobTitlesLimit]);
+  }, [
+    api,
+    page,
+    stateChanged,
+    token.access_token,
+    jobTitlesLimit,
+    combinedUser?.tenant_id,
+  ]);
 
   /** get tentants */
   React.useEffect(() => {
@@ -261,7 +268,7 @@ export function JobTitlesDataTable({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                       {header.id === "select" && (
                         <Checkbox
@@ -324,14 +331,14 @@ export function JobTitlesDataTable({
                         <Checkbox
                           className="mt-1"
                           checked={selectedIds.includes(
-                            row.original.job_title_id
+                            row.original.job_title_id,
                           )}
                           onClick={() => handleRowSelection(row.original)}
                         />
                       ) : (
                         flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )
                       )}
                     </TableCell>

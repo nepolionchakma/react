@@ -17,7 +17,6 @@ import {
   IUserLinkedDevices,
   IGetResponeUsersInfoTypes,
   IEnterprisesTypes,
-  IJobTitle,
 } from "@/types/interfaces/users.interface";
 import {
   IDataSourcePostTypes,
@@ -50,7 +49,7 @@ interface GlobalContex {
   users: Users[];
   fetchDataSources: (
     page: number,
-    limit: number
+    limit: number,
   ) => Promise<IDataSourceTypes[] | undefined>;
   fetchDataSource: (id: number) => Promise<IDataSourceTypes>;
   isLoading: boolean;
@@ -60,7 +59,7 @@ interface GlobalContex {
   setUpdateProfileImage: React.Dispatch<React.SetStateAction<number>>;
   updateDataSource: (
     id: number,
-    postData: IDataSourcePostTypes
+    postData: IDataSourcePostTypes,
   ) => Promise<void>;
   combinedUser: IUsersInfoTypes | undefined;
   setCombinedUser: React.Dispatch<
@@ -70,12 +69,12 @@ interface GlobalContex {
   fetchCombinedUser: (
     page: number,
     limit: number,
-    user_name: string
+    user_name: string,
   ) => Promise<IGetResponeUsersInfoTypes | undefined>;
   searchCombinedUser: (
     page: number,
     limit: number,
-    userName: string
+    userName: string,
   ) => Promise<IGetResponeUsersInfoTypes | undefined>;
   //lazy loading
   page: number;
@@ -105,7 +104,6 @@ interface GlobalContex {
   setEdgeConnectionPosition: Dispatch<SetStateAction<string[]>>;
   enterpriseSetting: IEnterprisesTypes | undefined;
   setEnterpriseSetting: Dispatch<SetStateAction<IEnterprisesTypes | undefined>>;
-  fetchJobTitles: () => Promise<IJobTitle[]>;
   mfaResponse: IMFA | undefined;
   setMfaResponse: Dispatch<SetStateAction<IMFA | undefined>>;
   userIpAddress: string | null;
@@ -160,9 +158,8 @@ export function GlobalContextProvider({
     string[]
   >([]);
 
-  const [presentDevice, setPresentDevice] = useState<IUserLinkedDevices>(
-    userDevice()
-  );
+  const [presentDevice, setPresentDevice] =
+    useState<IUserLinkedDevices>(userDevice());
 
   const [enterpriseSetting, setEnterpriseSetting] = useState<
     IEnterprisesTypes | undefined
@@ -185,6 +182,7 @@ export function GlobalContextProvider({
       setPresentDevice(parsed);
     }
   }, [presentDevice.id]);
+
   useEffect(() => {
     (async () => {
       try {
@@ -219,26 +217,17 @@ export function GlobalContextProvider({
 
   //Fetch Users
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchUser = async () => {
       try {
-        setIsCombinedUserLoading(true);
         if (token?.user_id === 0) return;
-        const [users, combinedUser] = await Promise.all([
-          loadData({
-            baseURL: FLASK_URL,
-            url: flaskApi.Users,
-            setLoading: setIsLoading,
-            accessToken: `${token.access_token}`,
-          }),
-          loadData({
-            baseURL: FLASK_URL,
-            url: `${flaskApi.Users}?user_id=${token?.user_id}`,
-            setLoading: setIsCombinedUserLoading,
-            accessToken: `${token.access_token}`,
-          }),
-        ]);
-
-        setUsers(users.result);
+        console.log(`${flaskApi.Users}?user_id=${token?.user_id}`);
+        const combinedUser = await loadData({
+          baseURL: FLASK_URL,
+          url: `${flaskApi.Users}?user_id=${token?.user_id}`,
+          setLoading: setIsCombinedUserLoading,
+          accessToken: `${token.access_token}`,
+        });
+        console.log(combinedUser);
         setCombinedUser(combinedUser.result);
         if (combinedUser.result) {
           const res = await loadData({
@@ -247,6 +236,14 @@ export function GlobalContextProvider({
             // setLoading: setIsCombinedUserLoading,
             accessToken: `${token.access_token}`,
           });
+
+          const users = await loadData({
+            baseURL: FLASK_URL,
+            url: `${flaskApi.Users}?tenant_id=${combinedUser.result.tenant_id}`,
+            setLoading: setIsLoading,
+            accessToken: `${token.access_token}`,
+          });
+          setUsers(users.result);
           setEnterpriseSetting(res.result);
         }
       } catch (error) {
@@ -256,14 +253,14 @@ export function GlobalContextProvider({
       }
     };
 
-    fetchUsers();
+    fetchUser();
   }, [api, token.access_token, token?.user_id, updateProfileImage]);
 
   //user info
   const fetchCombinedUser = async (
     page: number,
     limit: number,
-    user_name: string
+    user_name: string,
   ) => {
     try {
       const loadUsersParams = {
@@ -291,12 +288,12 @@ export function GlobalContextProvider({
   const searchCombinedUser = async (
     page: number,
     limit: number,
-    userName: string
+    userName: string,
   ) => {
     try {
       setIsLoading(true);
       const res = await api.get<IGetResponeUsersInfoTypes>(
-        `/combined-user/search/${page}/${limit}?user_name=${userName}`
+        `/combined-user/search/${page}/${limit}?user_name=${userName}`,
       );
 
       // setUsersInfo(res.data.items ?? []);
@@ -315,7 +312,7 @@ export function GlobalContextProvider({
     try {
       const res = await axios.put(
         `${FLASK_ENDPOINT_URL}/users/${user_id}`,
-        userInfo
+        userInfo,
       );
 
       if (res.status === 200) {
@@ -343,7 +340,7 @@ export function GlobalContextProvider({
       setIsLoading(true);
       const res = await api.put(
         `/user-credentials/reset-password/${resetData.user_id}`,
-        resetData
+        resetData,
       );
 
       if (res.status === 200) {
@@ -423,7 +420,7 @@ export function GlobalContextProvider({
         return response.result;
       } else {
         throw new Error(
-          `Failed to fetch data source, status code: ${response.message}`
+          `Failed to fetch data source, status code: ${response.message}`,
         );
       }
     } catch (error) {
@@ -434,7 +431,7 @@ export function GlobalContextProvider({
 
   const updateDataSource = async (
     id: number,
-    postData: IDataSourcePostTypes
+    postData: IDataSourcePostTypes,
   ) => {
     try {
       const res = await putData({
@@ -466,17 +463,6 @@ export function GlobalContextProvider({
 
       console.log(error);
     }
-  };
-
-  const fetchJobTitles = async () => {
-    const params = {
-      baseURL: FLASK_URL,
-      url: `${flaskApi.JobTitles}`,
-      accessToken: `${token.access_token}`,
-    };
-
-    const res = await loadData(params);
-    return res ?? [];
   };
 
   return (
@@ -528,7 +514,6 @@ export function GlobalContextProvider({
         setEdgeConnectionPosition,
         enterpriseSetting,
         setEnterpriseSetting,
-        fetchJobTitles,
         mfaResponse,
         setMfaResponse,
         userIpAddress,

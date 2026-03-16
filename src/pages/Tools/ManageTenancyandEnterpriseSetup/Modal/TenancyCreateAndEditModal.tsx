@@ -10,24 +10,24 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 interface ICustomModalTypes {
   action: string;
   tabName: string;
-  selectedTenancyRows?: ITenantsTypes[];
-  setSelectedTenancyRows: React.Dispatch<React.SetStateAction<ITenantsTypes[]>>;
+  selectedTenancy?: ITenantsTypes;
+  setSelectedTenancy: React.Dispatch<
+    React.SetStateAction<ITenantsTypes | undefined>
+  >;
   setStateChanged: React.Dispatch<React.SetStateAction<number>>;
   handleCloseModal: () => void;
 }
 const TenancyCreateAndEditModal = ({
   action,
   tabName,
-  selectedTenancyRows,
+  selectedTenancy,
   setStateChanged,
   handleCloseModal,
-  setSelectedTenancyRows,
+  setSelectedTenancy,
 }: ICustomModalTypes) => {
   const { token } = useGlobalContext();
   const [tenantName, setTenantName] = useState<string>(
-    selectedTenancyRows && action === "edit"
-      ? selectedTenancyRows[0].tenant_name
-      : ""
+    selectedTenancy && action === "edit" ? selectedTenancy.tenant_name : "",
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -51,15 +51,14 @@ const TenancyCreateAndEditModal = ({
       } else {
         const putParams = {
           baseURL: FLASK_URL,
-          url: `${flaskApi.DefTenants}?tenant_id=${selectedTenancyRows?.[0].tenant_id}`,
+          url: `${flaskApi.DefTenants}?tenant_id=${selectedTenancy?.tenant_id}`,
           setLoading: setIsLoading,
           payload: { tenant_name: tenantName },
           accessToken: `${token.access_token}`,
+          isToast: true,
         };
         const res = await putData(putParams);
-        if (res) {
-          setSelectedTenancyRows([]);
-        }
+        setSelectedTenancy(res.data.result);
       }
     } catch (error) {
       console.log(error);

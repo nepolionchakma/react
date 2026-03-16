@@ -62,7 +62,7 @@ function NewUserInvitation() {
         setIsCopyURL(false);
         toast({ description: "Failed to copy text!" });
         console.error("Error copying text: ", err);
-      }
+      },
     );
   };
 

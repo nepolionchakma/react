@@ -41,6 +41,8 @@ import CustomTooltip from "@/components/Tooltip/Tooltip";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import Rows from "@/components/Rows/Rows";
 import { convertToTitleCase } from "@/Utility/general";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { loadData } from "@/Utility/funtion";
 
 interface Props {
   selectedUser: IUsersInfoTypes;
@@ -54,7 +56,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
     setIsOpenModal,
     combinedUser,
     stateChange,
-    fetchJobTitles,
+    token,
   } = useGlobalContext();
   const [data, setData] = React.useState<IUsersInfoTypes[] | []>([]);
   const [page, setPage] = React.useState(1);
@@ -62,7 +64,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
   const [isLoading, setIsLoading] = React.useState(false);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
 
   const [columnVisibility, setColumnVisibility] =
@@ -83,10 +85,23 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
   };
 
   React.useEffect(() => {
-    (async () => {
-      const params = await fetchJobTitles();
+    const fetchJobTitles = async () => {
+      const params = {
+        baseURL: FLASK_URL,
+        url: `${flaskApi.JobTitles}?tenant_id=${combinedUser?.tenant_id}`,
+        accessToken: `${token.access_token}`,
+      };
 
-      if (params) {
+      const res = await loadData(params);
+      console.log(res);
+    };
+
+    fetchJobTitles();
+  }, [combinedUser?.tenant_id, token.access_token]);
+
+  React.useEffect(() => {
+    (async () => {
+      if (res) {
         setJobTitles(params);
       } else {
         setJobTitles([]);
@@ -294,7 +309,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                         {header.id !== "select" && (
                           <div
@@ -364,7 +379,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
                         ) : (
                           flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )
                         )}
                       </TableCell>
