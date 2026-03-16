@@ -138,7 +138,7 @@ const Home = () => {
   const [data, setData] = useState<DashboardData | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [isRefreshData, setIsRefreshData] = useState(false);
-
+  console.log("Home");
   const fetchDashboardData = useCallback(
     async (isManualRefresh: boolean = false) => {
       const alertDataParams = {
