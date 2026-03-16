@@ -62,7 +62,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
   const isMfaTypeMatch = (type: string) => {
     if (!mfaList || !Array.isArray(mfaList)) return false;
     const isMatch = mfaList.find(
-      (mfa: IMFAListType) => mfa?.identifier === type || mfa.mfa_type === type
+      (mfa: IMFAListType) => mfa?.identifier === type || mfa.mfa_type === type,
     );
 
     if (!isMatch) return "";
@@ -104,7 +104,7 @@ function EnableMFA({ setTwoStepModal1, isMfaEnabled, setIsMfaEnabled }: Props) {
         setIsCopyURL(false);
         toast({ description: "Failed to copy text!" });
         console.error("Error copying text: ", err);
-      }
+      },
     );
   };
 

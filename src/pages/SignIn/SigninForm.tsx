@@ -13,7 +13,7 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 // import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { AxiosError } from "axios";
-import { NODE_URL } from "@/Api/Api";
+import { FLASK_URL, NODE_URL } from "@/Api/Api";
 // import useInitialUserInfo from "@/hooks/useInitialUserInfo";
 import { v4 as uuidv4 } from "uuid";
 import { postData } from "@/Utility/funtion";
@@ -59,14 +59,14 @@ const SignInForm = () => {
     try {
       setIsLoading(true);
       const loginParams = {
-        baseURL: NODE_URL,
+        baseURL: FLASK_URL,
         url: `/login`,
         setLoading: setIsLoading,
         payload: data,
         isToast: true,
       };
       const response = await postData(loginParams);
-
+      console.log(response.data, "response login");
       if (!response.data) return;
 
       if (response?.data?.mfa_required) {
@@ -75,6 +75,16 @@ const SignInForm = () => {
       } else if (response.data && !response?.data?.mfa_required) {
         setToken(response.data);
         const newSignonID = uuidv4();
+        console.log({
+          user_id: response.data.user_id,
+          deviceInfo: deviceData,
+          signon_audit: {
+            signon_id: newSignonID,
+            login: new Date(),
+            logout: "",
+            session_log: [],
+          },
+        });
         const res = await postData({
           baseURL: NODE_URL,
           payload: {
