@@ -448,7 +448,7 @@ const routes = createBrowserRouter([
         element: <Error />,
       },
       {
-        path: ":request_id/:user_id/:token",
+        path: ":request_id",
         element: <ResetPassword />,
       },
     ],

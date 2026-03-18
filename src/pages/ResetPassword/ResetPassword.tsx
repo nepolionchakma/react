@@ -49,15 +49,15 @@ const formSchema = z
   });
 
 const ResetPassword = () => {
-  const { request_id, user_id, token } = useParams();
+  const { request_id } = useParams();
   const navigate = useNavigate();
-  console.log(request_id, "1", user_id, "2", token, "ssss");
+  // console.log(request_id, "1", user_id, "2", token, "ssss");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [verifyUser, setVerifyUser] = useState<IVerifyUser>();
 
-  const decryptedRequestId = decrypt(request_id as string);
+  // const decryptedRequestId = decrypt(request_id as string);
   // const decryptedToken = decrypt(token as string);
   // const decryptedUserId = decrypt(user_id as string);
   // console.log(
@@ -66,11 +66,12 @@ const ResetPassword = () => {
   //   decryptedUserId,
   //   "decryption...........",
   // );
+
   useEffect(() => {
     const verifyUser = async () => {
       const params = {
         baseURL: FLASK_URL,
-        url: `${flaskApi.ForgetPassword}/verify?forgot_password_request_id=${request_id}&access_token=${token}`,
+        url: `${flaskApi.ForgetPassword}/verify?forgot_password_request_id=${request_id}`,
         setLoading: setIsLoading,
       };
       try {
@@ -82,7 +83,7 @@ const ResetPassword = () => {
       }
     };
     verifyUser();
-  }, [request_id, token]);
+  }, [request_id]);
 
   /** Define form */
   const form = useForm<z.infer<typeof formSchema>>({
@@ -98,10 +99,9 @@ const ResetPassword = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     // console.log(values);
     const passwordPayload = {
-      forgot_password_request_id: decryptedRequestId,
+      forgot_password_request_id: request_id,
       temporary_password: values.temporary_password,
       password: values.password,
-      access_token: token,
     };
     const postParams = {
       baseURL: FLASK_URL,
