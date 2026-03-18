@@ -1,4 +1,4 @@
-import { NODE_URL, nodeApi } from "@/Api/Api";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Form,
@@ -43,8 +43,8 @@ export const ForgotPassword = () => {
     };
 
     const postParams = {
-      baseURL: NODE_URL,
-      url: `${nodeApi.ForgotPassword}`,
+      baseURL: FLASK_URL,
+      url: `${flaskApi.ForgetPassword}/request`,
       setLoading: setIsLoading,
       payload: forgotPasswordPayload,
       isToast: true,

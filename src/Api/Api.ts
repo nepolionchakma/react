@@ -69,6 +69,8 @@ export const flaskApi = {
   DataSourceMetadata: "/datasource/metadata",
   DecisionEdgePredecessorOutputs: "/workflow/predecessor_outputs",
   Home: "/dashboard/summary",
+  ForgetPassword: "/forgot-password",
+  ResetPasswordById: "/def_user_credentials/reset_forgot_password/:user_id",
 };
 
 // All Node api

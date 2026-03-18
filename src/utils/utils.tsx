@@ -11,7 +11,9 @@ export const decrypt = (value: string) => {
     // Decode URL-safe string
     const decoded = decodeURIComponent(value);
 
-    const bytes = CryptoJS.AES.decrypt(decoded, crptoSecretKey);
+    const standardBase64 = decoded.replace(/-/g, "+").replace(/_/g, "/");
+
+    const bytes = CryptoJS.AES.decrypt(standardBase64, crptoSecretKey);
     const plaintext = bytes.toString(CryptoJS.enc.Utf8);
 
     return plaintext; // original string
