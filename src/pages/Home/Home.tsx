@@ -32,30 +32,43 @@ interface DashboardData {
   enterprises: DashboardSection;
   workflows: DashboardSection;
 }
-const switchFunc = (title: string) => {
+const dynamicColorFunc = (title: string) => {
   switch (title.toLocaleLowerCase()) {
     case "total":
-      return "blue";
+      return {
+        container: "bg-blue-50 border-blue-200",
+        text: "text-blue-600",
+      };
     case "active":
-      return "green";
     case "scheduled":
-      return "green";
-    case "cancelled":
-      return "red";
-    case "srs":
-      return "gray";
-    case "sf":
-      return "gray";
     case "active tasks":
-      return "green";
-    case "total scheduled tasks":
-      return "orange";
+      return {
+        container: "bg-green-50 border-green-200",
+        text: "text-green-600",
+      };
+    case "cancelled":
+      return {
+        container: "bg-red-50 border-red-200",
+        text: "text-red-600",
+      };
+    case "srs":
+    case "sf":
     case "total users":
-      return "gray";
     case "total async tasks":
-      return "gray";
+      return {
+        container: "bg-gray-50 border-gray-200",
+        text: "text-gray-600",
+      };
+    case "total scheduled tasks":
+      return {
+        container: "bg-orange-50 border-orange-200",
+        text: "text-orange-600",
+      };
     default:
-      return "black";
+      return {
+        container: "bg-gray-50 border-gray-200",
+        text: "text-gray-600",
+      };
   }
 };
 
@@ -65,16 +78,18 @@ const StatCard = ({
 }: {
   title: string;
   value: number | string | undefined;
-}) => (
-  <div
-    className={`bg-${switchFunc(title)}-50 border border-${switchFunc(title)}-200 rounded-lg p-4`}
-  >
-    <h4 className="text-sm font-medium text-gray-600">{title}</h4>
-    <p className={`text-2xl font-bold text-${switchFunc(title)}-600`}>
-      {value}
-    </p>
-  </div>
-);
+}) => {
+  return (
+    <div
+      className={`${dynamicColorFunc(title).container} border rounded-lg p-4`}
+    >
+      <h4 className="text-sm font-medium text-gray-600">{title}</h4>
+      <p className={`text-2xl font-bold ${dynamicColorFunc(title).text}`}>
+        {value}
+      </p>
+    </div>
+  );
+};
 
 const ItemsTable = ({
   items,
@@ -138,7 +153,6 @@ const Home = () => {
   const [data, setData] = useState<DashboardData | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [isRefreshData, setIsRefreshData] = useState(false);
-  console.log("Home");
   const fetchDashboardData = useCallback(
     async (isManualRefresh: boolean = false) => {
       const alertDataParams = {

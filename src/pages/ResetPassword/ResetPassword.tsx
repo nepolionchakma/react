@@ -112,7 +112,7 @@ const ResetPassword = () => {
       // accessToken: decryptedToken as string,
     };
     const res = await postData(postParams);
-    if (res.is_success) {
+    if (res.data.is_success) {
       form.reset();
       navigate("/login");
     }

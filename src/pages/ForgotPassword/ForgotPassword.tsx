@@ -9,13 +9,14 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { KeyRound } from "lucide-react";
+import { ArrowLeft, KeyRound } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { postData } from "@/Utility/funtion";
+import { useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
   user_name: z.string().min(2, "Type at least 2 character"),
@@ -25,6 +26,7 @@ const formSchema = z.object({
 
 export const ForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,8 +52,9 @@ export const ForgotPassword = () => {
       isToast: true,
     };
     const res = await postData(postParams);
-    if (res.length > 0) {
+    if (res) {
       form.reset();
+      navigate("/login");
     }
   };
 
@@ -59,17 +62,22 @@ export const ForgotPassword = () => {
     <div className="flex justify-center items-center h-screen">
       <Card className="w-[500px]">
         <CardHeader>
-          <CardTitle>
+          <CardTitle className="flex justify-between items-center">
+            <ArrowLeft
+              color="black"
+              className="cursor-pointer hover:scale-110 duration-300"
+              onClick={() => navigate("/login")}
+            />
             <div className="flex items-center gap-2">
-              <div className="rounded-full p-2 bg-NAVY-100 flex justify-center items-center">
-                <KeyRound size={24} color="black" />
-              </div>
               <div className="flex flex-col gap-1">
                 <p className="text-base font-semibold">Forgot your password?</p>
                 <p className="text-[13px] font-normal">
                   Sent request for new password.
                 </p>
               </div>
+            </div>
+            <div className="rounded-full p-2 bg-NAVY-100 flex justify-center items-center">
+              <KeyRound size={24} color="black" />
             </div>
           </CardTitle>
         </CardHeader>
