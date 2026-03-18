@@ -38,7 +38,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { convertToTitleCase } from "@/Utility/general";
 import Pagination5 from "@/components/Pagination/Pagination5";
-import Spinner from "@/components/Spinner/Spinner";
+// import Spinner from "@/components/Spinner/Spinner";
 import Modal from "./Modal";
 
 const ManageApiEndpoints = () => {
@@ -59,7 +59,7 @@ const ManageApiEndpoints = () => {
   const [isSelectAll, setIsSelectAll] = useState(false);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [action, setAction] = useState("");
-  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+  //   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [reloadController, setReloadController] = useState(1);
 
   const table = useReactTable({
@@ -209,7 +209,10 @@ const ManageApiEndpoints = () => {
               tooltipTitle="Delete"
             >
               <span className="flex flex-col items-start gap-1">
-                {isDeleteLoading ? (
+                {selectedEndPoints.map((item) => (
+                  <span key={item.api_endpoint_id}>{item.api_endpoint}</span>
+                ))}
+                {/* {isDeleteLoading ? (
                   <span className="block">
                     <Spinner size="40" color="black" />
                   </span>
@@ -217,7 +220,7 @@ const ManageApiEndpoints = () => {
                   selectedEndPoints.map((item) => (
                     <span key={item.api_endpoint_id}>{item.api_endpoint}</span>
                   ))
-                )}
+                )} */}
               </span>
             </Alert>
           </ActionButtons>

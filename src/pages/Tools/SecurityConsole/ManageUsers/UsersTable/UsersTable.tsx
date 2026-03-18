@@ -93,21 +93,15 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
       };
 
       const res = await loadData(params);
-      console.log(res);
+      if (res?.length > 0) {
+        setJobTitles(res);
+      } else {
+        setJobTitles([]);
+      }
     };
 
     fetchJobTitles();
   }, [combinedUser?.tenant_id, token.access_token]);
-
-  React.useEffect(() => {
-    (async () => {
-      if (res) {
-        setJobTitles(params);
-      } else {
-        setJobTitles([]);
-      }
-    })();
-  }, []);
 
   React.useEffect(() => {
     const fetchData = async () => {
@@ -175,7 +169,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
       },
     },
   });
-
+  console.log(data, "dataaaa");
   const handleOpenModal = (modelName: string) => {
     setIsOpenModal(modelName);
   };
