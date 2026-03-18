@@ -61,7 +61,7 @@ export const columns: ColumnDef<IAPIEndpoint>[] = [
     },
 
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">{row.getValue("api_endpoint")}</div>
+      <div className="min-w-max">{row.getValue("api_endpoint")}</div>
     ),
   },
   {
