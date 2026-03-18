@@ -1,4 +1,4 @@
-import { NODE_URL, nodeApi } from "@/Api/Api";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -10,7 +10,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { loadData, putData } from "@/Utility/funtion";
+import { loadData, postData } from "@/Utility/funtion";
 import { decrypt } from "@/utils/utils";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { EyeIcon, EyeOffIcon, LockKeyhole } from "lucide-react";
@@ -32,7 +32,7 @@ type UserInfo = {
 };
 
 interface IVerifyUser {
-  valid: boolean;
+  is_valid: boolean;
   message: string;
   result: UserInfo;
 }
@@ -51,32 +51,38 @@ const formSchema = z
 const ResetPassword = () => {
   const { request_id, user_id, token } = useParams();
   const navigate = useNavigate();
-
+  console.log(request_id, "1", user_id, "2", token, "ssss");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [verifyUser, setVerifyUser] = useState<IVerifyUser>();
 
   const decryptedRequestId = decrypt(request_id as string);
-  const decryptedToken = decrypt(token as string);
-  const decryptedUserId = decrypt(user_id as string);
-
+  // const decryptedToken = decrypt(token as string);
+  // const decryptedUserId = decrypt(user_id as string);
+  // console.log(
+  //   decryptedRequestId,
+  //   decryptedToken,
+  //   decryptedUserId,
+  //   "decryption...........",
+  // );
   useEffect(() => {
     const verifyUser = async () => {
       const params = {
-        baseURL: NODE_URL,
-        url: `${nodeApi.ForgotPassword}/verify?request_id=${decryptedRequestId}&token=${decryptedToken}`,
+        baseURL: FLASK_URL,
+        url: `${flaskApi.ForgetPassword}/verify?forgot_password_request_id=${request_id}&access_token=${token}`,
         setLoading: setIsLoading,
       };
       try {
         const res = await loadData(params);
+        console.log(res, "user");
         setVerifyUser(res);
       } catch (error) {
         console.log(error);
       }
     };
     verifyUser();
-  }, [decryptedToken, decryptedRequestId]);
+  }, [request_id, token]);
 
   /** Define form */
   const form = useForm<z.infer<typeof formSchema>>({
@@ -92,20 +98,21 @@ const ResetPassword = () => {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     // console.log(values);
     const passwordPayload = {
-      request_id: decryptedRequestId,
+      forgot_password_request_id: decryptedRequestId,
       temporary_password: values.temporary_password,
       password: values.password,
+      access_token: token,
     };
-    const putParams = {
-      baseURL: NODE_URL,
-      url: `${nodeApi.ResetPassword}/${decryptedUserId}`,
+    const postParams = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.ForgetPassword}/reset`,
       setLoading: setIsLoading,
       payload: passwordPayload,
       isToast: true,
-      accessToken: decryptedToken as string,
+      // accessToken: decryptedToken as string,
     };
-    const res = await putData(putParams);
-    if (res) {
+    const res = await postData(postParams);
+    if (res.data.is_success) {
       form.reset();
       navigate("/login");
     }
@@ -128,7 +135,7 @@ const ResetPassword = () => {
   };
   return (
     <div className="flex justify-center items-center h-screen">
-      {verifyUser?.valid ? (
+      {verifyUser?.is_valid ? (
         <Card className="w-2/5">
           <CardHeader>
             <CardTitle>
