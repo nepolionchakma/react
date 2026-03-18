@@ -74,7 +74,7 @@ const SearchResultsTable = () => {
   // form
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -159,7 +159,7 @@ const SearchResultsTable = () => {
   const handleRowSelection = (rowData: IManageAccessModelsTypes) => {
     if (selectedIds.includes(rowData.def_access_model_id)) {
       const filterItem = selectedAccessModelItem.filter(
-        (item) => item.def_access_model_id !== rowData.def_access_model_id
+        (item) => item.def_access_model_id !== rowData.def_access_model_id,
       );
       setSelectedAccessModelItem(filterItem);
     } else {
@@ -194,7 +194,7 @@ const SearchResultsTable = () => {
       const deletePromises = selectedAccessModelItem.map(async (item) => {
         if (item.def_access_model_id) {
           return await manageAccessModelLogicsDeleteCalculate(
-            item?.def_access_model_id
+            item?.def_access_model_id,
           );
         }
       });
@@ -220,8 +220,8 @@ const SearchResultsTable = () => {
                 obj.def_access_model_id === item.def_access_model_id &&
                 obj.def_access_model_logic_id ===
                   item.def_access_model_logic_id &&
-                obj.id === item.id
-            )
+                obj.id === item.id,
+            ),
         );
 
         return unique;
@@ -238,9 +238,9 @@ const SearchResultsTable = () => {
       willBeDelete.map(async (item) => {
         await deleteManageModelLogicAndAttributeData(
           item.def_access_model_logic_id,
-          item.id
+          item.id,
         );
-      })
+      }),
     );
     await deleteDefAccessModel(selectedAccessModelItem);
     table.getRowModel().rows.map((row) => row.toggleSelected(false));
@@ -330,7 +330,7 @@ const SearchResultsTable = () => {
                             .filter(
                               (item) =>
                                 item.def_access_model_id ===
-                                modelItem.def_access_model_id
+                                modelItem.def_access_model_id,
                             )
                             .map((item, index) => (
                               <span key={index}>
@@ -387,6 +387,7 @@ const SearchResultsTable = () => {
           </DropdownMenu>
         </div>
       </div>
+
       <div className="rounded-md border">
         <Table
           style={{
@@ -411,7 +412,7 @@ const SearchResultsTable = () => {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                       {header.id === "select" && (
                         <Checkbox
@@ -474,14 +475,14 @@ const SearchResultsTable = () => {
                         <Checkbox
                           className="mt-1"
                           checked={selectedIds.includes(
-                            row.original.def_access_model_id
+                            row.original.def_access_model_id,
                           )}
                           onClick={() => handleRowSelection(row.original)}
                         />
                       ) : (
                         flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )
                       )}
                     </TableCell>

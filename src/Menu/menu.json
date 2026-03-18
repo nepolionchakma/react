@@ -185,6 +185,10 @@
             "path": "/tools/security-console/manage-privileges-and-roles"
           },
           {
+            "name": "Manage API Endpoints",
+            "path": "/tools/security-console/manage-api-endpoints"
+          },
+          {
             "name": "New User Invitation",
             "path": "/tools/security-console/new-user-invitation"
           }

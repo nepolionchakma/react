@@ -2,22 +2,10 @@ import {
   IPrivilege,
   IPrivilegeAndRole,
   IRole,
-  ITenantsTypes,
 } from "@/types/interfaces/users.interface";
-import { tenantNames } from "@/Utility/general";
 import { ColumnDef } from "@tanstack/react-table";
-import {
-  ArrowUpDown,
-  // CircleChevronDown,
-  // CircleChevronRight,
-} from "lucide-react";
-export const columns = (
-  tenants: ITenantsTypes[]
-  // expandRoles: string | null,
-  // expandPrevilege: string | null,
-  // setExpandRoles: (row: string | null) => void,
-  // setExpandPrevilege: (row: string | null) => void
-): ColumnDef<IPrivilegeAndRole>[] => [
+import { ArrowUpDown } from "lucide-react";
+export const columns: ColumnDef<IPrivilegeAndRole>[] = [
   {
     id: "select",
     size: 24,
@@ -77,35 +65,6 @@ export const columns = (
     ),
   },
 
-  {
-    accessorKey: "tenant_id",
-    accessorFn: (row) => tenantNames(row.tenant_id, tenants),
-    enableResizing: true,
-    sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as string;
-      const b = rowB.getValue(columnId) as string;
-
-      return a.localeCompare(b, undefined, { sensitivity: "base" });
-    },
-    header: ({ column }) => {
-      return (
-        <div
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="min-w-max cursor-pointer"
-        >
-          Tenant Name
-          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
-        </div>
-      );
-    },
-    cell: ({ row }) => {
-      return (
-        <div className="capitalize min-w-[10rem]">
-          {row.getValue("tenant_id")}
-        </div>
-      );
-    },
-  },
   {
     accessorKey: "granted_roles",
     enableResizing: true,
