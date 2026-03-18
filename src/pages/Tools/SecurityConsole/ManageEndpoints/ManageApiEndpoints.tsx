@@ -9,17 +9,6 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, FileEdit } from "lucide-react";
-import { tailspin } from "ldrs";
-tailspin.register();
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -28,38 +17,50 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { columns } from "./Columns";
-import { IPrivilegeAndRole } from "@/types/interfaces/users.interface";
-import Pagination5 from "@/components/Pagination/Pagination5";
-import CustomModal4 from "@/components/CustomModal/CustomModal4";
-import { Input } from "@/components/ui/input";
-import CustomTooltip from "@/components/Tooltip/Tooltip";
-import ActionButtons from "@/components/ActionButtons/ActionButtons";
-import Rows from "@/components/Rows/Rows";
-import { convertToTitleCase } from "@/Utility/general";
 import { useEffect, useState } from "react";
+import { IAPIEndpoint } from "@/types/interfaces/apiEndpoints.interface";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { loadData } from "@/Utility/funtion";
-import EditPrivilegeAndRole from "./EditPrivilegeAndRole";
+import { Checkbox } from "@/components/ui/checkbox";
+import ActionButtons from "@/components/ActionButtons/ActionButtons";
+import CustomTooltip from "@/components/Tooltip/Tooltip";
+import { ChevronDown, Edit, Plus } from "lucide-react";
+import Alert from "@/components/Alert/Alert";
+import Rows from "@/components/Rows/Rows";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { convertToTitleCase } from "@/Utility/general";
+import Pagination5 from "@/components/Pagination/Pagination5";
+// import Spinner from "@/components/Spinner/Spinner";
+import Modal from "./Modal";
 
-const ManagePriviedgesAndRoles = () => {
-  const { token, combinedUser } = useGlobalContext();
-  const [data, setData] = useState<IPrivilegeAndRole[] | []>([]);
-  const [page, setPage] = useState(1);
-  const [totalPage, setTotalPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
+const ManageApiEndpoints = () => {
+  const { token } = useGlobalContext();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [query, setQuery] = useState({ isEmpty: true, value: "" });
+  const [data, setData] = useState<IAPIEndpoint[] | []>([]);
   const [limit, setLimit] = useState<number>(8);
-  const [selectedItem, setSelectedItem] = useState<IPrivilegeAndRole | null>(
-    null,
+  const [page, setPage] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [selectedEndPoints, setSelectedEndPoints] = useState<IAPIEndpoint[]>(
+    [],
   );
-  const [isOpenModal, setIsOpenModal] = useState(false);
-  const [stateChange, setStateChange] = useState(1);
+  const [isSelectAll, setIsSelectAll] = useState(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [action, setAction] = useState("");
+  //   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+  const [reloadController, setReloadController] = useState(1);
 
   const table = useReactTable({
     data,
@@ -85,43 +86,16 @@ const ManagePriviedgesAndRoles = () => {
     },
   });
 
-  const handleQuery = (e: string) => {
-    if (e === "") {
-      setQuery({ isEmpty: true, value: e });
-      setPage(1);
-    } else {
-      setQuery({ isEmpty: false, value: e });
-      setPage(1);
-    }
-  };
-
-  // /** get tentants */
-  // useEffect(() => {
-  //   const tenantDataParams = {
-  //     baseURL: FLASK_URL,
-  //     url: `${flaskApi.DefTenants}`,
-  //     accessToken: `${token.access_token}`,
-  //   };
-
-  //   const loadTenantData = async () => {
-  //     const res = await loadData(tenantDataParams);
-  //     if (res) {
-  //       setTenants(res.result);
-  //     }
-  //   };
-  //   loadTenantData();
-  // }, [token.access_token]);
-
   useEffect(() => {
-    const previlegesAndRolesParams = {
+    const apiEndpointsParams = {
       baseURL: FLASK_URL,
-      url: `${flaskApi.DefPrevilegesAndRoles}?user_name=${query.value}&page=${page}&limit=${limit}&tenant_id=${combinedUser?.tenant_id}`,
+      url: `${flaskApi.APIEndpoints}?page=${page}&limit=${limit}`,
       accessToken: `${token.access_token}`,
       setLoading: setIsLoading,
     };
 
     const loadPrevilegesAndRolesData = async () => {
-      const res = await loadData(previlegesAndRolesParams);
+      const res = await loadData(apiEndpointsParams);
       if (res) {
         setData(res.result);
         setTotalPage(res.pages);
@@ -131,76 +105,135 @@ const ManagePriviedgesAndRoles = () => {
 
     const delayDebounce = setTimeout(() => {
       loadPrevilegesAndRolesData();
-      setSelectedItem(null);
+      //   setSelectedItem(null);
     }, 1000);
 
     return () => clearTimeout(delayDebounce);
-  }, [
-    limit,
-    page,
-    token.access_token,
-    table,
-    stateChange,
-    query,
-    combinedUser?.tenant_id,
-  ]);
+  }, [limit, page, token.access_token, table, reloadController]);
 
-  const handleRowSelection = (rowSelection: IPrivilegeAndRole) => {
-    setSelectedItem(rowSelection);
+  useEffect(() => {
+    if (data.length > 0) {
+      if (selectedEndPoints.length !== data.length) {
+        setIsSelectAll(false);
+      } else {
+        setIsSelectAll(true);
+      }
+    }
+    const ids = selectedEndPoints.map((item) => item.api_endpoint_id);
+    setSelectedIds(ids);
+  }, [data.length, selectedEndPoints]);
+
+  //   useEffect(() => {
+  //     const selectedRow = table
+  //       .getSelectedRowModel()
+  //       .rows.map((row) => row.original as IAPIEndpoint);
+  //     setSelectedEndPoints(selectedRow);
+  //   }, [rowSelection, data, table]);
+
+  const handleRowSelection = (rowData: IAPIEndpoint) => {
+    setSelectedEndPoints((prev) => {
+      const endpoint = prev.find(
+        (item) => item.api_endpoint_id === rowData.api_endpoint_id,
+      );
+
+      if (endpoint) {
+        const filtered = prev.filter(
+          (item) => item.api_endpoint_id !== rowData.api_endpoint_id,
+        );
+        return filtered;
+      } else {
+        return [rowData, ...prev];
+      }
+    });
   };
 
-  // const handleDelete = () => {
-  //   deleteCombinedUser([selectedItem]);
-  //   //table toggle empty
-  //   table.getRowModel().rows.map((row) => row.toggleSelected(false));
-  //   setSelectedItem({} as IUsersInfoTypes);
-  // };
-
-  const handleCloseModal = () => {
-    setIsOpenModal(false);
+  const handleSelectAll = () => {
+    if (isSelectAll) {
+      setIsSelectAll(false);
+      setSelectedEndPoints([]);
+    } else {
+      setIsSelectAll(true);
+      setSelectedEndPoints(data);
+    }
   };
+
+  const handleAddClick = () => {
+    setAction("Add");
+    setShowModal(true);
+  };
+
+  const handleEditClick = () => {
+    setAction("Edit");
+    setShowModal(true);
+  };
+
+  const handleDelete = () => {};
+
+  const handleDeleteCalculate = () => {};
   return (
-    <div className="px-3">
-      {isOpenModal && selectedItem && (
-        <CustomModal4 className="w-[770px] ">
-          <EditPrivilegeAndRole
-            selected={selectedItem}
-            setStateChange={setStateChange}
-            handleCloseModal={handleCloseModal}
-          />
-        </CustomModal4>
+    <div>
+      {/* Modal */}
+      {showModal && (
+        <Modal
+          setShowModal={setShowModal}
+          action={action}
+          selectedEndPoints={selectedEndPoints}
+          setReloadController={setReloadController}
+        />
       )}
-      {/* top icon and columns*/}
-      <div className="flex items-center justify-between py-2">
-        <div className="flex items-center gap-2">
+      {/* Action Buttons */}
+      <div className="flex items-center justify-between py-4 ">
+        {/* create, edit, delete and search by name  */}
+        <div className="flex gap-3">
           <ActionButtons>
-            {/* Edit  */}
-            <button disabled={!selectedItem?.user_id}>
-              <CustomTooltip tooltipTitle="Edit">
-                <FileEdit
+            <CustomTooltip tooltipTitle="Add">
+              <Plus onClick={handleAddClick} className=" cursor-pointer" />
+            </CustomTooltip>
+            <CustomTooltip tooltipTitle="Edit">
+              <button disabled={selectedEndPoints.length !== 1}>
+                <Edit
+                  onClick={handleEditClick}
                   className={`${
-                    !selectedItem?.user_id
-                      ? "text-slate-200 cursor-not-allowed"
-                      : "cursor-pointer"
+                    selectedEndPoints.length === 1
+                      ? "text-black cursor-pointer"
+                      : "text-slate-200 cursor-not-allowed"
                   }`}
-                  onClick={() => setIsOpenModal(true)}
                 />
-              </CustomTooltip>
-            </button>
+              </button>
+            </CustomTooltip>
+            <Alert
+              actionName="delete"
+              disabled={selectedEndPoints.length === 0}
+              onContinue={handleDelete} // Main delete function
+              onClick={handleDeleteCalculate} // Delete calculate function
+              tooltipTitle="Delete"
+            >
+              <span className="flex flex-col items-start gap-1">
+                {selectedEndPoints.map((item) => (
+                  <span key={item.api_endpoint_id}>{item.api_endpoint}</span>
+                ))}
+                {/* {isDeleteLoading ? (
+                  <span className="block">
+                    <Spinner size="40" color="black" />
+                  </span>
+                ) : (
+                  selectedEndPoints.map((item) => (
+                    <span key={item.api_endpoint_id}>{item.api_endpoint}</span>
+                  ))
+                )} */}
+              </span>
+            </Alert>
           </ActionButtons>
-
-          {/* Search  */}
-          <Input
-            placeholder="Search Username"
+          {/* <Input
+            placeholder="Search Model Name"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
-            className="w-[20rem] px-4 py-2"
-          />
+            className="w-[20rem] px-4 py-2 "
+          /> */}
         </div>
-
+        {/* Rows and Column */}
         <div className="flex items-center gap-2">
           <Rows limit={limit} setLimit={setLimit} />
-          {/* Columns */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
@@ -260,6 +293,13 @@ const ManagePriviedgesAndRoles = () => {
                               header.column.columnDef.header,
                               header.getContext(),
                             )}
+                        {header.id === "select" && (
+                          <Checkbox
+                            checked={isSelectAll}
+                            onClick={handleSelectAll}
+                            aria-label="Select all"
+                          />
+                        )}
                         {header.id !== "select" && (
                           <div
                             {...{
@@ -313,7 +353,9 @@ const ManagePriviedgesAndRoles = () => {
                         {index === 0 ? (
                           <Checkbox
                             className=""
-                            checked={row.getIsSelected()}
+                            checked={selectedIds.includes(
+                              row.original.api_endpoint_id,
+                            )}
                             onCheckedChange={(value) => {
                               if (value) {
                                 // Select only the current row (deselect others)
@@ -322,7 +364,7 @@ const ManagePriviedgesAndRoles = () => {
                               } else {
                                 // Deselect current row
                                 table.setRowSelection({});
-                                handleRowSelection({} as IPrivilegeAndRole);
+                                handleRowSelection({} as IAPIEndpoint);
                               }
                             }}
                           />
@@ -351,8 +393,7 @@ const ManagePriviedgesAndRoles = () => {
         </div>
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
-            {!selectedItem?.user_id ? 0 : 1} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            {selectedEndPoints.length} row(s) selected.
           </div>
           <Pagination5
             currentPage={page}
@@ -361,9 +402,8 @@ const ManagePriviedgesAndRoles = () => {
           />
         </div>
       </div>
-      {/* Start Pagination */}
     </div>
   );
 };
 
-export default ManagePriviedgesAndRoles;
+export default ManageApiEndpoints;
