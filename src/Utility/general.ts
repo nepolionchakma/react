@@ -20,10 +20,13 @@ export const convertToTitleCase = (str: string) => {
     .join(" ");
 };
 
-export const jobTitleName = (id: number, jobTitles: IJobTitle[]) => {
+export const jobTitleName = (
+  id: number | undefined,
+  jobTitles: IJobTitle[],
+) => {
+  if (!id) return "";
   if (id) {
     const jobTitle = jobTitles.find((item) => item.job_title_id === id);
-
     return jobTitle?.job_title_name ?? "";
   }
 };
