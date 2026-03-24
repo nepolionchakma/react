@@ -17,9 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { columns } from "./Columns";
-import { useEffect, useState } from "react";
-import { IAPIEndpoint } from "@/types/interfaces/apiEndpoints.interface";
+import { useEffect, useMemo, useState } from "react";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { deleteData, loadData } from "@/Utility/funtion";
@@ -27,7 +25,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import { ChevronDown, Edit, Plus } from "lucide-react";
-import Alert from "@/components/Alert/Alert";
+// import Alert from "@/components/Alert/Alert";
 import Rows from "@/components/Rows/Rows";
 import {
   DropdownMenu,
@@ -37,34 +35,42 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { convertToTitleCase } from "@/Utility/general";
-import Pagination5 from "@/components/Pagination/Pagination5";
+// import Modal from "./Modal";
+// import { Input } from "@/components/ui/input";
 // import Spinner from "@/components/Spinner/Spinner";
+import { IAPIEndpointRole } from "@/types/interfaces/apiEndpoints.interface";
+import { IRole } from "@/types/interfaces/users.interface";
+import { getColumns } from "./Columns";
 import Modal from "./Modal";
 import { Input } from "@/components/ui/input";
+import Pagination5 from "@/components/Pagination/Pagination5";
+import Alert from "@/components/Alert/Alert";
 import Spinner from "@/components/Spinner/Spinner";
 
-const ManageApiEndpoints = () => {
-  const { token } = useGlobalContext();
+const ManageApiEndpointsRoles = () => {
+  const { token, users } = useGlobalContext();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [data, setData] = useState<IAPIEndpoint[] | []>([]);
+  const [data, setData] = useState<IAPIEndpointRole[] | []>([]);
   const [limit, setLimit] = useState<number>(8);
   const [page, setPage] = useState(1);
-  const [query, setQuery] = useState({ isEmpty: true, value: "" });
   const [totalPage, setTotalPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [selectedEndPoints, setSelectedEndPoints] = useState<IAPIEndpoint[]>(
-    [],
-  );
   const [isSelectAll, setIsSelectAll] = useState(false);
   const [showModal, setShowModal] = useState<boolean>(false);
   const [action, setAction] = useState("");
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [reloadController, setReloadController] = useState(1);
+  const [selectedEndPointRoles, setSelectedEndPointRoles] = useState<
+    IAPIEndpointRole[]
+  >([]);
+  const [roles, setRoles] = useState<IRole[] | []>([]);
+  const [query, setQuery] = useState({ isEmpty: true, value: "" });
 
+  const columns = useMemo(() => getColumns(users, roles), [users, roles]);
   const table = useReactTable({
     data,
     columns,
@@ -92,12 +98,12 @@ const ManageApiEndpoints = () => {
   useEffect(() => {
     const apiEndpointsParams = {
       baseURL: FLASK_URL,
-      url: `${flaskApi.APIEndpoints}?api_endpoint=${query.value}&page=${page}&limit=${limit}`,
+      url: `${flaskApi.APIEndpointRoles}?search_term=${query.value}&page=${page}&limit=${limit}`,
       accessToken: `${token.access_token}`,
       setLoading: setIsLoading,
     };
 
-    const loadAPIEndpoints = async () => {
+    const loadAPIEndpointRoles = async () => {
       const res = await loadData(apiEndpointsParams);
       if (res) {
         setData(res.result);
@@ -107,34 +113,43 @@ const ManageApiEndpoints = () => {
     };
 
     const delayDebounce = setTimeout(() => {
-      loadAPIEndpoints();
+      loadAPIEndpointRoles();
       //   setSelectedItem(null);
     }, 1000);
 
     return () => clearTimeout(delayDebounce);
-  }, [limit, page, token.access_token, table, reloadController, query.value]);
+  }, [token.access_token, table, reloadController, query.value, page, limit]);
 
   useEffect(() => {
-    if (data.length > 0) {
-      if (selectedEndPoints.length !== data.length) {
+    if (data?.length > 0) {
+      if (selectedEndPointRoles.length !== data.length) {
         setIsSelectAll(false);
       } else {
         setIsSelectAll(true);
       }
     }
-    const ids = selectedEndPoints.map((item) => item.api_endpoint_id);
+    const ids = selectedEndPointRoles.map((item) => item.api_endpoint_id);
     setSelectedIds(ids);
-  }, [data.length, selectedEndPoints]);
+  }, [data?.length, selectedEndPointRoles]);
 
-  //   useEffect(() => {
-  //     const selectedRow = table
-  //       .getSelectedRowModel()
-  //       .rows.map((row) => row.original as IAPIEndpoint);
-  //     setSelectedEndPoints(selectedRow);
-  //   }, [rowSelection, data, table]);
+  useEffect(() => {
+    const fetchData = async () => {
+      const roleParams = {
+        baseURL: FLASK_URL,
+        url: flaskApi.DefRoles,
+        accessToken: token.access_token as string,
+      };
+      const res = await loadData(roleParams);
+      if (res) {
+        setRoles(res);
+      }
+    };
 
-  const handleRowSelection = (rowData: IAPIEndpoint) => {
-    setSelectedEndPoints((prev) => {
+    fetchData();
+  }, [token.access_token]);
+
+  const handleRowSelection = (rowData: IAPIEndpointRole) => {
+    setSelectedEndPointRoles((prev) => {
       const endpoint = prev.find(
         (item) => item.api_endpoint_id === rowData.api_endpoint_id,
       );
@@ -153,20 +168,10 @@ const ManageApiEndpoints = () => {
   const handleSelectAll = () => {
     if (isSelectAll) {
       setIsSelectAll(false);
-      setSelectedEndPoints([]);
+      setSelectedEndPointRoles([]);
     } else {
       setIsSelectAll(true);
-      setSelectedEndPoints(data);
-    }
-  };
-
-  const handleQuery = (e: string) => {
-    if (e === "") {
-      setQuery({ isEmpty: true, value: e });
-      setPage(1);
-    } else {
-      setQuery({ isEmpty: false, value: e });
-      setPage(1);
+      setSelectedEndPointRoles(data);
     }
   };
 
@@ -180,12 +185,24 @@ const ManageApiEndpoints = () => {
     setShowModal(true);
   };
 
+  const handleQuery = (e: string) => {
+    if (e === "") {
+      setQuery({ isEmpty: true, value: e });
+      setPage(1);
+    } else {
+      setQuery({ isEmpty: false, value: e });
+      setPage(1);
+    }
+  };
   const handleDelete = async () => {
+    const payload = selectedEndPointRoles.map((item) => {
+      (item.api_endpoint_id, item.role_id);
+    });
     const params = {
-      url: flaskApi.APIEndpoints,
+      url: flaskApi.APIEndpointRoles,
       baseURL: FLASK_URL,
       payload: {
-        api_endpoint_ids: selectedIds,
+        api_endpoint_role_data: payload,
       },
       accessToken: token.access_token,
       isToast: true,
@@ -205,8 +222,9 @@ const ManageApiEndpoints = () => {
         <Modal
           setShowModal={setShowModal}
           action={action}
-          selectedEndPoints={selectedEndPoints}
+          selectedEndPointRoles={selectedEndPointRoles}
           setReloadController={setReloadController}
+          roles={roles}
         />
       )}
       {/* Action Buttons */}
@@ -218,11 +236,11 @@ const ManageApiEndpoints = () => {
               <Plus onClick={handleAddClick} className=" cursor-pointer" />
             </CustomTooltip>
             <CustomTooltip tooltipTitle="Edit">
-              <button disabled={selectedEndPoints.length !== 1}>
+              <button disabled={selectedEndPointRoles?.length !== 1}>
                 <Edit
                   onClick={handleEditClick}
                   className={`${
-                    selectedEndPoints.length === 1
+                    selectedEndPointRoles?.length === 1
                       ? "text-black cursor-pointer"
                       : "text-slate-200 cursor-not-allowed"
                   }`}
@@ -231,7 +249,7 @@ const ManageApiEndpoints = () => {
             </CustomTooltip>
             <Alert
               actionName="delete"
-              disabled={selectedEndPoints.length === 0}
+              disabled={selectedEndPointRoles.length === 0}
               onContinue={handleDelete} // Main delete function
               tooltipTitle="Delete"
             >
@@ -241,9 +259,9 @@ const ManageApiEndpoints = () => {
                     <Spinner size="40" color="black" />
                   </span>
                 ) : (
-                  selectedEndPoints.map((item, index) => (
+                  selectedEndPointRoles.map((item, index) => (
                     <span key={item.api_endpoint_id}>
-                      {index + 1}. {item.api_endpoint}
+                      {index + 1}. {item.api_endpoint_id}
                     </span>
                   ))
                 )}
@@ -350,7 +368,7 @@ const ManageApiEndpoints = () => {
               {isLoading ? (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={table.getAllColumns()?.length}
                     className="h-24 text-center"
                   >
                     <l-tailspin
@@ -390,7 +408,7 @@ const ManageApiEndpoints = () => {
                               } else {
                                 // Deselect current row
                                 // table.setRowSelection({});
-                                handleRowSelection({} as IAPIEndpoint);
+                                handleRowSelection({} as IAPIEndpointRole);
                               }
                             }}
                           />
@@ -407,7 +425,7 @@ const ManageApiEndpoints = () => {
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={table.getAllColumns()?.length}
                     className="h-24 text-center"
                   >
                     No results.
@@ -419,7 +437,7 @@ const ManageApiEndpoints = () => {
         </div>
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
-            {selectedEndPoints.length} row(s) selected.
+            {selectedEndPointRoles?.length} row(s) selected.
           </div>
           <Pagination5
             currentPage={page}
@@ -432,4 +450,4 @@ const ManageApiEndpoints = () => {
   );
 };
 
-export default ManageApiEndpoints;
+export default ManageApiEndpointsRoles;

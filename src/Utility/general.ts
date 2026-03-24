@@ -1,4 +1,8 @@
-import { IJobTitle, ITenantsTypes } from "@/types/interfaces/users.interface";
+import {
+  IJobTitle,
+  IRole,
+  ITenantsTypes,
+} from "@/types/interfaces/users.interface";
 
 export const toTitleCase = (str: string) => {
   return str
@@ -36,6 +40,16 @@ export const tenantNames = (id: number, data: ITenantsTypes[]) => {
     const name = data.find((item) => item.tenant_id === id);
 
     return name?.tenant_name ?? "";
+  }
+};
+
+export const roleName = (roleId: number | undefined, roles: IRole[]) => {
+  if (!roleId) {
+    return;
+  } else {
+    const role = roles.find((item) => item.role_id === roleId);
+
+    return role?.role_name;
   }
 };
 
