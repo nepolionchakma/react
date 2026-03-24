@@ -42,6 +42,7 @@ import Pagination5 from "@/components/Pagination/Pagination5";
 import Modal from "./Modal";
 import { Input } from "@/components/ui/input";
 import Spinner from "@/components/Spinner/Spinner";
+import { IPrivilege } from "@/types/interfaces/users.interface";
 
 const ManageApiEndpoints = () => {
   const { token } = useGlobalContext();
@@ -64,6 +65,7 @@ const ManageApiEndpoints = () => {
   const [action, setAction] = useState("");
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [reloadController, setReloadController] = useState(1);
+  const [privileges, setPrivileges] = useState<IPrivilege[]>([]);
 
   const table = useReactTable({
     data,
@@ -113,6 +115,23 @@ const ManageApiEndpoints = () => {
 
     return () => clearTimeout(delayDebounce);
   }, [limit, page, token.access_token, table, reloadController, query.value]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const privilegesParams = {
+        baseURL: FLASK_URL,
+        url: flaskApi.DefPrivileges,
+        accessToken: token.access_token as string,
+      };
+      const privilegesRes = await loadData(privilegesParams);
+      console.log(privilegesRes);
+      if (privilegesRes) {
+        setPrivileges(privilegesRes.result);
+      }
+    };
+
+    fetchData();
+  }, [token.access_token]);
 
   useEffect(() => {
     if (data.length > 0) {
@@ -207,6 +226,7 @@ const ManageApiEndpoints = () => {
           action={action}
           selectedEndPoints={selectedEndPoints}
           setReloadController={setReloadController}
+          privileges={privileges}
         />
       )}
       {/* Action Buttons */}

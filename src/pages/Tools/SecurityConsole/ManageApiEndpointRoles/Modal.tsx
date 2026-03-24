@@ -47,7 +47,7 @@ const Modal = ({
 
   const FormSchema = z.object({
     api_endpoint_id: z.number(),
-    role_id: z.number(),
+    role_id: z.string(),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -55,7 +55,8 @@ const Modal = ({
     defaultValues: {
       api_endpoint_id:
         action === "Edit" ? selectedEndPointRoles[0]?.api_endpoint_id : 0,
-      role_id: action === "Edit" ? selectedEndPointRoles[0]?.role_id : 0,
+      role_id:
+        action === "Edit" ? selectedEndPointRoles[0]?.role_id.toString() : "",
     },
   });
 
@@ -140,7 +141,7 @@ const Modal = ({
                 name="role_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-normal">Role Id</FormLabel>
+                    <FormLabel className="font-normal">Role</FormLabel>
 
                     <Select
                       value={field.value.toString()}
@@ -150,7 +151,7 @@ const Modal = ({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select Role Id" />
+                          <SelectValue placeholder="Select Role" />
                         </SelectTrigger>
                       </FormControl>
 

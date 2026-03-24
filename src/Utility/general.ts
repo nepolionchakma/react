@@ -1,5 +1,6 @@
 import {
   IJobTitle,
+  IPrivilege,
   IRole,
   ITenantsTypes,
 } from "@/types/interfaces/users.interface";
@@ -50,6 +51,21 @@ export const roleName = (roleId: number | undefined, roles: IRole[]) => {
     const role = roles.find((item) => item.role_id === roleId);
 
     return role?.role_name;
+  }
+};
+
+export const privilegeName = (
+  priviledgeId: number | undefined,
+  privileges: IPrivilege[],
+) => {
+  if (!priviledgeId) {
+    return;
+  } else {
+    const priviledge = privileges.find(
+      (item) => item.privilege_id === priviledgeId,
+    );
+
+    return priviledge?.privilege_name;
   }
 };
 

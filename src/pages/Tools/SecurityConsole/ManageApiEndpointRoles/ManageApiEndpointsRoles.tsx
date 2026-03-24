@@ -141,7 +141,7 @@ const ManageApiEndpointsRoles = () => {
       };
       const res = await loadData(roleParams);
       if (res) {
-        setRoles(res);
+        setRoles(res.result);
       }
     };
 
