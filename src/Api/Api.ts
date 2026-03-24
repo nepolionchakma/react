@@ -70,6 +70,7 @@ export const flaskApi = {
   DecisionEdgePredecessorOutputs: "/workflow/predecessor_outputs",
   Home: "/dashboard/summary",
   APIEndpoints: "/def_api_endpoints",
+  APIEndpointRoles: "/def_api_endpoint_roles",
   ForgetPassword: "/forgot-password",
   ResetPasswordById: "/def_user_credentials/reset_forgot_password/:user_id",
 };

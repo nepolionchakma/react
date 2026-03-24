@@ -65,6 +65,7 @@ const Modal = ({
       privilege_id: action === "Edit" ? selectedEndPoints[0]?.privilege_id : 0,
     },
   });
+
   useEffect(() => {
     const fetchData = async () => {
       const privilegesParams = {

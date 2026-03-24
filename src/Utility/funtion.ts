@@ -27,7 +27,7 @@ interface putDataParams {
   baseURL: string;
   url: string;
   setLoading: Dispatch<SetStateAction<boolean>>;
-  payload: any;
+  payload?: any;
   isConsole?: boolean;
   isToast?: boolean;
   accessToken?: string;
