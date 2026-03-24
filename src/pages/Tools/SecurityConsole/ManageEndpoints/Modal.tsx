@@ -1,7 +1,7 @@
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
 import { IAPIEndpoint } from "@/types/interfaces/apiEndpoints.interface";
 import { X } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -17,7 +17,7 @@ import { Button } from "@/components/ui/button";
 import Spinner from "@/components/Spinner/Spinner";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
-import { loadData, postData, putData } from "@/Utility/funtion";
+import { postData, putData } from "@/Utility/funtion";
 import { IPrivilege } from "@/types/interfaces/users.interface";
 import {
   Select,
@@ -32,6 +32,7 @@ interface Props {
   setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
   selectedEndPoints: IAPIEndpoint[];
   setReloadController: React.Dispatch<React.SetStateAction<number>>;
+  privileges: IPrivilege[];
 }
 
 const Modal = ({
@@ -39,18 +40,21 @@ const Modal = ({
   selectedEndPoints,
   setShowModal,
   setReloadController,
+  privileges,
 }: Props) => {
   const { token } = useGlobalContext();
   const [isLoading, setIsLoading] = useState(false);
   const methods = ["GET", "POST", "DELETE", "PUT"];
-  const [privileges, setPrivileges] = useState<IPrivilege[]>([]);
+
+  console.log(privileges);
+
   const FormSchema = z.object({
     api_endpoint_id: z.number(),
     api_endpoint: z.string(),
     parameter1: z.string(),
     parameter2: z.string(),
     method: z.string(),
-    privilege_id: z.number(),
+    privilege_id: z.string(),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -62,25 +66,10 @@ const Modal = ({
       parameter1: action === "Edit" ? selectedEndPoints[0]?.parameter1 : "",
       parameter2: action === "Edit" ? selectedEndPoints[0]?.parameter2 : "",
       method: action === "Edit" ? selectedEndPoints[0]?.method : "",
-      privilege_id: action === "Edit" ? selectedEndPoints[0]?.privilege_id : 0,
+      privilege_id:
+        action === "Edit" ? selectedEndPoints[0]?.privilege_id.toString() : "",
     },
   });
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const privilegesParams = {
-        baseURL: FLASK_URL,
-        url: flaskApi.DefPrivileges,
-        accessToken: token.access_token as string,
-      };
-      const privilegesRes = await loadData(privilegesParams);
-      if (privilegesRes) {
-        setPrivileges(privilegesRes);
-      }
-    };
-
-    fetchData();
-  }, [token.access_token]);
 
   const handleClose = () => {
     setShowModal(false);
@@ -255,7 +244,7 @@ const Modal = ({
                 name="privilege_id"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="font-normal">Privilege Id</FormLabel>
+                    <FormLabel className="font-normal">Privilege</FormLabel>
 
                     <Select
                       value={field.value.toString()}
@@ -265,7 +254,7 @@ const Modal = ({
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue placeholder="Select Privilege Id" />
+                          <SelectValue placeholder="Select Privilege" />
                         </SelectTrigger>
                       </FormControl>
 
@@ -274,8 +263,9 @@ const Modal = ({
                           <SelectItem
                             key={item.privilege_id}
                             value={item.privilege_id.toString()}
+                            className="capitalize"
                           >
-                            {item.privilege_id}
+                            {item.privilege_name}
                           </SelectItem>
                         ))}
                       </SelectContent>
