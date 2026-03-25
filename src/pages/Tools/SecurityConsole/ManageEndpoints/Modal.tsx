@@ -249,7 +249,7 @@ const Modal = ({
                     <Select
                       value={field.value.toString()}
                       onValueChange={(value) => {
-                        field.onChange(Number(value));
+                        field.onChange(value);
                       }}
                     >
                       <FormControl>

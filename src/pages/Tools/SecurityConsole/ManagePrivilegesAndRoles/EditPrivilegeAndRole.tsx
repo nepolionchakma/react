@@ -58,7 +58,7 @@ const EditPrivilegeAndRole: FC<IAddPrivilegeAndRoleProps> = ({
       tenant_id: String(selected.tenant_id),
       granted_roles: selected.granted_roles.map((r) => r.role_name),
       granted_privileges: selected.granted_privileges.map(
-        (p) => p.privilege_name
+        (p) => p.privilege_name,
       ),
     },
   });
@@ -84,9 +84,10 @@ const EditPrivilegeAndRole: FC<IAddPrivilegeAndRoleProps> = ({
         loadData(rolesParams),
         loadData(privilegesParams),
       ]);
+      console.log(rolesRes, privilegesRes);
 
-      if (rolesRes) setRoles(rolesRes);
-      if (privilegesRes) setPrivileges(privilegesRes);
+      if (rolesRes) setRoles(rolesRes.result);
+      if (privilegesRes) setPrivileges(privilegesRes.result);
     };
 
     fetchData();
@@ -140,7 +141,7 @@ const EditPrivilegeAndRole: FC<IAddPrivilegeAndRoleProps> = ({
 
   const onSelectRole = (
     roleName: string,
-    field: ControllerRenderProps<z.infer<typeof FormSchema>, "granted_roles">
+    field: ControllerRenderProps<z.infer<typeof FormSchema>, "granted_roles">,
   ) => {
     const current = field.value ?? [];
     if (current.includes(roleName)) {
@@ -154,7 +155,7 @@ const EditPrivilegeAndRole: FC<IAddPrivilegeAndRoleProps> = ({
     field: ControllerRenderProps<
       z.infer<typeof FormSchema>,
       "granted_privileges"
-    >
+    >,
   ) => {
     const current = field.value ?? [];
     if (current.includes(privilegeName)) {
