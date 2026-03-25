@@ -67,7 +67,7 @@ const DataSources = ({
   const [openModal, setOpenModal] = React.useState(false);
   const [action, setAction] = React.useState("");
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -90,7 +90,7 @@ const DataSources = ({
         accessToken: token.access_token,
         setLoading: setIsLoading,
       });
-
+      console.log(response);
       if (response) {
         setData(response.result);
         setTotalPage(response.pages);
@@ -298,7 +298,7 @@ const DataSources = ({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
 
                       {header.id !== "select" && (
@@ -358,7 +358,7 @@ const DataSources = ({
                       ) : (
                         flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )
                       )}
                     </TableCell>
