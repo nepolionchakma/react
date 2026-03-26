@@ -15,12 +15,12 @@ interface IControlsContextTypes {
   getControls: (
     page: number,
     limit: number,
-    control_name: string
+    control_name: string,
   ) => Promise<IControlsTypes[] | undefined>;
   getSearchControls: (
     page: number,
     limit: number,
-    query: string
+    query: string,
   ) => Promise<IControlsTypes[] | undefined>;
   controlsData: IControlsTypes[];
   searchFilter: (data: ISearchTypes) => void;
@@ -78,20 +78,18 @@ export const ControlsContextProvider = ({
   const getControls = async (
     page: number,
     limit: number,
-    control_name: string
+    control_name: string,
   ) => {
     try {
       setIsLoading(true);
-      const res = await axios.get(
-        `${FLASK_ENDPOINT_URL}/def_controls?control_name=${control_name}&page=${page}&limit=${limit}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token.access_token}`,
-          },
-        }
-      );
-      setTotalPages(res.data.pages);
-      return res.data.result ?? [];
+      const res = await loadData({
+        baseURL: FLASK_URL,
+        url: `${flaskApi.DefControls}?control_name=${control_name}&page=${page}&limit=${limit}`,
+        accessToken: token.access_token,
+        // isToast: true,
+      });
+      setTotalPages(res.pages);
+      return res.result ?? [];
     } catch (error) {
       console.log(error);
     } finally {
@@ -101,20 +99,18 @@ export const ControlsContextProvider = ({
   const getSearchControls = async (
     page: number,
     limit: number,
-    query: string
+    query: string,
   ) => {
     try {
       setIsLoading(true);
-      const res = await axios.get(
-        `${FLASK_ENDPOINT_URL}/def_controls/search/${page}/${limit}?control_name=${query}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token.access_token}`,
-          },
-        }
-      );
-      setTotalPages(res.data.pages);
-      return res.data.items ?? [];
+      const res = await loadData({
+        baseURL: FLASK_URL,
+        url: `${flaskApi.DefControls}/search/${page}/${limit}?control_name=${query}`,
+        accessToken: token.access_token,
+        // isToast: true,
+      });
+      setTotalPages(res.pages);
+      return res.items ?? [];
     } catch (error) {
       console.log(error);
     } finally {

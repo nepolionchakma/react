@@ -73,7 +73,7 @@ export function ViewEditScheduledTasksTable() {
   const { isOpenModal, setIsOpenModal } = useGlobalContext();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -107,7 +107,7 @@ export function ViewEditScheduledTasksTable() {
         const results = await getSearchAsynchronousRequestsAndTaskSchedules(
           page,
           limit,
-          query.value
+          query.value,
         );
 
         if (results) {
@@ -130,7 +130,7 @@ export function ViewEditScheduledTasksTable() {
   }, [changeState, query, page, limit]);
 
   const handleRowSelection = (
-    rowSelection: IAsynchronousRequestsAndTaskSchedulesTypes
+    rowSelection: IAsynchronousRequestsAndTaskSchedulesTypes,
   ) => {
     setSelected((prevSelected) => {
       if (prevSelected?.def_task_sche_id === rowSelection.def_task_sche_id) {
@@ -168,7 +168,7 @@ export function ViewEditScheduledTasksTable() {
       viewParameters,
       setViewParameters,
       clickedRowId,
-      setClickedRowId
+      setClickedRowId,
     ),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -352,7 +352,7 @@ export function ViewEditScheduledTasksTable() {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                       {header.id !== "select" && (
                         <div
@@ -427,7 +427,7 @@ export function ViewEditScheduledTasksTable() {
                           ) : (
                             flexRender(
                               cell.column.columnDef.cell,
-                              cell.getContext()
+                              cell.getContext(),
                             )
                           )}
                         </TableCell>
@@ -446,7 +446,7 @@ export function ViewEditScheduledTasksTable() {
                               <div className="">
                                 {row.original.schedule_type &&
                                   Object.entries(
-                                    row.original.schedule_type
+                                    row.original.schedule_type,
                                   ).map(([key, value]) => (
                                     <span className="capitalize " key={key}>
                                       {value.toLowerCase().replace(/_/g, " ")}
@@ -481,7 +481,7 @@ export function ViewEditScheduledTasksTable() {
                                           )}
                                         </span>
                                       );
-                                    }
+                                    },
                                   )}
                               </div>
                             </div>
