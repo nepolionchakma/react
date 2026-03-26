@@ -70,8 +70,13 @@ const ManageApplicationTypes = () => {
       };
 
       const res = await loadData(loadParams);
-      setData(res.result);
-      setTotalPages(res.pages);
+
+      if (res?.result) {
+        setData(res?.result);
+        setTotalPages(res?.pages);
+      } else {
+        setTotalPages(1);
+      }
     };
     const delayDebounce = setTimeout(() => {
       fetchApplicationType();
@@ -81,12 +86,12 @@ const ManageApplicationTypes = () => {
   }, [token.access_token, currentPage, query, limit, state]);
 
   useEffect(() => {
-    if (selectedItems.length !== data.length || data.length === 0) {
+    if (selectedItems?.length !== data?.length || data?.length === 0) {
       setIsSelectAll(false);
     } else {
       setIsSelectAll(true);
     }
-  }, [selectedItems.length, data.length]);
+  }, [selectedItems?.length, data?.length]);
 
   const table = useReactTable({
     data,
@@ -146,7 +151,7 @@ const ManageApplicationTypes = () => {
   const handleDelete = async () => {
     const payload = {
       def_application_type_ids: selectedItems.map(
-        (item) => item.def_application_type_id
+        (item) => item.def_application_type_id,
       ),
     };
 
@@ -203,7 +208,7 @@ const ManageApplicationTypes = () => {
               </CustomTooltip>
             </button>
             <Alert
-              disabled={selectedItems.length === 0}
+              disabled={selectedItems?.length === 0}
               actionName="delete"
               onContinue={handleDelete}
               tooltipTitle="Delete"
@@ -287,10 +292,11 @@ const ManageApplicationTypes = () => {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                       {header.id === "select" && (
                         <Checkbox
+                          disabled={!data?.length}
                           checked={isSelectAll}
                           onClick={handleSelectAll}
                           aria-label="Select all"
@@ -350,7 +356,7 @@ const ManageApplicationTypes = () => {
                       ) : (
                         flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )
                       )}
                     </TableCell>
@@ -388,7 +394,7 @@ const ManageApplicationTypes = () => {
         <Pagination5
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
-          totalPageNumbers={totalPages as number}
+          totalPageNumbers={totalPages}
         />
       </div>
 

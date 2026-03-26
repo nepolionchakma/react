@@ -122,9 +122,11 @@ const ManagePriviedgesAndRoles = () => {
 
     const loadPrevilegesAndRolesData = async () => {
       const res = await loadData(previlegesAndRolesParams);
-      if (res) {
+      if (res.result) {
         setData(res.result);
         setTotalPage(res.pages);
+      } else {
+        setTotalPage(1);
       }
       table.toggleAllRowsSelected(false);
     };

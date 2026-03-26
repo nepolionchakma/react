@@ -7,6 +7,7 @@ import { FileEdit } from "lucide-react";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import { useEffect, useState } from "react";
 // import { FLASK_URL, flaskApi } from "@/Api/Api";
 // import { deleteData } from "@/Utility/funtion";
 
@@ -25,7 +26,16 @@ const ActionItems = ({
 }: // setStateChanged,
 // setSelectedEnterpriseRows,
 ActionItemsProps) => {
-  const { enterpriseSetting } = useGlobalContext();
+  const { fetchUserEnterprise } = useGlobalContext();
+  const [userEnterprise, setUserEnterprise] =
+    useState<IEnterprisesTypes | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const enterpriseData = await fetchUserEnterprise();
+      setUserEnterprise(enterpriseData);
+    })();
+  }, [fetchUserEnterprise]);
   // const api = useAxiosPrivate();
 
   // const handleDelete = async () => {
@@ -64,7 +74,7 @@ ActionItemsProps) => {
   // };
 
   const handleAction = () => {
-    if (!enterpriseSetting?.enterprise_name) {
+    if (!userEnterprise?.enterprise_name) {
       setAction("add");
     } else {
       setAction("edit");

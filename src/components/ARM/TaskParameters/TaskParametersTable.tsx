@@ -54,7 +54,7 @@ export function TaskParametersTable() {
   const { isOpenModal, setIsOpenModal } = useGlobalContext();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -74,8 +74,8 @@ export function TaskParametersTable() {
     setSelectedTaskParameters((prev) => {
       const allSelected = data.every((row) =>
         prev.some(
-          (selectedRow) => selectedRow.def_param_id === row.def_param_id
-        )
+          (selectedRow) => selectedRow.def_param_id === row.def_param_id,
+        ),
       );
       if (allSelected) {
         return [];
@@ -205,16 +205,16 @@ export function TaskParametersTable() {
 
             <button
               disabled={
-                selectedTaskParameters.length > 1 ||
-                selectedTaskParameters.length === 0 ||
+                selectedTaskParameters?.length > 1 ||
+                selectedTaskParameters?.length === 0 ||
                 !selectedTask?.def_task_id
               }
             >
               <CustomTooltip tooltipTitle="Edit">
                 <FileEdit
                   className={`${
-                    selectedTaskParameters.length > 1 ||
-                    selectedTaskParameters.length === 0
+                    selectedTaskParameters?.length > 1 ||
+                    selectedTaskParameters?.length === 0
                       ? "text-slate-200 cursor-not-allowed"
                       : "cursor-pointer"
                   }`}
@@ -225,7 +225,7 @@ export function TaskParametersTable() {
 
             <Alert
               disabled={
-                selectedTaskParameters.length === 0 ||
+                selectedTaskParameters?.length === 0 ||
                 !selectedTask?.def_task_id
               } // disable condition
               tooltipTitle="Delete" // tooltip title
@@ -326,7 +326,7 @@ export function TaskParametersTable() {
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                         {header.id === "select" && (
                           <Checkbox
@@ -408,7 +408,7 @@ export function TaskParametersTable() {
                         ) : (
                           flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )
                         )}
                       </TableCell>

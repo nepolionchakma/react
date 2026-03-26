@@ -86,6 +86,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
 
   React.useEffect(() => {
     const fetchJobTitles = async () => {
+      if (!combinedUser?.tenant_id || !token?.access_token) return;
       const params = {
         baseURL: FLASK_URL,
         url: `${flaskApi.JobTitles}?tenant_id=${combinedUser?.tenant_id}`,
@@ -101,10 +102,11 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
     };
 
     fetchJobTitles();
-  }, [combinedUser?.tenant_id, token.access_token]);
+  }, [combinedUser?.tenant_id, token?.access_token]);
 
   React.useEffect(() => {
     const fetchData = async () => {
+      if (!token?.access_token) return;
       try {
         setIsLoading(true);
         const res = await fetchCombinedUser(page, limit, query.value);
@@ -130,7 +132,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
     }, 1000);
 
     return () => clearTimeout(delayDebounce);
-  }, [limit, page, query.value, stateChange]);
+  }, [limit, page, query.value, stateChange, token?.access_token]);
 
   const handleRowSelection = (rowSelection: IUsersInfoTypes) => {
     if (selectedUser.user_name === rowSelection.user_name) {

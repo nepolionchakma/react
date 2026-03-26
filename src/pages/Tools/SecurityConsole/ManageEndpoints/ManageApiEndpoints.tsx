@@ -104,7 +104,7 @@ const ManageApiEndpoints = () => {
         column.toggleVisibility(false);
       }
     });
-  }, [hiddenColumns, table]);
+  }, [table]);
 
   useEffect(() => {
     const apiEndpointsParams = {
@@ -116,9 +116,12 @@ const ManageApiEndpoints = () => {
 
     const loadAPIEndpoints = async () => {
       const res = await loadData(apiEndpointsParams);
-      if (res) {
+
+      if (res.result) {
         setData(res.result);
         setTotalPage(res.pages);
+      } else {
+        setTotalPage(1);
       }
       table.toggleAllRowsSelected(false);
     };
@@ -139,7 +142,7 @@ const ManageApiEndpoints = () => {
         accessToken: token.access_token as string,
       };
       const privilegesRes = await loadData(privilegesParams);
-      console.log(privilegesRes);
+
       if (privilegesRes) {
         setPrivileges(privilegesRes.result);
       }
@@ -149,8 +152,8 @@ const ManageApiEndpoints = () => {
   }, [token.access_token]);
 
   useEffect(() => {
-    if (data.length > 0) {
-      if (selectedEndPoints.length !== data.length) {
+    if (data?.length > 0) {
+      if (selectedEndPoints.length !== data?.length) {
         setIsSelectAll(false);
       } else {
         setIsSelectAll(true);
@@ -158,7 +161,7 @@ const ManageApiEndpoints = () => {
     }
     const ids = selectedEndPoints.map((item) => item.api_endpoint_id);
     setSelectedIds(ids);
-  }, [data.length, selectedEndPoints]);
+  }, [data?.length, selectedEndPoints]);
 
   //   useEffect(() => {
   //     const selectedRow = table
@@ -356,6 +359,7 @@ const ManageApiEndpoints = () => {
                             )}
                         {header.id === "select" && (
                           <Checkbox
+                            disabled={!data?.length}
                             checked={isSelectAll}
                             onClick={handleSelectAll}
                             aria-label="Select all"
@@ -385,8 +389,8 @@ const ManageApiEndpoints = () => {
               {isLoading ? (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
+                    colSpan={table.getAllColumns()?.length}
+                    className="h-[16rem] text-center"
                   >
                     <l-tailspin
                       size="40"
@@ -442,8 +446,8 @@ const ManageApiEndpoints = () => {
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
+                    colSpan={table.getAllColumns()?.length}
+                    className="h-[16rem] text-center"
                   >
                     No results.
                   </TableCell>

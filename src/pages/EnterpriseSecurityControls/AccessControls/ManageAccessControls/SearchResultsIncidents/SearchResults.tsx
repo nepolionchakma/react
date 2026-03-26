@@ -97,7 +97,7 @@ const SearchResults = () => {
   // form
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -253,7 +253,7 @@ const SearchResults = () => {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                       {header.id === "select" && (
                         <Checkbox
@@ -340,7 +340,7 @@ const SearchResults = () => {
                       ) : (
                         flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )
                       )}
                     </TableCell>
@@ -383,7 +383,7 @@ const SearchResults = () => {
         <Pagination5
           currentPage={page}
           setCurrentPage={setPage}
-          totalPageNumbers={totalPages as number}
+          totalPageNumbers={totalPages}
         />
       </div>
     </div>

@@ -62,6 +62,11 @@ export async function loadData(params: loadDataParams) {
         (error.response?.data as any)?.message ||
         (error.response?.data as any)?.error ||
         error.message;
+
+      if (error.response?.data?.message?.includes("Access denied")) {
+        toast({ title: message, variant: "destructive" });
+      }
+
       if (params.isToast) {
         toast({ title: message, variant: "destructive" });
       }

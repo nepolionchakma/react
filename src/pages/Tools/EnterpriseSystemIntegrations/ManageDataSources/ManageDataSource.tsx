@@ -34,7 +34,7 @@ const ManageDataSource = () => {
       // console.log(response);
       if (response) {
         setTableSchema(response.result);
-        const schemas = response.result.map((item: any) => item.schema);
+        const schemas = response?.result?.map((item: any) => item.schema);
         setSchemas(schemas);
         setIsSchemaLoaded(true);
       }
@@ -45,7 +45,7 @@ const ManageDataSource = () => {
   useEffect(() => {
     if (tableSchema) {
       const tablles = tableSchema.find(
-        (item) => item.schema === selectedSchema
+        (item) => item.schema === selectedSchema,
       )?.tables;
       setTables(tablles as string[]);
     }

@@ -36,16 +36,23 @@ const EnterpriseCreateAndEditModal = ({
   handleCloseModal,
 }: ICustomModalTypes) => {
   // const api = useAxiosPrivate();
-  const { enterpriseSetting, token, setEnterpriseSetting } = useGlobalContext();
+  const { fetchUserEnterprise, token, setEnterpriseSetting } =
+    useGlobalContext();
+  const [userEnterprise, setUserEnterprise] =
+    useState<IEnterprisesTypes | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      const enterpriseData = await fetchUserEnterprise();
+      setUserEnterprise(enterpriseData);
+    })();
+  }, [fetchUserEnterprise]);
+
   const [enterpriseName, setEnterpriseName] = useState<string>(
-    enterpriseSetting && action === "edit"
-      ? enterpriseSetting.enterprise_name
-      : ""
+    userEnterprise && action === "edit" ? userEnterprise.enterprise_name : "",
   );
   const [enterpriseType, setEnterpriseType] = useState<string>(
-    enterpriseSetting && action === "edit"
-      ? enterpriseSetting.enterprise_type
-      : ""
+    userEnterprise && action === "edit" ? userEnterprise.enterprise_type : "",
   );
   const [userInvitationValidity, setUserInvitationValidity] =
     useState<Validity>({ amount: 1, unit: "h" });
@@ -64,14 +71,14 @@ const EnterpriseCreateAndEditModal = ({
   };
 
   useEffect(() => {
-    if (enterpriseSetting?.user_invitation_validity) {
-      const res = parseValidity(enterpriseSetting?.user_invitation_validity);
+    if (userEnterprise?.user_invitation_validity) {
+      const res = parseValidity(userEnterprise?.user_invitation_validity);
       setUserInvitationValidity({
         amount: res.amount,
         unit: res.unit,
       });
     }
-  }, [enterpriseSetting?.user_invitation_validity]);
+  }, [userEnterprise?.user_invitation_validity]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -85,7 +92,7 @@ const EnterpriseCreateAndEditModal = ({
 
     const params = {
       baseURL: FLASK_URL,
-      url: `${flaskApi.EnterpriseSetup}?tenant_id=${enterpriseSetting?.tenant_id}`,
+      url: `${flaskApi.EnterpriseSetup}?tenant_id=${userEnterprise?.tenant_id}`,
       setLoading: setIsLoading,
       payload: data,
       // isConsole?: boolean;

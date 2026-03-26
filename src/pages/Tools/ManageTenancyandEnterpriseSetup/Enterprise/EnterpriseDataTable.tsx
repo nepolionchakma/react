@@ -59,7 +59,7 @@ export function EnterpriseDataTable({
   enterpriseLimit,
   setEnterpriseLimit,
 }: IEnterpriseDataProps) {
-  const { enterpriseSetting, token } = useGlobalContext();
+  const { fetchUserEnterprise, token } = useGlobalContext();
   const [data, setData] = React.useState<IEnterprisesTypes[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [page, setPage] = React.useState<number>(1);
@@ -69,11 +69,20 @@ export function EnterpriseDataTable({
   const [sorting, setSorting] = React.useState<SortingState>([]);
   // const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [userEnterprise, setUserEnterprise] =
+    React.useState<IEnterprisesTypes | null>(null);
+
+  React.useEffect(() => {
+    (async () => {
+      const enterpriseData = await fetchUserEnterprise();
+      setUserEnterprise(enterpriseData);
+    })();
+  }, [fetchUserEnterprise]);
 
   // React.useEffect(() => {
   //   if (selectedEnterpriseRows.length !== data.length || data.length === 0) {
@@ -151,9 +160,11 @@ export function EnterpriseDataTable({
 
       const res = await loadData(params);
 
-      if (res) {
+      if (res.result) {
         setData(res.result);
         setTotalPage(res.pages);
+      } else {
+        setTotalPage(1);
       }
     };
     fetch();
@@ -240,7 +251,7 @@ export function EnterpriseDataTable({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                       {/* {header.id === "select" && (
                         <Checkbox
@@ -302,20 +313,18 @@ export function EnterpriseDataTable({
                       {cell.column.id === "select" ? (
                         <Checkbox
                           disabled={
-                            enterpriseSetting?.tenant_id !==
-                            row.original.tenant_id
+                            userEnterprise?.tenant_id !== row.original.tenant_id
                           }
                           className="mt-1"
                           checked={
-                            enterpriseSetting?.tenant_id ===
-                            row.original.tenant_id
+                            userEnterprise?.tenant_id === row.original.tenant_id
                           }
                           // onClick={() => handleRowSelection(row.original)}
                         />
                       ) : (
                         flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )
                       )}
                     </TableCell>
@@ -351,8 +360,8 @@ export function EnterpriseDataTable({
 
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
-            {selectedEnterpriseRows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            {selectedEnterpriseRows?.length} of{" "}
+            {table.getFilteredRowModel().rows?.length} row(s) selected.
           </div>
           <Pagination5
             currentPage={page}

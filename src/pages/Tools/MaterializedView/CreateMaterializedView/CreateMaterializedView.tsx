@@ -254,7 +254,7 @@ const FunctionArgs = ({
                           const selectedTableName =
                             argTableName?.[condition.id];
                           const table = selectedTables.find(
-                            (t) => t.name === selectedTableName
+                            (t) => t.name === selectedTableName,
                           );
                           const column = `${table?.alias}.${value}`;
                           field.onChange(column);
@@ -331,20 +331,20 @@ const CreateMaterializedView = () => {
   const [schemaName, setSchemaName] = useState<string>();
   const [tables, setTables] = useState<string[]>([]);
   const [leftTableName, setLeftTableName] = useState<Record<number, string>>(
-    {}
+    {},
   );
   const [leftColumns, setLeftColumns] = useState<Record<number, IColumns[]>>(
-    {}
+    {},
   );
   const [rightSchemaName, setRightSchemaName] = useState<
     Record<string, string>
   >({});
   const [rightTables, setRightTables] = useState<Record<string, string[]>>({});
   const [rightTableName, setRightTableName] = useState<Record<string, string>>(
-    {}
+    {},
   );
   const [rightColumns, setRightColumns] = useState<Record<string, IColumns[]>>(
-    {}
+    {},
   );
   const [grouoByTableName, setGroupByTableName] = useState<
     Record<string, string>
@@ -435,14 +435,14 @@ const CreateMaterializedView = () => {
       const fetchSchemaParams = {
         baseURL: FLASK_URL,
         url: `${flaskApi.Table}`,
-        accessToken: token.access_token,
+        accessToken: token?.access_token,
       };
 
       const res = await loadData(fetchSchemaParams);
       setSchemas(res?.schemas);
     };
     fetchSchema();
-  }, [token.access_token]);
+  }, [token?.access_token]);
 
   /** from tables */
   useEffect(() => {
@@ -451,7 +451,7 @@ const CreateMaterializedView = () => {
       const fetchTableParams = {
         baseURL: FLASK_URL,
         url: `${flaskApi.Table}?schema=${schemaName}`,
-        accessToken: token.access_token,
+        accessToken: token?.access_token,
         setLoading: setIsFromLoading,
       };
 
@@ -459,7 +459,7 @@ const CreateMaterializedView = () => {
       setTables(res.schemas[0].tables);
     };
     fetchTables();
-  }, [token.access_token, schemaName]);
+  }, [token?.access_token, schemaName]);
 
   /** right tables (Joins)*/
   const fetchRightTables = async (fieldId: string, schema: string) => {
@@ -472,7 +472,7 @@ const CreateMaterializedView = () => {
       const fetchTableParams = {
         baseURL: FLASK_URL,
         url: `${flaskApi.Table}?schema=${schema}`,
-        accessToken: token.access_token,
+        accessToken: token?.access_token,
       };
 
       const res = await loadData(fetchTableParams);
@@ -498,7 +498,7 @@ const CreateMaterializedView = () => {
       const fetchColumnParams = {
         baseURL: FLASK_URL,
         url: `${flaskApi.Table}?table=${tableName}`,
-        accessToken: token.access_token,
+        accessToken: token?.access_token,
       };
 
       const res = await loadData(fetchColumnParams);
@@ -516,7 +516,7 @@ const CreateMaterializedView = () => {
   };
   const handleFetchRightColumns = async (
     fieldId: string,
-    tableName: string
+    tableName: string,
   ) => {
     setIsRightColumnLoading((prev) => ({
       ...prev,
@@ -527,7 +527,7 @@ const CreateMaterializedView = () => {
       const fetchColumnParams = {
         baseURL: FLASK_URL,
         url: `${flaskApi.Table}?table=${tableName}`,
-        accessToken: token.access_token,
+        accessToken: token?.access_token,
       };
 
       const res = await loadData(fetchColumnParams);
@@ -546,7 +546,7 @@ const CreateMaterializedView = () => {
 
   const handleFetchSelectColumns = async (
     fieldId: string,
-    tableName: string
+    tableName: string,
   ) => {
     setIsSelectColumnLoading((prev) => ({
       ...prev,
@@ -557,7 +557,7 @@ const CreateMaterializedView = () => {
       const fetchColumnParams = {
         baseURL: FLASK_URL,
         url: `${flaskApi.Table}?table=${tableName}`,
-        accessToken: token.access_token,
+        accessToken: token?.access_token,
       };
 
       const res = await loadData(fetchColumnParams);
@@ -574,7 +574,7 @@ const CreateMaterializedView = () => {
   };
   const handleFetchGroupByColumns = async (
     fieldId: string,
-    tableName: string
+    tableName: string,
   ) => {
     if (!tableName) return;
     setIsGroupByColumnLoading((prev) => ({
@@ -585,7 +585,7 @@ const CreateMaterializedView = () => {
       const fetchColumnParams = {
         baseURL: FLASK_URL,
         url: `${flaskApi.Table}?table=${tableName}`,
-        accessToken: token.access_token,
+        accessToken: token?.access_token,
       };
 
       const res = await loadData(fetchColumnParams);
@@ -603,7 +603,7 @@ const CreateMaterializedView = () => {
 
   const handleFetchGroupByArgColumns = async (
     fieldId: string,
-    tableName: string
+    tableName: string,
   ) => {
     if (!tableName) return;
     setIsGroupByArgColumnLoading((prev) => ({
@@ -614,7 +614,7 @@ const CreateMaterializedView = () => {
       const fetchColumnParams = {
         baseURL: FLASK_URL,
         url: `${flaskApi.Table}?table=${tableName}`,
-        accessToken: token.access_token,
+        accessToken: token?.access_token,
       };
 
       const res = await loadData(fetchColumnParams);
@@ -632,7 +632,7 @@ const CreateMaterializedView = () => {
 
   const handleFetchSelectArgColumns = async (
     fieldId: string,
-    tableName: string
+    tableName: string,
   ) => {
     setIsSelectArgColumnLoading((prev) => ({
       ...prev,
@@ -643,7 +643,7 @@ const CreateMaterializedView = () => {
       const fetchColumnParams = {
         baseURL: FLASK_URL,
         url: `${flaskApi.Table}?table=${tableName}`,
-        accessToken: token.access_token,
+        accessToken: token?.access_token,
       };
 
       const res = await loadData(fetchColumnParams);
@@ -688,7 +688,7 @@ const CreateMaterializedView = () => {
       setLoading: setIsLoading,
       payload: data,
       isToast: true,
-      accessToken: token.access_token,
+      accessToken: token?.access_token,
     };
 
     const res = await postData(postMaterializedView);
@@ -707,7 +707,7 @@ const CreateMaterializedView = () => {
         return prev.map((t) =>
           t.id === value.id
             ? { ...t, alias: value.alias, id: value.id, name: value.name }
-            : t
+            : t,
         );
       }
 
@@ -1086,7 +1086,7 @@ const CreateMaterializedView = () => {
                                     id: field.id,
                                     name: value,
                                     alias: form.getValues(
-                                      `joins.${index}.alias`
+                                      `joins.${index}.alias`,
                                     ),
                                   });
 
@@ -1167,7 +1167,7 @@ const CreateMaterializedView = () => {
                                       id: field.id,
                                       alias: e.target.value,
                                       name: form.getValues(
-                                        `joins.${index}.table`
+                                        `joins.${index}.table`,
                                       ),
                                     });
                                   }}
@@ -1202,7 +1202,7 @@ const CreateMaterializedView = () => {
 
                                     const column = selectedTables.find(
                                       (item) =>
-                                        item.name === leftTableName[index]
+                                        item.name === leftTableName[index],
                                     );
 
                                     const left = `${column?.alias}.${value}`;
@@ -1319,7 +1319,7 @@ const CreateMaterializedView = () => {
                                     const value = e.target.value;
 
                                     const alias = form.getValues(
-                                      `joins.${index}.alias`
+                                      `joins.${index}.alias`,
                                     );
                                     const right = `${alias}.${value}`;
 
@@ -1384,7 +1384,7 @@ const CreateMaterializedView = () => {
                       onClick={() => {
                         const joinTableId = field.id;
                         setSelectedTables((prev) =>
-                          prev.filter((item) => item.id !== joinTableId)
+                          prev.filter((item) => item.id !== joinTableId),
                         );
                         removeJoins(index);
                       }}
@@ -1487,10 +1487,10 @@ const CreateMaterializedView = () => {
                           name={`select.${index}.column`}
                           render={({ field: formField }) => {
                             const tableName = form.watch(
-                              `select.${index}.table`
+                              `select.${index}.table`,
                             );
                             const table = selectedTables.find(
-                              (t) => t.name === tableName
+                              (t) => t.name === tableName,
                             );
 
                             return (
@@ -1506,7 +1506,7 @@ const CreateMaterializedView = () => {
                                   onChange={(e) => {
                                     const value = e.target.value;
                                     formField.onChange(
-                                      `${table?.alias}.${value}`
+                                      `${table?.alias}.${value}`,
                                     );
                                   }}
                                 >
@@ -1814,7 +1814,7 @@ const CreateMaterializedView = () => {
                             const selectedTableName =
                               grouoByTableName[field.id];
                             const table = selectedTables.find(
-                              (t) => t.name === selectedTableName
+                              (t) => t.name === selectedTableName,
                             );
 
                             return (
