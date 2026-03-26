@@ -13,7 +13,10 @@ import {
 } from "@dnd-kit/core";
 import DraggableList from "./DraggableList";
 import DroppableList from "./DroppableList";
-import { IManageAccessModelLogicExtendTypes as Extend } from "@/types/interfaces/ManageAccessEntitlements.interface";
+import {
+  IManageAccessModelLogicExtendTypes as Extend,
+  IManageAccessModelLogicAttributesTypes,
+} from "@/types/interfaces/ManageAccessEntitlements.interface";
 import { FC, useEffect, useState } from "react";
 import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
 import { useForm } from "react-hook-form";
@@ -27,7 +30,7 @@ import DragOverlayComponent from "./DragOverlayComponent";
 import ManageAccessModelUpdate from "../Update/ManageAccessModelUpdate";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
-import { postData, putData } from "@/Utility/funtion";
+import { loadData, postData, putData } from "@/Utility/funtion";
 
 interface IManageAccessModelDNDProps {
   setOpenEditModal: React.Dispatch<React.SetStateAction<boolean>>;
@@ -43,7 +46,6 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     // isLoading,
     selectedAccessModelItem: selectedItem,
     fetchDefAccessModelLogics,
-    manageAccessModelAttrMaxId,
     isActionLoading,
     setIsActionLoading,
     setStateChange,
@@ -54,6 +56,8 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   const [originalData, setOriginalData] = useState<Extend[]>([]);
   const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [manageAccessModelAttrMaxId, setManageAccessModelAttrMaxId] =
+    useState<number>();
 
   const iniLeftWidget = [
     {
@@ -74,15 +78,42 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   const [leftWidgets, setLeftWidgets] = useState<Extend[]>(iniLeftWidget);
 
   useEffect(() => {
+    const maxId = async () => {
+      try {
+        if (token?.user_id === 0) return;
+        const res = await loadData({
+          baseURL: FLASK_URL,
+          url: flaskApi.DefAccessModelLogicAttributes,
+          accessToken: token.access_token,
+        });
+
+        const maxIdManageAccessModel = Math.max(
+          ...res.result.map(
+            (data: IManageAccessModelLogicAttributesTypes) => data.id,
+          ),
+        );
+        if (res.result.length > 0) {
+          setManageAccessModelAttrMaxId(maxIdManageAccessModel);
+        } else {
+          setManageAccessModelAttrMaxId(0);
+        }
+      } catch (error) {
+        console.log(error, "error");
+      }
+    };
+    maxId();
+  }, [token.access_token, token?.user_id]);
+
+  useEffect(() => {
     const fetchDataFunc = async () => {
       setIsLoading(true);
       const fetchData = await fetchDefAccessModelLogics(
-        selectedItem[0].def_access_model_id ?? 0
+        selectedItem[0].def_access_model_id ?? 0,
       );
       if (fetchData) {
         setIsLoading(false);
         const sortedData = fetchData?.sort(
-          (a, b) => a.widget_position - b.widget_position
+          (a, b) => a.widget_position - b.widget_position,
         );
         setRightWidgets(sortedData as Extend[]);
         setOriginalData(sortedData as Extend[]);
@@ -124,10 +155,10 @@ const DND: FC<IManageAccessModelDNDProps> = ({
   //DND START
   //Active Item
   const leftWidget = leftWidgets.find(
-    (item) => item.def_access_model_logic_id === activeId
+    (item) => item.def_access_model_logic_id === activeId,
   );
   const rightWidget = rightWidgets.find(
-    (item) => item.def_access_model_logic_id === activeId
+    (item) => item.def_access_model_logic_id === activeId,
   );
 
   const attrmaxId =
@@ -160,11 +191,11 @@ const DND: FC<IManageAccessModelDNDProps> = ({
       item.object === "" ||
       item.attribute === "" ||
       item.condition === "" ||
-      item.value === ""
+      item.value === "",
   );
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   );
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id);
@@ -206,7 +237,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     }
 
     const activeIndexInLeft = leftWidgets.findIndex(
-      (item) => item.def_access_model_logic_id === activeItemId
+      (item) => item.def_access_model_logic_id === activeItemId,
     );
     // const activeIndexInRight = rightWidgets.findIndex(
     //   (item) => item.manage_access_model_logic_id === activeItemId
@@ -216,7 +247,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
     if (overItemId) {
       // Determine new index for the item being moved
       const overIndexInRight = rightWidgets.findIndex(
-        (item) => item.def_access_model_logic_id === overItemId
+        (item) => item.def_access_model_logic_id === overItemId,
       );
       newIndex =
         overIndexInRight === -1 ? rightWidgets.length : overIndexInRight;
@@ -251,10 +282,10 @@ const DND: FC<IManageAccessModelDNDProps> = ({
 
       if (active.data.current?.sortable?.containerId === "right") {
         const oldIndex = rightWidgets.findIndex(
-          (item) => item.def_access_model_logic_id === activeItemId
+          (item) => item.def_access_model_logic_id === activeItemId,
         );
         const newIndex = rightWidgets.findIndex(
-          (item) => item.def_access_model_logic_id === overItemId
+          (item) => item.def_access_model_logic_id === overItemId,
         );
 
         if (oldIndex !== -1 && newIndex !== -1) {
@@ -262,7 +293,7 @@ const DND: FC<IManageAccessModelDNDProps> = ({
             arrayMove(rightWidgets, oldIndex, newIndex).map((item, index) => ({
               ...item,
               widget_position: index,
-            }))
+            })),
           );
         }
       }
@@ -279,8 +310,8 @@ const DND: FC<IManageAccessModelDNDProps> = ({
           ori.condition === item.condition &&
           ori.value === item.value &&
           ori.widget_position === item.widget_position &&
-          ori.widget_state === item.widget_state
-      )
+          ori.widget_state === item.widget_state,
+      ),
   );
 
   const handleSave = async () => {

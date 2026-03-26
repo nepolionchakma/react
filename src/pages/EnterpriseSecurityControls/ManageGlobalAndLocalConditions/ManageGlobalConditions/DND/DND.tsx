@@ -11,7 +11,10 @@ import {
 } from "@dnd-kit/core";
 import DraggableList from "./DraggableList";
 import DroppableList from "./DroppableList";
-import { IManageGlobalConditionLogicExtendTypes as Extend } from "@/types/interfaces/ManageAccessEntitlements.interface";
+import {
+  IManageGlobalConditionLogicExtendTypes as Extend,
+  IManageGlobalConditionLogicAttributesTypes,
+} from "@/types/interfaces/ManageAccessEntitlements.interface";
 import { FC, useEffect, useState } from "react";
 import { useAACContext } from "@/Context/ManageAccessEntitlements/AdvanceAccessControlsContext";
 import ManageGlobalConditionUpdate from "../Update/ManageGlobalConditionUpdate";
@@ -24,7 +27,7 @@ import { toast } from "@/components/ui/use-toast";
 import { Save, X } from "lucide-react";
 import DragOverlayComponent from "./DragOverlayComponent";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
-import { putData, postData } from "@/Utility/funtion";
+import { putData, postData, loadData } from "@/Utility/funtion";
 import { AxiosError } from "axios";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 
@@ -39,7 +42,6 @@ const DND: FC = () => {
     selectedManageGlobalConditionItem: selectedItem,
     // setSelectedManageGlobalConditionItem,
     fetchManageGlobalConditionLogics,
-    attrMaxId,
     isActionLoading,
     setIsActionLoading,
   } = useAACContext();
@@ -47,11 +49,15 @@ const DND: FC = () => {
   const [originalData, setOriginalData] = useState<Extend[]>([]);
   const [activeId, setActiveId] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [globalConditionAttrMaxId, setGlobalConditionAttrMaxId] =
+    useState<number>();
 
   const iniLeftWidget = [
     {
-      id: attrMaxId ? attrMaxId + 1 : 1,
-      def_global_condition_logic_id: attrMaxId ? attrMaxId + 1 : 1,
+      id: globalConditionAttrMaxId ? globalConditionAttrMaxId + 1 : 1,
+      def_global_condition_logic_id: globalConditionAttrMaxId
+        ? globalConditionAttrMaxId + 1
+        : 1,
       def_global_condition_id: selectedItem[0]?.def_global_condition_id,
       object: "",
       attribute: "",
@@ -64,16 +70,43 @@ const DND: FC = () => {
   const [leftWidgets, setLeftWidgets] = useState<Extend[]>(iniLeftWidget);
 
   useEffect(() => {
+    const maxId = async () => {
+      try {
+        if (token?.user_id === 0) return;
+        const res = await loadData({
+          baseURL: FLASK_URL,
+          url: flaskApi.DefGlobalConditionLogicAttributes,
+          accessToken: token.access_token,
+        });
+
+        const maxIdGlobalCondition = Math.max(
+          ...res.result.map(
+            (data: IManageGlobalConditionLogicAttributesTypes) => data.id,
+          ),
+        );
+        if (res.result.length > 0) {
+          setGlobalConditionAttrMaxId(maxIdGlobalCondition);
+        } else {
+          setGlobalConditionAttrMaxId(0);
+        }
+      } catch (error) {
+        console.log(error, "error");
+      }
+    };
+    maxId();
+  }, [token.access_token, token?.user_id]);
+
+  useEffect(() => {
     const fetchDataFunc = async () => {
       setIsLoading(true);
       const fetchData = await fetchManageGlobalConditionLogics(
-        selectedItem[0]?.def_global_condition_id
+        selectedItem[0]?.def_global_condition_id,
       );
 
       if (fetchData) {
         setIsLoading(false);
         const sortedData = fetchData?.sort(
-          (a, b) => a.widget_position - b.widget_position
+          (a, b) => a.widget_position - b.widget_position,
         );
 
         setRightWidgets(sortedData as Extend[]);
@@ -109,10 +142,10 @@ const DND: FC = () => {
   //DND START
   //Active Item
   const leftWidget = leftWidgets.find(
-    (item) => item.def_global_condition_logic_id === activeId
+    (item) => item.def_global_condition_logic_id === activeId,
   );
   const rightWidget = rightWidgets.find(
-    (item) => item.def_global_condition_logic_id === activeId
+    (item) => item.def_global_condition_logic_id === activeId,
   );
 
   const newId =
@@ -145,11 +178,11 @@ const DND: FC = () => {
       item.object === "" ||
       item.attribute === "" ||
       item.condition === "" ||
-      item.value === ""
+      item.value === "",
   );
 
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
   );
   const handleDragStart = (event: DragStartEvent) => {
     setActiveId(event.active.id as number);
@@ -191,7 +224,7 @@ const DND: FC = () => {
     }
 
     const activeIndexInLeft = leftWidgets.findIndex(
-      (item) => item.def_global_condition_logic_id === activeItemId
+      (item) => item.def_global_condition_logic_id === activeItemId,
     );
     // const activeIndexInRight = rightWidgets.findIndex(
     //   (item) => item.manage_global_condition_logic_id === activeItemId
@@ -201,7 +234,7 @@ const DND: FC = () => {
     if (overItemId) {
       // Determine new index for the item being moved
       const overIndexInRight = rightWidgets.findIndex(
-        (item) => item.def_global_condition_logic_id === overItemId
+        (item) => item.def_global_condition_logic_id === overItemId,
       );
       newIndex =
         overIndexInRight === -1 ? rightWidgets.length : overIndexInRight;
@@ -233,10 +266,10 @@ const DND: FC = () => {
 
       if (active.data.current?.sortable?.containerId === "right") {
         const oldIndex = rightWidgets.findIndex(
-          (item) => item.def_global_condition_logic_id === activeItemId
+          (item) => item.def_global_condition_logic_id === activeItemId,
         );
         const newIndex = rightWidgets.findIndex(
-          (item) => item.def_global_condition_logic_id === overItemId
+          (item) => item.def_global_condition_logic_id === overItemId,
         );
 
         if (oldIndex !== -1 && newIndex !== -1) {
@@ -244,7 +277,7 @@ const DND: FC = () => {
             arrayMove(rightWidgets, oldIndex, newIndex).map((item, index) => ({
               ...item,
               widget_position: index,
-            }))
+            })),
           );
         }
       }
@@ -260,8 +293,8 @@ const DND: FC = () => {
           ori.condition === item.condition &&
           ori.value === item.value &&
           ori.widget_position === item.widget_position &&
-          ori.widget_state === item.widget_state
-      )
+          ori.widget_state === item.widget_state,
+      ),
   );
 
   const handleSave = async () => {

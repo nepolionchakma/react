@@ -59,7 +59,7 @@ export function EnterpriseDataTable({
   enterpriseLimit,
   setEnterpriseLimit,
 }: IEnterpriseDataProps) {
-  const { enterpriseSetting, token } = useGlobalContext();
+  const { fetchUserEnterprise, token } = useGlobalContext();
   const [data, setData] = React.useState<IEnterprisesTypes[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [page, setPage] = React.useState<number>(1);
@@ -69,11 +69,20 @@ export function EnterpriseDataTable({
   const [sorting, setSorting] = React.useState<SortingState>([]);
   // const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [userEnterprise, setUserEnterprise] =
+    React.useState<IEnterprisesTypes | null>(null);
+
+  React.useEffect(() => {
+    (async () => {
+      const enterpriseData = await fetchUserEnterprise();
+      setUserEnterprise(enterpriseData);
+    })();
+  }, [fetchUserEnterprise]);
 
   // React.useEffect(() => {
   //   if (selectedEnterpriseRows.length !== data.length || data.length === 0) {
@@ -240,7 +249,7 @@ export function EnterpriseDataTable({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                       {/* {header.id === "select" && (
                         <Checkbox
@@ -302,20 +311,18 @@ export function EnterpriseDataTable({
                       {cell.column.id === "select" ? (
                         <Checkbox
                           disabled={
-                            enterpriseSetting?.tenant_id !==
-                            row.original.tenant_id
+                            userEnterprise?.tenant_id !== row.original.tenant_id
                           }
                           className="mt-1"
                           checked={
-                            enterpriseSetting?.tenant_id ===
-                            row.original.tenant_id
+                            userEnterprise?.tenant_id === row.original.tenant_id
                           }
                           // onClick={() => handleRowSelection(row.original)}
                         />
                       ) : (
                         flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )
                       )}
                     </TableCell>
