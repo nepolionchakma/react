@@ -18,7 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { columns } from "./Columns";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IAPIEndpoint } from "@/types/interfaces/apiEndpoints.interface";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
@@ -45,7 +45,7 @@ import Spinner from "@/components/Spinner/Spinner";
 import { IPrivilege } from "@/types/interfaces/users.interface";
 
 const ManageApiEndpoints = () => {
-  const { token } = useGlobalContext();
+  const { token, users } = useGlobalContext();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -69,7 +69,7 @@ const ManageApiEndpoints = () => {
 
   const table = useReactTable({
     data,
-    columns,
+    columns: useMemo(() => columns(users), [users]),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -90,6 +90,21 @@ const ManageApiEndpoints = () => {
       },
     },
   });
+
+  const hiddenColumns = [
+    "created_by",
+    "creation_date",
+    "last_updated_by",
+    "last_update_date",
+  ];
+
+  useEffect(() => {
+    table.getAllColumns().forEach((column) => {
+      if (hiddenColumns.includes(column.id)) {
+        column.toggleVisibility(false);
+      }
+    });
+  }, [hiddenColumns, table]);
 
   useEffect(() => {
     const apiEndpointsParams = {
