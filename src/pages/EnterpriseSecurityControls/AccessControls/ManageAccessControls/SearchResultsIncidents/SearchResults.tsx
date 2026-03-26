@@ -383,7 +383,7 @@ const SearchResults = () => {
         <Pagination5
           currentPage={page}
           setCurrentPage={setPage}
-          totalPageNumbers={totalPages as number}
+          totalPageNumbers={totalPages}
         />
       </div>
     </div>

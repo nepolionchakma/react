@@ -90,11 +90,12 @@ const DataSources = ({
         accessToken: token.access_token,
         setLoading: setIsLoading,
       });
-      console.log(response);
-      if (response) {
+      if (response?.result) {
         setData(response.result);
         setTotalPage(response.pages);
         setCurrentPage(response.page);
+      } else {
+        setTotalPage(1);
       }
     };
 
@@ -116,7 +117,9 @@ const DataSources = ({
       };
 
       const res = await loadData(loadParams);
-      setConnectorProperties(res.result[0]);
+      if (res.result) {
+        setConnectorProperties(res?.result[0]);
+      }
     };
     fetchConnectorProperties();
   }, [selectedDataSourceItem, token.access_token]);

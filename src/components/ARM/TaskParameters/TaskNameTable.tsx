@@ -115,7 +115,7 @@ export function TaskNameTable() {
   // const [selectedRowId, setSelectedRowId] = React.useState<string>("");
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -164,7 +164,7 @@ export function TaskNameTable() {
           const res = await getSearchAsyncTasksLazyLoading(
             page,
             limit,
-            query.value
+            query.value,
           );
           if (res) {
             // setSelectedRowId("");
@@ -277,7 +277,7 @@ export function TaskNameTable() {
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
 
                         {header.id !== "select" && (
@@ -350,7 +350,7 @@ export function TaskNameTable() {
                         ) : (
                           flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )
                         )}
                       </TableCell>
@@ -386,8 +386,8 @@ export function TaskNameTable() {
         </div>
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
-            {table.getFilteredSelectedRowModel().rows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            {table.getFilteredSelectedRowModel().rows?.length} of{" "}
+            {table.getFilteredRowModel().rows?.length} row(s) selected.
           </div>
           <Pagination5
             currentPage={page}

@@ -175,7 +175,9 @@ const Home = () => {
   );
 
   useEffect(() => {
-    fetchDashboardData(false);
+    if (token?.access_token) {
+      fetchDashboardData(false);
+    }
 
     // Auto-refresh every 30 seconds
     // const interval = setInterval(fetchDashboardData, 30000);

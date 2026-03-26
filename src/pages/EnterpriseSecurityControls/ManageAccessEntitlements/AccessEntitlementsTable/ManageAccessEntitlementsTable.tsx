@@ -71,7 +71,7 @@ const ManageAccessEntitlementsTable = () => {
   // Shadcn Form State
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -100,9 +100,13 @@ const ManageAccessEntitlementsTable = () => {
   React.useEffect(() => {
     (async () => {
       const res = await fetchManageAccessEntitlements();
-      setTotalPage(res.pages);
-      // setCurrentPage(result?.currentPage ?? 1);
-      setData(res.result);
+      if (res.result) {
+        setData(res.result);
+        setTotalPage(res.pages);
+        // setCurrentPage(result?.currentPage ?? 1);
+      } else {
+        setTotalPage(1);
+      }
     })();
   }, [accessEntitlementsPage, accessEntitlementsLimit, save]);
 
@@ -110,7 +114,7 @@ const ManageAccessEntitlementsTable = () => {
   React.useEffect(() => {
     if (selectedAccessEntitlements.def_entitlement_id !== 0) {
       fetchAccessPointsByEntitlementId(
-        selectedAccessEntitlements.def_entitlement_id
+        selectedAccessEntitlements.def_entitlement_id,
       );
       setSelectedManageAccessEntitlements(selectedAccessEntitlements);
     } else {
@@ -172,7 +176,7 @@ const ManageAccessEntitlementsTable = () => {
 
   const handleDelete = async () => {
     await deleteManageAccessEntitlement(
-      selectedAccessEntitlements.def_entitlement_id
+      selectedAccessEntitlements.def_entitlement_id,
     );
 
     table.getRowModel().rows.forEach((row) => row.toggleSelected(false));
@@ -226,7 +230,7 @@ const ManageAccessEntitlementsTable = () => {
                   onClick={() => {
                     setEditManageAccessEntitlement(true);
                     setSelectedManageAccessEntitlements(
-                      {} as IManageAccessEntitlementsTypes
+                      {} as IManageAccessEntitlementsTypes,
                     );
                     setAccessPointsData([]);
                     setSelectedAccessEntitlements({
@@ -260,7 +264,7 @@ const ManageAccessEntitlementsTable = () => {
                     onClick={() => {
                       setEditManageAccessEntitlement(true);
                       setSelectedManageAccessEntitlements(
-                        selectedAccessEntitlements
+                        selectedAccessEntitlements,
                       );
                       setMangeAccessEntitlementAction("edit");
                       setTable(table);
@@ -371,7 +375,7 @@ const ManageAccessEntitlementsTable = () => {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                       {/* {header.id === "select" && (
                                <Checkbox
@@ -443,7 +447,7 @@ const ManageAccessEntitlementsTable = () => {
                       ) : (
                         flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )
                       )}
                     </TableCell>

@@ -114,10 +114,12 @@ const ManageControlEnvironments = () => {
         accessToken: token.access_token,
       };
       const res = await loadData(actionItemsParams);
-      if (res) {
+      if (res.items) {
         setControlEnvironments(res.items);
         setTotalPage(res.pages);
         // return res;
+      } else {
+        setTotalPage(1);
       }
     };
     const delayDebounce = setTimeout(() => {
@@ -128,15 +130,15 @@ const ManageControlEnvironments = () => {
   }, [limit, page, query, token.access_token, state]);
 
   useEffect(() => {
-    if (controlEnvironments.length > 0) {
+    if (controlEnvironments?.length > 0) {
       if (controlEnvironments?.length !== selectedIds.length) {
         setIsSelectAll(false);
       } else {
         setIsSelectAll(true);
       }
     }
-    const controlEnvironment = controlEnvironments.find(
-      (item) => item.control_environment_id === selectedIds[0]
+    const controlEnvironment = controlEnvironments?.find(
+      (item) => item.control_environment_id === selectedIds[0],
     );
     setSelectedControlEnvironment(controlEnvironment);
   }, [selectedIds, controlEnvironments]);
@@ -148,8 +150,8 @@ const ManageControlEnvironments = () => {
       setSelectedItems([]);
     } else {
       setIsSelectAll(true);
-      const allIds = controlEnvironments.map(
-        (item) => item.control_environment_id
+      const allIds = controlEnvironments?.map(
+        (item) => item.control_environment_id,
       );
       setSelectedIds(allIds);
       setSelectedItems(controlEnvironments);
@@ -159,12 +161,12 @@ const ManageControlEnvironments = () => {
   const handleRowSelection = (item: IManageControlEnvironments) => {
     if (selectedIds.includes(item.control_environment_id)) {
       setSelectedIds((prev) =>
-        prev.filter((i) => i !== item.control_environment_id)
+        prev.filter((i) => i !== item.control_environment_id),
       );
       setSelectedItems((prev) =>
         prev.filter(
-          (i) => i.control_environment_id !== item.control_environment_id
-        )
+          (i) => i.control_environment_id !== item.control_environment_id,
+        ),
       );
     } else {
       setSelectedIds((prev) => [...prev, item.control_environment_id]);
@@ -214,7 +216,7 @@ const ManageControlEnvironments = () => {
             <Plus className="cursor-pointer" onClick={handleAddCllick} />
           </CustomTooltip>
           <CustomTooltip tooltipTitle="Edit">
-            {selectedIds.length === 1 ? (
+            {selectedIds?.length === 1 ? (
               <FileEdit className="cursor-pointer" onClick={handleEditCllick} />
             ) : (
               <FileEdit className="cursor-not-allowed text-slate-200" />
@@ -310,11 +312,12 @@ const ManageControlEnvironments = () => {
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
 
                         {header.id === "select" && (
                           <Checkbox
+                            disabled={!controlEnvironments?.length}
                             checked={isSelectAll}
                             onClick={handleSelectAll}
                             aria-label="Select all"
@@ -345,7 +348,7 @@ const ManageControlEnvironments = () => {
               {isLoading ? (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={columns?.length}
                     className="h-[16rem] text-center"
                   >
                     <l-tailspin
@@ -381,7 +384,7 @@ const ManageControlEnvironments = () => {
                           <Checkbox
                             className="mt-1"
                             checked={selectedIds.includes(
-                              row.original.control_environment_id
+                              row.original.control_environment_id,
                             )} // Use react-table's selection state
                             onCheckedChange={() =>
                               handleRowSelection(row.original)
@@ -390,7 +393,7 @@ const ManageControlEnvironments = () => {
                         ) : (
                           flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )
                         )}
                       </TableCell>

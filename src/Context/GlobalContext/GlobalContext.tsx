@@ -214,7 +214,7 @@ export function GlobalContextProvider({
       }
     };
     getUser();
-  }, [api, token?.user_id]);
+  }, [api]);
 
   //Fetch Users
   useEffect(() => {
@@ -264,9 +264,6 @@ export function GlobalContextProvider({
       return {};
     }
   };
-  // useEffect(() => {
-  //   fetchEnterprise();
-  // }, [combinedUser?.tenant_id]);
 
   //user info
   const fetchCombinedUser = async (

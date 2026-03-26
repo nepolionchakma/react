@@ -21,12 +21,13 @@ const Alerts = () => {
 
   useEffect(() => {
     const fetchAlerts = async () => {
+      if (!token?.user_id || token.user_id === 0) return;
       const alertDataParams = {
         baseURL: url,
         url: `${nodeApi.Alerts}/view?user_id=${token.user_id}&page=${currentPage}&limit=${limit}`,
         setLoading: setIsLoading,
       };
-      console.log(alertDataParams, "alertDataParams");
+
       const res = await loadData(alertDataParams);
       setAlerts(res.result);
       setTotalPage(res.totalPages);
@@ -36,7 +37,7 @@ const Alerts = () => {
 
   const sortedAlerts = alerts.sort(
     (a, b) =>
-      new Date(b.creation_date).getTime() - new Date(a.creation_date).getTime()
+      new Date(b.creation_date).getTime() - new Date(a.creation_date).getTime(),
   );
 
   const handleAcknowledge = async (user_id: number, alert_id: number) => {

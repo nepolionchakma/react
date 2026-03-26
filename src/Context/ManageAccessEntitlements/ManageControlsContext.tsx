@@ -56,7 +56,7 @@ export const ControlsContextProvider = ({
   const [selectedControl, setSelectedControl] = useState<IControlsTypes[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [stateChange, setStateChange] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
 
   // Controls
   const fetchControls = async () => {
@@ -88,8 +88,13 @@ export const ControlsContextProvider = ({
         accessToken: token.access_token,
         // isToast: true,
       });
-      setTotalPages(res.pages);
-      return res.result ?? [];
+
+      if (res.result) {
+        setTotalPages(res.pages);
+        return res.result ?? [];
+      } else {
+        setTotalPages(1);
+      }
     } catch (error) {
       console.log(error);
     } finally {
@@ -109,8 +114,12 @@ export const ControlsContextProvider = ({
         accessToken: token.access_token,
         // isToast: true,
       });
-      setTotalPages(res.pages);
-      return res.items ?? [];
+      if (res.result) {
+        setTotalPages(res.pages);
+        return res.result ?? [];
+      } else {
+        setTotalPages(1);
+      }
     } catch (error) {
       console.log(error);
     } finally {

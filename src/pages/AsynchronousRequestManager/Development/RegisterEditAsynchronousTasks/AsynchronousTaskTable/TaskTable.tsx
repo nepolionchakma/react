@@ -52,7 +52,7 @@ export function TaskTable() {
     setIsLoading,
     changeState,
   } = useARMContext();
-  const { isOpenModal, setIsOpenModal } = useGlobalContext();
+  const { isOpenModal, setIsOpenModal, token } = useGlobalContext();
   const [page, setPage] = React.useState(1);
   const [limit, setLimit] = React.useState(8);
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
@@ -68,6 +68,7 @@ export function TaskTable() {
   };
   React.useEffect(() => {
     const fetchData = async () => {
+      if (!token?.access_token) return;
       try {
         if (!query.isEmpty) {
           const res = await getSearchAsyncTasksLazyLoading(
@@ -101,7 +102,7 @@ export function TaskTable() {
     }, 1000);
 
     return () => clearTimeout(delayDebounce); // Cleanup timeout
-  }, [query, page, changeState, limit]); // Run on query and page change
+  }, [query, page, changeState, limit, token?.access_token]); // Run on query and page change
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
