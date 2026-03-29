@@ -155,22 +155,29 @@ const Home = () => {
   const [isRefreshData, setIsRefreshData] = useState(false);
   const fetchDashboardData = useCallback(
     async (isManualRefresh: boolean = false) => {
-      const alertDataParams = {
-        baseURL: FLASK_URL,
-        url: `${flaskApi.Home}`,
-        setLoading: isManualRefresh ? setIsRefreshData : setIsLoading,
-        accessToken: token?.access_token || "",
-      };
+      try {
+        const alertDataParams = {
+          baseURL: FLASK_URL,
+          url: `${flaskApi.Home}`,
+          setLoading: isManualRefresh ? setIsRefreshData : setIsLoading,
+          accessToken: token?.access_token || "",
+        };
 
-      const res = await loadData(alertDataParams);
-      setData(res);
-      setLastUpdated(new Date());
+        const res = await loadData(alertDataParams);
+
+        setData(res);
+        setLastUpdated(new Date());
+      } catch (error) {
+        setData(null);
+      }
     },
     [token?.access_token],
   );
 
   useEffect(() => {
-    fetchDashboardData(false);
+    if (token?.access_token) {
+      fetchDashboardData(false);
+    }
 
     // Auto-refresh every 30 seconds
     // const interval = setInterval(fetchDashboardData, 30000);
@@ -240,13 +247,13 @@ const Home = () => {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard title="Total Async Tasks" value={data.async_tasks.total} />
-        <StatCard title="Active Tasks" value={data.async_tasks.active} />
+        <StatCard title="Total Async Tasks" value={data?.async_tasks?.total} />
+        <StatCard title="Active Tasks" value={data?.async_tasks?.active} />
         <StatCard
           title="Total Scheduled Tasks"
-          value={data.scheduled_tasks.total}
+          value={data?.scheduled_tasks?.total}
         />
-        <StatCard title="Total Users" value={data.users.total} />
+        <StatCard title="Total Users" value={data?.users?.total} />
       </div>
 
       {/* Dynamic Sections */}

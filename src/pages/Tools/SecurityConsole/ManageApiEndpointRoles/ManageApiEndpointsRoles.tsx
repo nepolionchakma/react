@@ -132,6 +132,8 @@ const ManageApiEndpointsRoles = () => {
       if (res) {
         setData(res.result);
         setTotalPage(res.pages);
+      } else {
+        setTotalPage(1);
       }
       table.toggleAllRowsSelected(false);
     };
@@ -363,6 +365,7 @@ const ManageApiEndpointsRoles = () => {
                             )}
                         {header.id === "select" && (
                           <Checkbox
+                            disabled={!data?.length}
                             checked={isSelectAll}
                             onClick={handleSelectAll}
                             aria-label="Select all"
@@ -393,7 +396,7 @@ const ManageApiEndpointsRoles = () => {
                 <TableRow>
                   <TableCell
                     colSpan={table.getAllColumns()?.length}
-                    className="h-24 text-center"
+                    className="h-[16rem] text-center"
                   >
                     <l-tailspin
                       size="40"
@@ -450,7 +453,7 @@ const ManageApiEndpointsRoles = () => {
                 <TableRow>
                   <TableCell
                     colSpan={table.getAllColumns()?.length}
-                    className="h-24 text-center"
+                    className="h-[16rem] text-center"
                   >
                     No results.
                   </TableCell>

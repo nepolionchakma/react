@@ -76,8 +76,6 @@ export function TenancyDataTable({
   const [rowSelection, setRowSelection] = React.useState({});
   const [colSizing, setColSizing] = React.useState<ColumnSizingState>({});
 
-  console.log(selectedTenancy);
-
   // React.useEffect(() => {
   //   if (selectedTenancyRows.length !== data.length || data.length === 0) {
   //     setIsSelectAll(false);
@@ -157,8 +155,12 @@ export function TenancyDataTable({
 
     const fetch = async () => {
       const res = await loadData(tenancyDataParams);
-      setData(res.items);
-      setTotalPage(res.pages);
+      if (res.result) {
+        setData(res.items);
+        setTotalPage(res.pages);
+      } else {
+        setTotalPage(1);
+      }
     };
     fetch();
   }, [api, page, stateChanged, token.access_token, tenancyLimit]);

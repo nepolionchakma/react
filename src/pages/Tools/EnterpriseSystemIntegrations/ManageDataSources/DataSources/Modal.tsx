@@ -52,14 +52,14 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
 }) => {
   const { token } = useGlobalContext();
   const [applicationTypes, setApplicationTypes] = useState<IApplicationType[]>(
-    []
+    [],
   );
   const [isLoading, setIsLoading] = useState(false);
   const [isTesting, setIsTesting] = useState<boolean>(false);
   const [versions, setVersions] = useState<string[]>([]);
 
   const mapAdditionalParamsToArray = (
-    params?: Record<string, string | number | boolean>
+    params?: Record<string, string | number | boolean>,
   ) => {
     if (!params) return [];
 
@@ -72,15 +72,16 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
   const getAdditionalParams = () => {
     const params = dataSourceForm.getValues("additional_params");
 
-    const paramsObject = params?.reduce((acc, cur) => {
-      acc[cur.key] = cur.value;
-      return acc;
-    }, {} as Record<string, string>);
+    const paramsObject = params?.reduce(
+      (acc, cur) => {
+        acc[cur.key] = cur.value;
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
 
     return paramsObject;
   };
-
-  console.log(selectedDataSourceItem);
 
   const dataSourceSchema = z.object({
     datasource_name: z
@@ -127,7 +128,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
         z.object({
           key: z.string().min(1, "Key is required"),
           value: z.string().min(1, "Value is required"),
-        })
+        }),
       )
       .optional(),
   });
@@ -202,12 +203,12 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
               response.result.application_type_version ?? "",
             default_datasource: response.result.default_datasource ?? "false",
             last_access_synchronization_date: new Date(
-              response.result.last_access_synchronization_date
+              response.result.last_access_synchronization_date,
             ),
             last_access_synchronization_status:
               response.result.last_access_synchronization_status ?? "COMPLETED",
             last_transaction_synchronization_date: new Date(
-              response.result.last_transaction_synchronization_date
+              response.result.last_transaction_synchronization_date,
             ),
             last_transaction_synchronization_status:
               response.result.last_transaction_synchronization_status ??
@@ -222,7 +223,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
             port: connectorProperties?.port?.toString() ?? "",
             additional_params:
               mapAdditionalParamsToArray(
-                connectorProperties?.additional_params
+                connectorProperties?.additional_params,
               ) ?? [],
           });
 
@@ -265,7 +266,9 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
       };
 
       const res = await loadData(loadParams);
-      setVersions(res.result[0].versions);
+      if (res.result) {
+        setVersions(res.result[0].versions);
+      }
     };
     fetchVersions();
   }, [token.access_token, applicationType]);
@@ -515,7 +518,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
                               checked={field.value === "true"}
                               onChange={(e) => {
                                 field.onChange(
-                                  e.target.checked ? "true" : "false"
+                                  e.target.checked ? "true" : "false",
                                 );
                               }}
                               className="h-4 w-4 mt-0"

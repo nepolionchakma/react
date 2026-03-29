@@ -74,6 +74,15 @@ export function EnterpriseDataTable({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
+  const [userEnterprise, setUserEnterprise] =
+    React.useState<IEnterprisesTypes | null>(null);
+
+  React.useEffect(() => {
+    (async () => {
+      const enterpriseData = await fetchUserEnterprise();
+      setUserEnterprise(enterpriseData);
+    })();
+  }, [fetchUserEnterprise]);
 
   const table = useReactTable({
     data,
@@ -140,9 +149,11 @@ export function EnterpriseDataTable({
 
       const res = await loadData(params);
 
-      if (res) {
+      if (res.result) {
         setData(res.result);
         setTotalPage(res.pages);
+      } else {
+        setTotalPage(1);
       }
     };
     fetch();
@@ -293,13 +304,11 @@ export function EnterpriseDataTable({
                       {cell.column.id === "select" ? (
                         <Checkbox
                           disabled={
-                            enterpriseSetting?.tenant_id !==
-                            row.original.tenant_id
+                            userEnterprise?.tenant_id !== row.original.tenant_id
                           }
                           className="mt-1"
                           checked={
-                            enterpriseSetting?.tenant_id ===
-                            row.original.tenant_id
+                            userEnterprise?.tenant_id === row.original.tenant_id
                           }
                           // onClick={() => handleRowSelection(row.original)}
                         />
@@ -342,8 +351,8 @@ export function EnterpriseDataTable({
 
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
-            {selectedEnterpriseRows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            {selectedEnterpriseRows?.length} of{" "}
+            {table.getFilteredRowModel().rows?.length} row(s) selected.
           </div>
           <Pagination5
             currentPage={page}

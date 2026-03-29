@@ -113,7 +113,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       setLoading: setIsLoading,
       accessToken: token.access_token,
     });
-    if (res.length) {
+    if (res?.length) {
       return res;
     } else {
       return [];
@@ -126,10 +126,11 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       setLoading: setIsLoading,
       accessToken: token.access_token,
     });
-    if (resultLazyLoading.items.length) {
+    if (resultLazyLoading.items?.length) {
       setTotalPage(resultLazyLoading.pages);
       return resultLazyLoading.items;
     } else {
+      setTotalPage(1);
       return [];
     }
   };
@@ -144,10 +145,11 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       setLoading: setIsLoading,
       accessToken: token.access_token,
     });
-    if (resultLazyLoading.items.length) {
+    if (resultLazyLoading?.items?.length) {
       setTotalPage(resultLazyLoading.pages);
       return resultLazyLoading.items;
     } else {
+      setTotalPage(1);
       return [];
     }
   };
@@ -178,6 +180,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     if (res.length) {
       return res;
     } else {
+      setTotalPage(1);
       return [];
     }
   };
@@ -256,10 +259,11 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       accessToken: token.access_token,
     };
     const result = await loadData(params);
-    if (result.items?.length) {
+    if (result?.items?.length) {
       setTotalPage(result.pages);
       return result.items;
     } else {
+      setTotalPage(1);
       return [];
     }
   };
@@ -278,6 +282,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       setTotalPage(resultLazyLoading.pages);
       return resultLazyLoading.items;
     } else {
+      setTotalPage(1);
       return [];
     }
   };
@@ -338,6 +343,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       setTotalPage(result.pages);
       return result.items;
     } else {
+      setTotalPage(1);
       return [];
     }
   };

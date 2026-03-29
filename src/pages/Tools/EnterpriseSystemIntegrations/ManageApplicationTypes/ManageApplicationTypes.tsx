@@ -70,8 +70,13 @@ const ManageApplicationTypes = () => {
       };
 
       const res = await loadData(loadParams);
-      setData(res.result);
-      setTotalPages(res.pages);
+
+      if (res?.result) {
+        setData(res?.result);
+        setTotalPages(res?.pages);
+      } else {
+        setTotalPages(1);
+      }
     };
     const delayDebounce = setTimeout(() => {
       fetchApplicationType();
@@ -81,12 +86,12 @@ const ManageApplicationTypes = () => {
   }, [token.access_token, currentPage, query, limit, state]);
 
   useEffect(() => {
-    if (selectedItems.length !== data.length || data.length === 0) {
+    if (selectedItems?.length !== data?.length || data?.length === 0) {
       setIsSelectAll(false);
     } else {
       setIsSelectAll(true);
     }
-  }, [selectedItems.length, data.length]);
+  }, [selectedItems?.length, data?.length]);
 
   const table = useReactTable({
     data,
@@ -296,6 +301,7 @@ const ManageApplicationTypes = () => {
                           )}
                       {header.id === "select" && (
                         <Checkbox
+                          disabled={!data?.length}
                           checked={isSelectAll}
                           onClick={handleSelectAll}
                           aria-label="Select all"
@@ -393,7 +399,7 @@ const ManageApplicationTypes = () => {
         <Pagination5
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
-          totalPageNumbers={totalPages as number}
+          totalPageNumbers={totalPages}
         />
       </div>
 
