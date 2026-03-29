@@ -70,6 +70,8 @@ import { ForgotPassword } from "@/pages/ForgotPassword/ForgotPassword";
 import MaterializedView from "@/pages/Tools/MaterializedView/MaterializedView";
 import ManageApplicationTypes from "@/pages/Tools/EnterpriseSystemIntegrations/ManageApplicationTypes/ManageApplicationTypes";
 import ManageDataSource from "@/pages/Tools/EnterpriseSystemIntegrations/ManageDataSources/ManageDataSource";
+import ManageApiEndpoints from "@/pages/Tools/SecurityConsole/ManageEndpoints/ManageApiEndpoints";
+import ManageApiEndpointsRoles from "@/pages/Tools/SecurityConsole/ManageApiEndpointRoles/ManageApiEndpointsRoles";
 
 const routes = createBrowserRouter([
   {
@@ -200,6 +202,14 @@ const routes = createBrowserRouter([
               {
                 path: "manage-privileges-and-roles",
                 element: <ManagePriviedgesAndRoles />,
+              },
+              {
+                path: "manage-api-endpoints",
+                element: <ManageApiEndpoints />,
+              },
+              {
+                path: "manage-api-endpoint-roles",
+                element: <ManageApiEndpointsRoles />,
               },
               {
                 path: "new-user-invitation",

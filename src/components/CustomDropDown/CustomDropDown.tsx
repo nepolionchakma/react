@@ -8,7 +8,7 @@ interface IDropDownProps {
 }
 
 export default function CustomDropDown({
-  data,
+  data = [],
   option,
   setOption,
 }: IDropDownProps) {

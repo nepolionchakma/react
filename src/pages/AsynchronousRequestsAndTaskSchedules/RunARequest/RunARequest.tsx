@@ -19,8 +19,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
-import { toast } from "@/components/ui/use-toast";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import {
   Select,
   SelectContent,
@@ -40,9 +38,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import { postData } from "@/Utility/funtion";
 
 const RunARequest = () => {
-  const api = useAxiosPrivate();
+  const { token } = useGlobalContext();
   const { getAsyncTasks, getTaskParametersByTaskName, setChangeState } =
     useARMContext();
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -85,7 +86,7 @@ const RunARequest = () => {
   const FormSchema = z.object({
     task_name: z.string(),
     parameters: z.record(
-      z.union([z.string(), z.number(), z.boolean(), z.date()])
+      z.union([z.string(), z.number(), z.boolean(), z.date()]),
     ),
   });
 
@@ -98,31 +99,21 @@ const RunARequest = () => {
   });
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
-    const PostData = {
-      task_name: data.task_name,
-      parameters: data.parameters,
-      schedule_type: "IMMEDIATE",
+    const params = {
+      baseURL: FLASK_URL,
+      url: flaskApi.CreateTaskSchedule,
+      setLoading: setIsLoading,
+      payload: {
+        task_name: data.task_name,
+        parameters: data.parameters,
+        schedule_type: "IMMEDIATE",
+      },
+      isToast: true,
+      accessToken: token.access_token,
     };
-    try {
-      setIsLoading(true);
-      const response = await api.post(
-        `/asynchronous-requests-and-task-schedules/create-task-schedule`,
-        PostData
-      );
+    const response = await postData(params);
 
-      if (response) {
-        toast({
-          description: `${response.data.message}`,
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to create task schedule.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
+    if (response.status === 201) {
       form.reset();
       setChangeState(Math.random() + 23 * 3000);
     }
@@ -277,8 +268,8 @@ const RunARequest = () => {
                                   val === "true"
                                     ? true
                                     : val === "false"
-                                    ? false
-                                    : val,
+                                      ? false
+                                      : val,
                               }));
                             }}
                           >

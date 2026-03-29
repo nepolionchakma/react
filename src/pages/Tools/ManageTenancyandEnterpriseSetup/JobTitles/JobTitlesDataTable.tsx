@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import columns from "./Columns";
+import { columns as getColumns } from "./Columns";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { IJobTitle, ITenantsTypes } from "@/types/interfaces/users.interface";
 import Pagination5 from "@/components/Pagination/Pagination5";
@@ -60,7 +60,7 @@ export function JobTitlesDataTable({
   setJobTitlesLimit,
 }: IJobTitlesDataProps) {
   const api = useAxiosPrivate();
-  const { token, combinedUser } = useGlobalContext();
+  const { token, combinedUser, users } = useGlobalContext();
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [data, setData] = React.useState<IJobTitle[]>([]);
   const [page, setPage] = React.useState<number>(1);
@@ -79,19 +79,19 @@ export function JobTitlesDataTable({
   const [tenants, setTenants] = React.useState<ITenantsTypes[]>([]);
 
   React.useEffect(() => {
-    if (selectedJobTitlesRows.length !== data.length || data.length === 0) {
+    if (selectedJobTitlesRows?.length !== data?.length || data?.length === 0) {
       setIsSelectAll(false);
     } else {
       setIsSelectAll(true);
     }
 
-    const selected = selectedJobTitlesRows.map((sel) => sel.job_title_id);
+    const selected = selectedJobTitlesRows?.map((sel) => sel.job_title_id);
     setSelectedIds(selected);
-  }, [selectedJobTitlesRows, data.length]);
+  }, [selectedJobTitlesRows, data?.length]);
 
   const table = useReactTable({
     data,
-    columns: React.useMemo(() => columns(tenants), [tenants]),
+    columns: React.useMemo(() => getColumns(users), [users]),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -151,6 +151,7 @@ export function JobTitlesDataTable({
       url: `${flaskApi.JobTitles}?page=${page}&limit=${jobTitlesLimit}&tenant_id=${combinedUser?.tenant_id}`,
       setLoading: setIsLoading,
       accessToken: `${token.access_token}`,
+      isToast: true,
     };
 
     const fetch = async () => {
@@ -252,16 +253,16 @@ export function JobTitlesDataTable({
           }}
         >
           <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
+            {table.getHeaderGroups()?.map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
+                {headerGroup.headers?.map((header) => {
                   return (
                     <TableHead
                       key={header.id}
                       className={`relative border h-9 py-0 px-1 border-slate-400 bg-slate-200`}
                       style={{
-                        width: `${header.getSize()}px`,
-                        maxWidth: header.id === "select" ? "10px" : undefined,
+                        width: `10px`,
+                        // maxWidth: header.id === "select" ? "10px" : undefined,
                       }}
                     >
                       {header.isPlaceholder
@@ -301,7 +302,7 @@ export function JobTitlesDataTable({
             {isLoading ? (
               <TableRow>
                 <TableCell
-                  colSpan={table.getAllColumns().length}
+                  colSpan={table.getAllColumns()?.length}
                   className="h-[16rem] text-center"
                 >
                   <l-tailspin
@@ -313,12 +314,12 @@ export function JobTitlesDataTable({
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
+              table.getRowModel().rows?.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
-                  {row.getVisibleCells().map((cell, index) => (
+                  {row.getVisibleCells()?.map((cell, index) => (
                     <TableCell
                       key={cell.id}
                       className={`border py-0 px-1 ${index === 0 && "w-7"}`}
@@ -348,7 +349,7 @@ export function JobTitlesDataTable({
             ) : isLoading ? (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={table.getAllColumns()?.length}
                   className="h-[16rem] text-center"
                 >
                   <l-tailspin
@@ -362,7 +363,7 @@ export function JobTitlesDataTable({
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={table.getAllColumns()?.length}
                   className="h-[16rem] text-center"
                 >
                   No results.
@@ -372,125 +373,10 @@ export function JobTitlesDataTable({
           </TableBody>
         </Table>
 
-        {/* <Table
-          style={{
-            width: table.getTotalSize(),
-            // width: table.getTotalSize(),
-            minWidth: "100%",
-            // tableLayout: "fixed",
-          }}
-        >
-          <TableHeader>
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  if (header.index === 0) {
-
-                  }
-                  return (
-                    <TableHead
-                      key={header.id}
-                      style={{
-                        // width: header.index === 0 ? 24 : "auto",
-                        width: `${header.getSize()}px`,
-                      }}
-                      className={`relative border border-slate-400 bg-slate-200 p-1 h-9
-                      `}
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                      {header.id === "select" && (
-                        <Checkbox
-                          checked={isSelectAll}
-                          onClick={handleSelectAll}
-                          aria-label="Select all"
-                        />
-                      )}
-                      {header.column.getCanResize() && (
-                        <div
-                          onDoubleClick={() => header.column.resetSize()}
-                          onMouseDown={header.getResizeHandler()}
-                          onTouchStart={header.getResizeHandler()}
-                          className="absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2"
-                          style={{
-                            userSelect: "none",
-                            touchAction: "none",
-                          }}
-                        />
-                      )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-64 text-center"
-                >
-                  <l-tailspin
-                    size="40"
-                    stroke="5"
-                    speed="0.9"
-                    color="black"
-                  ></l-tailspin>
-                </TableCell>
-              </TableRow>
-            ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell
-                      key={cell.id}
-                      className={`border p-1 h-8`}
-                      style={{
-                        // width: index === 0 ? 24 : cell.column.getSize(),
-                        width: cell.column.getSize(),
-                        minWidth: cell.column.columnDef.minSize,
-                      }}
-                    >
-                      {cell.column.id === "select" ? (
-                        <Checkbox
-                          className=""
-                          checked={selectedIds.includes(row.original.tenant_id)}
-                          onClick={() => handleRowSelection(row.original)}
-                        />
-                      ) : (
-                        flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  No results.
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table> */}
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
-            {selectedJobTitlesRows.length} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            {selectedJobTitlesRows?.length} of{" "}
+            {table.getFilteredRowModel().rows?.length} row(s) selected.
           </div>
           <Pagination5
             currentPage={page}

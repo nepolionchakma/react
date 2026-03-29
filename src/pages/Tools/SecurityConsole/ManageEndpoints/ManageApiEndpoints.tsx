@@ -9,17 +9,6 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ChevronDown, FileEdit } from "lucide-react";
-import { tailspin } from "ldrs";
-tailspin.register();
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Table,
   TableBody,
@@ -28,42 +17,59 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { columns } from "./Columns";
-import { IPrivilegeAndRole } from "@/types/interfaces/users.interface";
-import Pagination5 from "@/components/Pagination/Pagination5";
-import CustomModal4 from "@/components/CustomModal/CustomModal4";
-import { Input } from "@/components/ui/input";
-import CustomTooltip from "@/components/Tooltip/Tooltip";
-import ActionButtons from "@/components/ActionButtons/ActionButtons";
-import Rows from "@/components/Rows/Rows";
-import { convertToTitleCase } from "@/Utility/general";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { IAPIEndpoint } from "@/types/interfaces/apiEndpoints.interface";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
-import { loadData } from "@/Utility/funtion";
-import EditPrivilegeAndRole from "./EditPrivilegeAndRole";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import { deleteData, loadData } from "@/Utility/funtion";
+import { Checkbox } from "@/components/ui/checkbox";
+import ActionButtons from "@/components/ActionButtons/ActionButtons";
+import CustomTooltip from "@/components/Tooltip/Tooltip";
+import { ChevronDown, Edit, Plus } from "lucide-react";
+import Alert from "@/components/Alert/Alert";
+import Rows from "@/components/Rows/Rows";
+import {
+  DropdownMenu,
+  DropdownMenuCheckboxItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { convertToTitleCase } from "@/Utility/general";
+import Pagination5 from "@/components/Pagination/Pagination5";
+// import Spinner from "@/components/Spinner/Spinner";
+import Modal from "./Modal";
+import { Input } from "@/components/ui/input";
+import Spinner from "@/components/Spinner/Spinner";
+import { IPrivilege } from "@/types/interfaces/users.interface";
 
-const ManagePriviedgesAndRoles = () => {
-  const { token, combinedUser, grantedPrivlegeIds } = useGlobalContext();
-  const [data, setData] = useState<IPrivilegeAndRole[] | []>([]);
-  const [page, setPage] = useState(1);
-  const [totalPage, setTotalPage] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
+const ManageApiEndpoints = () => {
+  const { token, users } = useGlobalContext();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [query, setQuery] = useState({ isEmpty: true, value: "" });
+  const [data, setData] = useState<IAPIEndpoint[] | []>([]);
   const [limit, setLimit] = useState<number>(8);
-  const [selectedItem, setSelectedItem] = useState<IPrivilegeAndRole | null>(
-    null,
+  const [page, setPage] = useState(1);
+  const [query, setQuery] = useState({ isEmpty: true, value: "" });
+  const [totalPage, setTotalPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const [selectedEndPoints, setSelectedEndPoints] = useState<IAPIEndpoint[]>(
+    [],
   );
-  const [isOpenModal, setIsOpenModal] = useState(false);
-  const [stateChange, setStateChange] = useState(1);
+  const [isSelectAll, setIsSelectAll] = useState(false);
+  const [showModal, setShowModal] = useState<boolean>(false);
+  const [action, setAction] = useState("");
+  const [isDeleteLoading, setIsDeleteLoading] = useState(false);
+  const [reloadController, setReloadController] = useState(1);
+  const [privileges, setPrivileges] = useState<IPrivilege[]>([]);
 
   const table = useReactTable({
     data,
-    columns,
+    columns: useMemo(() => columns(users), [users]),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -85,6 +91,109 @@ const ManagePriviedgesAndRoles = () => {
     },
   });
 
+  const hiddenColumns = [
+    "created_by",
+    "creation_date",
+    "last_updated_by",
+    "last_update_date",
+  ];
+
+  useEffect(() => {
+    table.getAllColumns().forEach((column) => {
+      if (hiddenColumns.includes(column.id)) {
+        column.toggleVisibility(false);
+      }
+    });
+  }, [hiddenColumns, table]);
+
+  useEffect(() => {
+    const apiEndpointsParams = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.APIEndpoints}?api_endpoint=${query.value}&page=${page}&limit=${limit}`,
+      accessToken: `${token.access_token}`,
+      setLoading: setIsLoading,
+    };
+
+    const loadAPIEndpoints = async () => {
+      const res = await loadData(apiEndpointsParams);
+      if (res) {
+        setData(res.result);
+        setTotalPage(res.pages);
+      }
+      table.toggleAllRowsSelected(false);
+    };
+
+    const delayDebounce = setTimeout(() => {
+      loadAPIEndpoints();
+      //   setSelectedItem(null);
+    }, 1000);
+
+    return () => clearTimeout(delayDebounce);
+  }, [limit, page, token.access_token, table, reloadController, query.value]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const privilegesParams = {
+        baseURL: FLASK_URL,
+        url: flaskApi.DefPrivileges,
+        accessToken: token.access_token as string,
+      };
+      const privilegesRes = await loadData(privilegesParams);
+      console.log(privilegesRes);
+      if (privilegesRes) {
+        setPrivileges(privilegesRes.result);
+      }
+    };
+
+    fetchData();
+  }, [token.access_token]);
+
+  useEffect(() => {
+    if (data.length > 0) {
+      if (selectedEndPoints.length !== data.length) {
+        setIsSelectAll(false);
+      } else {
+        setIsSelectAll(true);
+      }
+    }
+    const ids = selectedEndPoints.map((item) => item.api_endpoint_id);
+    setSelectedIds(ids);
+  }, [data.length, selectedEndPoints]);
+
+  //   useEffect(() => {
+  //     const selectedRow = table
+  //       .getSelectedRowModel()
+  //       .rows.map((row) => row.original as IAPIEndpoint);
+  //     setSelectedEndPoints(selectedRow);
+  //   }, [rowSelection, data, table]);
+
+  const handleRowSelection = (rowData: IAPIEndpoint) => {
+    setSelectedEndPoints((prev) => {
+      const endpoint = prev.find(
+        (item) => item.api_endpoint_id === rowData.api_endpoint_id,
+      );
+
+      if (endpoint) {
+        const filtered = prev.filter(
+          (item) => item.api_endpoint_id !== rowData.api_endpoint_id,
+        );
+        return filtered;
+      } else {
+        return [rowData, ...prev];
+      }
+    });
+  };
+
+  const handleSelectAll = () => {
+    if (isSelectAll) {
+      setIsSelectAll(false);
+      setSelectedEndPoints([]);
+    } else {
+      setIsSelectAll(true);
+      setSelectedEndPoints(data);
+    }
+  };
+
   const handleQuery = (e: string) => {
     if (e === "") {
       setQuery({ isEmpty: true, value: e });
@@ -95,97 +204,97 @@ const ManagePriviedgesAndRoles = () => {
     }
   };
 
-  useEffect(() => {
-    const previlegesAndRolesParams = {
+  const handleAddClick = () => {
+    setAction("Add");
+    setShowModal(true);
+  };
+
+  const handleEditClick = () => {
+    setAction("Edit");
+    setShowModal(true);
+  };
+
+  const handleDelete = async () => {
+    const params = {
+      url: flaskApi.APIEndpoints,
       baseURL: FLASK_URL,
-      url: `${flaskApi.DefPrevilegesAndRoles}?user_name=${query.value}&page=${page}&limit=${limit}&tenant_id=${combinedUser?.tenant_id}`,
-      accessToken: `${token.access_token}`,
-      setLoading: setIsLoading,
+      payload: {
+        api_endpoint_ids: selectedIds,
+      },
+      accessToken: token.access_token,
+      isToast: true,
+      setLoading: setIsDeleteLoading,
     };
 
-    const loadPrevilegesAndRolesData = async () => {
-      const res = await loadData(previlegesAndRolesParams);
-      if (res) {
-        setData(res.result);
-        setTotalPage(res.pages);
-      }
-      table.toggleAllRowsSelected(false);
-    };
-
-    const delayDebounce = setTimeout(() => {
-      loadPrevilegesAndRolesData();
-      setSelectedItem(null);
-    }, 1000);
-
-    return () => clearTimeout(delayDebounce);
-  }, [
-    limit,
-    page,
-    token.access_token,
-    table,
-    stateChange,
-    query,
-    combinedUser?.tenant_id,
-  ]);
-
-  const handleRowSelection = (rowSelection: IPrivilegeAndRole) => {
-    setSelectedItem(rowSelection);
+    const res = await deleteData(params);
+    if (res.status === 200) {
+      setReloadController((prev) => prev + 1);
+    }
   };
 
-  // const handleDelete = () => {
-  //   deleteCombinedUser([selectedItem]);
-  //   //table toggle empty
-  //   table.getRowModel().rows.map((row) => row.toggleSelected(false));
-  //   setSelectedItem({} as IUsersInfoTypes);
-  // };
-
-  const handleCloseModal = () => {
-    setIsOpenModal(false);
-  };
   return (
-    <div className="px-3">
-      {isOpenModal && selectedItem && (
-        <CustomModal4 className="w-[770px] ">
-          <EditPrivilegeAndRole
-            selected={selectedItem}
-            setStateChange={setStateChange}
-            handleCloseModal={handleCloseModal}
-          />
-        </CustomModal4>
+    <div>
+      {/* Modal */}
+      {showModal && (
+        <Modal
+          setShowModal={setShowModal}
+          action={action}
+          selectedEndPoints={selectedEndPoints}
+          setReloadController={setReloadController}
+          privileges={privileges}
+        />
       )}
-      {/* top icon and columns*/}
-      <div className="flex items-center justify-between py-2">
-        <div className="flex items-center gap-2">
-          {grantedPrivlegeIds?.includes(11103) && (
-            <ActionButtons>
-              {/* Edit  */}
-              <button disabled={!selectedItem?.user_id}>
-                <CustomTooltip tooltipTitle="Edit">
-                  <FileEdit
-                    className={`${
-                      !selectedItem?.user_id
-                        ? "text-slate-200 cursor-not-allowed"
-                        : "cursor-pointer"
-                    }`}
-                    onClick={() => setIsOpenModal(true)}
-                  />
-                </CustomTooltip>
+      {/* Action Buttons */}
+      <div className="flex items-center justify-between py-4 ">
+        {/* create, edit, delete and search by name  */}
+        <div className="flex gap-3">
+          <ActionButtons>
+            <CustomTooltip tooltipTitle="Add">
+              <Plus onClick={handleAddClick} className=" cursor-pointer" />
+            </CustomTooltip>
+            <CustomTooltip tooltipTitle="Edit">
+              <button disabled={selectedEndPoints.length !== 1}>
+                <Edit
+                  onClick={handleEditClick}
+                  className={`${
+                    selectedEndPoints.length === 1
+                      ? "text-black cursor-pointer"
+                      : "text-slate-200 cursor-not-allowed"
+                  }`}
+                />
               </button>
-            </ActionButtons>
-          )}
-
-          {/* Search  */}
+            </CustomTooltip>
+            <Alert
+              actionName="delete"
+              disabled={selectedEndPoints.length === 0}
+              onContinue={handleDelete} // Main delete function
+              tooltipTitle="Delete"
+            >
+              <span className="flex flex-col items-start gap-1">
+                {isDeleteLoading ? (
+                  <span className="block">
+                    <Spinner size="40" color="black" />
+                  </span>
+                ) : (
+                  selectedEndPoints.map((item, index) => (
+                    <span key={item.api_endpoint_id}>
+                      {index + 1}. {item.api_endpoint}
+                    </span>
+                  ))
+                )}
+              </span>
+            </Alert>
+          </ActionButtons>
           <Input
-            placeholder="Search Username"
+            placeholder="Search API Endpoint"
             value={query.value}
             onChange={(e) => handleQuery(e.target.value)}
-            className="w-[20rem] px-4 py-2"
+            className="w-[20rem] px-4 py-2 "
           />
         </div>
-
+        {/* Rows and Column */}
         <div className="flex items-center gap-2">
           <Rows limit={limit} setLimit={setLimit} />
-          {/* Columns */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
@@ -245,6 +354,13 @@ const ManagePriviedgesAndRoles = () => {
                               header.column.columnDef.header,
                               header.getContext(),
                             )}
+                        {header.id === "select" && (
+                          <Checkbox
+                            checked={isSelectAll}
+                            onClick={handleSelectAll}
+                            aria-label="Select all"
+                          />
+                        )}
                         {header.id !== "select" && (
                           <div
                             {...{
@@ -298,16 +414,18 @@ const ManagePriviedgesAndRoles = () => {
                         {index === 0 ? (
                           <Checkbox
                             className=""
-                            checked={row.getIsSelected()}
+                            checked={selectedIds.includes(
+                              row.original.api_endpoint_id,
+                            )}
                             onCheckedChange={(value) => {
                               if (value) {
                                 // Select only the current row (deselect others)
-                                table.setRowSelection({ [row.id]: true });
+                                // table.setRowSelection({ [row.id]: true });
                                 handleRowSelection(row.original);
                               } else {
                                 // Deselect current row
-                                table.setRowSelection({});
-                                handleRowSelection({} as IPrivilegeAndRole);
+                                // table.setRowSelection({});
+                                handleRowSelection({} as IAPIEndpoint);
                               }
                             }}
                           />
@@ -336,8 +454,7 @@ const ManagePriviedgesAndRoles = () => {
         </div>
         <div className="flex justify-between p-1">
           <div className="flex-1 text-sm text-gray-600">
-            {!selectedItem?.user_id ? 0 : 1} of{" "}
-            {table.getFilteredRowModel().rows.length} row(s) selected.
+            {selectedEndPoints.length} row(s) selected.
           </div>
           <Pagination5
             currentPage={page}
@@ -346,9 +463,8 @@ const ManagePriviedgesAndRoles = () => {
           />
         </div>
       </div>
-      {/* Start Pagination */}
     </div>
   );
 };
 
-export default ManagePriviedgesAndRoles;
+export default ManageApiEndpoints;

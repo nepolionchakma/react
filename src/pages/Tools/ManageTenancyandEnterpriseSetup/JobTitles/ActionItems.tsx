@@ -7,6 +7,7 @@ import Alert from "@/components/Alert/Alert";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import { FLASK_URL } from "@/Api/Api";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 
 interface ActionItemsProps {
   selectedJobTitlesRows: IJobTitle[];
@@ -22,6 +23,7 @@ const ActionItems = ({
   setSelectedJobTitlesRows,
 }: ActionItemsProps) => {
   const api = useAxiosPrivate();
+  const { grantedPrivlegeIds } = useGlobalContext();
 
   const handleDelete = async () => {
     try {
@@ -30,7 +32,7 @@ const ActionItems = ({
           `/job_titles?job_title_id=${jobTitle.job_title_id}`,
           {
             baseURL: FLASK_URL,
-          }
+          },
         );
         if (res) {
           toast({
@@ -49,47 +51,53 @@ const ActionItems = ({
   };
   return (
     <ActionButtons>
-      <CustomTooltip tooltipTitle="Add">
-        <button>
-          <PlusIcon onClick={() => setAction("add")} />
-        </button>
-      </CustomTooltip>
+      {grantedPrivlegeIds?.includes(11102) && (
+        <CustomTooltip tooltipTitle="Add">
+          <button>
+            <PlusIcon onClick={() => setAction("add")} />
+          </button>
+        </CustomTooltip>
+      )}
 
-      <CustomTooltip tooltipTitle="Edit">
-        <button
-          disabled={
-            selectedJobTitlesRows.length > 1 ||
-            selectedJobTitlesRows.length === 0
-          }
-        >
-          <FileEdit
-            className={`${
+      {grantedPrivlegeIds?.includes(11103) && (
+        <CustomTooltip tooltipTitle="Edit">
+          <button
+            disabled={
               selectedJobTitlesRows.length > 1 ||
               selectedJobTitlesRows.length === 0
-                ? "text-slate-200 cursor-not-allowed"
-                : "cursor-pointer"
-            }`}
-            onClick={() => setAction("edit")}
-          />
-        </button>
-      </CustomTooltip>
+            }
+          >
+            <FileEdit
+              className={`${
+                selectedJobTitlesRows.length > 1 ||
+                selectedJobTitlesRows.length === 0
+                  ? "text-slate-200 cursor-not-allowed"
+                  : "cursor-pointer"
+              }`}
+              onClick={() => setAction("edit")}
+            />
+          </button>
+        </CustomTooltip>
+      )}
 
-      <Alert
-        disabled={selectedJobTitlesRows.length === 0}
-        actionName="delete"
-        onContinue={handleDelete}
-        tooltipTitle="Delete"
-      >
-        <>
-          <span className="flex flex-col items-start">
-            {selectedJobTitlesRows.map((item, index) => (
-              <span key={item.job_title_id}>
-                {index + 1}. Job Title Name : {item.job_title_name}
-              </span>
-            ))}
-          </span>
-        </>
-      </Alert>
+      {grantedPrivlegeIds?.includes(11104) && (
+        <Alert
+          disabled={selectedJobTitlesRows.length === 0}
+          actionName="delete"
+          onContinue={handleDelete}
+          tooltipTitle="Delete"
+        >
+          <>
+            <span className="flex flex-col items-start">
+              {selectedJobTitlesRows.map((item, index) => (
+                <span key={item.job_title_id}>
+                  {index + 1}. Job Title Name : {item.job_title_name}
+                </span>
+              ))}
+            </span>
+          </>
+        </Alert>
+      )}
     </ActionButtons>
   );
 };

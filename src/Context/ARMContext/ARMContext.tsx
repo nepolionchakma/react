@@ -21,26 +21,17 @@ interface ARMContext {
   getAsyncTasks: () => Promise<IARMAsynchronousTasksTypes[] | undefined>;
   getAsyncTasksLazyLoading: (
     page: number,
-    limit: number
+    limit: number,
   ) => Promise<IARMAsynchronousTasksTypes[] | undefined>;
   getSearchAsyncTasksLazyLoading: (
     page: number,
     limit: number,
-    userTaskName: string
+    userTaskName: string,
   ) => Promise<IARMAsynchronousTasksTypes[] | undefined>;
   cancelAsyncTasks: (task_name: string) => Promise<void>;
   getManageExecutionMethods: () => Promise<
     IExecutionMethodsTypes[] | undefined
   >;
-  getManageExecutionMethodsLazyLoading: (
-    page: number,
-    limit: number
-  ) => Promise<IExecutionMethodsTypes[] | undefined>;
-  getSearchManageExecutionMethodsLazyLoading: (
-    page: number,
-    limit: number,
-    userExecutionMethodName: string
-  ) => Promise<IExecutionMethodsTypes[] | undefined>;
 
   deleteExecutionMethod: (internal_execution_method: string) => Promise<void>;
 
@@ -55,38 +46,38 @@ interface ARMContext {
     React.SetStateAction<IARMTaskParametersTypes[]>
   >;
   getTaskParametersLazyLoading: (
-    task_name: string
+    task_name: string,
   ) => Promise<IARMTaskParametersTypes[] | undefined>;
   getTaskParametersByTaskName: (
-    task_name: string
+    task_name: string,
   ) => Promise<IARMAsynchronousTasksParametersTypes[] | undefined>;
   deleteTaskParameters: (
     task_name: string,
-    def_param_id: number
+    def_param_id: number,
   ) => Promise<void>;
   changeState: number;
   setChangeState: React.Dispatch<React.SetStateAction<number>>;
   getAsynchronousRequestsAndTaskSchedules: (
     page: number,
-    limit: number
+    limit: number,
   ) => Promise<IAsynchronousRequestsAndTaskSchedulesTypes[] | undefined>;
   getSearchAsynchronousRequestsAndTaskSchedules: (
     page: number,
     limit: number,
-    task_name: string
+    task_name: string,
   ) => Promise<IAsynchronousRequestsAndTaskSchedulesTypes[]>;
   cancelScheduledTask: (
-    selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes
+    selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes,
     // selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
   ) => Promise<void>;
   rescheduleTask: (
-    selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes
+    selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes,
   ) => Promise<void>;
   getViewRequests: (
     page: number,
     limit: number,
     days: number,
-    task_name: string
+    task_name: string,
   ) => Promise<IARMViewRequestsTypes[] | undefined>;
   // getSearchViewRequests: (
   //   page: number,
@@ -145,7 +136,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   const getSearchAsyncTasksLazyLoading = async (
     page: number,
     limit: number,
-    userTaskName: string
+    userTaskName: string,
   ) => {
     const resultLazyLoading = await loadData({
       baseURL: FLASK_URL,
@@ -190,41 +181,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       return [];
     }
   };
-  const getManageExecutionMethodsLazyLoading = async (
-    page: number,
-    limit: number
-  ) => {
-    const res = await loadData({
-      baseURL: FLASK_URL,
-      url: `${flaskApi.ShowExecutionMethods}/${page}/${limit}`,
-      setLoading: setIsLoading,
-      accessToken: token.access_token,
-    });
-    if (res.items.length) {
-      setTotalPage(res.pages);
-      return res.items;
-    } else {
-      return [];
-    }
-  };
-  const getSearchManageExecutionMethodsLazyLoading = async (
-    page: number,
-    limit: number,
-    internal_execution_method: string
-  ) => {
-    const res = await loadData({
-      baseURL: FLASK_URL,
-      url: `${flaskApi.DefAsyncSearchExecutionMethods}/${page}/${limit}?internal_execution_method=${internal_execution_method}`,
-      setLoading: setIsLoading,
-      accessToken: token.access_token,
-    });
-    if (res.items.length) {
-      setTotalPage(res.pages);
-      return res.items;
-    } else {
-      return [];
-    }
-  };
+
   const deleteExecutionMethod = async (internal_execution_method: string) => {
     const res = await deleteData({
       baseURL: FLASK_URL,
@@ -270,7 +227,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   };
   const deleteTaskParameters = async (
     task_name: string,
-    def_param_id: number
+    def_param_id: number,
   ) => {
     const params = {
       baseURL: FLASK_URL,
@@ -290,7 +247,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   // Asynchronous Requests and Task Schedules
   const getAsynchronousRequestsAndTaskSchedules = async (
     page: number,
-    limit: number
+    limit: number,
   ) => {
     const params = {
       baseURL: FLASK_URL,
@@ -299,7 +256,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       accessToken: token.access_token,
     };
     const result = await loadData(params);
-    if (result.items.length) {
+    if (result.items?.length) {
       setTotalPage(result.pages);
       return result.items;
     } else {
@@ -309,7 +266,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   const getSearchAsynchronousRequestsAndTaskSchedules = async (
     page: number,
     limit: number,
-    task_name: string
+    task_name: string,
   ) => {
     const resultLazyLoading = await loadData({
       baseURL: FLASK_URL,
@@ -325,7 +282,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     }
   };
   const cancelScheduledTask = async (
-    selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes
+    selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes,
     // selectedItems: IAsynchronousRequestsAndTaskSchedulesTypes[]
   ) => {
     const res = await putData({
@@ -345,7 +302,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     setChangeState(Math.random() + 23 * 3000);
   };
   const rescheduleTask = async (
-    selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes
+    selectedItem: IAsynchronousRequestsAndTaskSchedulesTypes,
   ) => {
     const res = await putData({
       baseURL: FLASK_URL,
@@ -367,7 +324,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     page: number,
     limit: number,
     days: number,
-    task_name: string
+    task_name: string,
   ) => {
     const params = {
       baseURL: FLASK_URL,
@@ -389,8 +346,6 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     totalPage,
     setTotalPage,
     getManageExecutionMethods,
-    getManageExecutionMethodsLazyLoading,
-    getSearchManageExecutionMethodsLazyLoading,
     deleteExecutionMethod,
     getAsyncTasks,
     getAsyncTasksLazyLoading,

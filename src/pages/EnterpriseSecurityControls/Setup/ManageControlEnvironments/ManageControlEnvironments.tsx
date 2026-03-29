@@ -43,7 +43,7 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { convertToTitleCase } from "@/Utility/general";
 
 const ManageControlEnvironments = () => {
-  const { token } = useGlobalContext();
+  const { token, grantedPrivlegeIds } = useGlobalContext();
   const [controlEnvironments, setControlEnvironments] = useState<
     IManageControlEnvironments[]
   >([]);
@@ -136,7 +136,7 @@ const ManageControlEnvironments = () => {
       }
     }
     const controlEnvironment = controlEnvironments.find(
-      (item) => item.control_environment_id === selectedIds[0]
+      (item) => item.control_environment_id === selectedIds[0],
     );
     setSelectedControlEnvironment(controlEnvironment);
   }, [selectedIds, controlEnvironments]);
@@ -149,7 +149,7 @@ const ManageControlEnvironments = () => {
     } else {
       setIsSelectAll(true);
       const allIds = controlEnvironments.map(
-        (item) => item.control_environment_id
+        (item) => item.control_environment_id,
       );
       setSelectedIds(allIds);
       setSelectedItems(controlEnvironments);
@@ -159,12 +159,12 @@ const ManageControlEnvironments = () => {
   const handleRowSelection = (item: IManageControlEnvironments) => {
     if (selectedIds.includes(item.control_environment_id)) {
       setSelectedIds((prev) =>
-        prev.filter((i) => i !== item.control_environment_id)
+        prev.filter((i) => i !== item.control_environment_id),
       );
       setSelectedItems((prev) =>
         prev.filter(
-          (i) => i.control_environment_id !== item.control_environment_id
-        )
+          (i) => i.control_environment_id !== item.control_environment_id,
+        ),
       );
     } else {
       setSelectedIds((prev) => [...prev, item.control_environment_id]);
@@ -210,31 +210,40 @@ const ManageControlEnvironments = () => {
     <div>
       <div className="flex gap-3 items-center py-2">
         <ActionButtons>
-          <CustomTooltip tooltipTitle="Add">
-            <Plus className="cursor-pointer" onClick={handleAddCllick} />
-          </CustomTooltip>
-          <CustomTooltip tooltipTitle="Edit">
-            {selectedIds.length === 1 ? (
-              <FileEdit className="cursor-pointer" onClick={handleEditCllick} />
-            ) : (
-              <FileEdit className="cursor-not-allowed text-slate-200" />
-            )}
-          </CustomTooltip>
-          <Alert
-            actionName="delete"
-            disabled={selectedIds.length === 0}
-            onContinue={handleDelete}
-            // onClick={() => console.log("clicked")}
-            tooltipTitle="Delete"
-          >
-            <span className="flex flex-col items-start gap-1">
-              {selectedItems.map((item, index) => (
-                <span key={item.control_environment_id}>
-                  {index + 1}. Environment Name: {item.name}
-                </span>
-              ))}
-            </span>
-          </Alert>
+          {grantedPrivlegeIds?.includes(11102) && (
+            <CustomTooltip tooltipTitle="Add">
+              <Plus className="cursor-pointer" onClick={handleAddCllick} />
+            </CustomTooltip>
+          )}
+          {grantedPrivlegeIds?.includes(11103) && (
+            <CustomTooltip tooltipTitle="Edit">
+              {selectedIds.length === 1 ? (
+                <FileEdit
+                  className="cursor-pointer"
+                  onClick={handleEditCllick}
+                />
+              ) : (
+                <FileEdit className="cursor-not-allowed text-slate-200" />
+              )}
+            </CustomTooltip>
+          )}
+          {grantedPrivlegeIds?.includes(11104) && (
+            <Alert
+              actionName="delete"
+              disabled={selectedIds.length === 0}
+              onContinue={handleDelete}
+              // onClick={() => console.log("clicked")}
+              tooltipTitle="Delete"
+            >
+              <span className="flex flex-col items-start gap-1">
+                {selectedItems.map((item, index) => (
+                  <span key={item.control_environment_id}>
+                    {index + 1}. Environment Name: {item.name}
+                  </span>
+                ))}
+              </span>
+            </Alert>
+          )}
         </ActionButtons>
         <SearchInput
           query={query}
@@ -310,7 +319,7 @@ const ManageControlEnvironments = () => {
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
 
                         {header.id === "select" && (
@@ -381,7 +390,7 @@ const ManageControlEnvironments = () => {
                           <Checkbox
                             className="mt-1"
                             checked={selectedIds.includes(
-                              row.original.control_environment_id
+                              row.original.control_environment_id,
                             )} // Use react-table's selection state
                             onCheckedChange={() =>
                               handleRowSelection(row.original)
@@ -390,7 +399,7 @@ const ManageControlEnvironments = () => {
                         ) : (
                           flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )
                         )}
                       </TableCell>

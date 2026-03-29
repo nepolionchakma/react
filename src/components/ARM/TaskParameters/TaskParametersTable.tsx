@@ -49,12 +49,13 @@ export function TaskParametersTable() {
     deleteTaskParameters,
     changeState,
   } = useARMContext();
+  const { grantedPrivlegeIds } = useGlobalContext();
   const [data, setData] = React.useState<IARMTaskParametersTypes[] | []>([]);
   const [isLoading, setIsLoading] = React.useState(false);
   const { isOpenModal, setIsOpenModal } = useGlobalContext();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -74,8 +75,8 @@ export function TaskParametersTable() {
     setSelectedTaskParameters((prev) => {
       const allSelected = data.every((row) =>
         prev.some(
-          (selectedRow) => selectedRow.def_param_id === row.def_param_id
-        )
+          (selectedRow) => selectedRow.def_param_id === row.def_param_id,
+        ),
       );
       if (allSelected) {
         return [];
@@ -190,56 +191,62 @@ export function TaskParametersTable() {
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-2">
           <ActionButtons>
-            <button disabled={!selectedTask?.def_task_id}>
-              <CustomTooltip tooltipTitle="Add">
-                <PlusIcon
-                  className={`${
-                    !selectedTask?.def_task_id
-                      ? "text-slate-200 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}
-                  onClick={() => handleOpenModal("add_task_params")}
-                />
-              </CustomTooltip>
-            </button>
+            {grantedPrivlegeIds?.includes(11102) && (
+              <button disabled={!selectedTask?.def_task_id}>
+                <CustomTooltip tooltipTitle="Add">
+                  <PlusIcon
+                    className={`${
+                      !selectedTask?.def_task_id
+                        ? "text-slate-200 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                    onClick={() => handleOpenModal("add_task_params")}
+                  />
+                </CustomTooltip>
+              </button>
+            )}
 
-            <button
-              disabled={
-                selectedTaskParameters.length > 1 ||
-                selectedTaskParameters.length === 0 ||
-                !selectedTask?.def_task_id
-              }
-            >
-              <CustomTooltip tooltipTitle="Edit">
-                <FileEdit
-                  className={`${
-                    selectedTaskParameters.length > 1 ||
-                    selectedTaskParameters.length === 0
-                      ? "text-slate-200 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}
-                  onClick={() => handleOpenModal("update_task_params")}
-                />
-              </CustomTooltip>
-            </button>
+            {grantedPrivlegeIds?.includes(11103) && (
+              <button
+                disabled={
+                  selectedTaskParameters.length > 1 ||
+                  selectedTaskParameters.length === 0 ||
+                  !selectedTask?.def_task_id
+                }
+              >
+                <CustomTooltip tooltipTitle="Edit">
+                  <FileEdit
+                    className={`${
+                      selectedTaskParameters.length > 1 ||
+                      selectedTaskParameters.length === 0
+                        ? "text-slate-200 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                    onClick={() => handleOpenModal("update_task_params")}
+                  />
+                </CustomTooltip>
+              </button>
+            )}
 
-            <Alert
-              disabled={
-                selectedTaskParameters.length === 0 ||
-                !selectedTask?.def_task_id
-              } // disable condition
-              tooltipTitle="Delete" // tooltip title
-              actionName="delete" // Cancel/Reschedule
-              onContinue={handleDeleteParameters} // funtion
-            >
-              <span className="flex flex-col items-start gap-1">
-                {selectedTaskParameters.map((item, i) => (
-                  <span key={item.def_param_id}>
-                    {i + 1}. Parameter Name : {item.parameter_name}
-                  </span>
-                ))}
-              </span>
-            </Alert>
+            {grantedPrivlegeIds?.includes(11104) && (
+              <Alert
+                disabled={
+                  selectedTaskParameters.length === 0 ||
+                  !selectedTask?.def_task_id
+                } // disable condition
+                tooltipTitle="Delete" // tooltip title
+                actionName="delete" // Cancel/Reschedule
+                onContinue={handleDeleteParameters} // funtion
+              >
+                <span className="flex flex-col items-start gap-1">
+                  {selectedTaskParameters.map((item, i) => (
+                    <span key={item.def_param_id}>
+                      {i + 1}. Parameter Name : {item.parameter_name}
+                    </span>
+                  ))}
+                </span>
+              </Alert>
+            )}
           </ActionButtons>
           <Input
             placeholder="Search Parameter Name"
@@ -326,7 +333,7 @@ export function TaskParametersTable() {
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                         {header.id === "select" && (
                           <Checkbox
@@ -408,7 +415,7 @@ export function TaskParametersTable() {
                         ) : (
                           flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )
                         )}
                       </TableCell>

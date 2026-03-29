@@ -73,7 +73,8 @@
         "subMenus": [
           {
             "name": "Manage Access Models",
-            "path": "/enterprise-security-controls/access-models/manage-access-models"
+            "path": "/enterprise-security-controls/access-models/manage-access-models",
+            "endpoint_id": 1113
           }
         ]
       },
@@ -89,7 +90,8 @@
         "subMenus": [
           {
             "name": "Manage Access Controls",
-            "path": "/enterprise-security-controls/access-controls/manage-access-controls"
+            "path": "/enterprise-security-controls/access-controls/manage-access-controls",
+            "endpoint_id": 1269
           }
         ]
       },
@@ -104,17 +106,20 @@
         "subMenus": [
           {
             "name": "Manage Control Environments",
-            "path": "/enterprise-security-controls/setup/manage-control-environments"
+            "path": "/enterprise-security-controls/setup/manage-control-environments",
+            "endpoint_id": 1273
           }
         ]
       },
       {
         "name": "Manage Access Entitlements",
-        "path": "/enterprise-security-controls/manage-access-entitlements"
+        "path": "/enterprise-security-controls/manage-access-entitlements",
+        "endpoint_id": 1191
       },
       {
         "name": "Manage Global and Local Conditions",
-        "path": "/enterprise-security-controls/manage-global-and-local-conditions"
+        "path": "/enterprise-security-controls/manage-global-and-local-conditions",
+        "endpoint_id": 1101
       }
     ]
   },
@@ -178,11 +183,23 @@
         "subMenus": [
           {
             "name": "Manage Users",
-            "path": "/tools/security-console/manage-users"
+            "path": "/tools/security-console/manage-users",
+            "endpoint_id": 1007
           },
           {
             "name": "Manage Privileges and Roles",
-            "path": "/tools/security-console/manage-privileges-and-roles"
+            "path": "/tools/security-console/manage-privileges-and-roles",
+            "endpoint_id": 1171
+          },
+          {
+            "name": "Manage API Endpoints",
+            "path": "/tools/security-console/manage-api-endpoints",
+            "endpoint_id": 1156
+          },
+          {
+            "name": "Manage API Endpoint Roles",
+            "path": "/tools/security-console/manage-api-endpoint-roles",
+            "endpoint_id": 1160
           },
           {
             "name": "New User Invitation",
@@ -198,7 +215,8 @@
         "subMenus": [
           {
             "name": "Orchestration Studio",
-            "path": "/tools/enterprise-process-modeler/orchestration-studio"
+            "path": "/tools/enterprise-process-modeler/orchestration-studio",
+            "endpoint_id": 1307
           }
         ]
       },
@@ -213,17 +231,20 @@
         "subMenus": [
           {
             "name": "Manage Datasources",
-            "path": "/tools/enterprise-system-integrations/manage-data-sources"
+            "path": "/tools/enterprise-system-integrations/manage-data-sources",
+            "endpoint_id": 1283
           },
           {
             "name": "Manage Application Types",
-            "path": "/tools/enterprise-system-integrations/manage-application-types"
+            "path": "/tools/enterprise-system-integrations/manage-application-types",
+            "endpoint_id": 1294
           }
         ]
       },
       {
         "name": "Manage Tenancy and Enterprise Setup",
-        "path": "/tools/manage-tenancy-and-enterprise-setup"
+        "path": "/tools/manage-tenancy-and-enterprise-setup",
+        "endpoint_id": 1253
       },
       {
         "name": "Mobile App Admin Console",
@@ -231,7 +252,8 @@
       },
       {
         "name": "Materialized View",
-        "path": "/tools/materialized-view"
+        "path": "/tools/materialized-view",
+        "endpoint_id": 1298
       }
     ]
   },
@@ -287,15 +309,18 @@
         "subMenus": [
           {
             "name": "Manage Execution Methods",
-            "path": "/asynchronous-request-manager/development/manage-execution-methods"
+            "path": "/asynchronous-request-manager/development/manage-execution-methods",
+            "endpoint_id": 1214
           },
           {
             "name": "Register/Edit Asynchronous Tasks",
-            "path": "/asynchronous-request-manager/development/register-edit-asynchronous-tasks"
+            "path": "/asynchronous-request-manager/development/register-edit-asynchronous-tasks",
+            "endpoint_id": 1236
           },
           {
             "name": "Manage Task Parameters",
-            "path": "/asynchronous-request-manager/development/manage-task-parameters"
+            "path": "/asynchronous-request-manager/development/manage-task-parameters",
+            "endpoint_id": 1219
           }
         ]
       }
@@ -315,19 +340,23 @@
     "subMenus": [
       {
         "name": "Schedule a Task",
-        "path": "/asynchronous-requests-and-task-schedules/schedule-a-task"
+        "path": "/asynchronous-requests-and-task-schedules/schedule-a-task",
+        "endpoint_id": 1223
       },
       {
         "name": "View/Edit Scheduled Tasks",
-        "path": "/asynchronous-requests-and-task-schedules/view-edit-scheduled-tasks"
+        "path": "/asynchronous-requests-and-task-schedules/view-edit-scheduled-tasks",
+        "endpoint_id": 1225
       },
       {
         "name": "Run a Request",
-        "path": "/asynchronous-requests-and-task-schedules/run-a-request"
+        "path": "/asynchronous-requests-and-task-schedules/run-a-request",
+        "endpoint_id": 1223
       },
       {
         "name": "View Requests",
-        "path": "/asynchronous-requests-and-task-schedules/view-requests"
+        "path": "/asynchronous-requests-and-task-schedules/view-requests",
+        "endpoint_id": 1242
       }
     ]
   }

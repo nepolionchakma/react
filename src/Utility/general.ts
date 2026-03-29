@@ -1,4 +1,10 @@
-import { IJobTitle, ITenantsTypes } from "@/types/interfaces/users.interface";
+import { IAPIEndpoint } from "@/types/interfaces/apiEndpoints.interface";
+import {
+  IJobTitle,
+  IPrivilege,
+  IRole,
+  ITenantsTypes,
+} from "@/types/interfaces/users.interface";
 
 export const toTitleCase = (str: string) => {
   return str
@@ -36,6 +42,46 @@ export const tenantNames = (id: number, data: ITenantsTypes[]) => {
     const name = data.find((item) => item.tenant_id === id);
 
     return name?.tenant_name ?? "";
+  }
+};
+
+export const roleName = (roleId: number | undefined, roles: IRole[]) => {
+  if (!roleId) {
+    return;
+  } else {
+    const role = roles.find((item) => item.role_id === roleId);
+
+    return role?.role_name;
+  }
+};
+
+export const privilegeName = (
+  priviledgeId: number | undefined,
+  privileges: IPrivilege[],
+) => {
+  if (!priviledgeId) {
+    return;
+  } else {
+    const priviledge = privileges.find(
+      (item) => item.privilege_id === priviledgeId,
+    );
+
+    return priviledge?.privilege_name;
+  }
+};
+
+export const endpointName = (
+  endpointId: number | undefined,
+  endpoints: IAPIEndpoint[],
+) => {
+  if (!endpointId) {
+    return;
+  } else {
+    const endpoint = endpoints.find(
+      (item) => item.api_endpoint_id === endpointId,
+    );
+
+    return endpoint?.api_endpoint;
   }
 };
 

@@ -33,16 +33,16 @@ const JobTitleCreateAndEditModal = ({
   const [jobTitleName, setJobTitleName] = useState<string>(
     selectedJobTitlesRows && action === "edit"
       ? selectedJobTitlesRows[0].job_title_name
-      : ""
+      : "",
   );
   const selectedTenantName =
-    tenants.find((t) => t.tenant_id === selectedJobTitlesRows?.[0]?.tenant_id)
+    tenants?.find((t) => t.tenant_id === selectedJobTitlesRows?.[0]?.tenant_id)
       ?.tenant_name || "Select Tenant Name";
 
   const [option, setOption] = useState<string>(
     selectedJobTitlesRows && action === "edit"
       ? selectedTenantName
-      : "Select Tenant Name"
+      : "Select Tenant Name",
   );
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -50,8 +50,8 @@ const JobTitleCreateAndEditModal = ({
     try {
       setIsLoading(true);
 
-      const selectedTenant = tenants.find(
-        (item: ITenantsTypes) => item.tenant_name === option
+      const selectedTenant = tenants?.find(
+        (item: ITenantsTypes) => item.tenant_name === option,
       );
       const selectedTenantId = selectedTenant?.tenant_id;
 
@@ -119,7 +119,7 @@ const JobTitleCreateAndEditModal = ({
           <div className="flex flex-col gap-2">
             <h2>Tenant Name</h2>
             <CustomDropDown
-              data={tenants.map((item: ITenantsTypes) => item.tenant_name)}
+              data={tenants?.map((item: ITenantsTypes) => item.tenant_name)}
               option={option}
               setOption={setOption}
             />

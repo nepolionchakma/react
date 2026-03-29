@@ -99,9 +99,6 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
 export function TaskNameTable() {
   const {
     totalPage,
-    // isLoading,
-    // setIsLoading,
-    // selectedTask,
     setSelectedTask,
     getAsyncTasksLazyLoading,
     setSelectedTaskParameters,
@@ -115,7 +112,7 @@ export function TaskNameTable() {
   // const [selectedRowId, setSelectedRowId] = React.useState<string>("");
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -164,7 +161,7 @@ export function TaskNameTable() {
           const res = await getSearchAsyncTasksLazyLoading(
             page,
             limit,
-            query.value
+            query.value,
           );
           if (res) {
             // setSelectedRowId("");
@@ -277,7 +274,7 @@ export function TaskNameTable() {
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
 
                         {header.id !== "select" && (
@@ -350,7 +347,7 @@ export function TaskNameTable() {
                         ) : (
                           flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )
                         )}
                       </TableCell>
