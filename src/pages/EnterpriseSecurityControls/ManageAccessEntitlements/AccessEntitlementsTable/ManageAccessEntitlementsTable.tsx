@@ -39,6 +39,7 @@ import CustomTooltip from "@/components/Tooltip/Tooltip";
 import Rows from "@/components/Rows/Rows";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import { convertToTitleCase } from "@/Utility/general";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 
 // Main Component
 const ManageAccessEntitlementsTable = () => {
@@ -62,6 +63,7 @@ const ManageAccessEntitlementsTable = () => {
     setAccessEntitlementsLimit,
     // accessPointsData,
   } = useManageAccessEntitlementsContext();
+  const { grantedPrivlegeIds } = useGlobalContext();
 
   // State Management
   const [data, setData] = React.useState<IManageAccessEntitlementsTypes[]>([]);
@@ -71,7 +73,7 @@ const ManageAccessEntitlementsTable = () => {
   // Shadcn Form State
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -110,7 +112,7 @@ const ManageAccessEntitlementsTable = () => {
   React.useEffect(() => {
     if (selectedAccessEntitlements.def_entitlement_id !== 0) {
       fetchAccessPointsByEntitlementId(
-        selectedAccessEntitlements.def_entitlement_id
+        selectedAccessEntitlements.def_entitlement_id,
       );
       setSelectedManageAccessEntitlements(selectedAccessEntitlements);
     } else {
@@ -172,7 +174,7 @@ const ManageAccessEntitlementsTable = () => {
 
   const handleDelete = async () => {
     await deleteManageAccessEntitlement(
-      selectedAccessEntitlements.def_entitlement_id
+      selectedAccessEntitlements.def_entitlement_id,
     );
 
     table.getRowModel().rows.forEach((row) => row.toggleSelected(false));
@@ -219,40 +221,43 @@ const ManageAccessEntitlementsTable = () => {
       <div className="flex gap-3 justify-between items-center py-2">
         <div className="flex gap-3 items-center">
           <ActionButtons>
-            <CustomTooltip tooltipTitle="Add">
-              <span>
-                <Plus
-                  className="cursor-pointer"
-                  onClick={() => {
-                    setEditManageAccessEntitlement(true);
-                    setSelectedManageAccessEntitlements(
-                      {} as IManageAccessEntitlementsTypes
-                    );
-                    setAccessPointsData([]);
-                    setSelectedAccessEntitlements({
-                      def_entitlement_id: 0,
-                      entitlement_name: "",
-                      description: "",
-                      comments: "",
-                      status: "",
-                      effective_date: "",
-                      revison: 0,
-                      revision_date: "",
-                      created_on: "",
-                      last_updated_on: "",
-                      last_updated_by: 0,
-                      created_by: 0,
-                    });
-                    table
-                      .getRowModel()
-                      .rows.forEach((row) => row.toggleSelected(false));
-                    setMangeAccessEntitlementAction("add");
-                  }}
-                />
-              </span>
-            </CustomTooltip>
+            {grantedPrivlegeIds?.includes(11102) && (
+              <CustomTooltip tooltipTitle="Add">
+                <span>
+                  <Plus
+                    className="cursor-pointer"
+                    onClick={() => {
+                      setEditManageAccessEntitlement(true);
+                      setSelectedManageAccessEntitlements(
+                        {} as IManageAccessEntitlementsTypes,
+                      );
+                      setAccessPointsData([]);
+                      setSelectedAccessEntitlements({
+                        def_entitlement_id: 0,
+                        entitlement_name: "",
+                        description: "",
+                        comments: "",
+                        status: "",
+                        effective_date: "",
+                        revison: 0,
+                        revision_date: "",
+                        created_on: "",
+                        last_updated_on: "",
+                        last_updated_by: 0,
+                        created_by: 0,
+                      });
+                      table
+                        .getRowModel()
+                        .rows.forEach((row) => row.toggleSelected(false));
+                      setMangeAccessEntitlementAction("add");
+                    }}
+                  />
+                </span>
+              </CustomTooltip>
+            )}
 
-            {selectedAccessEntitlements.def_entitlement_id !== 0 ? (
+            {grantedPrivlegeIds?.includes(11103) &&
+            selectedAccessEntitlements.def_entitlement_id !== 0 ? (
               <CustomTooltip tooltipTitle="Edit">
                 <span>
                   <FileEdit
@@ -260,7 +265,7 @@ const ManageAccessEntitlementsTable = () => {
                     onClick={() => {
                       setEditManageAccessEntitlement(true);
                       setSelectedManageAccessEntitlements(
-                        selectedAccessEntitlements
+                        selectedAccessEntitlements,
                       );
                       setMangeAccessEntitlementAction("edit");
                       setTable(table);
@@ -276,21 +281,22 @@ const ManageAccessEntitlementsTable = () => {
               </CustomTooltip>
             )}
 
-            <Alert
-              disabled={selectedAccessEntitlements.def_entitlement_id === 0}
-              actionName="delete"
-              onContinue={handleDelete}
-              tooltipTitle="Delete"
-            >
-              <span className="flex flex-col gap-1">
-                <span className="flex flex-col items-start gap-1">
-                  <span>
-                    Entitlement Name:
-                    {` ${selectedAccessEntitlements.entitlement_name}`}
-                  </span>
+            {grantedPrivlegeIds?.includes(11104) && (
+              <Alert
+                disabled={selectedAccessEntitlements.def_entitlement_id === 0}
+                actionName="delete"
+                onContinue={handleDelete}
+                tooltipTitle="Delete"
+              >
+                <span className="flex flex-col gap-1">
+                  <span className="flex flex-col items-start gap-1">
+                    <span>
+                      Entitlement Name:
+                      {` ${selectedAccessEntitlements.entitlement_name}`}
+                    </span>
 
-                  <span>
-                    {/* {accessPointsData && (
+                    <span>
+                      {/* {accessPointsData && (
                       <span>
                         {accessPointsData.map((item, index) => (
                           <span
@@ -302,10 +308,11 @@ const ManageAccessEntitlementsTable = () => {
                         ))}
                       </span>
                     )} */}
+                    </span>
                   </span>
                 </span>
-              </span>
-            </Alert>
+              </Alert>
+            )}
           </ActionButtons>
         </div>
 
@@ -371,7 +378,7 @@ const ManageAccessEntitlementsTable = () => {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                       {/* {header.id === "select" && (
                                <Checkbox
@@ -443,7 +450,7 @@ const ManageAccessEntitlementsTable = () => {
                       ) : (
                         flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )
                       )}
                     </TableCell>

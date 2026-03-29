@@ -44,8 +44,10 @@ import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import Rows from "@/components/Rows/Rows";
 import { convertToTitleCase } from "@/Utility/general";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 
 const SearchResultsTable = () => {
+  const { grantedPrivlegeIds } = useGlobalContext();
   const {
     isLoading,
     selectedAccessModelItem,
@@ -284,67 +286,73 @@ const SearchResultsTable = () => {
         {/* create, edit, delete and search by name  */}
         <div className="flex gap-3">
           <ActionButtons>
-            <CustomTooltip tooltipTitle="Add">
-              <Plus
-                onClick={() => setIsOpenAddModal(true)}
-                className=" cursor-pointer"
-              />
-            </CustomTooltip>
-            <CustomTooltip tooltipTitle="Edit">
-              <Edit
-                onClick={() =>
-                  selectedAccessModelItem.length === 1 &&
-                  setIsOpenEditModal(true)
-                }
-                className={`${
-                  selectedAccessModelItem.length === 1
-                    ? "text-black cursor-pointer"
-                    : "text-slate-200 cursor-not-allowed"
-                }`}
-              />
-            </CustomTooltip>
-            <Alert
-              actionName="delete"
-              disabled={selectedAccessModelItem.length === 0}
-              onContinue={handleDelete} // Main delete function
-              onClick={handleDeleteCalculate} // Delete calculate function
-              tooltipTitle="Delete"
-            >
-              <span className="flex flex-col items-start gap-1">
-                {selectedAccessModelItem.map((modelItem) => (
-                  <span key={modelItem.def_access_model_id}>
-                    Access Model Name : {modelItem.model_name}
-                    <span>
-                      {isDeleteLoading ? (
-                        <span className="block">
-                          <l-tailspin
-                            size="40"
-                            stroke="5"
-                            speed="0.9"
-                            color="black"
-                          ></l-tailspin>
-                        </span>
-                      ) : (
-                        <span className="flex flex-col items-start">
-                          {willBeDelete
-                            .filter(
-                              (item) =>
-                                item.def_access_model_id ===
-                                modelItem.def_access_model_id,
-                            )
-                            .map((item, index) => (
-                              <span key={index}>
-                                {index + 1}. Object - {item.object}, Attribute -{" "}
-                                {item.attribute}
-                              </span>
-                            ))}
-                        </span>
-                      )}
+            {grantedPrivlegeIds?.includes(11102) && (
+              <CustomTooltip tooltipTitle="Add">
+                <Plus
+                  onClick={() => setIsOpenAddModal(true)}
+                  className=" cursor-pointer"
+                />
+              </CustomTooltip>
+            )}
+            {grantedPrivlegeIds?.includes(11103) && (
+              <CustomTooltip tooltipTitle="Edit">
+                <Edit
+                  onClick={() =>
+                    selectedAccessModelItem.length === 1 &&
+                    setIsOpenEditModal(true)
+                  }
+                  className={`${
+                    selectedAccessModelItem.length === 1
+                      ? "text-black cursor-pointer"
+                      : "text-slate-200 cursor-not-allowed"
+                  }`}
+                />
+              </CustomTooltip>
+            )}
+            {grantedPrivlegeIds?.includes(11104) && (
+              <Alert
+                actionName="delete"
+                disabled={selectedAccessModelItem.length === 0}
+                onContinue={handleDelete} // Main delete function
+                onClick={handleDeleteCalculate} // Delete calculate function
+                tooltipTitle="Delete"
+              >
+                <span className="flex flex-col items-start gap-1">
+                  {selectedAccessModelItem.map((modelItem) => (
+                    <span key={modelItem.def_access_model_id}>
+                      Access Model Name : {modelItem.model_name}
+                      <span>
+                        {isDeleteLoading ? (
+                          <span className="block">
+                            <l-tailspin
+                              size="40"
+                              stroke="5"
+                              speed="0.9"
+                              color="black"
+                            ></l-tailspin>
+                          </span>
+                        ) : (
+                          <span className="flex flex-col items-start">
+                            {willBeDelete
+                              .filter(
+                                (item) =>
+                                  item.def_access_model_id ===
+                                  modelItem.def_access_model_id,
+                              )
+                              .map((item, index) => (
+                                <span key={index}>
+                                  {index + 1}. Object - {item.object}, Attribute
+                                  - {item.attribute}
+                                </span>
+                              ))}
+                          </span>
+                        )}
+                      </span>
                     </span>
-                  </span>
-                ))}
-              </span>
-            </Alert>
+                  ))}
+                </span>
+              </Alert>
+            )}
           </ActionButtons>
           <Input
             placeholder="Search Model Name"

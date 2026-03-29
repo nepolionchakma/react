@@ -59,7 +59,7 @@ export function EnterpriseDataTable({
   enterpriseLimit,
   setEnterpriseLimit,
 }: IEnterpriseDataProps) {
-  const { enterpriseSetting, token } = useGlobalContext();
+  const { enterpriseSetting, token, grantedPrivlegeIds } = useGlobalContext();
   const [data, setData] = React.useState<IEnterprisesTypes[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [page, setPage] = React.useState<number>(1);
@@ -69,22 +69,11 @@ export function EnterpriseDataTable({
   const [sorting, setSorting] = React.useState<SortingState>([]);
   // const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-
-  // React.useEffect(() => {
-  //   if (selectedEnterpriseRows.length !== data.length || data.length === 0) {
-  //     setIsSelectAll(false);
-  //   } else {
-  //     setIsSelectAll(true);
-  //   }
-
-  //   const selected = selectedEnterpriseRows.map((sel) => sel.tenant_id);
-  //   setSelectedIds(selected);
-  // }, [selectedEnterpriseRows.length, data.length]);
 
   const table = useReactTable({
     data,
@@ -175,12 +164,14 @@ export function EnterpriseDataTable({
       </>
       {/* Action Items */}
       <div className="flex items-center justify-between py-1">
-        <ActionItems
-          selectedEnterpriseRows={selectedEnterpriseRows}
-          setAction={setAction}
-          setStateChanged={setStateChanged}
-          setSelectedEnterpriseRows={setSelectedEnterpriseRows}
-        />
+        {grantedPrivlegeIds?.includes(11103) && (
+          <ActionItems
+            selectedEnterpriseRows={selectedEnterpriseRows}
+            setAction={setAction}
+            setStateChanged={setStateChanged}
+            setSelectedEnterpriseRows={setSelectedEnterpriseRows}
+          />
+        )}
         <div className="flex items-center gap-2">
           <Rows limit={enterpriseLimit} setLimit={setEnterpriseLimit} />
 
@@ -240,7 +231,7 @@ export function EnterpriseDataTable({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                       {/* {header.id === "select" && (
                         <Checkbox
@@ -315,7 +306,7 @@ export function EnterpriseDataTable({
                       ) : (
                         flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )
                       )}
                     </TableCell>

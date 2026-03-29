@@ -9,6 +9,7 @@ import {
 import { Link, useLocation } from "react-router-dom";
 import menu from "@/Menu/menu.json";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import { useMemo } from "react";
 
 interface subSubMenus {
   name: string;
@@ -32,24 +33,45 @@ export interface MenuData {
 }
 
 const Sidbar = () => {
-  const { open } = useGlobalContext();
+  const { open, grantendEndpoints } = useGlobalContext();
   const location = useLocation();
   const pathname = location.pathname;
 
-  // const toRouteKey = (str: string) =>
-  //   str
-  //     .trim()
-  //     .toLowerCase()
-  //     .replace(/[^a-z0-9\s]/g, "")
-  //     .replace(/\s+/g, "-");
+  const endpointIds = grantendEndpoints?.map((item) => item.api_endpoint_id);
 
-  // const grantedRoutes = [
-  //   "manage-users",
-  //   "manage-privileges-and-roles",
-  //   "new-user-invitation",
-  // ];
+  const hasAccess = (endpoint_id?: number) => {
+    if (!endpoint_id) return true; // allow items without endpoint_id (we'll still validate via children)
+    return endpointIds?.includes(endpoint_id);
+  };
 
-  const menuData = menu as MenuData[];
+  const filterMenus = (menus: any[]): any[] => {
+    return menus
+      .map((menu) => {
+        // If has children → filter them first
+        if (menu.subMenus) {
+          const filteredSubMenus = filterMenus(menu.subMenus);
+
+          // ✅ Only keep parent if it has children after filtering
+          if (filteredSubMenus.length > 0) {
+            return {
+              ...menu,
+              subMenus: filteredSubMenus,
+            };
+          }
+
+          // ❌ No children left → remove parent
+          return null;
+        }
+
+        // Leaf node → check access
+        return hasAccess(menu.endpoint_id) ? menu : null;
+      })
+      .filter(Boolean); // remove nulls
+  };
+
+  const menuData = useMemo(() => {
+    return filterMenus(menu as MenuData[]);
+  }, [endpointIds]);
 
   const getMenuItemStyle = (path: string) => {
     if (pathname === path) {
@@ -60,7 +82,7 @@ const Sidbar = () => {
   };
 
   const getSubMenuStyle = (paths: string[]) => {
-    if (paths.includes(pathname)) {
+    if (paths?.includes(pathname)) {
       return "bg-winter-100 duration-500 rounded-md";
     } else {
       // return "bg-[#E4E4E766]";
@@ -69,7 +91,7 @@ const Sidbar = () => {
   };
 
   const getSubMenuItemStyle = (paths: string[]) => {
-    if (paths.includes(pathname)) {
+    if (paths?.includes(pathname)) {
       return "bg-[#F3F8FF] ";
     } else {
       return "bg-[#F3F8FF]";
@@ -114,7 +136,7 @@ const Sidbar = () => {
           },
         }}
       >
-        {menuData.map((menu) => (
+        {menuData?.map((menu) => (
           <SubMenu
             className={`my-1 ${getSubMenuStyle(menu.paths)}`}
             key={menu.menu}
@@ -140,7 +162,7 @@ const Sidbar = () => {
               },
             }}
           >
-            {menu.subMenus.map((subMenuItem) =>
+            {menu.subMenus?.map((subMenuItem: any) =>
               subMenuItem.subMenus ? (
                 <SubMenu
                   className={`my-1 ${getSubMenuItemStyle(subMenuItem.paths!)}`}
@@ -155,7 +177,7 @@ const Sidbar = () => {
                     },
                   }}
                 >
-                  {subMenuItem.subMenus.map((subItem) => (
+                  {subMenuItem.subMenus?.map((subItem: any) => (
                     // grantedRoutes.includes(toRouteKey(subItem.name)) &&
                     <MenuItem
                       className={`my-1 ${getMenuItemStyle(subItem.path)}`}
@@ -199,7 +221,7 @@ const Sidbar = () => {
                     <>{subMenuItem.name}</>
                   </div>
                 </MenuItem>
-              )
+              ),
             )}
           </SubMenu>
         ))}

@@ -35,6 +35,7 @@ import { loadData, putData } from "@/Utility/funtion";
 import { IMFA } from "@/types/interfaces/mfa.interface";
 import { getUserLocation } from "@/Utility/locationUtils";
 import getUserIP from "@/hooks/useUserIP";
+import { IAPIEndpointRole } from "@/types/interfaces/apiEndpoints.interface";
 
 interface GlobalContextProviderProps {
   children: ReactNode;
@@ -110,6 +111,8 @@ interface GlobalContex {
   setUserIpAddress: Dispatch<SetStateAction<string | null>>;
   userLocation: string | null;
   setUserLocation: Dispatch<SetStateAction<string | null>>;
+  grantendEndpoints: IAPIEndpointRole[];
+  grantedPrivlegeIds: number[];
 }
 
 export const userExample = {
@@ -167,6 +170,10 @@ export function GlobalContextProvider({
   const [mfaResponse, setMfaResponse] = useState<IMFA | undefined>();
   const [userIpAddress, setUserIpAddress] = useState<string | null>(null);
   const [userLocation, setUserLocation] = useState<string | null>(null);
+  const [grantendEndpoints, setGrantendEndpoints] = useState<
+    IAPIEndpointRole[]
+  >([]);
+  const [grantedPrivlegeIds, setGrantedPrivlegeIds] = useState<number[]>([]);
 
   useEffect(() => {
     const storedValue = localStorage.getItem("signonId");
@@ -215,19 +222,33 @@ export function GlobalContextProvider({
     getUser();
   }, [api, token?.user_id]);
 
+  //Fetch Granted Endpoints
+  // useEffect(() => {
+  //   const fetchGrantedEndpoints = async () => {
+  //     const res = await loadData({
+  //       baseURL: FLASK_URL,
+  //       url: `${flaskApi.APIEndpointRoles}?role_id=`,
+  //       setLoading: setIsLoading,
+  //       accessToken: `${token.access_token}`,
+  //     });
+  //   };
+
+  //   fetchGrantedEndpoints();
+  // }, []);
+
   //Fetch Users
   useEffect(() => {
     const fetchUser = async () => {
       try {
         if (token?.user_id === 0) return;
-        console.log(`${flaskApi.Users}?user_id=${token?.user_id}`);
+        // console.log(`${flaskApi.Users}?user_id=${token?.user_id}`);
         const combinedUser = await loadData({
           baseURL: FLASK_URL,
           url: `${flaskApi.Users}?user_id=${token?.user_id}`,
           setLoading: setIsCombinedUserLoading,
           accessToken: `${token.access_token}`,
         });
-        console.log(combinedUser);
+        // console.log(combinedUser);
         setCombinedUser(combinedUser.result);
         if (combinedUser.result) {
           const res = await loadData({
@@ -243,8 +264,41 @@ export function GlobalContextProvider({
             setLoading: setIsLoading,
             accessToken: `${token.access_token}`,
           });
+
           setUsers(users.result);
           setEnterpriseSetting(res.result);
+
+          const grnatedRoles = await loadData({
+            baseURL: FLASK_URL,
+            url: `${flaskApi.DefUserGrantedRoles}?user_id=${combinedUser.result.user_id}`,
+            setLoading: setIsLoading,
+            accessToken: `${token.access_token}`,
+          });
+
+          if (grnatedRoles) {
+            const roles = grnatedRoles.result?.map((item: any) => item.role_id);
+            const endpoints = await loadData({
+              baseURL: FLASK_URL,
+              url: `${flaskApi.APIEndpointRoles}?role_id=${roles}`,
+              setLoading: setIsLoading,
+              accessToken: `${token.access_token}`,
+            });
+
+            setGrantendEndpoints(endpoints.result);
+          }
+
+          const privileges = await loadData({
+            baseURL: FLASK_URL,
+            url: `${flaskApi.DefUserGrantedPrivileges}?user_id=${combinedUser.result.user_id}`,
+            setLoading: setIsLoading,
+            accessToken: `${token.access_token}`,
+          });
+
+          if (privileges) {
+            setGrantedPrivlegeIds(
+              privileges.result?.map((item: any) => item.privilege_id),
+            );
+          }
         }
       } catch (error) {
         console.log(error);
@@ -520,6 +574,8 @@ export function GlobalContextProvider({
         setUserIpAddress,
         userLocation,
         setUserLocation,
+        grantendEndpoints,
+        grantedPrivlegeIds,
       }}
     >
       <SocketContextProvider>

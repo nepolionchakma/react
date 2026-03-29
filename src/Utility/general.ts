@@ -1,3 +1,4 @@
+import { IAPIEndpoint } from "@/types/interfaces/apiEndpoints.interface";
 import {
   IJobTitle,
   IPrivilege,
@@ -66,6 +67,21 @@ export const privilegeName = (
     );
 
     return priviledge?.privilege_name;
+  }
+};
+
+export const endpointName = (
+  endpointId: number | undefined,
+  endpoints: IAPIEndpoint[],
+) => {
+  if (!endpointId) {
+    return;
+  } else {
+    const endpoint = endpoints.find(
+      (item) => item.api_endpoint_id === endpointId,
+    );
+
+    return endpoint?.api_endpoint;
   }
 };
 

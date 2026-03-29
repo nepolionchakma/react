@@ -32,7 +32,6 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import columns from "./Columns";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { IExecutionMethodsTypes } from "@/types/interfaces/ARM.interface";
-import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import ExecutionMethodEdit from "../ExecutionMethodEdit/ExecutionMethodEdit";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
 import Alert from "@/components/Alert/Alert";
@@ -40,22 +39,19 @@ import CustomTooltip from "@/components/Tooltip/Tooltip";
 import Rows from "@/components/Rows/Rows";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import { convertToTitleCase } from "@/Utility/general";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { deleteData, loadData } from "@/Utility/funtion";
 
 export function ManageExecutionMethodsTable() {
-  const {
-    totalPage,
-    getManageExecutionMethodsLazyLoading,
-    getSearchManageExecutionMethodsLazyLoading,
-    deleteExecutionMethod,
-    isLoading,
-    setIsLoading,
-    changeState,
-  } = useARMContext();
-  const { isOpenModal, setIsOpenModal } = useGlobalContext();
+  const { token, grantedPrivlegeIds } = useGlobalContext();
   const [page, setPage] = React.useState(1);
+  const [totalPage, setTotalPage] = React.useState(1);
   const [limit, setLimit] = React.useState<number>(8);
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
   const [data, setData] = React.useState<IExecutionMethodsTypes[] | []>([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [isOpenModal, setIsOpenModal] = React.useState("");
+  const [reloadController, setReloadController] = React.useState(1);
 
   const handleQuery = (e: string) => {
     if (e === "") {
@@ -67,46 +63,9 @@ export function ManageExecutionMethodsTable() {
     }
   };
 
-  React.useEffect(() => {
-    const fetchData = async () => {
-      try {
-        if (!query.isEmpty) {
-          const res = await getSearchManageExecutionMethodsLazyLoading(
-            page,
-            limit,
-            query.value
-          );
-          if (res) {
-            setData(res);
-          }
-        } else {
-          const res = await getManageExecutionMethodsLazyLoading(page, limit);
-          if (res) {
-            setData(res);
-          }
-          // else {
-          //   setPage(page - 1);
-          // }
-        }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        //table toggle false
-        table.toggleAllRowsSelected(false);
-        setSelected([]);
-      }
-    };
-    setIsLoading(true);
-    const delayDebounce = setTimeout(() => {
-      fetchData();
-    }, 1000);
-
-    return () => clearTimeout(delayDebounce);
-  }, [changeState, page, limit, query]);
-
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -163,13 +122,43 @@ export function ManageExecutionMethodsTable() {
     "last_update_date",
     "cancelled_yn",
   ];
+
+  React.useEffect(() => {
+    const params = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefAsyncSearchExecutionMethods}/${page}/${limit}?internal_execution_method=${query.value}`,
+      setLoading: setIsLoading,
+      accessToken: token.access_token,
+    };
+
+    const fetchData = async () => {
+      const res = await loadData(params);
+      console.log(res);
+      if (res) {
+        setData(res.items);
+        setTotalPage(res.pages);
+      }
+      table.toggleAllRowsSelected(false);
+      setSelected([]);
+    };
+
+    const delayDebounce = setTimeout(() => {
+      fetchData();
+      //   setSelectedItem(null);
+    }, 1000);
+
+    return () => clearTimeout(delayDebounce);
+  }, [token.access_token, table, page, limit, query.value, reloadController]);
+
   const handleDelete = async (selected: IExecutionMethodsTypes[]) => {
-    try {
-      selected.forEach(async (method) => {
-        await deleteExecutionMethod(method.internal_execution_method);
-      });
-    } catch (error) {
-      console.log(error);
+    const res = await deleteData({
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DeleteExecutionMethod}/${selected}`,
+      accessToken: token.access_token,
+      isToast: true,
+    });
+    if (res.status === 200) {
+      setReloadController(Math.random() + 23 * 3000);
     }
   };
   React.useEffect(() => {
@@ -185,6 +174,8 @@ export function ManageExecutionMethodsTable() {
       {isOpenModal === "create_execution_methods" ? (
         <CustomModal4 className="w-[770px]">
           <ExecutionMethodEdit
+            setReloadController={setReloadController}
+            isOpenModal={isOpenModal}
             action="Add"
             selected={selected}
             handleCloseModal={handleCloseModal}
@@ -194,6 +185,8 @@ export function ManageExecutionMethodsTable() {
         isOpenModal === "edit_execution_methods" && (
           <CustomModal4 className="w-[770px]">
             <ExecutionMethodEdit
+              setReloadController={setReloadController}
+              isOpenModal={isOpenModal}
               action="Edit"
               selected={selected}
               handleCloseModal={handleCloseModal}
@@ -206,40 +199,46 @@ export function ManageExecutionMethodsTable() {
         <div className="flex items-center gap-2">
           <ActionButtons>
             {/* Add  */}
-            <CustomTooltip tooltipTitle="Add">
-              <PlusIcon
-                className="cursor-pointer"
-                onClick={() => handleOpenModal("create_execution_methods")}
-              />
-            </CustomTooltip>
-            {/* Edit  */}
-            <button disabled={selected.length > 1 || selected.length === 0}>
-              <CustomTooltip tooltipTitle="Edit">
-                <FileEdit
-                  className={`${
-                    selected.length > 1 || selected.length === 0
-                      ? "text-slate-200 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}
-                  onClick={() => handleOpenModal("edit_execution_methods")}
+            {grantedPrivlegeIds?.includes(11102) && (
+              <CustomTooltip tooltipTitle="Add">
+                <PlusIcon
+                  className="cursor-pointer"
+                  onClick={() => handleOpenModal("create_execution_methods")}
                 />
               </CustomTooltip>
-            </button>
+            )}
+            {/* Edit  */}
+            {grantedPrivlegeIds?.includes(1103) && (
+              <button disabled={selected.length > 1 || selected.length === 0}>
+                <CustomTooltip tooltipTitle="Edit">
+                  <FileEdit
+                    className={`${
+                      selected.length > 1 || selected.length === 0
+                        ? "text-slate-200 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                    onClick={() => handleOpenModal("edit_execution_methods")}
+                  />
+                </CustomTooltip>
+              </button>
+            )}
             {/* Delete  */}
-            <Alert
-              disabled={selected.length === 0}
-              tooltipTitle="Delete"
-              actionName="delete"
-              onContinue={() => handleDelete(selected)}
-            >
-              <span className="flex flex-col items-start">
-                {selected.map((row, i) => (
-                  <span key={i} className="flex flex-col">
-                    {i + 1}. Method Name : {row.execution_method}
-                  </span>
-                ))}
-              </span>
-            </Alert>
+            {grantedPrivlegeIds?.includes(11104) && (
+              <Alert
+                disabled={selected.length === 0}
+                tooltipTitle="Delete"
+                actionName="delete"
+                onContinue={() => handleDelete(selected)}
+              >
+                <span className="flex flex-col items-start">
+                  {selected.map((row, i) => (
+                    <span key={i} className="flex flex-col">
+                      {i + 1}. Method Name : {row.execution_method}
+                    </span>
+                  ))}
+                </span>
+              </Alert>
+            )}
           </ActionButtons>
           {/* Search  */}
           <Input
@@ -312,7 +311,7 @@ export function ManageExecutionMethodsTable() {
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
                         {header.id === "select" && (
                           <Checkbox
@@ -397,7 +396,7 @@ export function ManageExecutionMethodsTable() {
                         ) : (
                           flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )
                         )}
                       </TableCell>

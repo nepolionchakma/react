@@ -58,6 +58,7 @@ export function ViewEditScheduledTasksTable() {
     changeState,
     setChangeState,
   } = useARMContext();
+  const { grantedPrivlegeIds } = useGlobalContext();
 
   const [data, setData] = React.useState<
     IAsynchronousRequestsAndTaskSchedulesTypes[] | []
@@ -73,7 +74,7 @@ export function ViewEditScheduledTasksTable() {
   const { isOpenModal, setIsOpenModal } = useGlobalContext();
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -107,7 +108,7 @@ export function ViewEditScheduledTasksTable() {
         const results = await getSearchAsynchronousRequestsAndTaskSchedules(
           page,
           limit,
-          query.value
+          query.value,
         );
 
         if (results) {
@@ -130,7 +131,7 @@ export function ViewEditScheduledTasksTable() {
   }, [changeState, query, page, limit]);
 
   const handleRowSelection = (
-    rowSelection: IAsynchronousRequestsAndTaskSchedulesTypes
+    rowSelection: IAsynchronousRequestsAndTaskSchedulesTypes,
   ) => {
     setSelected((prevSelected) => {
       if (prevSelected?.def_task_sche_id === rowSelection.def_task_sche_id) {
@@ -168,7 +169,7 @@ export function ViewEditScheduledTasksTable() {
       viewParameters,
       setViewParameters,
       clickedRowId,
-      setClickedRowId
+      setClickedRowId,
     ),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -254,37 +255,41 @@ export function ViewEditScheduledTasksTable() {
       <div className="flex items-center justify-between py-2">
         <div className="flex gap-3">
           <ActionButtons>
-            <CustomTooltip tooltipTitle="Edit">
-              <FileEdit
-                className={`${
-                  !selected
-                    ? // selected.length > 1 || selected.length === 0
-                      "text-slate-200 cursor-not-allowed"
-                    : "cursor-pointer"
-                }`}
-                onClick={() =>
-                  selected && handleOpenModal("edit_task_schedule")
+            {grantedPrivlegeIds?.includes(11103) && (
+              <CustomTooltip tooltipTitle="Edit">
+                <FileEdit
+                  className={`${
+                    !selected
+                      ? // selected.length > 1 || selected.length === 0
+                        "text-slate-200 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                  onClick={() =>
+                    selected && handleOpenModal("edit_task_schedule")
+                  }
+                />
+              </CustomTooltip>
+            )}
+            {grantedPrivlegeIds?.includes(11103) && (
+              <Alert
+                disabled={!selected}
+                actionName={
+                  selected?.cancelled_yn.toLowerCase() === "y"
+                    ? "reschedule"
+                    : "cancel"
                 }
-              />
-            </CustomTooltip>
-            <Alert
-              disabled={!selected}
-              actionName={
-                selected?.cancelled_yn.toLowerCase() === "y"
-                  ? "reschedule"
-                  : "cancel"
-              }
-              tooltipTitle={
-                selected?.cancelled_yn.toLowerCase() === "y"
-                  ? "Reschedule"
-                  : "Cancel"
-              }
-              onContinue={handleCancelOrRechedule}
-            >
-              <span className="flex flex-col items-start">
-                Schedule name : {selected?.user_schedule_name}
-              </span>
-            </Alert>
+                tooltipTitle={
+                  selected?.cancelled_yn.toLowerCase() === "y"
+                    ? "Reschedule"
+                    : "Cancel"
+                }
+                onContinue={handleCancelOrRechedule}
+              >
+                <span className="flex flex-col items-start">
+                  Schedule name : {selected?.user_schedule_name}
+                </span>
+              </Alert>
+            )}
           </ActionButtons>
           <Input
             placeholder="Search Task Name"
@@ -352,7 +357,7 @@ export function ViewEditScheduledTasksTable() {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                       {header.id !== "select" && (
                         <div
@@ -427,7 +432,7 @@ export function ViewEditScheduledTasksTable() {
                           ) : (
                             flexRender(
                               cell.column.columnDef.cell,
-                              cell.getContext()
+                              cell.getContext(),
                             )
                           )}
                         </TableCell>
@@ -446,7 +451,7 @@ export function ViewEditScheduledTasksTable() {
                               <div className="">
                                 {row.original.schedule_type &&
                                   Object.entries(
-                                    row.original.schedule_type
+                                    row.original.schedule_type,
                                   ).map(([key, value]) => (
                                     <span className="capitalize " key={key}>
                                       {value.toLowerCase().replace(/_/g, " ")}
@@ -481,7 +486,7 @@ export function ViewEditScheduledTasksTable() {
                                           )}
                                         </span>
                                       );
-                                    }
+                                    },
                                   )}
                               </div>
                             </div>

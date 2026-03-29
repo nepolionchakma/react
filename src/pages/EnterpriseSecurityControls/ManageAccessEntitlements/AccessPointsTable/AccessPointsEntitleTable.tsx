@@ -39,7 +39,7 @@ import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import { convertToTitleCase } from "@/Utility/general";
 
 const AccessPointsEntitleTable = () => {
-  const { setIsOpenModal } = useGlobalContext();
+  const { setIsOpenModal, grantedPrivlegeIds } = useGlobalContext();
   const {
     isLoadingAccessPoints,
     selectedManageAccessEntitlements,
@@ -130,27 +130,29 @@ const AccessPointsEntitleTable = () => {
           </ActionButtons>
 
           {/* Create Access Point Button */}
-          <ActionButtons>
-            <CustomTooltip tooltipTitle="Add">
-              <Plus
-                className={
-                  selectedManageAccessEntitlements?.def_entitlement_id !==
-                    selectedAccessEntitlements.def_entitlement_id ||
-                  selectedManageAccessEntitlements.def_entitlement_id === 0
-                    ? "cursor-not-allowed text-slate-200"
-                    : "cursor-pointer text-black"
-                }
-                onClick={() => {
-                  selectedManageAccessEntitlements?.def_entitlement_id !==
-                    selectedAccessEntitlements.def_entitlement_id ||
-                  selectedManageAccessEntitlements.def_entitlement_id === 0
-                    ? null
-                    : setIsOpenModal("create_access_point");
-                  setAccessPointStatus("create");
-                }}
-              />
-            </CustomTooltip>
-          </ActionButtons>
+          {grantedPrivlegeIds?.includes(11102) && (
+            <ActionButtons>
+              <CustomTooltip tooltipTitle="Add">
+                <Plus
+                  className={
+                    selectedManageAccessEntitlements?.def_entitlement_id !==
+                      selectedAccessEntitlements.def_entitlement_id ||
+                    selectedManageAccessEntitlements.def_entitlement_id === 0
+                      ? "cursor-not-allowed text-slate-200"
+                      : "cursor-pointer text-black"
+                  }
+                  onClick={() => {
+                    selectedManageAccessEntitlements?.def_entitlement_id !==
+                      selectedAccessEntitlements.def_entitlement_id ||
+                    selectedManageAccessEntitlements.def_entitlement_id === 0
+                      ? null
+                      : setIsOpenModal("create_access_point");
+                    setAccessPointStatus("create");
+                  }}
+                />
+              </CustomTooltip>
+            </ActionButtons>
+          )}
         </div>
 
         {/* Entitlement Name */}
@@ -221,7 +223,7 @@ const AccessPointsEntitleTable = () => {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
 
                       {header.id !== "select" && (
@@ -269,7 +271,7 @@ const AccessPointsEntitleTable = () => {
                     <TableCell key={cell.id} className="border py-0 px-1 h-7">
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}

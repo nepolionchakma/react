@@ -43,7 +43,7 @@ import SearchInput from "@/components/SearchInput/SearchInput";
 import Spinner from "@/components/Spinner/Spinner";
 
 const ManageApplicationTypes = () => {
-  const { token } = useGlobalContext();
+  const { token, grantedPrivlegeIds } = useGlobalContext();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -146,7 +146,7 @@ const ManageApplicationTypes = () => {
   const handleDelete = async () => {
     const payload = {
       def_application_type_ids: selectedItems.map(
-        (item) => item.def_application_type_id
+        (item) => item.def_application_type_id,
       ),
     };
 
@@ -184,40 +184,45 @@ const ManageApplicationTypes = () => {
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-2">
           <ActionButtons>
-            {/* Edit  */}
-            <button>
-              <CustomTooltip tooltipTitle="Add">
-                <Plus className="cursor-pointer" onClick={handleAdd} />
-              </CustomTooltip>
-            </button>
-            <button disabled={selectedItems.length !== 1}>
-              <CustomTooltip tooltipTitle="Edit">
-                <FileEdit
-                  className={`${
-                    selectedItems.length !== 1
-                      ? "text-slate-200 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}
-                  onClick={handleEdit}
-                />
-              </CustomTooltip>
-            </button>
-            <Alert
-              disabled={selectedItems.length === 0}
-              actionName="delete"
-              onContinue={handleDelete}
-              tooltipTitle="Delete"
-            >
-              <>
-                <span className="flex flex-col items-start">
-                  {selectedItems.map((item, index) => (
-                    <span key={item.def_application_type_id}>
-                      {index + 1}. Application Type : {item.application_type}
-                    </span>
-                  ))}
-                </span>
-              </>
-            </Alert>
+            {grantedPrivlegeIds?.includes(11102) && (
+              <button>
+                <CustomTooltip tooltipTitle="Add">
+                  <Plus className="cursor-pointer" onClick={handleAdd} />
+                </CustomTooltip>
+              </button>
+            )}
+            {grantedPrivlegeIds?.includes(11103) && (
+              <button disabled={selectedItems.length !== 1}>
+                <CustomTooltip tooltipTitle="Edit">
+                  <FileEdit
+                    className={`${
+                      selectedItems.length !== 1
+                        ? "text-slate-200 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                    onClick={handleEdit}
+                  />
+                </CustomTooltip>
+              </button>
+            )}
+            {grantedPrivlegeIds?.includes(11104) && (
+              <Alert
+                disabled={selectedItems.length === 0}
+                actionName="delete"
+                onContinue={handleDelete}
+                tooltipTitle="Delete"
+              >
+                <>
+                  <span className="flex flex-col items-start">
+                    {selectedItems.map((item, index) => (
+                      <span key={item.def_application_type_id}>
+                        {index + 1}. Application Type : {item.application_type}
+                      </span>
+                    ))}
+                  </span>
+                </>
+              </Alert>
+            )}
           </ActionButtons>
 
           {/* Search  */}
@@ -287,7 +292,7 @@ const ManageApplicationTypes = () => {
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                       {header.id === "select" && (
                         <Checkbox
@@ -350,7 +355,7 @@ const ManageApplicationTypes = () => {
                       ) : (
                         flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )
                       )}
                     </TableCell>

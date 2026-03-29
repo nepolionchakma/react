@@ -66,7 +66,7 @@ export function UserProfileTable({
   selectedProfile,
   setSelectedProfile,
 }: Props) {
-  const { token } = useGlobalContext();
+  const { token, grantedPrivlegeIds } = useGlobalContext();
   // const {
   //   // fetchCombinedUser, page,
   //   setPage,
@@ -78,7 +78,7 @@ export function UserProfileTable({
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -88,7 +88,7 @@ export function UserProfileTable({
   const data = profileData.sort(
     (a, b) =>
       displayOrder.indexOf(a.profile_type) -
-      displayOrder.indexOf(b.profile_type)
+      displayOrder.indexOf(b.profile_type),
   );
 
   React.useEffect(() => {
@@ -191,52 +191,58 @@ export function UserProfileTable({
         <div className="flex gap-3">
           {" "}
           <ActionButtons>
-            <button disabled={!selectedUser.user_id}>
-              <CustomTooltip tooltipTitle="Add">
-                <PlusIcon
-                  className={`${
-                    !selectedUser.user_id
-                      ? "text-slate-200 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}
-                  onClick={() => handleOpenModal("add_user_profile")}
-                />
-              </CustomTooltip>
-            </button>
-            <button
-              disabled={
-                selectedProfile.length > 1 ||
-                selectedProfile.length === 0 ||
-                !selectedUser.user_id
-              }
-            >
-              <CustomTooltip tooltipTitle="Edit">
-                <FileEdit
-                  className={`${
-                    selectedProfile.length > 1 ||
-                    selectedProfile.length === 0 ||
-                    !selectedUser.user_id
-                      ? "text-slate-200 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}
-                  onClick={() => handleOpenModal("edit_user_profile")}
-                />
-              </CustomTooltip>
-            </button>
-            <Alert
-              disabled={!selectedUser.user_id || selectedProfile.length === 0} // disable condition
-              tooltipTitle="Delete" // tooltip title
-              actionName="delete" // Cancel/Reschedule
-              onContinue={handleDelete} // funtion
-            >
-              <span className="flex flex-col items-start">
-                {selectedProfile.map((item, index) => (
-                  <span key={item.serial_number}>
-                    {index + 1}. {item.profile_type} : {item.profile_id}
-                  </span>
-                ))}
-              </span>
-            </Alert>
+            {grantedPrivlegeIds?.includes(11102) && (
+              <button disabled={!selectedUser.user_id}>
+                <CustomTooltip tooltipTitle="Add">
+                  <PlusIcon
+                    className={`${
+                      !selectedUser.user_id
+                        ? "text-slate-200 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                    onClick={() => handleOpenModal("add_user_profile")}
+                  />
+                </CustomTooltip>
+              </button>
+            )}
+            {grantedPrivlegeIds?.includes(11103) && (
+              <button
+                disabled={
+                  selectedProfile.length > 1 ||
+                  selectedProfile.length === 0 ||
+                  !selectedUser.user_id
+                }
+              >
+                <CustomTooltip tooltipTitle="Edit">
+                  <FileEdit
+                    className={`${
+                      selectedProfile.length > 1 ||
+                      selectedProfile.length === 0 ||
+                      !selectedUser.user_id
+                        ? "text-slate-200 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                    onClick={() => handleOpenModal("edit_user_profile")}
+                  />
+                </CustomTooltip>
+              </button>
+            )}
+            {grantedPrivlegeIds?.includes(11104) && (
+              <Alert
+                disabled={!selectedUser.user_id || selectedProfile.length === 0} // disable condition
+                tooltipTitle="Delete" // tooltip title
+                actionName="delete" // Cancel/Reschedule
+                onContinue={handleDelete} // funtion
+              >
+                <span className="flex flex-col items-start">
+                  {selectedProfile.map((item, index) => (
+                    <span key={item.serial_number}>
+                      {index + 1}. {item.profile_type} : {item.profile_id}
+                    </span>
+                  ))}
+                </span>
+              </Alert>
+            )}
           </ActionButtons>
         </div>
 
@@ -305,7 +311,7 @@ export function UserProfileTable({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                       {/* Example: Checkbox for selecting all rows */}
                       {header.id === "select" && (
@@ -385,7 +391,7 @@ export function UserProfileTable({
                       ) : (
                         flexRender(
                           cell.column.columnDef.cell,
-                          cell.getContext()
+                          cell.getContext(),
                         )
                       )}
                     </TableCell>

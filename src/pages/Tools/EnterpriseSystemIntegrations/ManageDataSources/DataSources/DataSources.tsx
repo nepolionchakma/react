@@ -56,7 +56,7 @@ const DataSources = ({
   setDataSourceLimit,
   setDataSourceName,
 }: Props) => {
-  const { token } = useGlobalContext();
+  const { token, grantedPrivlegeIds } = useGlobalContext();
   const [data, setData] = React.useState<IDataSourceTypes[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [query, setQuery] = React.useState("");
@@ -197,36 +197,41 @@ const DataSources = ({
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-2">
           <ActionButtons>
-            {/* Edit  */}
             <button>
-              <CustomTooltip tooltipTitle="Add">
-                <Plus className="cursor-pointer" onClick={handleAdd} />
-              </CustomTooltip>
+              {grantedPrivlegeIds?.includes(11102) && (
+                <CustomTooltip tooltipTitle="Add">
+                  <Plus className="cursor-pointer" onClick={handleAdd} />
+                </CustomTooltip>
+              )}
             </button>
-            <button disabled={!selectedDataSourceItem && disableEdit}>
-              <CustomTooltip tooltipTitle="Edit">
-                <FileEdit
-                  className={`${
-                    !selectedDataSourceItem
-                      ? "text-slate-200 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}
-                  onClick={handleEdit}
-                />
-              </CustomTooltip>
-            </button>
-            <Alert
-              disabled={!selectedDataSourceItem}
-              actionName="delete"
-              onContinue={handleDelete}
-              tooltipTitle="Delete"
-            >
-              <>
-                <span>
-                  Data Source Name : {selectedDataSourceItem?.datasource_name}
-                </span>
-              </>
-            </Alert>
+            {grantedPrivlegeIds?.includes(11103) && (
+              <button disabled={!selectedDataSourceItem && disableEdit}>
+                <CustomTooltip tooltipTitle="Edit">
+                  <FileEdit
+                    className={`${
+                      !selectedDataSourceItem
+                        ? "text-slate-200 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                    onClick={handleEdit}
+                  />
+                </CustomTooltip>
+              </button>
+            )}
+            {grantedPrivlegeIds?.includes(11104) && (
+              <Alert
+                disabled={!selectedDataSourceItem}
+                actionName="delete"
+                onContinue={handleDelete}
+                tooltipTitle="Delete"
+              >
+                <>
+                  <span>
+                    Data Source Name : {selectedDataSourceItem?.datasource_name}
+                  </span>
+                </>
+              </Alert>
+            )}
           </ActionButtons>
 
           {/* Search  */}
