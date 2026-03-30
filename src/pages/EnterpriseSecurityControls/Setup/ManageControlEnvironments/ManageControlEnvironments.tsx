@@ -114,10 +114,12 @@ const ManageControlEnvironments = () => {
         accessToken: token.access_token,
       };
       const res = await loadData(actionItemsParams);
-      if (res) {
+      if (res.items) {
         setControlEnvironments(res.items);
         setTotalPage(res.pages);
         // return res;
+      } else {
+        setTotalPage(1);
       }
     };
     const delayDebounce = setTimeout(() => {
@@ -128,14 +130,14 @@ const ManageControlEnvironments = () => {
   }, [limit, page, query, token.access_token, state]);
 
   useEffect(() => {
-    if (controlEnvironments.length > 0) {
+    if (controlEnvironments?.length > 0) {
       if (controlEnvironments?.length !== selectedIds.length) {
         setIsSelectAll(false);
       } else {
         setIsSelectAll(true);
       }
     }
-    const controlEnvironment = controlEnvironments.find(
+    const controlEnvironment = controlEnvironments?.find(
       (item) => item.control_environment_id === selectedIds[0],
     );
     setSelectedControlEnvironment(controlEnvironment);
@@ -148,7 +150,7 @@ const ManageControlEnvironments = () => {
       setSelectedItems([]);
     } else {
       setIsSelectAll(true);
-      const allIds = controlEnvironments.map(
+      const allIds = controlEnvironments?.map(
         (item) => item.control_environment_id,
       );
       setSelectedIds(allIds);
@@ -324,6 +326,7 @@ const ManageControlEnvironments = () => {
 
                         {header.id === "select" && (
                           <Checkbox
+                            disabled={!controlEnvironments?.length}
                             checked={isSelectAll}
                             onClick={handleSelectAll}
                             aria-label="Select all"
@@ -354,7 +357,7 @@ const ManageControlEnvironments = () => {
               {isLoading ? (
                 <TableRow>
                   <TableCell
-                    colSpan={columns.length}
+                    colSpan={columns?.length}
                     className="h-[16rem] text-center"
                   >
                     <l-tailspin

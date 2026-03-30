@@ -156,8 +156,12 @@ export function JobTitlesDataTable({
 
     const fetch = async () => {
       const res = await loadData(jobTitlesParams);
-      setData(res.items);
-      setTotalPage(res.pages);
+      if (res.result) {
+        setData(res.items);
+        setTotalPage(res.pages);
+      } else {
+        setTotalPage(1);
+      }
     };
     fetch();
   }, [

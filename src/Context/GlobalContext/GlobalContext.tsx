@@ -105,6 +105,7 @@ interface GlobalContex {
   setEdgeConnectionPosition: Dispatch<SetStateAction<string[]>>;
   enterpriseSetting: IEnterprisesTypes | undefined;
   setEnterpriseSetting: Dispatch<SetStateAction<IEnterprisesTypes | undefined>>;
+  fetchUserEnterprise: () => Promise<IEnterprisesTypes>;
   mfaResponse: IMFA | undefined;
   setMfaResponse: Dispatch<SetStateAction<IMFA | undefined>>;
   userIpAddress: string | null;
@@ -241,14 +242,13 @@ export function GlobalContextProvider({
     const fetchUser = async () => {
       try {
         if (token?.user_id === 0) return;
-        // console.log(`${flaskApi.Users}?user_id=${token?.user_id}`);
+
         const combinedUser = await loadData({
           baseURL: FLASK_URL,
           url: `${flaskApi.Users}?user_id=${token?.user_id}`,
           setLoading: setIsCombinedUserLoading,
           accessToken: `${token.access_token}`,
         });
-        // console.log(combinedUser);
         setCombinedUser(combinedUser.result);
         if (combinedUser.result) {
           const res = await loadData({
@@ -275,7 +275,7 @@ export function GlobalContextProvider({
             accessToken: `${token.access_token}`,
           });
 
-          if (grnatedRoles) {
+          if (grnatedRoles.result) {
             const roles = grnatedRoles.result?.map((item: any) => item.role_id);
             const endpoints = await loadData({
               baseURL: FLASK_URL,
@@ -309,6 +309,22 @@ export function GlobalContextProvider({
 
     fetchUser();
   }, [api, token.access_token, token?.user_id, updateProfileImage]);
+
+  const fetchUserEnterprise = async () => {
+    try {
+      const res = await loadData({
+        baseURL: FLASK_URL,
+        url: `${flaskApi.EnterpriseSetup}?tenant_id=${combinedUser?.tenant_id}`,
+        // setLoading: setIsCombinedUserLoading,
+        accessToken: `${token.access_token}`,
+      });
+
+      return res.result ?? {};
+    } catch (error) {
+      console.log(error, "error log EnterpriseSetup");
+      return {};
+    }
+  };
 
   //user info
   const fetchCombinedUser = async (
@@ -568,6 +584,7 @@ export function GlobalContextProvider({
         setEdgeConnectionPosition,
         enterpriseSetting,
         setEnterpriseSetting,
+        fetchUserEnterprise,
         mfaResponse,
         setMfaResponse,
         userIpAddress,

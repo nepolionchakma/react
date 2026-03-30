@@ -32,6 +32,7 @@ import { columns as getColumns } from "./Columns";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { IARMViewRequestsTypes } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import PopUp from "./PopUp/PopUp";
 import Rows from "@/components/Rows/Rows";
 import Days from "@/components/Days/Days";
@@ -45,6 +46,7 @@ export function ViewRequestTable() {
     isLoading,
     setIsLoading,
   } = useARMContext();
+  const { token } = useGlobalContext();
   const [data, setData] = React.useState<IARMViewRequestsTypes[] | []>([]);
   const [page, setPage] = React.useState(1);
   const [limit, setLimit] = React.useState(8);
@@ -84,6 +86,7 @@ export function ViewRequestTable() {
 
   React.useEffect(() => {
     const fetchData = async () => {
+      if (!token?.access_token) return;
       try {
         const res = await getViewRequests(page, limit, days, query.value);
         if (res) {
@@ -106,7 +109,7 @@ export function ViewRequestTable() {
     }, 1000);
 
     return () => clearTimeout(delayDebounce); // Cleanup timeout
-  }, [query, page, limit, days]); // Run on query and page change
+  }, [query, page, limit, days, token?.access_token]); // Run on query and page change
 
   const table = useReactTable({
     data,

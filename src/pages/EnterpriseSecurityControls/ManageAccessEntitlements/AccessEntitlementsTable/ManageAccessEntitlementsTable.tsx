@@ -102,9 +102,13 @@ const ManageAccessEntitlementsTable = () => {
   React.useEffect(() => {
     (async () => {
       const res = await fetchManageAccessEntitlements();
-      setTotalPage(res.pages);
-      // setCurrentPage(result?.currentPage ?? 1);
-      setData(res.result);
+      if (res.result) {
+        setData(res.result);
+        setTotalPage(res.pages);
+        // setCurrentPage(result?.currentPage ?? 1);
+      } else {
+        setTotalPage(1);
+      }
     })();
   }, [accessEntitlementsPage, accessEntitlementsLimit, save]);
 

@@ -27,7 +27,7 @@ const TenancyCreateAndEditModal = ({
 }: ICustomModalTypes) => {
   const { token } = useGlobalContext();
   const [tenantName, setTenantName] = useState<string>(
-    selectedTenancy && action === "edit" ? selectedTenancy.tenant_name : "",
+    selectedTenancy && action === "edit" ? selectedTenancy?.tenant_name : "",
   );
   const [isLoading, setIsLoading] = useState<boolean>(false);
 
@@ -58,7 +58,7 @@ const TenancyCreateAndEditModal = ({
           isToast: true,
         };
         const res = await putData(putParams);
-        setSelectedTenancy(res.data.result);
+        setSelectedTenancy(res?.data?.result);
       }
     } catch (error) {
       console.log(error);

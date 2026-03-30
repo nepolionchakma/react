@@ -87,9 +87,11 @@ const DataTables = ({
         setLoading: setIsLoading,
       });
 
-      if (response) {
+      if (response.result) {
         setData(response.result);
         setTotalPage(response.pages);
+      } else {
+        setTotalPage(1);
       }
     };
 
@@ -307,7 +309,7 @@ const DataTables = ({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
 
                       {header.id !== "select" && (
@@ -357,7 +359,7 @@ const DataTables = ({
                     >
                       {flexRender(
                         cell.column.columnDef.cell,
-                        cell.getContext()
+                        cell.getContext(),
                       )}
                     </TableCell>
                   ))}
