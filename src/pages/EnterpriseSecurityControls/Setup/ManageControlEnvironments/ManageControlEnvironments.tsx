@@ -43,7 +43,7 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { convertToTitleCase } from "@/Utility/general";
 
 const ManageControlEnvironments = () => {
-  const { token } = useGlobalContext();
+  const { token, grantedPrivlegeIds } = useGlobalContext();
   const [controlEnvironments, setControlEnvironments] = useState<
     IManageControlEnvironments[]
   >([]);
@@ -212,31 +212,40 @@ const ManageControlEnvironments = () => {
     <div>
       <div className="flex gap-3 items-center py-2">
         <ActionButtons>
-          <CustomTooltip tooltipTitle="Add">
-            <Plus className="cursor-pointer" onClick={handleAddCllick} />
-          </CustomTooltip>
-          <CustomTooltip tooltipTitle="Edit">
-            {selectedIds?.length === 1 ? (
-              <FileEdit className="cursor-pointer" onClick={handleEditCllick} />
-            ) : (
-              <FileEdit className="cursor-not-allowed text-slate-200" />
-            )}
-          </CustomTooltip>
-          <Alert
-            actionName="delete"
-            disabled={selectedIds.length === 0}
-            onContinue={handleDelete}
-            // onClick={() => console.log("clicked")}
-            tooltipTitle="Delete"
-          >
-            <span className="flex flex-col items-start gap-1">
-              {selectedItems.map((item, index) => (
-                <span key={item.control_environment_id}>
-                  {index + 1}. Environment Name: {item.name}
-                </span>
-              ))}
-            </span>
-          </Alert>
+          {grantedPrivlegeIds?.includes(11102) && (
+            <CustomTooltip tooltipTitle="Add">
+              <Plus className="cursor-pointer" onClick={handleAddCllick} />
+            </CustomTooltip>
+          )}
+          {grantedPrivlegeIds?.includes(11103) && (
+            <CustomTooltip tooltipTitle="Edit">
+              {selectedIds.length === 1 ? (
+                <FileEdit
+                  className="cursor-pointer"
+                  onClick={handleEditCllick}
+                />
+              ) : (
+                <FileEdit className="cursor-not-allowed text-slate-200" />
+              )}
+            </CustomTooltip>
+          )}
+          {grantedPrivlegeIds?.includes(11104) && (
+            <Alert
+              actionName="delete"
+              disabled={selectedIds.length === 0}
+              onContinue={handleDelete}
+              // onClick={() => console.log("clicked")}
+              tooltipTitle="Delete"
+            >
+              <span className="flex flex-col items-start gap-1">
+                {selectedItems.map((item, index) => (
+                  <span key={item.control_environment_id}>
+                    {index + 1}. Environment Name: {item.name}
+                  </span>
+                ))}
+              </span>
+            </Alert>
+          )}
         </ActionButtons>
         <SearchInput
           query={query}

@@ -216,3 +216,12 @@ export interface IPrivilegeAndRole {
   granted_roles: IRole[];
   granted_privileges: IPrivilege[];
 }
+
+export interface IGrantedPrivlege {
+  user_id: number;
+  privilege_id: number;
+  created_by: number;
+  creation_date: Date;
+  last_updated_by: number;
+  last_update_date: Date;
+}

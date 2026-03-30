@@ -44,7 +44,7 @@ import { loadData } from "@/Utility/funtion";
 import EditPrivilegeAndRole from "./EditPrivilegeAndRole";
 
 const ManagePriviedgesAndRoles = () => {
-  const { token, combinedUser } = useGlobalContext();
+  const { token, combinedUser, grantedPrivlegeIds } = useGlobalContext();
   const [data, setData] = useState<IPrivilegeAndRole[] | []>([]);
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
@@ -94,23 +94,6 @@ const ManagePriviedgesAndRoles = () => {
       setPage(1);
     }
   };
-
-  // /** get tentants */
-  // useEffect(() => {
-  //   const tenantDataParams = {
-  //     baseURL: FLASK_URL,
-  //     url: `${flaskApi.DefTenants}`,
-  //     accessToken: `${token.access_token}`,
-  //   };
-
-  //   const loadTenantData = async () => {
-  //     const res = await loadData(tenantDataParams);
-  //     if (res) {
-  //       setTenants(res.result);
-  //     }
-  //   };
-  //   loadTenantData();
-  // }, [token.access_token]);
 
   useEffect(() => {
     const previlegesAndRolesParams = {
@@ -175,21 +158,23 @@ const ManagePriviedgesAndRoles = () => {
       {/* top icon and columns*/}
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-2">
-          <ActionButtons>
-            {/* Edit  */}
-            <button disabled={!selectedItem?.user_id}>
-              <CustomTooltip tooltipTitle="Edit">
-                <FileEdit
-                  className={`${
-                    !selectedItem?.user_id
-                      ? "text-slate-200 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}
-                  onClick={() => setIsOpenModal(true)}
-                />
-              </CustomTooltip>
-            </button>
-          </ActionButtons>
+          {grantedPrivlegeIds?.includes(11103) && (
+            <ActionButtons>
+              {/* Edit  */}
+              <button disabled={!selectedItem?.user_id}>
+                <CustomTooltip tooltipTitle="Edit">
+                  <FileEdit
+                    className={`${
+                      !selectedItem?.user_id
+                        ? "text-slate-200 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                    onClick={() => setIsOpenModal(true)}
+                  />
+                </CustomTooltip>
+              </button>
+            </ActionButtons>
+          )}
 
           {/* Search  */}
           <Input

@@ -103,7 +103,8 @@ const ShapesProExampleApp = ({
 }: ExampleProps) => {
   const reactFlowWrapper = useRef(null);
   const { screenToFlowPosition } = useReactFlow();
-  const { token, setEdgeConnectionPosition } = useGlobalContext();
+  const { token, setEdgeConnectionPosition, grantedPrivlegeIds } =
+    useGlobalContext();
   const [nodes, setNodes, onNodesChange] = useNodesState<ShapeNode>([]);
   const [edges, setEdges, onEdgesChange] = useEdgesState<Edge>([]);
   const [selectedFlowData, setSelectedFlowData] =
@@ -855,29 +856,31 @@ const ShapesProExampleApp = ({
                   </Tooltip>
                 </TooltipProvider>
                 {/* Add New Flow */}
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div
-                        className={`cursor-pointer p-1 border rounded-full ${
-                          theme === "dark"
-                            ? "bg-[#1e293b] hover:bg-[#415069] border-[#1e293b]"
-                            : "bg-[#abafb5] hover:bg-slate-400 border-[#abafb5]"
-                        }`}
-                      >
-                        <Plus
-                          size={15}
-                          onClick={() => setCreateNewFlow(!createNewFlow)}
-                        />
-                      </div>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Create New Flow</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
+                {grantedPrivlegeIds?.includes(11102) && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <div
+                          className={`cursor-pointer p-1 border rounded-full ${
+                            theme === "dark"
+                              ? "bg-[#1e293b] hover:bg-[#415069] border-[#1e293b]"
+                              : "bg-[#abafb5] hover:bg-slate-400 border-[#abafb5]"
+                          }`}
+                        >
+                          <Plus
+                            size={15}
+                            onClick={() => setCreateNewFlow(!createNewFlow)}
+                          />
+                        </div>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Create New Flow</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
                 {/* Pen Icon */}
-                {selectedFlowData && (
+                {selectedFlowData && grantedPrivlegeIds?.includes(11103) && (
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -904,7 +907,7 @@ const ShapesProExampleApp = ({
                   </TooltipProvider>
                 )}
                 {/* Trash Flow */}
-                {selectedFlowData && (
+                {selectedFlowData && grantedPrivlegeIds?.includes(11104) && (
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
@@ -949,7 +952,8 @@ const ShapesProExampleApp = ({
                 {/* Save Icon */}
                 {nodes.length > 0 &&
                   edges.length > 0 &&
-                  isConnectionCompleted && (
+                  isConnectionCompleted &&
+                  grantedPrivlegeIds?.includes(11103) && (
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>

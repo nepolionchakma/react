@@ -58,6 +58,7 @@ export function ViewEditScheduledTasksTable() {
     changeState,
     setChangeState,
   } = useARMContext();
+  const { grantedPrivlegeIds } = useGlobalContext();
 
   const [data, setData] = React.useState<
     IAsynchronousRequestsAndTaskSchedulesTypes[] | []
@@ -254,37 +255,41 @@ export function ViewEditScheduledTasksTable() {
       <div className="flex items-center justify-between py-2">
         <div className="flex gap-3">
           <ActionButtons>
-            <CustomTooltip tooltipTitle="Edit">
-              <FileEdit
-                className={`${
-                  !selected
-                    ? // selected.length > 1 || selected.length === 0
-                      "text-slate-200 cursor-not-allowed"
-                    : "cursor-pointer"
-                }`}
-                onClick={() =>
-                  selected && handleOpenModal("edit_task_schedule")
+            {grantedPrivlegeIds?.includes(11103) && (
+              <CustomTooltip tooltipTitle="Edit">
+                <FileEdit
+                  className={`${
+                    !selected
+                      ? // selected.length > 1 || selected.length === 0
+                        "text-slate-200 cursor-not-allowed"
+                      : "cursor-pointer"
+                  }`}
+                  onClick={() =>
+                    selected && handleOpenModal("edit_task_schedule")
+                  }
+                />
+              </CustomTooltip>
+            )}
+            {grantedPrivlegeIds?.includes(11103) && (
+              <Alert
+                disabled={!selected}
+                actionName={
+                  selected?.cancelled_yn.toLowerCase() === "y"
+                    ? "reschedule"
+                    : "cancel"
                 }
-              />
-            </CustomTooltip>
-            <Alert
-              disabled={!selected}
-              actionName={
-                selected?.cancelled_yn.toLowerCase() === "y"
-                  ? "reschedule"
-                  : "cancel"
-              }
-              tooltipTitle={
-                selected?.cancelled_yn.toLowerCase() === "y"
-                  ? "Reschedule"
-                  : "Cancel"
-              }
-              onContinue={handleCancelOrRechedule}
-            >
-              <span className="flex flex-col items-start">
-                Schedule name : {selected?.user_schedule_name}
-              </span>
-            </Alert>
+                tooltipTitle={
+                  selected?.cancelled_yn.toLowerCase() === "y"
+                    ? "Reschedule"
+                    : "Cancel"
+                }
+                onContinue={handleCancelOrRechedule}
+              >
+                <span className="flex flex-col items-start">
+                  Schedule name : {selected?.user_schedule_name}
+                </span>
+              </Alert>
+            )}
           </ActionButtons>
           <Input
             placeholder="Search Task Name"

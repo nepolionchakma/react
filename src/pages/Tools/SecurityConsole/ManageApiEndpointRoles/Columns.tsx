@@ -1,13 +1,17 @@
-import { IAPIEndpointRole } from "@/types/interfaces/apiEndpoints.interface";
+import {
+  IAPIEndpoint,
+  IAPIEndpointRole,
+} from "@/types/interfaces/apiEndpoints.interface";
 import { IRole, Users } from "@/types/interfaces/users.interface";
 import { convertDate } from "@/Utility/DateConverter";
-import { roleName } from "@/Utility/general";
+import { endpointName, roleName } from "@/Utility/general";
 import { renderUserName } from "@/Utility/NotificationUtils";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 export const getColumns = (
   users: Users[],
   roles: IRole[],
+  endpoints: IAPIEndpoint[],
 ): ColumnDef<IAPIEndpointRole>[] => [
   {
     id: "select",
@@ -22,10 +26,10 @@ export const getColumns = (
     accessorKey: "api_endpoint_id",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as number;
-      const b = rowB.getValue(columnId) as number;
+      const a = endpointName(rowA.getValue(columnId), endpoints) as string;
+      const b = endpointName(rowB.getValue(columnId), endpoints) as string;
 
-      return a - b;
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
     },
     header: ({ column }) => {
       return (
@@ -33,15 +37,15 @@ export const getColumns = (
           className="min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          API Endpoint Id
+          API Endpoint
           <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
         </div>
       );
     },
 
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">
-        {row.getValue("api_endpoint_id")}
+      <div className="min-w-max">
+        {endpointName(row.getValue("api_endpoint_id"), endpoints)}
       </div>
     ),
   },

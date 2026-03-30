@@ -99,9 +99,6 @@ export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
 export function TaskNameTable() {
   const {
     totalPage,
-    // isLoading,
-    // setIsLoading,
-    // selectedTask,
     setSelectedTask,
     getAsyncTasksLazyLoading,
     setSelectedTaskParameters,

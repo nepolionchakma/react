@@ -57,6 +57,7 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
     combinedUser,
     stateChange,
     token,
+    grantedPrivlegeIds,
   } = useGlobalContext();
   const [data, setData] = React.useState<IUsersInfoTypes[] | []>([]);
   const [page, setPage] = React.useState(1);
@@ -203,37 +204,43 @@ export function UsersTable({ selectedUser, setSelectedUser }: Props) {
         <div className="flex items-center gap-2">
           <ActionButtons>
             {/* Add  */}
-            <CustomTooltip tooltipTitle="Add">
-              <PlusIcon
-                className="cursor-pointer"
-                onClick={() => handleOpenModal("add_user")}
-              />
-            </CustomTooltip>
-            {/* Edit  */}
-            <button disabled={!selectedUser.user_id}>
-              <CustomTooltip tooltipTitle="Edit">
-                <FileEdit
-                  className={`${
-                    !selectedUser.user_id
-                      ? "text-slate-200 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}
-                  onClick={() => handleOpenModal("edit_user")}
+            {grantedPrivlegeIds?.includes(11102) && (
+              <CustomTooltip tooltipTitle="Add">
+                <PlusIcon
+                  className="cursor-pointer"
+                  onClick={() => handleOpenModal("add_user")}
                 />
               </CustomTooltip>
-            </button>
+            )}
+            {/* Edit  */}
+            {grantedPrivlegeIds?.includes(11103) && (
+              <button disabled={!selectedUser.user_id}>
+                <CustomTooltip tooltipTitle="Edit">
+                  <FileEdit
+                    className={`${
+                      !selectedUser.user_id
+                        ? "text-slate-200 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                    onClick={() => handleOpenModal("edit_user")}
+                  />
+                </CustomTooltip>
+              </button>
+            )}
             {/* Delete  */}
-            <Alert
-              disabled={
-                !selectedUser.user_id ||
-                combinedUser?.user_type?.toLocaleLowerCase() !== "system"
-              } // disable condition
-              tooltipTitle="Delete" // tooltip title
-              actionName="delete" // Cancel/Reschedule
-              onContinue={handleDelete} // function
-            >
-              <span>Username : {selectedUser.user_name}</span>
-            </Alert>
+            {grantedPrivlegeIds?.includes(11104) && (
+              <Alert
+                disabled={
+                  !selectedUser.user_id ||
+                  combinedUser?.user_type?.toLocaleLowerCase() !== "system"
+                } // disable condition
+                tooltipTitle="Delete" // tooltip title
+                actionName="delete" // Cancel/Reschedule
+                onContinue={handleDelete} // function
+              >
+                <span>Username : {selectedUser.user_name}</span>
+              </Alert>
+            )}
           </ActionButtons>
 
           {/* Search  */}

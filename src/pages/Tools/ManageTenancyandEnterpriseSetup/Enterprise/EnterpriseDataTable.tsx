@@ -59,7 +59,7 @@ export function EnterpriseDataTable({
   enterpriseLimit,
   setEnterpriseLimit,
 }: IEnterpriseDataProps) {
-  const { fetchUserEnterprise, token } = useGlobalContext();
+  const { enterpriseSetting, token, grantedPrivlegeIds } = useGlobalContext();
   const [data, setData] = React.useState<IEnterprisesTypes[]>([]);
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [page, setPage] = React.useState<number>(1);
@@ -74,26 +74,6 @@ export function EnterpriseDataTable({
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
-  const [userEnterprise, setUserEnterprise] =
-    React.useState<IEnterprisesTypes | null>(null);
-
-  React.useEffect(() => {
-    (async () => {
-      const enterpriseData = await fetchUserEnterprise();
-      setUserEnterprise(enterpriseData);
-    })();
-  }, [fetchUserEnterprise]);
-
-  // React.useEffect(() => {
-  //   if (selectedEnterpriseRows.length !== data.length || data.length === 0) {
-  //     setIsSelectAll(false);
-  //   } else {
-  //     setIsSelectAll(true);
-  //   }
-
-  //   const selected = selectedEnterpriseRows.map((sel) => sel.tenant_id);
-  //   setSelectedIds(selected);
-  // }, [selectedEnterpriseRows.length, data.length]);
 
   const table = useReactTable({
     data,
@@ -186,12 +166,14 @@ export function EnterpriseDataTable({
       </>
       {/* Action Items */}
       <div className="flex items-center justify-between py-1">
-        <ActionItems
-          selectedEnterpriseRows={selectedEnterpriseRows}
-          setAction={setAction}
-          setStateChanged={setStateChanged}
-          setSelectedEnterpriseRows={setSelectedEnterpriseRows}
-        />
+        {grantedPrivlegeIds?.includes(11103) && (
+          <ActionItems
+            selectedEnterpriseRows={selectedEnterpriseRows}
+            setAction={setAction}
+            setStateChanged={setStateChanged}
+            setSelectedEnterpriseRows={setSelectedEnterpriseRows}
+          />
+        )}
         <div className="flex items-center gap-2">
           <Rows limit={enterpriseLimit} setLimit={setEnterpriseLimit} />
 

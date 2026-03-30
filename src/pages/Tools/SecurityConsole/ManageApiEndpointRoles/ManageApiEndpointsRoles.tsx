@@ -38,7 +38,10 @@ import { convertToTitleCase } from "@/Utility/general";
 // import Modal from "./Modal";
 // import { Input } from "@/components/ui/input";
 // import Spinner from "@/components/Spinner/Spinner";
-import { IAPIEndpointRole } from "@/types/interfaces/apiEndpoints.interface";
+import {
+  IAPIEndpoint,
+  IAPIEndpointRole,
+} from "@/types/interfaces/apiEndpoints.interface";
 import { IRole } from "@/types/interfaces/users.interface";
 import { getColumns } from "./Columns";
 import Modal from "./Modal";
@@ -54,6 +57,7 @@ const ManageApiEndpointsRoles = () => {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [data, setData] = useState<IAPIEndpointRole[] | []>([]);
+  const [apiEndpoints, setApiEndpoints] = useState<IAPIEndpoint[] | []>([]);
   const [limit, setLimit] = useState<number>(8);
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
@@ -70,7 +74,10 @@ const ManageApiEndpointsRoles = () => {
   const [roles, setRoles] = useState<IRole[] | []>([]);
   const [query, setQuery] = useState({ isEmpty: true, value: "" });
 
-  const columns = useMemo(() => getColumns(users, roles), [users, roles]);
+  const columns = useMemo(
+    () => getColumns(users, roles, apiEndpoints),
+    [users, roles, apiEndpoints],
+  );
   const table = useReactTable({
     data,
     columns,
@@ -97,6 +104,23 @@ const ManageApiEndpointsRoles = () => {
 
   useEffect(() => {
     const apiEndpointsParams = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.APIEndpoints}`,
+      accessToken: `${token.access_token}`,
+      // setLoading: setIsLoading,
+    };
+
+    const loadAPIEndpoints = async () => {
+      const res = await loadData(apiEndpointsParams);
+      if (res) {
+        setApiEndpoints(res.result);
+      }
+    };
+    loadAPIEndpoints();
+  }, [token.access_token]);
+
+  useEffect(() => {
+    const apiEndpointRolesParams = {
       baseURL: FLASK_URL,
       url: `${flaskApi.APIEndpointRoles}?search_term=${query.value}&page=${page}&limit=${limit}`,
       accessToken: `${token.access_token}`,

@@ -14,7 +14,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
 import { FC } from "react";
-import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { toast } from "@/components/ui/use-toast";
 import { AxiosError } from "axios";
 import { IExecutionMethodsTypes } from "@/types/interfaces/ARM.interface";
@@ -25,15 +24,18 @@ interface ICreateTaskProps {
   action: string;
   selected: IExecutionMethodsTypes[];
   handleCloseModal: () => void;
+  isOpenModal: string;
+  setReloadController: React.Dispatch<React.SetStateAction<number>>;
 }
 const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
   action,
   selected,
   handleCloseModal,
+  isOpenModal,
+  setReloadController,
 }) => {
   const api = useAxiosPrivate();
-  const { isOpenModal } = useGlobalContext();
-  const { setChangeState, isLoading, setIsLoading } = useARMContext();
+  const { isLoading, setIsLoading } = useARMContext();
 
   const FormSchema = z.object(
     isOpenModal === "create_execution_methods"
@@ -47,7 +49,7 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
           execution_method: z.string(),
           executor: z.string(),
           description: z.string(),
-        }
+        },
   );
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -85,7 +87,7 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
         setIsLoading(true);
         const res = await api.post(
           `/arm-tasks/create-execution-method`,
-          postData
+          postData,
         );
 
         if (res) {
@@ -104,7 +106,7 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
       } finally {
         setIsLoading(false);
         reset();
-        setChangeState(Math.random() + 23 * 3000);
+        setReloadController(Math.random() + 23 * 3000);
       }
     };
     const editTask = async () => {
@@ -112,7 +114,7 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
       try {
         const res = await api.put(
           `/arm-tasks/update-execution-method/${selected[0]?.internal_execution_method}`,
-          putData
+          putData,
         );
         if (res) {
           toast({
@@ -130,7 +132,7 @@ const ExecutionMethodEdit: FC<ICreateTaskProps> = ({
       } finally {
         setIsLoading(false);
         reset();
-        setChangeState(Math.random() + 23 * 3000);
+        setReloadController(Math.random() + 23 * 3000);
       }
     };
 

@@ -8,8 +8,10 @@ import {
   ITenantsTypes,
 } from "@/types/interfaces/users.interface";
 import { JobTitlesDataTable } from "./JobTitles/JobTitlesDataTable";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 
 const ManageTenancyandEnterpriseSetup = () => {
+  const { grantendEndpoints } = useGlobalContext();
   // const api = useAxiosPrivate();
   const [tabName, setTabName] = useState<string>("Tenancy");
   const [tenancyLimit, setTenancyLimit] = useState<number>(8);
@@ -26,6 +28,8 @@ const ManageTenancyandEnterpriseSetup = () => {
     IJobTitle[]
   >([]);
 
+  const endpointIds = grantendEndpoints.map((item) => item.api_endpoint_id);
+
   return (
     <div>
       <Tabs defaultValue="tenancy" className="w-full">
@@ -33,18 +37,22 @@ const ManageTenancyandEnterpriseSetup = () => {
           <TabsTrigger value="tenancy" onClick={() => setTabName("Tenancy")}>
             Tenancy
           </TabsTrigger>
-          <TabsTrigger
-            value="enterprise"
-            onClick={() => setTabName("Enterprise")}
-          >
-            Enterprise Setup
-          </TabsTrigger>
-          <TabsTrigger
-            value="job_titles"
-            onClick={() => setTabName("Job Titles")}
-          >
-            Job Titles
-          </TabsTrigger>
+          {endpointIds?.includes(1264) && (
+            <TabsTrigger
+              value="enterprise"
+              onClick={() => setTabName("Enterprise")}
+            >
+              Enterprise Setup
+            </TabsTrigger>
+          )}
+          {endpointIds?.includes(1266) && (
+            <TabsTrigger
+              value="job_titles"
+              onClick={() => setTabName("Job Titles")}
+            >
+              Job Titles
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="tenancy">
@@ -59,28 +67,33 @@ const ManageTenancyandEnterpriseSetup = () => {
           />
         </TabsContent>
 
-        <TabsContent value="enterprise">
-          <EnterpriseDataTable
-            tabName={tabName}
-            action={action}
-            setAction={setAction}
-            selectedEnterpriseRows={selectedEnterpriseRows}
-            setSelectedEnterpriseRows={setSelectedEnterpriseRows}
-            enterpriseLimit={enterpriseLimit}
-            setEnterpriseLimit={setEnterpriseLimit}
-          />
-        </TabsContent>
-        <TabsContent value="job_titles">
-          <JobTitlesDataTable
-            tabName={tabName}
-            action={action}
-            setAction={setAction}
-            selectedJobTitlesRows={selectedJobTitlesRows}
-            setSelectedJobTitlesRows={setSelectedJobTitlesRows}
-            jobTitlesLimit={jobTitlesLimit}
-            setJobTitlesLimit={setJobTitlesLimit}
-          />
-        </TabsContent>
+        {endpointIds?.includes(1264) && (
+          <TabsContent value="enterprise">
+            <EnterpriseDataTable
+              tabName={tabName}
+              action={action}
+              setAction={setAction}
+              selectedEnterpriseRows={selectedEnterpriseRows}
+              setSelectedEnterpriseRows={setSelectedEnterpriseRows}
+              enterpriseLimit={enterpriseLimit}
+              setEnterpriseLimit={setEnterpriseLimit}
+            />
+          </TabsContent>
+        )}
+
+        {endpointIds?.includes(1266) && (
+          <TabsContent value="job_titles">
+            <JobTitlesDataTable
+              tabName={tabName}
+              action={action}
+              setAction={setAction}
+              selectedJobTitlesRows={selectedJobTitlesRows}
+              setSelectedJobTitlesRows={setSelectedJobTitlesRows}
+              jobTitlesLimit={jobTitlesLimit}
+              setJobTitlesLimit={setJobTitlesLimit}
+            />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );

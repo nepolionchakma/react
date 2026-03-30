@@ -49,7 +49,6 @@ const Modal = ({
   console.log(privileges);
 
   const FormSchema = z.object({
-    api_endpoint_id: z.number(),
     api_endpoint: z.string(),
     parameter1: z.string(),
     parameter2: z.string(),
@@ -60,8 +59,6 @@ const Modal = ({
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      api_endpoint_id:
-        action === "Edit" ? selectedEndPoints[0]?.api_endpoint_id : 0,
       api_endpoint: action === "Edit" ? selectedEndPoints[0]?.api_endpoint : "",
       parameter1: action === "Edit" ? selectedEndPoints[0]?.parameter1 : "",
       parameter2: action === "Edit" ? selectedEndPoints[0]?.parameter2 : "",
@@ -82,7 +79,6 @@ const Modal = ({
         url: flaskApi.APIEndpoints,
         setLoading: setIsLoading,
         payload: {
-          api_endpoint_id: Number(data.api_endpoint_id),
           api_endpoint: data.api_endpoint,
           parameter1: data.parameter1,
           parameter2: data.parameter2,
@@ -102,7 +98,7 @@ const Modal = ({
     } else {
       const putParams = {
         baseURL: FLASK_URL,
-        url: `${flaskApi.APIEndpoints}?api_endpoint_id=${data.api_endpoint_id}`,
+        url: `${flaskApi.APIEndpoints}?api_endpoint_id=${selectedEndPoints[0].api_endpoint_id}`,
         setLoading: setIsLoading,
         payload: {
           api_endpoint: data.api_endpoint,
@@ -132,25 +128,7 @@ const Modal = ({
       <div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="grid grid-cols-2 p-4 gap-4 max-h-[70vh] overflow-auto">
-              <FormField
-                control={form.control}
-                name="api_endpoint_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-normal">Endpoint Id</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        type="number"
-                        placeholder="Endpoint Id"
-                        onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-
+            <div className="px-4 mt-4">
               <FormField
                 control={form.control}
                 name="api_endpoint"
@@ -168,7 +146,9 @@ const Modal = ({
                   </FormItem>
                 )}
               />
+            </div>
 
+            <div className="grid grid-cols-2 p-4 gap-4 max-h-[70vh] overflow-auto">
               <FormField
                 control={form.control}
                 name="parameter1"

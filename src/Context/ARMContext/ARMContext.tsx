@@ -32,15 +32,6 @@ interface ARMContext {
   getManageExecutionMethods: () => Promise<
     IExecutionMethodsTypes[] | undefined
   >;
-  getManageExecutionMethodsLazyLoading: (
-    page: number,
-    limit: number,
-  ) => Promise<IExecutionMethodsTypes[] | undefined>;
-  getSearchManageExecutionMethodsLazyLoading: (
-    page: number,
-    limit: number,
-    userExecutionMethodName: string,
-  ) => Promise<IExecutionMethodsTypes[] | undefined>;
 
   deleteExecutionMethod: (internal_execution_method: string) => Promise<void>;
 
@@ -193,43 +184,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       return [];
     }
   };
-  const getManageExecutionMethodsLazyLoading = async (
-    page: number,
-    limit: number,
-  ) => {
-    const res = await loadData({
-      baseURL: FLASK_URL,
-      url: `${flaskApi.ShowExecutionMethods}/${page}/${limit}`,
-      setLoading: setIsLoading,
-      accessToken: token.access_token,
-    });
-    if (res?.items?.length) {
-      setTotalPage(res.pages);
-      return res.items;
-    } else {
-      setTotalPage(1);
-      return [];
-    }
-  };
-  const getSearchManageExecutionMethodsLazyLoading = async (
-    page: number,
-    limit: number,
-    internal_execution_method: string,
-  ) => {
-    const res = await loadData({
-      baseURL: FLASK_URL,
-      url: `${flaskApi.DefAsyncSearchExecutionMethods}/${page}/${limit}?internal_execution_method=${internal_execution_method}`,
-      setLoading: setIsLoading,
-      accessToken: token.access_token,
-    });
-    if (res.items.length) {
-      setTotalPage(res.pages);
-      return res.items;
-    } else {
-      setTotalPage(1);
-      return [];
-    }
-  };
+
   const deleteExecutionMethod = async (internal_execution_method: string) => {
     const res = await deleteData({
       baseURL: FLASK_URL,
@@ -397,8 +352,6 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     totalPage,
     setTotalPage,
     getManageExecutionMethods,
-    getManageExecutionMethodsLazyLoading,
-    getSearchManageExecutionMethodsLazyLoading,
     deleteExecutionMethod,
     getAsyncTasks,
     getAsyncTasksLazyLoading,

@@ -15,7 +15,7 @@ const SetupAndAdministration = () => {
   const [data, setData] = useState<IProfilesType[]>([]);
   // const [filterUserID, setFilterUserID] = useState<number[]>([]);
   const [selectedUser, setSelectedUser] = useState<IUsersInfoTypes>(
-    {} as IUsersInfoTypes
+    {} as IUsersInfoTypes,
   );
   const [selectedProfile, setSelectedProfile] = useState<IProfilesType[]>([]);
   const [primaryCheckedItem, setPrimaryCheckedItem] = useState<IProfilesType>();
@@ -38,7 +38,7 @@ const SetupAndAdministration = () => {
         if (resData.length > 0) {
           // is primary available
           const filterPrimaryData = resData?.find(
-            (item: IProfilesType) => item.primary_yn === "Y"
+            (item: IProfilesType) => item.primary_yn === "Y",
           );
           setPrimaryCheckedItem(filterPrimaryData);
           setSelectedProfile([]);

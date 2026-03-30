@@ -52,7 +52,8 @@ export function TaskTable() {
     setIsLoading,
     changeState,
   } = useARMContext();
-  const { isOpenModal, setIsOpenModal, token } = useGlobalContext();
+  const { isOpenModal, setIsOpenModal, grantedPrivlegeIds } =
+    useGlobalContext();
   const [page, setPage] = React.useState(1);
   const [limit, setLimit] = React.useState(8);
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
@@ -74,7 +75,7 @@ export function TaskTable() {
           const res = await getSearchAsyncTasksLazyLoading(
             page,
             limit,
-            query.value
+            query.value,
           );
           if (res) {
             setData(res);
@@ -106,7 +107,7 @@ export function TaskTable() {
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
+    [],
   );
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -225,36 +226,43 @@ export function TaskTable() {
         <div className="flex items-center gap-2">
           <ActionButtons>
             {/* Add  */}
-            <CustomTooltip tooltipTitle="Register">
-              <PlusIcon
-                className="cursor-pointer"
-                onClick={() => handleOpenModal("register_task")}
-              />
-            </CustomTooltip>
-            {/* Edit  */}
-            <button disabled={!selected}>
-              <CustomTooltip tooltipTitle="Edit">
-                <FileEdit
-                  className={`${
-                    !selected
-                      ? "text-slate-200 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}
-                  onClick={() => handleOpenModal("edit_task")}
+            {grantedPrivlegeIds?.includes(11102) && (
+              <CustomTooltip tooltipTitle="Register">
+                <PlusIcon
+                  className="cursor-pointer"
+                  onClick={() => handleOpenModal("register_task")}
                 />
               </CustomTooltip>
-            </button>
-            {/* Delete  */}
-            <Alert
-              disabled={
-                !selected || selected?.cancelled_yn.toLocaleLowerCase() === "y"
-              }
-              tooltipTitle="Cancel"
-              actionName="cancel"
-              onContinue={() => handleCancel(selected!)}
-            >
-              <span>Task name: {selected?.task_name}</span>
-            </Alert>
+            )}
+            {/* Edit  */}
+            {grantedPrivlegeIds?.includes(11103) && (
+              <button disabled={!selected}>
+                <CustomTooltip tooltipTitle="Edit">
+                  <FileEdit
+                    className={`${
+                      !selected
+                        ? "text-slate-200 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                    onClick={() => handleOpenModal("edit_task")}
+                  />
+                </CustomTooltip>
+              </button>
+            )}
+            {/* Cancel  */}
+            {grantedPrivlegeIds?.includes(11103) && (
+              <Alert
+                disabled={
+                  !selected ||
+                  selected?.cancelled_yn.toLocaleLowerCase() === "y"
+                }
+                tooltipTitle="Cancel"
+                actionName="cancel"
+                onContinue={() => handleCancel(selected!)}
+              >
+                <span>Task name: {selected?.task_name}</span>
+              </Alert>
+            )}
           </ActionButtons>
           {/* Search  */}
           <Input
@@ -324,7 +332,7 @@ export function TaskTable() {
                           ? null
                           : flexRender(
                               header.column.columnDef.header,
-                              header.getContext()
+                              header.getContext(),
                             )}
 
                         {header.id !== "select" && (
@@ -395,7 +403,7 @@ export function TaskTable() {
                         ) : (
                           flexRender(
                             cell.column.columnDef.cell,
-                            cell.getContext()
+                            cell.getContext(),
                           )
                         )}
                       </TableCell>
