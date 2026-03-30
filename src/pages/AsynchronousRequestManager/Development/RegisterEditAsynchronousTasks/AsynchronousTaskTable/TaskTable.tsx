@@ -69,7 +69,6 @@ export function TaskTable() {
   };
   React.useEffect(() => {
     const fetchData = async () => {
-      if (!token?.access_token) return;
       try {
         if (!query.isEmpty) {
           const res = await getSearchAsyncTasksLazyLoading(
@@ -103,7 +102,7 @@ export function TaskTable() {
     }, 1000);
 
     return () => clearTimeout(delayDebounce); // Cleanup timeout
-  }, [query, page, changeState, limit, token?.access_token]); // Run on query and page change
+  }, [query, page, changeState, limit]); // Run on query and page change
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(

@@ -295,11 +295,13 @@ export function EnterpriseDataTable({
                       {cell.column.id === "select" ? (
                         <Checkbox
                           disabled={
-                            userEnterprise?.tenant_id !== row.original.tenant_id
+                            enterpriseSetting?.tenant_id !==
+                            row.original.tenant_id
                           }
                           className="mt-1"
                           checked={
-                            userEnterprise?.tenant_id === row.original.tenant_id
+                            enterpriseSetting?.tenant_id ===
+                            row.original.tenant_id
                           }
                           // onClick={() => handleRowSelection(row.original)}
                         />

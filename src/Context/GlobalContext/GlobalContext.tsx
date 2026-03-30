@@ -249,9 +249,15 @@ export function GlobalContextProvider({
           setLoading: setIsCombinedUserLoading,
           accessToken: `${token.access_token}`,
         });
-
         setCombinedUser(combinedUser.result);
         if (combinedUser.result) {
+          const res = await loadData({
+            baseURL: FLASK_URL,
+            url: `${flaskApi.EnterpriseSetup}?tenant_id=${combinedUser.result.tenant_id}`,
+            // setLoading: setIsCombinedUserLoading,
+            accessToken: `${token.access_token}`,
+          });
+
           const users = await loadData({
             baseURL: FLASK_URL,
             url: `${flaskApi.Users}?tenant_id=${combinedUser.result.tenant_id}`,
@@ -269,7 +275,7 @@ export function GlobalContextProvider({
             accessToken: `${token.access_token}`,
           });
 
-          if (grnatedRoles) {
+          if (grnatedRoles.result) {
             const roles = grnatedRoles.result?.map((item: any) => item.role_id);
             const endpoints = await loadData({
               baseURL: FLASK_URL,

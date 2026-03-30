@@ -128,7 +128,7 @@ const ManageApiEndpointsRoles = () => {
     };
 
     const loadAPIEndpointRoles = async () => {
-      const res = await loadData(apiEndpointsParams);
+      const res = await loadData(apiEndpointRolesParams);
       if (res.result) {
         setData(res.result);
         setTotalPage(res.pages);

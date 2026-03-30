@@ -30,11 +30,12 @@ export const jobTitleName = (
   id: number | undefined,
   jobTitles: IJobTitle[],
 ) => {
-  if (!id) return "";
-  if (id) {
-    const jobTitle = jobTitles.find((item) => item.job_title_id === id);
-    return jobTitle?.job_title_name ?? "";
+  if (!id || !Array.isArray(jobTitles) || jobTitles.length === 0) {
+    return "";
   }
+
+  const jobTitle = jobTitles.find((item) => item.job_title_id === id);
+  return jobTitle?.job_title_name ?? "";
 };
 
 export const tenantNames = (id: number, data: ITenantsTypes[]) => {

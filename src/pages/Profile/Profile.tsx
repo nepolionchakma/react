@@ -24,7 +24,9 @@ const Profile = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (combinedUser?.user_id) {
+      if (!combinedUser) {
+        return;
+      } else if (combinedUser.user_id) {
         setIsLoading(true);
         const postDataParams = {
           baseURL: FLASK_URL,
@@ -36,12 +38,14 @@ const Profile = () => {
         };
         const resData = await loadData(postDataParams);
         // is primary available
-        const filterPrimaryData = resData.find(
-          (item: IProfilesType) => item.primary_yn === "Y"
-        );
-        setPrimaryCheckedItem(filterPrimaryData);
+        if (resData.legth) {
+          const filterPrimaryData = resData.find(
+            (item: IProfilesType) => item.primary_yn === "Y",
+          );
+          setPrimaryCheckedItem(filterPrimaryData);
 
-        setData(resData);
+          setData(resData);
+        }
       }
     };
     fetchData();
@@ -49,6 +53,7 @@ const Profile = () => {
 
   useEffect(() => {
     (async () => {
+      if (!combinedUser) return;
       const params = {
         baseURL: FLASK_URL,
         url: `${flaskApi.JobTitles}?tenant_id=${combinedUser?.tenant_id}`,
@@ -91,7 +96,7 @@ const Profile = () => {
                       {combinedUser?.first_name} {combinedUser?.last_name}
                     </h5>
                     <h5 className="">
-                      {jobTitleName(combinedUser?.job_title_id ?? 0, jobTitles)}
+                      {jobTitleName(combinedUser?.job_title_id, jobTitles)}
                     </h5>
                     <h5 className="font-light">Id: {combinedUser?.user_id}</h5>
                   </div>
