@@ -1,32 +1,23 @@
+import { flaskApi } from "@/Api/Api";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import { IEnterprisesTypes } from "@/types/interfaces/users.interface";
 import { postData } from "@/Utility/funtion";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, Copy } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 function NewUserInvitation() {
-  const { token, fetchUserEnterprise } = useGlobalContext();
+  const { token } = useGlobalContext();
   const [invitaionType, setInvitaionType] = useState("email");
   const [isCopyURL, setIsCopyURL] = useState(false);
   const [generatedLink, setGeneratedLink] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [userEnterprise, setUserEnterprise] =
-    useState<IEnterprisesTypes | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      const enterpriseData = await fetchUserEnterprise();
-      setUserEnterprise(enterpriseData);
-    })();
-  }, [fetchUserEnterprise]);
-
-  const nodeUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
-  // const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
+  // const nodeUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
+  const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
 
   const invitaionSchema = z.object({
     email: z.string().email("Invalid email"),
@@ -40,16 +31,14 @@ function NewUserInvitation() {
 
   const handleSubmit = async (data: z.infer<typeof invitaionSchema>) => {
     const postParams = {
-      baseURL: nodeUrl,
-      url: "/invitation/via-email",
+      baseURL: flaskUrl,
+      url: `${flaskApi.Invitation}/via_email`,
       setLoading: setIsLoading,
       payload: {
-        invited_by: token.user_id,
         email: data.email,
-        tenant_id: userEnterprise?.tenant_id,
-        user_invitation_validity: userEnterprise?.user_invitation_validity,
       },
       isConsole: true,
+      accessToken: token.access_token,
     };
 
     const res = await postData(postParams);
@@ -78,14 +67,11 @@ function NewUserInvitation() {
 
   const handleGenerateLink = async () => {
     const postParams = {
-      baseURL: nodeUrl,
-      url: "/invitation/via-link",
+      baseURL: flaskUrl,
+      url: `${flaskApi.Invitation}/via_link`,
       setLoading: setIsLoading,
-      payload: {
-        invited_by: token.user_id,
-        tenant_id: userEnterprise?.tenant_id,
-        user_invitation_validity: userEnterprise?.user_invitation_validity,
-      },
+      accessToken: token.access_token,
+      payload: {},
     };
 
     const res = await postData(postParams);

@@ -73,6 +73,7 @@ export const flaskApi = {
   APIEndpointRoles: "/def_api_endpoint_roles",
   ForgetPassword: "/forgot-password",
   ResetPasswordById: "/def_user_credentials/reset_forgot_password/:user_id",
+  Invitation: "/invitation",
 };
 
 // All Node api
