@@ -99,14 +99,18 @@ function InvitationRedirectPage() {
 
       const res = await loadData(loadParams);
 
-      if (res) {
+      if (res.invited_by) {
         setIsValid(res.valid);
         setResponse(res.message);
         setJobTitles(res.job_titles);
         setTenantName(res.tenant_name);
+        form.setValue("email_address", res.email);
+      } else {
+        setIsValid(res.valid);
+        setResponse(res.message);
       }
     })();
-  }, [flaskUrl, encrypted_id, state]);
+  }, [flaskUrl, encrypted_id, state, form]);
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     const postPayload = {
@@ -166,7 +170,11 @@ function InvitationRedirectPage() {
   // }, [form]);
 
   useEffect(() => {
-    if (isValid) {
+    const isMobile =
+      /android|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+        navigator.userAgent,
+      );
+    if (isValid && isMobile) {
       const appLink = `PROCG://invitation/${encrypted_id}`;
 
       const openApp = () => {
@@ -412,8 +420,10 @@ function InvitationRedirectPage() {
                             <FormControl>
                               <Input
                                 {...field}
+                                disabled
+                                // defaultValue={invitedEmail || ""}
                                 type="text"
-                                placeholder="example@email.com, example2@email.com"
+                                placeholder="example@email.com"
                                 multiple={true}
                               />
                             </FormControl>
