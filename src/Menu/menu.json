@@ -199,7 +199,7 @@
           {
             "name": "Manage API Endpoint Roles",
             "path": "/tools/security-console/manage-api-endpoint-roles",
-            "endpoint_id": 1160
+            "endpoint_id": 1324
           },
           {
             "name": "New User Invitation",
@@ -248,7 +248,8 @@
       },
       {
         "name": "Mobile App Admin Console",
-        "path": "/tools/mobile-app-admin-console"
+        "path": "/tools/mobile-app-admin-console",
+        "endpoint_id": 1325
       },
       {
         "name": "Materialized View",

@@ -1,9 +1,9 @@
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
 import { IAPIEndpointRole } from "@/types/interfaces/apiEndpoints.interface";
-import { X } from "lucide-react";
+import { Check, ChevronDown, X } from "lucide-react";
 import React, { useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { ControllerRenderProps, useForm } from "react-hook-form";
 import { z } from "zod";
 import {
   Form,
@@ -19,13 +19,12 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { postData, putData } from "@/Utility/funtion";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { IRole } from "@/types/interfaces/users.interface";
+import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 
 interface Props {
   action: string;
@@ -47,7 +46,7 @@ const Modal = ({
 
   const FormSchema = z.object({
     api_endpoint_id: z.number(),
-    role_id: z.string(),
+    role_ids: z.array(z.number()), // ✅ change to number[]
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -55,13 +54,30 @@ const Modal = ({
     defaultValues: {
       api_endpoint_id:
         action === "Edit" ? selectedEndPointRoles[0]?.api_endpoint_id : 0,
-      role_id:
-        action === "Edit" ? selectedEndPointRoles[0]?.role_id.toString() : "",
+      role_ids:
+        action === "Edit"
+          ? selectedEndPointRoles[0]?.assigned_roles?.map(
+              (item) => item.role_id,
+            )
+          : [],
     },
   });
 
   const handleClose = () => {
     setShowModal(false);
+  };
+
+  const onSelectRole = (
+    roleId: number,
+    field: ControllerRenderProps<z.infer<typeof FormSchema>, "role_ids">,
+  ) => {
+    const current = field.value ?? [];
+
+    if (current.includes(roleId)) {
+      field.onChange(current.filter((id) => id !== roleId));
+    } else {
+      field.onChange([...current, roleId]);
+    }
   };
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
@@ -72,7 +88,7 @@ const Modal = ({
         setLoading: setIsLoading,
         payload: {
           api_endpoint_id: Number(data.api_endpoint_id),
-          role_id: Number(data.role_id),
+          role_ids: data.role_ids,
         },
         //   isConsole?: boolean;
         isToast: true,
@@ -87,15 +103,11 @@ const Modal = ({
     } else {
       const putParams = {
         baseURL: FLASK_URL,
-        url: `${flaskApi.APIEndpointRoles}?api_endpoint_id=${data.api_endpoint_id}&role_id=${data.role_id}`,
+        url: `${flaskApi.APIEndpointRoles}?api_endpoint_id=${data.api_endpoint_id}`,
         setLoading: setIsLoading,
-        //   payload: {
-        //     api_endpoint: data.api_endpoint,
-        //     parameter1: data.parameter1,
-        //     parameter2: data.parameter2,
-        //     method: data.method,
-        //     privilege_id: Number(data.privilege_id),
-        //   },
+        payload: {
+          role_ids: data.role_ids,
+        },
         //   isConsole?: boolean;
         isToast: true,
         accessToken: token.access_token,
@@ -117,7 +129,7 @@ const Modal = ({
       <div>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="grid grid-cols-2 p-4 gap-4 max-h-[70vh] overflow-auto">
+            <div className="felx flex-col p-4 gap-4 max-h-[70vh] overflow-auto">
               <FormField
                 control={form.control}
                 name="api_endpoint_id"
@@ -138,36 +150,54 @@ const Modal = ({
 
               <FormField
                 control={form.control}
-                name="role_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-normal">Role</FormLabel>
+                name="role_ids"
+                render={({ field }) => {
+                  return (
+                    <FormItem>
+                      <FormLabel className="font-normal">Roles</FormLabel>
+                      <Popover>
+                        <PopoverTrigger className="border rounded px-3 py-2 text-left flex justify-between w-full">
+                          {field.value.length > 0
+                            ? field.value
+                                .map(
+                                  (id) =>
+                                    roles.find((r) => r.role_id === id)
+                                      ?.role_name,
+                                )
+                                .join(", ")
+                            : "Select Roles"}
+                          <ChevronDown size={20} color="gray" />
+                        </PopoverTrigger>
 
-                    <Select
-                      value={field.value.toString()}
-                      onValueChange={(value) => {
-                        field.onChange(Number(value));
-                      }}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Role" />
-                        </SelectTrigger>
-                      </FormControl>
-
-                      <SelectContent>
-                        {roles.map((item) => (
-                          <SelectItem
-                            key={item.role_id}
-                            value={item.role_id.toString()}
-                          >
-                            {item.role_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
+                        <PopoverContent className="p-0 w-full">
+                          <Command>
+                            <CommandGroup>
+                              {roles.map((r) => (
+                                <CommandItem
+                                  key={r.role_id}
+                                  onSelect={() =>
+                                    onSelectRole(r.role_id, field)
+                                  } // ✅ use ID
+                                >
+                                  <Check
+                                    className={`mr-2 h-4 w-4 ${
+                                      field.value.includes(r.role_id)
+                                        ? "opacity-100"
+                                        : "opacity-0"
+                                    }`}
+                                  />
+                                  <span className="capitalize">
+                                    {r.role_name}
+                                  </span>
+                                </CommandItem>
+                              ))}
+                            </CommandGroup>
+                          </Command>
+                        </PopoverContent>
+                      </Popover>
+                    </FormItem>
+                  );
+                }}
               />
             </div>
 

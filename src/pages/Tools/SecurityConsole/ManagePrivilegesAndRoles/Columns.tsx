@@ -93,28 +93,8 @@ export const columns: ColumnDef<IPrivilegeAndRole>[] = [
       const granted_roles: IRole[] = row.getValue("granted_roles");
       return (
         <div className="flex items-center gap-2 min-w-max">
-          {/* <button
-            disabled={granted_roles.length <= 1}
-            className="disabled:cursor-not-allowed disabled:opacity-50"
-            onClick={() => setExpandRoles(isExpanded ? null : row.id)}
-          >
-            {isExpanded ? (
-              <CircleChevronDown className="w-5 h-5 text-gray-600" />
-            ) : (
-              <CircleChevronRight className="w-5 h-5 text-gray-600" />
-            )}
-          </button> */}
           <div className="capitalize min-w-[20rem]">
             <span>{granted_roles.map((r) => r.role_name).join(", ")}</span>
-            {/* {isExpanded ? (
-              
-              granted_roles.map((item, i) => (
-                <div key={i}>{item.role_name}</div>
-              ))
-            ) : (
-              
-              <span>{granted_roles[0]?.role_name}</span>
-            )} */}
           </div>
         </div>
       );

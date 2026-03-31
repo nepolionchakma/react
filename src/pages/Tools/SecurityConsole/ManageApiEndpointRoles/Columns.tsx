@@ -1,18 +1,10 @@
-import {
-  IAPIEndpoint,
-  IAPIEndpointRole,
-} from "@/types/interfaces/apiEndpoints.interface";
+import { IAPIEndpointRole } from "@/types/interfaces/apiEndpoints.interface";
 import { IRole, Users } from "@/types/interfaces/users.interface";
 import { convertDate } from "@/Utility/DateConverter";
-import { endpointName, roleName } from "@/Utility/general";
 import { renderUserName } from "@/Utility/NotificationUtils";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
-export const getColumns = (
-  users: Users[],
-  roles: IRole[],
-  endpoints: IAPIEndpoint[],
-): ColumnDef<IAPIEndpointRole>[] => [
+export const getColumns = (users: Users[]): ColumnDef<IAPIEndpointRole>[] => [
   {
     id: "select",
     size: 24,
@@ -26,8 +18,32 @@ export const getColumns = (
     accessorKey: "api_endpoint_id",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
-      const a = endpointName(rowA.getValue(columnId), endpoints) as string;
-      const b = endpointName(rowB.getValue(columnId), endpoints) as string;
+      const a = rowA.getValue(columnId) as number;
+      const b = rowB.getValue(columnId) as number;
+      return a - b;
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          className="min-w-max"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          API Endpoint Id
+          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
+        </div>
+      );
+    },
+
+    cell: ({ row }) => (
+      <div className="min-w-max">{row.getValue("api_endpoint_id")}</div>
+    ),
+  },
+  {
+    accessorKey: "api_endpoint",
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
 
       return a.localeCompare(b, undefined, { sensitivity: "base" });
     },
@@ -44,17 +60,15 @@ export const getColumns = (
     },
 
     cell: ({ row }) => (
-      <div className="min-w-max">
-        {endpointName(row.getValue("api_endpoint_id"), endpoints)}
-      </div>
+      <div className="min-w-max">{row.getValue("api_endpoint")}</div>
     ),
   },
   {
-    accessorKey: "role_id",
+    accessorKey: "method",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
-      const a = roleName(rowA.getValue(columnId), roles) as string;
-      const b = roleName(rowB.getValue(columnId), roles) as string;
+      const a = rowA.getValue(columnId) as string;
+      const b = rowB.getValue(columnId) as string;
 
       return a.localeCompare(b, undefined, { sensitivity: "base" });
     },
@@ -64,17 +78,50 @@ export const getColumns = (
           className="min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Role
+          Method
           <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
         </div>
       );
     },
 
     cell: ({ row }) => (
-      <div className="min-w-max">
-        {roleName(row.getValue("role_id"), roles)}
-      </div>
+      <div className="min-w-max">{row.getValue("method")}</div>
     ),
+  },
+  {
+    accessorKey: "assigned_roles",
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const rolesA = rowA.getValue(columnId) as IRole[];
+      const rolesB = rowB.getValue(columnId) as IRole[];
+
+      const a = rolesA[0]?.role_name || "";
+      const b = rolesB[0]?.role_name || "";
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="min-w-max cursor-pointer"
+        >
+          Roles
+          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+        </div>
+      );
+    },
+    cell: ({ row }) => {
+      // const isExpanded = expandRoles === row.id;
+      const granted_roles: IRole[] = row.getValue("assigned_roles");
+      return (
+        <div className="flex items-center gap-2 min-w-max">
+          <div className="capitalize min-w-[20rem]">
+            <span>{granted_roles?.map((r) => r.role_name).join(", ")}</span>
+          </div>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "created_by",
