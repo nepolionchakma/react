@@ -445,7 +445,7 @@ const routes = createBrowserRouter([
         element: <Error />,
       },
       {
-        path: ":user_invitation_id/:tenant_id/:token",
+        path: ":encrypted_id",
         element: <InvitationRedirectPage />,
       },
     ],

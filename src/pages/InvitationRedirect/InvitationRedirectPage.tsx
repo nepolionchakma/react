@@ -20,49 +20,29 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { loadData, postData } from "@/Utility/funtion";
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { IJobTitle, ITenantsTypes } from "@/types/interfaces/users.interface";
+import { useNavigate, useParams } from "react-router-dom";
+import { IJobTitle } from "@/types/interfaces/users.interface";
 
 import { Eye, EyeOff } from "lucide-react";
-import { FLASK_URL, flaskApi } from "@/Api/Api";
-import CryptoJS from "crypto-js";
+import { flaskApi } from "@/Api/Api";
 
 function InvitationRedirectPage() {
   // const fullUrl = window.location.origin + location.pathname + location.search;
   // console.log(fullUrl);
   const [isLoading, setIsLoading] = useState(false);
-  const nodeUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
-  const crptoSecretKey = import.meta.env.VITE_CRYPTO_SECRET_KEY;
+  // const nodeUrl = import.meta.env.VITE_NODE_ENDPOINT_URL;
+  const flaskUrl = import.meta.env.VITE_FLASK_ENDPOINT_URL;
   const [isValid, setIsValid] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
-  // const [userType, setUserType] = useState<string>("person");
-  const [tenants, setTenants] = useState<ITenantsTypes[] | undefined>([]);
+  const [tenantName, setTenantName] = useState<string | undefined>(undefined);
   const [response, setResponse] = useState("");
   const [state, setState] = useState(0);
+  const navigate = useNavigate();
   // const [tenantId, setTenantId] = useState<number | null>(null);
   const [jobTitles, setJobTitles] = useState<IJobTitle[] | undefined>([]);
 
-  const { user_invitation_id, tenant_id, token } = useParams();
-
-  const decrypt = (value: string) => {
-    try {
-      // Decode URL-safe string
-      const decoded = decodeURIComponent(value);
-
-      const bytes = CryptoJS.AES.decrypt(decoded, crptoSecretKey);
-      const plaintext = bytes.toString(CryptoJS.enc.Utf8);
-
-      return plaintext; // original string
-    } catch (error) {
-      console.error("Decryption failed:", error);
-      return null;
-    }
-  };
-
-  const decryptedUserInvitaitionId = decrypt(user_invitation_id as string);
-  const decryptedToken = decrypt(token as string);
-  const decryptedTenantId = decrypt(tenant_id as string);
+  const { encrypted_id } = useParams();
 
   const FormSchema = z
     .object({
@@ -93,7 +73,6 @@ function InvitationRedirectPage() {
       user_name: "",
       user_type: "person",
       email_address: "",
-      tenant_id: decryptedTenantId as string,
       first_name: "",
       middle_name: "",
       last_name: "",
@@ -109,81 +88,54 @@ function InvitationRedirectPage() {
   };
 
   useEffect(() => {
-    const fetchTenantsData = async () => {
-      const params = {
-        baseURL: FLASK_URL,
-        url: flaskApi.DefTenants,
-        setLoading: setIsLoading,
-        accessToken: decryptedToken as string,
-      };
-      try {
-        const res = await loadData(params);
-        if (res) {
-          setTenants(res.result);
-        }
-      } catch (error) {
-        console.log(error);
-      }
-    };
-    fetchTenantsData();
-  }, [decryptedToken]);
-
-  useEffect(() => {
-    if (!decryptedToken) return;
+    if (!encrypted_id) return;
     (async () => {
-      console.log(
-        `/invitation/verify?user_invitation_id=${Number(
-          decryptedUserInvitaitionId
-        )}&token=${decryptedToken}`
-      );
-      const postParams = {
-        baseURL: nodeUrl,
-        url: `/invitation/verify?user_invitation_id=${Number(
-          decryptedUserInvitaitionId
-        )}&token=${decryptedToken}`,
+      const loadParams = {
+        baseURL: flaskUrl,
+        url: `${flaskApi.Invitation}/${encrypted_id}`,
         setLoading: setIsLoading,
-        accessToken: decryptedToken,
+        // accessToken: decryptedToken,
       };
 
-      const res = await loadData(postParams);
-      console.log(res, "res");
+      const res = await loadData(loadParams);
+
       if (res) {
         setIsValid(res.valid);
         setResponse(res.message);
+        setJobTitles(res.job_titles);
+        setTenantName(res.tenant_name);
       }
     })();
-  }, [nodeUrl, decryptedToken, decryptedUserInvitaitionId, state]);
+  }, [flaskUrl, encrypted_id, state]);
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     const postPayload = {
       user_type: data.user_type,
       user_name: data.user_name,
       email_address: data.email_address,
-      tenant_id: Number(decryptedTenantId),
       first_name: data.first_name,
       middle_name: data.middle_name,
       last_name: data.last_name,
       date_of_birth: data.date_of_birth,
       job_title_id: data.job_title_id,
       password: data.password,
-      user_invitation_id: Number(decryptedUserInvitaitionId),
     };
 
     // console.log(postPayload);
     const params = {
-      baseURL: FLASK_URL,
-      url: `/users`,
+      baseURL: flaskUrl,
+      url: `${flaskApi.Invitation}/accept/${encrypted_id}`,
       setLoading: setIsLoading,
       payload: postPayload,
       // isConsole?: boolean;
       isToast: true,
-      accessToken: decryptedToken as string,
     };
 
     try {
       const res = await postData(params);
       if (res.status === 201) {
         setState((prev) => prev + 9749.27529);
+        navigate("/login");
       }
     } catch (error) {
       console.log(error);
@@ -192,30 +144,30 @@ function InvitationRedirectPage() {
     }
   };
 
+  // useEffect(() => {
+  //   const loadJobTitles = async () => {
+  //     if (!decryptedTenantId) return;
+  //     const params = {
+  //       baseURL: FLASK_URL,
+  //       url: `${flaskApi.JobTitles}?tenant_id=${Number(decryptedTenantId)}`,
+  //       accessToken: decryptedToken as string,
+  //     };
+
+  //     const res = await loadData(params);
+
+  //     if (res.length > 0) {
+  //       setJobTitles(res);
+  //     } else {
+  //       form.resetField("job_title_id");
+  //       setJobTitles([]);
+  //     }
+  //   };
+  //   loadJobTitles();
+  // }, [form]);
+
   useEffect(() => {
-    const loadJobTitles = async () => {
-      if (!decryptedTenantId) return;
-      const params = {
-        baseURL: FLASK_URL,
-        url: `${flaskApi.JobTitles}?tenant_id=${Number(decryptedTenantId)}`,
-        accessToken: decryptedToken as string,
-      };
-
-      const res = await loadData(params);
-
-      if (res.length > 0) {
-        setJobTitles(res);
-      } else {
-        form.resetField("job_title_id");
-        setJobTitles([]);
-      }
-    };
-    loadJobTitles();
-  }, [decryptedToken, decryptedTenantId, form]);
-
-  useEffect(() => {
-    if (token && isValid) {
-      const appLink = `PROCG://invitation/${user_invitation_id}/${token}`;
+    if (isValid) {
+      const appLink = `PROCG://invitation/${encrypted_id}`;
 
       const openApp = () => {
         window.location.href = appLink;
@@ -235,7 +187,7 @@ function InvitationRedirectPage() {
       //   }
       // }, 1000);
     }
-  }, [isValid, token, user_invitation_id]);
+  }, [encrypted_id, isValid]);
 
   return (
     <div className="flex justify-center items-center h-screen">
@@ -289,7 +241,27 @@ function InvitationRedirectPage() {
                           </FormItem>
                         )}
                       />
+
                       <FormField
+                        disabled={true}
+                        // control={form.control}
+                        name="tenant_id"
+                        render={() => (
+                          <FormItem>
+                            <FormLabel className="font-normal">
+                              Tenant Name
+                            </FormLabel>
+                            <Input
+                              required
+                              disabled
+                              type="text"
+                              placeholder="Tenant Name"
+                              value={tenantName}
+                            />
+                          </FormItem>
+                        )}
+                      />
+                      {/* <FormField
                         disabled={true}
                         control={form.control}
                         name="tenant_id"
@@ -324,7 +296,7 @@ function InvitationRedirectPage() {
                             </Select>
                           </FormItem>
                         )}
-                      />
+                      /> */}
 
                       <FormField
                         control={form.control}
