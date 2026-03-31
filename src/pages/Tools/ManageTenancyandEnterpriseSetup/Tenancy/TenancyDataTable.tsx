@@ -155,7 +155,8 @@ export function TenancyDataTable({
 
     const fetch = async () => {
       const res = await loadData(tenancyDataParams);
-      if (res.result) {
+
+      if (res.items) {
         setData(res.items);
         setTotalPage(res.pages);
       } else {
