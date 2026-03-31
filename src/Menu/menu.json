@@ -203,7 +203,8 @@
           },
           {
             "name": "New User Invitation",
-            "path": "/tools/security-console/new-user-invitation"
+            "path": "/tools/security-console/new-user-invitation",
+            "endpoint_id": 1330
           }
         ]
       },
@@ -211,7 +212,9 @@
         "_comment": "This is for the nested menu",
         "name": "Enterprise Process Modeler",
         "path": "/tools/enterprise-process-modeler",
-        "paths": ["/tools/enterprise-process-modeler/orchestration-studio"],
+        "paths": [
+          "/tools/enterprise-process-modeler/orchestration-studio"
+        ],
         "subMenus": [
           {
             "name": "Orchestration Studio",
