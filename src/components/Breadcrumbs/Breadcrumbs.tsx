@@ -1,91 +1,70 @@
 import { Link, useLocation } from "react-router-dom";
-import sideMenuData from "../../Menu/menu.json";
-import topAndDropDownMenuData from "../../Menu/topAndDropDownMenu.json";
-
+import menuData from "../../Menu/menu.json";
 import { ChevronRight } from "lucide-react";
+
+interface MenuItem {
+  name?: string;
+  menu?: string;
+  path: string;
+  paths?: string[];
+  subMenus?: MenuItem[];
+}
+
+// 🔥 recursive full trail finder
+const findFullTrail = (
+  menus: MenuItem[],
+  targetPath: string,
+  trail: { name: string; path: string }[] = [],
+): { name: string; path: string }[] | null => {
+  for (const menu of menus) {
+    const label = menu.name || menu.menu || "";
+    const newTrail = [...trail, { name: label, path: menu.path }];
+
+    // ✅ exact match
+    if (menu.path === targetPath) {
+      return newTrail;
+    }
+
+    // ✅ match inside paths → go deeper if possible
+    if (menu.paths?.includes(targetPath)) {
+      if (menu.subMenus) {
+        const deep = findFullTrail(menu.subMenus, targetPath, newTrail);
+        if (deep) return deep;
+      }
+      return newTrail;
+    }
+
+    // ✅ recursive
+    if (menu.subMenus) {
+      const found = findFullTrail(menu.subMenus, targetPath, newTrail);
+      if (found) return found;
+    }
+  }
+
+  return null;
+};
 
 const Breadcrumb = () => {
   const location = useLocation();
-  const pathSegments = location.pathname.split("/").filter(Boolean);
-  const topAndDropDownMenu = topAndDropDownMenuData.map(
-    (item) => item.path.split("/").filter(Boolean)[0]
-  );
-  const isMenuMatch = topAndDropDownMenu.includes(pathSegments[0]);
 
-  const breadcrumbs = [{ name: "Home", path: "/" }];
-  let currentPath = "";
+  const trail = findFullTrail(menuData as MenuItem[], location.pathname) || [];
 
-  if (isMenuMatch) {
-    for (const segment of pathSegments) {
-      currentPath += `/${segment}`;
-      let found = false;
+  const breadcrumbs = [{ name: "Home", path: "/" }, ...trail];
 
-      topAndDropDownMenuData?.forEach((m) => {
-        if (m.path === currentPath) {
-          breadcrumbs.push({ name: m.menu!, path: m.path });
-          found = true;
-        }
-        m.subMenus?.forEach((item) => {
-          if (item.path === currentPath) {
-            breadcrumbs.push({ name: item.name, path: item.path });
-            found = true;
-          }
-        });
-      });
-      if (!found)
-        breadcrumbs.push({
-          name: segment.replace(/-/g, " "),
-          path: currentPath,
-        });
-    }
-  } else {
-    for (const segment of pathSegments) {
-      currentPath += `/${segment}`;
-      let found = false;
-
-      sideMenuData.forEach((menu) => {
-        if (menu.path === currentPath) {
-          breadcrumbs.push({ name: menu.menu, path: menu.path });
-          found = true;
-        }
-        menu.subMenus.forEach((item) => {
-          if (item.path === currentPath) {
-            breadcrumbs.push({ name: item.name, path: item.path });
-            found = true;
-          }
-          item.subMenus?.forEach((sub) => {
-            if (sub.path === currentPath) {
-              breadcrumbs.push({ name: sub.name, path: sub.path });
-              found = true;
-            }
-          });
-        });
-      });
-      if (!found)
-        breadcrumbs.push({
-          name: segment.replace(/-/g, " "),
-          path: currentPath,
-        });
-    }
-  }
   return (
-    <nav className="my-2 flex items-center">
+    <nav className="my-2 flex items-center flex-wrap">
       {breadcrumbs.map((item, index) => (
-        <span key={item.path}>
+        <span key={item.path} className="flex items-center">
           {index < breadcrumbs.length - 1 ? (
-            <Link
-              to={item.path}
-              className="breadcrumb-link underline text-blue-600"
-            >
+            <Link to={item.path} className="underline text-blue-600">
               {item.name}
             </Link>
           ) : (
-            <span className="breadcrumb-current">{item.name}</span>
+            <span className="text-gray-700">{item.name}</span>
           )}
+
           {index < breadcrumbs.length - 1 && (
-            <span>
-              <ChevronRight strokeWidth={1} className="mx-0.5 inline-block" />
-            </span>
+            <ChevronRight strokeWidth={1} className="mx-1 inline-block" />
           )}
         </span>
       ))}
