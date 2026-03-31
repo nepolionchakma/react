@@ -38,10 +38,7 @@ import { convertToTitleCase } from "@/Utility/general";
 // import Modal from "./Modal";
 // import { Input } from "@/components/ui/input";
 // import Spinner from "@/components/Spinner/Spinner";
-import {
-  IAPIEndpoint,
-  IAPIEndpointRole,
-} from "@/types/interfaces/apiEndpoints.interface";
+import { IAPIEndpointRole } from "@/types/interfaces/apiEndpoints.interface";
 import { IRole } from "@/types/interfaces/users.interface";
 import { getColumns } from "./Columns";
 import Modal from "./Modal";
@@ -57,7 +54,7 @@ const ManageApiEndpointsRoles = () => {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [data, setData] = useState<IAPIEndpointRole[] | []>([]);
-  const [apiEndpoints, setApiEndpoints] = useState<IAPIEndpoint[] | []>([]);
+
   const [limit, setLimit] = useState<number>(8);
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
@@ -74,10 +71,7 @@ const ManageApiEndpointsRoles = () => {
   const [roles, setRoles] = useState<IRole[] | []>([]);
   const [query, setQuery] = useState({ isEmpty: true, value: "" });
 
-  const columns = useMemo(
-    () => getColumns(users, roles, apiEndpoints),
-    [users, roles, apiEndpoints],
-  );
+  const columns = useMemo(() => getColumns(users), [users]);
   const table = useReactTable({
     data,
     columns,
@@ -102,27 +96,25 @@ const ManageApiEndpointsRoles = () => {
     },
   });
 
-  useEffect(() => {
-    const apiEndpointsParams = {
-      baseURL: FLASK_URL,
-      url: `${flaskApi.APIEndpoints}`,
-      accessToken: `${token.access_token}`,
-      // setLoading: setIsLoading,
-    };
+  const hiddenColumns = [
+    "created_by",
+    "last_updated_by",
+    "creation_date",
+    "last_update_date",
+  ];
 
-    const loadAPIEndpoints = async () => {
-      const res = await loadData(apiEndpointsParams);
-      if (res) {
-        setApiEndpoints(res.result);
+  useEffect(() => {
+    table.getAllColumns().forEach((column) => {
+      if (hiddenColumns.includes(column.id)) {
+        column.toggleVisibility(false);
       }
-    };
-    loadAPIEndpoints();
-  }, [token.access_token]);
+    });
+  }, [table]);
 
   useEffect(() => {
     const apiEndpointRolesParams = {
       baseURL: FLASK_URL,
-      url: `${flaskApi.APIEndpointRoles}?search_term=${query.value}&page=${page}&limit=${limit}`,
+      url: `${flaskApi.APIEndpointRoles}/by_endpoint?api_endpoint=${query.value}&page=${page}&limit=${limit}`,
       accessToken: `${token.access_token}`,
       setLoading: setIsLoading,
     };
@@ -154,7 +146,7 @@ const ManageApiEndpointsRoles = () => {
         setIsSelectAll(true);
       }
     }
-    const ids = selectedEndPointRoles.map((item) => item.api_endpoint_id);
+    const ids = selectedEndPointRoles?.map((item) => item.api_endpoint_id);
     setSelectedIds(ids);
   }, [data?.length, selectedEndPointRoles]);
 
@@ -221,8 +213,10 @@ const ManageApiEndpointsRoles = () => {
     }
   };
   const handleDelete = async () => {
-    const payload = selectedEndPointRoles.map((item) => {
-      (item.api_endpoint_id, item.role_id);
+    const payload = selectedEndPointRoles?.map((item) => {
+      item.assigned_roles?.map((role) => {
+        (item.api_endpoint_id, role.role_id);
+      });
     });
     const params = {
       url: flaskApi.APIEndpointRoles,
@@ -285,7 +279,7 @@ const ManageApiEndpointsRoles = () => {
                     <Spinner size="40" color="black" />
                   </span>
                 ) : (
-                  selectedEndPointRoles.map((item, index) => (
+                  selectedEndPointRoles?.map((item, index) => (
                     <span key={item.api_endpoint_id}>
                       {index + 1}. {item.api_endpoint_id}
                     </span>
@@ -317,7 +311,7 @@ const ManageApiEndpointsRoles = () => {
               {table
                 .getAllColumns()
                 .filter((column) => column.getCanHide())
-                .map((column) => {
+                ?.map((column) => {
                   return (
                     <DropdownMenuCheckboxItem
                       key={column.id}
@@ -346,9 +340,9 @@ const ManageApiEndpointsRoles = () => {
             }}
           >
             <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
+              {table.getHeaderGroups()?.map((headerGroup) => (
                 <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
+                  {headerGroup.headers?.map((header) => {
                     return (
                       <TableHead
                         key={header.id}
@@ -407,12 +401,12 @@ const ManageApiEndpointsRoles = () => {
                   </TableCell>
                 </TableRow>
               ) : table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
+                table.getRowModel().rows?.map((row) => (
                   <TableRow
                     key={row.id}
                     data-state={row.getIsSelected() && "selected"}
                   >
-                    {row.getVisibleCells().map((cell, index) => (
+                    {row.getVisibleCells()?.map((cell, index) => (
                       <TableCell
                         key={cell.id}
                         style={{

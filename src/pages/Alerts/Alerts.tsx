@@ -35,7 +35,7 @@ const Alerts = () => {
     fetchAlerts();
   }, [token.user_id, currentPage, setAlerts]);
 
-  const sortedAlerts = alerts.sort(
+  const sortedAlerts = alerts?.sort(
     (a, b) =>
       new Date(b.creation_date).getTime() - new Date(a.creation_date).getTime(),
   );
@@ -76,7 +76,7 @@ const Alerts = () => {
         </div>
       ) : (
         <>
-          {alerts.length > 0 ? (
+          {alerts?.length > 0 ? (
             <div className="flex flex-col gap-4 max-h-[74vh] overflow-auto scrollbar-thin">
               {sortedAlerts?.map((item: Alerts) => (
                 <Card
@@ -113,9 +113,9 @@ const Alerts = () => {
                           </>
                         ) : (
                           <>
-                            {item.description.length > 250 ? (
+                            {item.description?.length > 250 ? (
                               <>
-                                {item.description.slice(0, 250)}
+                                {item.description?.slice(0, 250)}
                                 <span
                                   className="text-blue-600 cursor-pointer ml-1"
                                   onClick={() =>
@@ -170,7 +170,7 @@ const Alerts = () => {
           )}
         </>
       )}
-      {!isloading && sortedAlerts.length > 0 ? (
+      {!isloading && sortedAlerts?.length > 0 ? (
         <div className="flex justify-end mt-3">
           <Pagination5
             currentPage={currentPage}

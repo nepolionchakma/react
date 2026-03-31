@@ -1,4 +1,3 @@
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { useEffect, useState } from "react";
 import {
   CircleChevronRight,
@@ -15,8 +14,10 @@ import Modal from "./Modal";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import Alert from "@/components/Alert/Alert";
 import { v4 as uuidv4 } from "uuid";
-import { putData } from "@/Utility/funtion";
+import { loadData, putData } from "@/Utility/funtion";
 import Spinner from "@/components/Spinner/Spinner";
+import { FLASK_URL } from "@/Api/Api";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 
 interface TreeNode {
   id: string;
@@ -35,8 +36,7 @@ interface IMenuTypes {
 }
 
 const TreeView = () => {
-  const api = useAxiosPrivate();
-  const url = import.meta.env.VITE_NODE_ENDPOINT_URL;
+  const { token } = useGlobalContext();
   const { toast } = useToast();
   const [data, setData] = useState<IMenuTypes[]>([]);
   const [isSaving, setIsSaving] = useState(false);
@@ -56,20 +56,19 @@ const TreeView = () => {
   //Fetch Mobile Menu Structure
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        const res = await api.get(`${url}/mobile-menu`);
+      const res = await loadData({
+        baseURL: FLASK_URL,
+        url: "/def_mobile_menu",
+        setLoading: setIsLoading,
+        accessToken: token?.access_token,
+        // isToast?: boolean;
+      });
 
-        setData(res.data);
-        setMenuData(res.data[0].menu_structure);
-      } catch (error) {
-        toast({ title: "Error fetching data from the Database" });
-      } finally {
-        setIsLoading(false);
-      }
+      setData(res.result);
+      setMenuData(res.result[0].menu_structure);
     };
     fetchData();
-  }, [api, toast, url]);
+  }, [token.access_token]);
 
   const toggleNode = (path: string) => {
     setOpenNodes((prev) => ({
@@ -201,19 +200,26 @@ const TreeView = () => {
   };
 
   const saveToDatabase = async () => {
-    const putParams = {
-      baseURL: url,
-      url: `/mobile-menu/${data[0].menu_id}`,
-      setLoading: setIsSaving,
-      payload: {
-        menu_code: data[0].menu_code,
-        menu_name: data[0].menu_name,
-        menu_desc: data[0].menu_desc,
-        menu_structure: menuData,
-      },
+    const payload = {
+      menu_code: data[0].menu_code,
+      menu_name: data[0].menu_name,
+      menu_desc: data[0].menu_desc,
+      menu_structure: menuData,
     };
 
-    await putData(putParams);
+    const putParams = {
+      baseURL: FLASK_URL,
+      url: `/def_mobile_menu?menu_id=${data[0].menu_id}`,
+      setLoading: setIsSaving,
+      payload,
+      isToast: true,
+      accessToken: token.access_token,
+    };
+
+    console.log(putParams);
+
+    const res = await putData(putParams);
+    console.log(res);
   };
 
   const renderTree = (nodes: TreeNode[], parentPath = "", level = 0) => {
