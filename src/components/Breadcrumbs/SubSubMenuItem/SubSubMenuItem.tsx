@@ -1,7 +1,8 @@
-import { subMenus } from "@/components/Sidebar/Sidbar";
+// import { subMenus } from "@/components/Sidebar/Sidbar";
+import { MenuItem } from "@/hooks/useFilterMenu";
 import { Link } from "react-router-dom";
 
-const SubSubMenuItem = (menu: subMenus) => {
+const SubSubMenuItem = (menu: MenuItem) => {
   return (
     <div>
       {menu.subMenus &&

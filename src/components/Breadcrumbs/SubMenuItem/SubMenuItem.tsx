@@ -1,12 +1,13 @@
-import { MenuData } from "@/components/Sidebar/Sidbar";
+// import { MenuData } from "@/components/Sidebar/Sidbar";
+import { MenuItem } from "@/hooks/useFilterMenu";
 import { Plus } from "lucide-react";
 // import { useState } from "react";
 import { Link } from "react-router-dom";
 
-const SubMenuItem = (item: MenuData) => {
+const SubMenuItem = (item: MenuItem) => {
   return (
     <>
-      {item.subMenus.map((menu) => {
+      {item.subMenus?.map((menu) => {
         return (
           <div key={menu.name} className="flex items-center">
             {/* Nested Sub Menu Here */}
