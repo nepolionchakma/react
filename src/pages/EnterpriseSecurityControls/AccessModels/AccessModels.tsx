@@ -1,8 +1,9 @@
 import SubSubMenuItem from "@/components/Breadcrumbs/SubSubMenuItem/SubSubMenuItem";
-import { MenuData } from "@/components/Sidebar/Sidbar";
+import { MenuItem } from "@/hooks/useFilterMenu";
+// import { MenuData } from "@/components/Sidebar/Sidbar";
 import menu from "@/Menu/menu.json";
 const AccessModels = () => {
-  const menus = menu as MenuData[];
+  const menus = menu as MenuItem[];
 
   return (
     <div>
@@ -10,7 +11,7 @@ const AccessModels = () => {
         return (
           <div key={item.menu}>
             {item.menu === "Enterprise Security Controls" &&
-              item.subMenus.map((menu) => {
+              item.subMenus?.map((menu) => {
                 return (
                   <div key={menu.name}>
                     {/* Change menu name here */}

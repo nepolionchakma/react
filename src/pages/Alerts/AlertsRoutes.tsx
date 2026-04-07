@@ -1,9 +1,10 @@
 import SubMenuItem from "@/components/Breadcrumbs/SubMenuItem/SubMenuItem";
-import { MenuData } from "@/components/Sidebar/Sidbar";
+import { MenuItem } from "@/hooks/useFilterMenu";
+// import { MenuData } from "@/components/Sidebar/Sidbar";
 import menu from "@/Menu/topAndDropDownMenu.json";
 
 const Alerts = () => {
-  const menus = menu as MenuData[];
+  const menus = menu as MenuItem[];
 
   return (
     <div>

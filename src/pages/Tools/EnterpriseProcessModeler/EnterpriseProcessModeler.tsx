@@ -1,8 +1,9 @@
 import SubSubMenuItem from "@/components/Breadcrumbs/SubSubMenuItem/SubSubMenuItem";
-import { MenuData } from "@/components/Sidebar/Sidbar";
+import { MenuItem } from "@/hooks/useFilterMenu";
+// import { MenuData } from "@/components/Sidebar/Sidbar";
 import menu from "@/Menu/menu.json";
 const EnterpriseProcessModeler = () => {
-  const menus = menu as MenuData[];
+  const menus = menu as MenuItem[];
 
   return (
     <div>
@@ -11,7 +12,7 @@ const EnterpriseProcessModeler = () => {
           <div key={item.menu}>
             {/* Change menu name here */}
             {item.menu === "Tools" &&
-              item.subMenus.map((menu) => {
+              item.subMenus?.map((menu) => {
                 return (
                   <div key={menu.name}>
                     {/* Change menu name here */}
