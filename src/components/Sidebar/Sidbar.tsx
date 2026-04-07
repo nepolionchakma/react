@@ -7,95 +7,34 @@ import {
   sidebarClasses,
 } from "react-pro-sidebar";
 import { Link, useLocation } from "react-router-dom";
-import menu from "@/Menu/menu.json";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import { useMemo } from "react";
-
-interface subSubMenus {
-  name: string;
-  icon: string;
-  path: string;
-}
-export interface subMenus {
-  name: string;
-  icon: string;
-  path: string;
-  paths?: string[] | undefined;
-  subMenus?: subSubMenus[];
-}
-
-export interface MenuData {
-  menu: string;
-  menuIcon: string;
-  subMenus: subMenus[];
-  paths: string[];
-  path: string;
-}
+import { useFilteredMenu } from "@/hooks/useFilterMenu";
 
 const Sidbar = () => {
-  const { open, grantendEndpoints } = useGlobalContext();
+  const { open } = useGlobalContext();
   const location = useLocation();
   const pathname = location.pathname;
 
-  const endpointIds = grantendEndpoints?.map((item) => item.api_endpoint_id);
+  // ✅ single source of truth
+  const menuData = useFilteredMenu();
 
-  const hasAccess = (endpoint_id?: number) => {
-    if (!endpoint_id) return true; // allow items without endpoint_id (we'll still validate via children)
-    return endpointIds?.includes(endpoint_id);
-  };
-
-  const filterMenus = (menus: any[]): any[] => {
-    return menus
-      .map((menu) => {
-        // If has children → filter them first
-        if (menu.subMenus) {
-          const filteredSubMenus = filterMenus(menu.subMenus);
-
-          // ✅ Only keep parent if it has children after filtering
-          if (filteredSubMenus.length > 0) {
-            return {
-              ...menu,
-              subMenus: filteredSubMenus,
-            };
-          }
-
-          // ❌ No children left → remove parent
-          return null;
-        }
-
-        // Leaf node → check access
-        return hasAccess(menu.endpoint_id) ? menu : null;
-      })
-      .filter(Boolean); // remove nulls
-  };
-
-  const menuData = useMemo(() => {
-    return filterMenus(menu as MenuData[]);
-  }, [endpointIds]);
-
+  // 🔹 Active styles
   const getMenuItemStyle = (path: string) => {
-    if (pathname === path) {
-      return "text-red-600 bg-white rounded-md";
-    } else {
-      return "bg-[#F3F8FF]";
-    }
+    return pathname === path
+      ? "text-red-600 bg-white rounded-md"
+      : "bg-[#F3F8FF]";
   };
 
-  const getSubMenuStyle = (paths: string[]) => {
-    if (paths?.includes(pathname)) {
-      return "bg-winter-100 duration-500 rounded-md";
-    } else {
-      // return "bg-[#E4E4E766]";
-      return " ";
-    }
+  const getSubMenuStyle = (paths: string[] = []) => {
+    return paths.includes(pathname)
+      ? "bg-winter-100 duration-500 rounded-md"
+      : "";
   };
 
-  const getSubMenuItemStyle = (paths: string[]) => {
-    if (paths?.includes(pathname)) {
-      return "bg-[#F3F8FF] ";
-    } else {
-      return "bg-[#F3F8FF]";
-    }
+  const getSubMenuItemStyle = (paths: string[] = []) => {
+    return paths.includes(pathname)
+      ? "bg-[#F3F8FF]"
+      : "bg-[#F3F8FF]";
   };
 
   return (
@@ -107,7 +46,6 @@ const Sidbar = () => {
       rootStyles={{
         ["." + sidebarClasses.container]: {
           width: open ? "18rem" : "5rem",
-          // right sidebar border
           borderRight: "1px solid #e5e7eb",
           transition: "1s",
           paddingRight: 10,
@@ -136,95 +74,109 @@ const Sidbar = () => {
           },
         }}
       >
-        {menuData?.map((menu) => (
-          <SubMenu
-            className={`my-1 ${getSubMenuStyle(menu.paths)}`}
-            key={menu.menu}
-            label={menu.menu}
-            icon={
-              menu.menuIcon && (
-                <img
-                  src={menu.menuIcon}
-                  alt={`${menu.menu} icon`}
-                  className="w-[20px] h-[20px]"
-                />
-              )
-            }
-            rootStyles={{
-              ["." + menuClasses.button]: {
-                ":hover": {
-                  borderRadius: 5,
+        {menuData.map((menu) =>
+          menu.subMenus ? (
+            // 🔹 Top-level with children
+            <SubMenu
+              key={menu.path}
+              label={menu.menu || menu.name}
+              className={`my-1 ${getSubMenuStyle(menu.paths)}`}
+              icon={
+                menu.menuIcon && (
+                  <img
+                    src={menu.menuIcon}
+                    alt={`${menu.menu} icon`}
+                    className="w-[20px] h-[20px]"
+                  />
+                )
+              }
+              rootStyles={{
+                ["." + menuClasses.button]: {
+                  ":hover": {
+                    borderRadius: 5,
+                  },
                 },
-              },
-              ["." + menuClasses.label]: {
-                whiteSpace: "wrap",
-                marginLeft: open ? 0 : 7,
-              },
-            }}
-          >
-            {menu.subMenus?.map((subMenuItem: any) =>
-              subMenuItem.subMenus ? (
-                <SubMenu
-                  className={`my-1 ${getSubMenuItemStyle(subMenuItem.paths!)}`}
-                  key={subMenuItem.name}
-                  label={subMenuItem.name}
-                  rootStyles={{
-                    ["." + menuClasses.label]: {
-                      paddingLeft: open ? 25 : 0,
-                    },
-                    ["." + menuClasses.menuItemRoot]: {
-                      width: open ? "100%" : "95.5%",
-                    },
-                  }}
-                >
-                  {subMenuItem.subMenus?.map((subItem: any) => (
-                    // grantedRoutes.includes(toRouteKey(subItem.name)) &&
-                    <MenuItem
-                      className={`my-1 ${getMenuItemStyle(subItem.path)}`}
-                      key={subItem.name}
-                      component={<Link to={subItem.path} />}
-                      rootStyles={{
-                        ["." + menuClasses.label]: {
-                          paddingLeft: open ? 20 : 17,
-                          marginLeft: 0,
-                          fontSize: 12,
-                        },
-                      }}
-                    >
-                      <div className="flex gap-2">
-                        <span
-                          className={`w-[1px] h-[1px] p-[2px] rounded-full bg-current mt-[7px]`}
-                        />
-                        <>{subItem.name}</>
-                      </div>
-                    </MenuItem>
-                  ))}
-                </SubMenu>
-              ) : (
-                // grantedRoutes.includes(toRouteKey(subMenuItem.name)) &&
-                <MenuItem
-                  className={`my-1 ${getMenuItemStyle(subMenuItem.path)}`}
-                  key={subMenuItem.name}
-                  component={<Link to={subMenuItem.path} />}
-                  rootStyles={{
-                    ["." + menuClasses.label]: {
-                      paddingLeft: open ? 27 : 10,
-                      marginLeft: 0,
-                      fontSize: 12,
-                    },
-                  }}
-                >
-                  <div className="flex gap-2">
-                    <span
-                      className={`w-[1px] h-[1px] p-[2px] rounded-full bg-current mt-[7px]`}
-                    />
-                    <>{subMenuItem.name}</>
-                  </div>
-                </MenuItem>
-              ),
-            )}
-          </SubMenu>
-        ))}
+                ["." + menuClasses.label]: {
+                  whiteSpace: "wrap",
+                  marginLeft: open ? 0 : 7,
+                },
+              }}
+            >
+              {menu.subMenus.map((subMenuItem: any) =>
+                subMenuItem.subMenus ? (
+                  // 🔹 Nested submenu
+                  <SubMenu
+                    key={subMenuItem.path}
+                    label={subMenuItem.name}
+                    className={`my-1 ${getSubMenuItemStyle(
+                      subMenuItem.paths || []
+                    )}`}
+                    rootStyles={{
+                      ["." + menuClasses.label]: {
+                        paddingLeft: open ? 25 : 0,
+                      },
+                      ["." + menuClasses.menuItemRoot]: {
+                        width: open ? "100%" : "95.5%",
+                      },
+                    }}
+                  >
+                    {subMenuItem.subMenus.map((subItem: any) => (
+                      <MenuItem
+                        key={subItem.path}
+                        component={<Link to={subItem.path} />}
+                        className={`my-1 ${getMenuItemStyle(
+                          subItem.path
+                        )}`}
+                        rootStyles={{
+                          ["." + menuClasses.label]: {
+                            paddingLeft: open ? 20 : 17,
+                            marginLeft: 0,
+                            fontSize: 12,
+                          },
+                        }}
+                      >
+                        <div className="flex gap-2">
+                          <span className="w-[1px] h-[1px] p-[2px] rounded-full bg-current mt-[7px]" />
+                          {subItem.name}
+                        </div>
+                      </MenuItem>
+                    ))}
+                  </SubMenu>
+                ) : (
+                  // 🔹 Single level item
+                  <MenuItem
+                    key={subMenuItem.path}
+                    component={<Link to={subMenuItem.path} />}
+                    className={`my-1 ${getMenuItemStyle(
+                      subMenuItem.path
+                    )}`}
+                    rootStyles={{
+                      ["." + menuClasses.label]: {
+                        paddingLeft: open ? 27 : 10,
+                        marginLeft: 0,
+                        fontSize: 12,
+                      },
+                    }}
+                  >
+                    <div className="flex gap-2">
+                      <span className="w-[1px] h-[1px] p-[2px] rounded-full bg-current mt-[7px]" />
+                      {subMenuItem.name}
+                    </div>
+                  </MenuItem>
+                )
+              )}
+            </SubMenu>
+          ) : (
+            // 🔹 Top-level without children (future-safe)
+            <MenuItem
+              key={menu.path}
+              component={<Link to={menu.path} />}
+              className={`my-1 ${getMenuItemStyle(menu.path)}`}
+            >
+              {menu.menu || menu.name}
+            </MenuItem>
+          )
+        )}
       </Menu>
     </Sidebar>
   );
