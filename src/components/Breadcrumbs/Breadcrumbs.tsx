@@ -1,6 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import menuData from "../../Menu/menu.json";
+// import menuData from "../../Menu/menu.json";
 import { ChevronRight } from "lucide-react";
+// import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import { useFilteredMenu } from "@/hooks/useFilterMenu";
 
 interface MenuItem {
   name?: string;
@@ -46,8 +48,9 @@ const findFullTrail = (
 
 const Breadcrumb = () => {
   const location = useLocation();
+  const filteredMenu = useFilteredMenu();
 
-  const trail = findFullTrail(menuData as MenuItem[], location.pathname) || [];
+  const trail = findFullTrail(filteredMenu, location.pathname) || [];
 
   const breadcrumbs = [{ name: "Home", path: "/" }, ...trail];
 
