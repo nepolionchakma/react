@@ -1,9 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-// import menuData from "../../Menu/menu.json";
 import { ChevronRight } from "lucide-react";
-// import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { useFilteredMenu } from "@/hooks/useFilterMenu";
 
+// 🔹 Type
 interface MenuItem {
   name?: string;
   menu?: string;
@@ -12,7 +11,7 @@ interface MenuItem {
   subMenus?: MenuItem[];
 }
 
-// 🔥 recursive full trail finder
+// 🔥 Recursive full trail finder (menu-based)
 const findFullTrail = (
   menus: MenuItem[],
   targetPath: string,
@@ -27,7 +26,7 @@ const findFullTrail = (
       return newTrail;
     }
 
-    // ✅ match inside paths → go deeper if possible
+    // ✅ match inside paths
     if (menu.paths?.includes(targetPath)) {
       if (menu.subMenus) {
         const deep = findFullTrail(menu.subMenus, targetPath, newTrail);
@@ -36,7 +35,7 @@ const findFullTrail = (
       return newTrail;
     }
 
-    // ✅ recursive
+    // ✅ recursive search
     if (menu.subMenus) {
       const found = findFullTrail(menu.subMenus, targetPath, newTrail);
       if (found) return found;
@@ -46,11 +45,29 @@ const findFullTrail = (
   return null;
 };
 
+// 🔥 Fallback generator (for routes not in menu)
+const generateFallbackTrail = (pathname: string) => {
+  const segments = pathname.split("/").filter(Boolean);
+
+  return segments.map((segment, index) => {
+    const path = "/" + segments.slice(0, index + 1).join("/");
+
+    const name = segment
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (char) => char.toUpperCase());
+
+    return { name, path };
+  });
+};
+
 const Breadcrumb = () => {
   const location = useLocation();
   const filteredMenu = useFilteredMenu();
 
-  const trail = findFullTrail(filteredMenu, location.pathname) || [];
+  // 🔥 Use menu trail OR fallback
+  const trail =
+    findFullTrail(filteredMenu, location.pathname) ||
+    generateFallbackTrail(location.pathname);
 
   const breadcrumbs = [{ name: "Home", path: "/" }, ...trail];
 
