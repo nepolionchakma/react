@@ -239,6 +239,10 @@
             "name": "Manage Application Types",
             "path": "/tools/enterprise-system-integrations/manage-application-types",
             "endpoint_id": 1294
+          },
+          {
+            "name": "Manage Webhooks",
+            "path": "/tools/enterprise-system-integrations/manage-webhooks"
           }
         ]
       },

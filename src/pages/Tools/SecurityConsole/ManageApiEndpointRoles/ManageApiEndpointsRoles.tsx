@@ -25,7 +25,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import { ChevronDown, Edit, Plus } from "lucide-react";
-// import Alert from "@/components/Alert/Alert";
 import Rows from "@/components/Rows/Rows";
 import {
   DropdownMenu,
@@ -35,9 +34,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { convertToTitleCase } from "@/Utility/general";
-// import Modal from "./Modal";
-// import { Input } from "@/components/ui/input";
-// import Spinner from "@/components/Spinner/Spinner";
 import { IAPIEndpointRole } from "@/types/interfaces/apiEndpoints.interface";
 import { IRole } from "@/types/interfaces/users.interface";
 import { getColumns } from "./Columns";
@@ -54,7 +50,6 @@ const ManageApiEndpointsRoles = () => {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [data, setData] = useState<IAPIEndpointRole[] | []>([]);
-
   const [limit, setLimit] = useState<number>(8);
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
