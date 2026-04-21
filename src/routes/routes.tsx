@@ -4,13 +4,10 @@ import Inbox from "@/pages/Notifications/Inbox";
 import Sent from "@/pages/Notifications/Sent";
 import Drafts from "@/pages/Notifications/Drafts";
 import SingleMessage from "@/pages/Notifications/SingleMessage";
-// import SingleDraft from "@/pages/Notifications/SingleDraft";
 import ActionItems from "@/pages/ActionItems/ActionItems";
 import Home from "@/pages/Home/Home";
 import SingleSent from "@/pages/Notifications/SingleSent";
 import Users from "@/pages/Tools/SecurityConsole/ManageUsers/SetupAndAdministration";
-// import ManageGlobaConditions from "@/pages/EnterpriseSecurityControls/ManageGlobalConditions/ManageGlobalConditions";
-// import ManageLocalConditions from "@/pages/EnterpriseSecurityControls/ManageLocalConditions/ManageLocalConditions";
 import Alerts from "@/pages/Alerts/Alerts";
 import Error from "@/pages/Error/Error";
 import RiskManagement from "@/pages/Finance/RiskManagement/RiskManagement";
@@ -72,6 +69,7 @@ import ManageApplicationTypes from "@/pages/Tools/EnterpriseSystemIntegrations/M
 import ManageDataSource from "@/pages/Tools/EnterpriseSystemIntegrations/ManageDataSources/ManageDataSource";
 import ManageApiEndpoints from "@/pages/Tools/SecurityConsole/ManageEndpoints/ManageApiEndpoints";
 import ManageApiEndpointsRoles from "@/pages/Tools/SecurityConsole/ManageApiEndpointRoles/ManageApiEndpointsRoles";
+import ManageWebhooks from "@/pages/Tools/EnterpriseSystemIntegrations/ManageWebhooks/ManageWebhooks";
 
 const routes = createBrowserRouter([
   {
@@ -244,6 +242,10 @@ const routes = createBrowserRouter([
               {
                 path: "manage-application-types",
                 element: <ManageApplicationTypes />,
+              },
+              {
+                path: "manage-webhooks",
+                element: <ManageWebhooks />,
               },
             ],
           },
