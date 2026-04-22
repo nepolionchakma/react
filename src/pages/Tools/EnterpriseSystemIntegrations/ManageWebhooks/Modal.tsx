@@ -86,8 +86,6 @@ const Modal = ({
     },
   });
 
-  console.log(form.formState.errors);
-
   const selectedMethods = form.watch("http_methods");
 
   useEffect(() => {
@@ -113,39 +111,47 @@ const Modal = ({
   }, [token.access_token]);
 
   useEffect(() => {
-    if (action === "edit") {
+    if (!openModal) return; // 🔥 KEY FIX
+
+    if (action === "edit" && selectedItems[0]) {
       const fetchWebhook = async () => {
-        if (selectedItems[0]) {
-          const loadParams = {
-            baseURL: FLASK_URL,
-            url: `${flaskApi.Webhook}?webhook_id=${selectedItems[0].webhook_id}`,
-            setLoading: setIsLoading,
-            accessToken: token.access_token,
-            // isToast?: boolean;
-          };
+        const res = await loadData({
+          baseURL: FLASK_URL,
+          url: `${flaskApi.Webhook}?webhook_id=${selectedItems[0].webhook_id}`,
+          setLoading: setIsLoading,
+          accessToken: token.access_token,
+        });
 
-          const res = await loadData(loadParams);
-
-          form.reset({
-            webhook_name: res.result.webhook_name,
-            webhook_url: res.result.webhook_url,
-            table_name: res.result.table_name,
-            http_methods: res.result.http_methods,
-            secret_key: res.result.secret_key ?? "",
-            is_active: res.result.is_active,
-            max_retries: res.result.max_retries,
-          });
-
-          // Sync form with fetched data
-        } else return;
+        form.reset({
+          webhook_name: res.result.webhook_name,
+          webhook_url: res.result.webhook_url,
+          table_name: res.result.table_name,
+          http_methods: res.result.http_methods || [],
+          secret_key: res.result.secret_key ?? "",
+          is_active: res.result.is_active,
+          max_retries: res.result.max_retries,
+        });
       };
+
       fetchWebhook();
     }
-  }, [action, form, selectedItems, token.access_token]);
+
+    if (action === "add") {
+      form.reset({
+        webhook_name: "",
+        webhook_url: "",
+        table_name: "",
+        http_methods: [],
+        secret_key: "",
+        is_active: "",
+        max_retries: 0,
+      });
+    }
+  }, [action, selectedItems, token.access_token, openModal]);
 
   const handleClose = () => {
-    setAction("");
     setOpenModal(false);
+    setAction("");
   };
 
   const onSelectMethod = (
@@ -211,7 +217,7 @@ const Modal = ({
         <CustomModal4 className="w-[800px] h-auto">
           <div className="flex justify-between bg-[#CEDEF2] p-4">
             <h3 className="font-semibold capitalize">
-              {toTitleCase(action)} Application Type
+              {toTitleCase(action)} Webhook
             </h3>
             <X onClick={handleClose} className="cursor-pointer" />
           </div>
