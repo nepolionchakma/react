@@ -75,6 +75,7 @@ export const flaskApi = {
   ResetPasswordById: "/def_user_credentials/reset_forgot_password/:user_id",
   Invitation: "/invitation",
   Webhook: "/def_webhooks",
+  WebhookDeliveryLog: "/log_webhook_deliveries",
 };
 
 // All Node api

@@ -70,6 +70,7 @@ import ManageDataSource from "@/pages/Tools/EnterpriseSystemIntegrations/ManageD
 import ManageApiEndpoints from "@/pages/Tools/SecurityConsole/ManageEndpoints/ManageApiEndpoints";
 import ManageApiEndpointsRoles from "@/pages/Tools/SecurityConsole/ManageApiEndpointRoles/ManageApiEndpointsRoles";
 import ManageWebhooks from "@/pages/Tools/EnterpriseSystemIntegrations/ManageWebhooks/ManageWebhooks";
+import WebhookDeliveryLog from "@/pages/Tools/EnterpriseSystemIntegrations/WebhookDeliveryLog/WebhookDeliveryLog";
 
 const routes = createBrowserRouter([
   {
@@ -246,6 +247,10 @@ const routes = createBrowserRouter([
               {
                 path: "manage-webhooks",
                 element: <ManageWebhooks />,
+              },
+              {
+                path: "webhook-delivery-log",
+                element: <WebhookDeliveryLog />,
               },
             ],
           },

@@ -243,6 +243,10 @@
           {
             "name": "Manage Webhooks",
             "path": "/tools/enterprise-system-integrations/manage-webhooks"
+          },
+          {
+            "name": "Webhoook Delivery Log",
+            "path": "/tools/enterprise-system-integrations/webhook-delivery-log"
           }
         ]
       },
