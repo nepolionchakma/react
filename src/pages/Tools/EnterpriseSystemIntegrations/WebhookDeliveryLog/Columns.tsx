@@ -81,15 +81,8 @@ export const getColumns = (): ColumnDef<IWebhookDeliveryLog>[] => [
   {
     accessorKey: "payload",
     enableResizing: true,
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Payload
-        </div>
-      );
+    header: () => {
+      return <div className="min-w-max">Payload</div>;
     },
 
     cell: ({ row }) => {
