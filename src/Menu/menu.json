@@ -245,7 +245,7 @@
             "path": "/tools/enterprise-system-integrations/manage-webhooks"
           },
           {
-            "name": "Webhoook Delivery Log",
+            "name": "Webhook Delivery Log",
             "path": "/tools/enterprise-system-integrations/webhook-delivery-log"
           }
         ]
