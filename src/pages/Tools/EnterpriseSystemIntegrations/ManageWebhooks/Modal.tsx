@@ -17,7 +17,7 @@ import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { loadData, postData, putData } from "@/Utility/funtion";
 import Spinner from "@/components/Spinner/Spinner";
 import { Button } from "@/components/ui/button";
-import { IWebhook } from "@/types/interfaces/webhook.interface";
+import { IEvent, IWebhook } from "@/types/interfaces/webhook.interface";
 import {
   Popover,
   PopoverContent,
@@ -54,15 +54,15 @@ const Modal = ({
   const { token, enterpriseSetting } = useGlobalContext();
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [tables, setTables] = useState<string[]>([]);
-  const httpMethods = ["POST", "PUT", "DELETE"];
+  const [events, setEvents] = useState<IEvent[]>([]);
   const activeOptions = ["Y", "N"];
+
+  console.log(selectedItems);
 
   const weebhookSchema = z.object({
     webhook_name: z.string(),
     webhook_url: z.string(),
-    table_name: z.string(),
-    http_methods: z.array(z.string()),
+    event_ids: z.array(z.number()),
     secret_key: z.string().nullable().optional(),
     is_active: z.string(),
     max_retries: z.coerce.number(),
@@ -75,24 +75,23 @@ const Modal = ({
     defaultValues: {
       webhook_name: action === "edit" ? selectedItems[0].webhook_name : "",
       webhook_url: action === "edit" ? selectedItems[0].webhook_url : "",
-      table_name: action === "edit" ? selectedItems[0].table_name : "",
-      http_methods:
-        action === "edit" && selectedItems[0].http_methods.length > 0
-          ? selectedItems[0].http_methods.map((v) => v)
+      event_ids:
+        action === "edit" && selectedItems[0].events.length > 0
+          ? selectedItems[0].events.map((e) => e.event_id)
           : [],
-      secret_key: action === "edit" ? (selectedItems[0].secret_key ?? "") : "",
+      secret_key: "",
       is_active: action === "edit" ? selectedItems[0].is_active : "",
       max_retries: action === "edit" ? selectedItems[0].max_retries : 0,
     },
   });
 
-  const selectedMethods = form.watch("http_methods");
+  const selectedEvents = form.watch("event_ids");
 
   useEffect(() => {
-    const fetchTables = async () => {
+    const fetchEvents = async () => {
       const loadParams = {
         baseURL: FLASK_URL,
-        url: `/datasource/metadata?datasource_name=PRO_CG`,
+        url: `/def_webhook_events?tenant_id=${enterpriseSetting?.tenant_id}`,
         setLoading: setIsLoading,
         accessToken: token.access_token,
         // isToast?: boolean;
@@ -100,15 +99,12 @@ const Modal = ({
 
       const res = await loadData(loadParams);
       if (res) {
-        const appSchema = res.result.find(
-          (item: any) => item.schema === "apps",
-        );
-        setTables(appSchema.tables);
+        setEvents(res.result);
       }
     };
 
-    fetchTables();
-  }, [token.access_token]);
+    fetchEvents();
+  }, [enterpriseSetting?.tenant_id, token.access_token]);
 
   useEffect(() => {
     if (!openModal) return; // 🔥 KEY FIX
@@ -117,19 +113,18 @@ const Modal = ({
       const fetchWebhook = async () => {
         const res = await loadData({
           baseURL: FLASK_URL,
-          url: `${flaskApi.Webhook}?webhook_id=${selectedItems[0].webhook_id}`,
+          url: `/def_webhook_subscriptions_v?webhook_id=${selectedItems[0].webhook_id}`,
           setLoading: setIsLoading,
           accessToken: token.access_token,
         });
 
         form.reset({
-          webhook_name: res.result.webhook_name,
-          webhook_url: res.result.webhook_url,
-          table_name: res.result.table_name,
-          http_methods: res.result.http_methods || [],
-          secret_key: res.result.secret_key ?? "",
-          is_active: res.result.is_active,
-          max_retries: res.result.max_retries,
+          webhook_name: res.result[0].webhook_name,
+          webhook_url: res.result[0].webhook_url,
+          event_ids: res.result[0].events.map((e: any) => e.event_id) || [],
+          secret_key: res.result[0].secret_key ?? "",
+          is_active: res.result[0].is_active,
+          max_retries: res.result[0].max_retries,
         });
       };
 
@@ -140,61 +135,50 @@ const Modal = ({
       form.reset({
         webhook_name: "",
         webhook_url: "",
-        table_name: "",
-        http_methods: [],
+        event_ids: [],
         secret_key: "",
         is_active: "",
         max_retries: 0,
       });
     }
-  }, [action, selectedItems, token.access_token, openModal]);
+  }, [action, selectedItems, token.access_token, openModal, form]);
 
   const handleClose = () => {
     setOpenModal(false);
     setAction("");
   };
 
-  const onSelectMethod = (
-    method: string,
-    field: ControllerRenderProps<
-      z.infer<typeof weebhookSchema>,
-      "http_methods"
-    >,
+  const onSelectEvent = (
+    eventId: number,
+    field: ControllerRenderProps<z.infer<typeof weebhookSchema>, "event_ids">,
   ) => {
     const current = field.value ?? [];
-    if (current.includes(method)) {
-      field.onChange(current.filter((m) => m !== method));
+    if (current.includes(eventId)) {
+      field.onChange(current.filter((event) => event !== eventId));
     } else {
-      field.onChange([...current, method]);
+      field.onChange([...current, eventId]);
     }
   };
 
   const onSubmit = async (data: webhookForm) => {
-    console.log(data);
-    const payload = {
-      webhook_name: data.webhook_name,
-      webhook_url: data.webhook_url,
-      table_name: data.table_name,
-      tenant_id: enterpriseSetting?.tenant_id,
-      http_methods: data.http_methods,
-      secret_key: data.secret_key,
-      is_active: data.is_active,
-      max_retries: Number(data.max_retries),
-    };
-
-    const params = {
-      baseURL: FLASK_URL,
-      url:
-        action === "add"
-          ? flaskApi.Webhook
-          : `${flaskApi.Webhook}?webhook_id=${selectedItems[0].webhook_id}`,
-      setLoading: setIsSubmitting,
-      payload,
-      isToast: true,
-      accessToken: token.access_token,
-    };
-
     if (action === "add") {
+      const payload = {
+        webhook_name: data.webhook_name,
+        webhook_url: data.webhook_url,
+        event_ids: data.event_ids,
+        secret_key: data.secret_key,
+        is_active: data.is_active,
+        max_retries: Number(data.max_retries),
+      };
+
+      const params = {
+        baseURL: FLASK_URL,
+        url: `${flaskApi.Webhook}/with-subscriptions`,
+        setLoading: setIsSubmitting,
+        payload,
+        isToast: true,
+        accessToken: token.access_token,
+      };
       const res = await postData(params);
       if (res.status === 201) {
         setState((prev) => prev + 1);
@@ -202,6 +186,22 @@ const Modal = ({
         handleClose();
       }
     } else {
+      const payload = {
+        webhook_name: data.webhook_name,
+        webhook_url: data.webhook_url,
+        event_ids: data.event_ids,
+        is_active: data.is_active,
+        max_retries: Number(data.max_retries),
+      };
+
+      const params = {
+        baseURL: FLASK_URL,
+        url: `${flaskApi.Webhook}/with-subscriptions?webhook_id=${selectedItems[0].webhook_id}`,
+        setLoading: setIsSubmitting,
+        payload,
+        isToast: true,
+        accessToken: token.access_token,
+      };
       const res = await putData(params);
       if (res.status === 200) {
         setState((prev) => prev + 1);
@@ -209,6 +209,14 @@ const Modal = ({
         handleClose();
       }
     }
+  };
+
+  const eventNames = (eventIds: number[]) => {
+    if (!eventIds.length) return [];
+
+    return events
+      .filter((event) => eventIds.includes(event.event_id))
+      .map((event) => event.event_name);
   };
 
   return (
@@ -275,72 +283,41 @@ const Modal = ({
 
                     <FormField
                       control={form.control}
-                      name="table_name"
-                      render={({ field }) => (
-                        <FormItem>
-                          <label>Table Name</label>
-                          <FormControl>
-                            <Select
-                              onValueChange={(value) => {
-                                field.onChange(value);
-                              }}
-                              value={field.value}
-                            >
-                              <FormControl>
-                                <SelectTrigger>
-                                  <SelectValue placeholder="Select a Table Name" />
-                                </SelectTrigger>
-                              </FormControl>
-                              <SelectContent className="max-h-[250px]">
-                                <SelectGroup>
-                                  {tables?.sort().map((item) => (
-                                    <SelectItem key={item} value={item}>
-                                      {item}
-                                    </SelectItem>
-                                  ))}
-                                </SelectGroup>
-                              </SelectContent>
-                            </Select>
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="http_methods"
+                      name="event_ids"
                       render={({ field }) => {
                         return (
                           <FormItem>
                             <FormLabel className="font-normal">
-                              HTTP Methods
+                              Events
                             </FormLabel>
                             <Popover>
                               <PopoverTrigger className="border rounded px-3 py-2 text-left flex justify-between">
                                 {field.value.length > 0
-                                  ? field.value.join(", ")
-                                  : "Select Roles"}
+                                  ? eventNames(field.value).join(", ")
+                                  : "Select Events"}
                                 <ChevronDown size={20} color="gray" />
                               </PopoverTrigger>
 
                               <PopoverContent className="p-0 w-64">
                                 <Command>
                                   <CommandGroup>
-                                    {httpMethods.map((m) => (
+                                    {events.map((e) => (
                                       <CommandItem
-                                        key={m}
+                                        key={e.event_id}
                                         onSelect={() =>
-                                          onSelectMethod(m, field)
+                                          onSelectEvent(e.event_id, field)
                                         }
                                       >
                                         <Check
                                           className={`mr-2 h-4 w-4 ${
-                                            field.value.includes(m)
+                                            field.value.includes(e.event_id)
                                               ? "opacity-100"
                                               : "opacity-0"
                                           }`}
                                         />
-                                        <span className="capitalize">{m}</span>
+                                        <span className="capitalize">
+                                          {e.event_name}
+                                        </span>
                                       </CommandItem>
                                     ))}
                                   </CommandGroup>
@@ -352,31 +329,33 @@ const Modal = ({
                       }}
                     />
 
-                    <FormField
-                      control={form.control}
-                      name="secret_key"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="font-normal">
-                            Secret Key
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              {...field}
-                              value={field.value || ""}
-                              onChange={(e) =>
-                                field.onChange(
-                                  e.target.value === ""
-                                    ? undefined
-                                    : e.target.value,
-                                )
-                              }
-                              type="password"
-                            />
-                          </FormControl>
-                        </FormItem>
-                      )}
-                    />
+                    {action === "add" && (
+                      <FormField
+                        control={form.control}
+                        name="secret_key"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="font-normal">
+                              Secret Key
+                            </FormLabel>
+                            <FormControl>
+                              <Input
+                                {...field}
+                                value={field.value || ""}
+                                onChange={(e) =>
+                                  field.onChange(
+                                    e.target.value === ""
+                                      ? undefined
+                                      : e.target.value,
+                                  )
+                                }
+                                type="password"
+                              />
+                            </FormControl>
+                          </FormItem>
+                        )}
+                      />
+                    )}
 
                     <FormField
                       control={form.control}
@@ -435,7 +414,7 @@ const Modal = ({
                   <div className="flex justify-end mt-4">
                     <Button
                       type="submit"
-                      disabled={isSubmitting || selectedMethods.length === 0}
+                      disabled={isSubmitting || selectedEvents.length === 0}
                     >
                       {isSubmitting ? (
                         <Spinner size="20" color="white" />

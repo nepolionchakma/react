@@ -4,7 +4,7 @@ import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
 export const getColumns = (): ColumnDef<IWebhookDeliveryLog>[] => [
   {
-    accessorKey: "table_name",
+    accessorKey: "webhook_name",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
       const a = rowA.getValue(columnId) as string;
@@ -18,14 +18,14 @@ export const getColumns = (): ColumnDef<IWebhookDeliveryLog>[] => [
           className="min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Table Name
+          Webhook Name
           <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
         </div>
       );
     },
 
     cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("table_name")}</div>
+      <div className="min-w-max">{row.getValue("webhook_name")}</div>
     ),
   },
   {
@@ -54,31 +54,6 @@ export const getColumns = (): ColumnDef<IWebhookDeliveryLog>[] => [
     ),
   },
   {
-    accessorKey: "trigger_method",
-    enableResizing: true,
-    sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as string;
-      const b = rowB.getValue(columnId) as string;
-
-      return a.localeCompare(b, undefined, { sensitivity: "base" });
-    },
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Trigger Method
-          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
-        </div>
-      );
-    },
-
-    cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("trigger_method")}</div>
-    ),
-  },
-  {
     accessorKey: "payload",
     enableResizing: true,
     header: () => {
@@ -93,7 +68,7 @@ export const getColumns = (): ColumnDef<IWebhookDeliveryLog>[] => [
 
       return (
         <pre className="min-w-max text-xs whitespace-pre-wrap">
-          {JSON.stringify(data, null, 2)}
+          {JSON.stringify(data.result, null, 2)}
         </pre>
       );
     },
@@ -151,7 +126,7 @@ export const getColumns = (): ColumnDef<IWebhookDeliveryLog>[] => [
     ),
   },
   {
-    accessorKey: "http_status_code",
+    accessorKey: "http_status",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
       const a = rowA.getValue(columnId) as number;
@@ -173,7 +148,7 @@ export const getColumns = (): ColumnDef<IWebhookDeliveryLog>[] => [
 
     cell: ({ row }) => (
       <div className="capitalize min-w-max">
-        {row.getValue("http_status_code") || "Null"}
+        {row.getValue("http_status") || "Null"}
       </div>
     ),
   },
@@ -202,31 +177,31 @@ export const getColumns = (): ColumnDef<IWebhookDeliveryLog>[] => [
       <div className="min-w-max">{row.getValue("response_body") || "Null"}</div>
     ),
   },
-  {
-    accessorKey: "error_message",
-    enableResizing: true,
-    sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as string;
-      const b = rowB.getValue(columnId) as string;
+  // {
+  //   accessorKey: "error_message",
+  //   enableResizing: true,
+  //   sortingFn: (rowA, rowB, columnId) => {
+  //     const a = rowA.getValue(columnId) as string;
+  //     const b = rowB.getValue(columnId) as string;
 
-      return a.localeCompare(b, undefined, { sensitivity: "base" });
-    },
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Error Message
-          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
-        </div>
-      );
-    },
+  //     return a.localeCompare(b, undefined, { sensitivity: "base" });
+  //   },
+  //   header: ({ column }) => {
+  //     return (
+  //       <div
+  //         className="min-w-max"
+  //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+  //       >
+  //         Error Message
+  //         <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
+  //       </div>
+  //     );
+  //   },
 
-    cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("error_message") || "Null"}</div>
-    ),
-  },
+  //   cell: ({ row }) => (
+  //     <div className="min-w-max">{row.getValue("error_message") || "Null"}</div>
+  //   ),
+  // },
   {
     accessorKey: "duration_ms",
     enableResizing: true,
@@ -254,34 +229,34 @@ export const getColumns = (): ColumnDef<IWebhookDeliveryLog>[] => [
       </div>
     ),
   },
-  {
-    accessorKey: "next_retry_date",
-    enableResizing: true,
-    sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as Date;
-      const b = rowB.getValue(columnId) as Date;
+  // {
+  //   accessorKey: "next_retry_date",
+  //   enableResizing: true,
+  //   sortingFn: (rowA, rowB, columnId) => {
+  //     const a = rowA.getValue(columnId) as Date;
+  //     const b = rowB.getValue(columnId) as Date;
 
-      return a.getTime() - b.getTime();
-    },
-    // header: "Username",
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Next Ready Date
-          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
-        </div>
-      );
-    },
+  //     return a.getTime() - b.getTime();
+  //   },
+  //   // header: "Username",
+  //   header: ({ column }) => {
+  //     return (
+  //       <div
+  //         className="min-w-max"
+  //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+  //       >
+  //         Next Ready Date
+  //         <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
+  //       </div>
+  //     );
+  //   },
 
-    cell: ({ row }) => (
-      <div className="capitalize min-w-max">
-        {convertDate(row.getValue("next_retry_date")) || "Null"}
-      </div>
-    ),
-  },
+  //   cell: ({ row }) => (
+  //     <div className="capitalize min-w-max">
+  //       {convertDate(row.getValue("next_retry_date")) || "Null"}
+  //     </div>
+  //   ),
+  // },
   {
     accessorKey: "creation_date",
     enableResizing: true,

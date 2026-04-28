@@ -1,5 +1,5 @@
 import { Users } from "@/types/interfaces/users.interface";
-import { IWebhook } from "@/types/interfaces/webhook.interface";
+import { IEvent, IWebhook } from "@/types/interfaces/webhook.interface";
 import { convertDate } from "@/Utility/DateConverter";
 import { renderUserName } from "@/Utility/NotificationUtils";
 import { ColumnDef } from "@tanstack/react-table";
@@ -66,41 +66,16 @@ export const getColumns = (users: Users[]): ColumnDef<IWebhook>[] => [
       <div className="min-w-max">{row.getValue("webhook_url")}</div>
     ),
   },
+
   {
-    accessorKey: "table_name",
+    accessorKey: "events",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as string;
-      const b = rowB.getValue(columnId) as string;
+      const eventA = rowA.getValue(columnId) as IEvent[];
+      const eventB = rowB.getValue(columnId) as IEvent[];
 
-      return a.localeCompare(b, undefined, { sensitivity: "base" });
-    },
-    // header: "Username",
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Table Name
-          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
-        </div>
-      );
-    },
-
-    cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("table_name")}</div>
-    ),
-  },
-  {
-    accessorKey: "http_methods",
-    enableResizing: true,
-    sortingFn: (rowA, rowB, columnId) => {
-      const methodA = rowA.getValue(columnId) as string[];
-      const methodB = rowB.getValue(columnId) as string[];
-
-      const a = methodA[0] || "";
-      const b = methodB[0] || "";
+      const a = eventA[0].event_name || "";
+      const b = eventB[0].event_name || "";
 
       return a.localeCompare(b, undefined, { sensitivity: "base" });
     },
@@ -110,18 +85,18 @@ export const getColumns = (users: Users[]): ColumnDef<IWebhook>[] => [
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           className="min-w-max cursor-pointer"
         >
-          Methods
+          Events
           <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
         </div>
       );
     },
     cell: ({ row }) => {
       // const isExpanded = expandPrevilege === row.id;
-      const methods: string[] = row.getValue("http_methods");
+      const events: IEvent[] = row.getValue("events");
       return (
         <div className="flex items-center gap-2 min-w-max">
           <div className="capitalize min-w-max">
-            <span>{methods.map((m) => m).join(", ")}</span>
+            <span>{events.map((e) => e.event_name).join(", ")}</span>
           </div>
         </div>
       );
