@@ -105,7 +105,7 @@ const ManageWebhooks = () => {
   useEffect(() => {
     const webhookParams = {
       baseURL: FLASK_URL,
-      url: `${flaskApi.Webhook}?tenant_id=${enterpriseSetting?.tenant_id}&webhook_name=${query}&page=${currentPage}&limit=${limit}`,
+      url: `/def_webhook_subscriptions_v?tenant_id=${enterpriseSetting?.tenant_id}&webhook_name=${query}&page=${currentPage}&limit=${limit}`,
       accessToken: `${token.access_token}`,
       setLoading: setIsLoading,
     };
