@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toTitleCase } from "@/Utility/general";
-import { Check, ChevronDown, X } from "lucide-react";
+import { ChevronDown, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/select";
 import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 import { ControllerRenderProps, useForm } from "react-hook-form";
+import { Checkbox } from "@/components/ui/checkbox";
 
 interface Props {
   action: string;
@@ -55,6 +56,7 @@ const Modal = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [events, setEvents] = useState<IEvent[]>([]);
+  // const [showEvents, setShowEvents] = useState(false);
   const activeOptions = ["Y", "N"];
 
   console.log(selectedItems);
@@ -281,54 +283,6 @@ const Modal = ({
                       )}
                     />
 
-                    <FormField
-                      control={form.control}
-                      name="event_ids"
-                      render={({ field }) => {
-                        return (
-                          <FormItem>
-                            <FormLabel className="font-normal">
-                              Events
-                            </FormLabel>
-                            <Popover>
-                              <PopoverTrigger className="border rounded px-3 py-2 text-left flex justify-between">
-                                {field.value.length > 0
-                                  ? eventNames(field.value).join(", ")
-                                  : "Select Events"}
-                                <ChevronDown size={20} color="gray" />
-                              </PopoverTrigger>
-
-                              <PopoverContent className="p-0 w-64">
-                                <Command>
-                                  <CommandGroup>
-                                    {events.map((e) => (
-                                      <CommandItem
-                                        key={e.event_id}
-                                        onSelect={() =>
-                                          onSelectEvent(e.event_id, field)
-                                        }
-                                      >
-                                        <Check
-                                          className={`mr-2 h-4 w-4 ${
-                                            field.value.includes(e.event_id)
-                                              ? "opacity-100"
-                                              : "opacity-0"
-                                          }`}
-                                        />
-                                        <span className="capitalize">
-                                          {e.event_name}
-                                        </span>
-                                      </CommandItem>
-                                    ))}
-                                  </CommandGroup>
-                                </Command>
-                              </PopoverContent>
-                            </Popover>
-                          </FormItem>
-                        );
-                      }}
-                    />
-
                     {action === "add" && (
                       <FormField
                         control={form.control}
@@ -409,6 +363,68 @@ const Modal = ({
                           </FormControl>
                         </FormItem>
                       )}
+                    />
+
+                    <FormField
+                      control={form.control}
+                      name="event_ids"
+                      render={({ field }) => {
+                        return (
+                          <FormItem>
+                            <FormLabel className="font-normal">
+                              Events
+                            </FormLabel>
+
+                            <Popover>
+                              <PopoverTrigger className="border rounded px-3 py-2 text-left flex justify-between">
+                                {field.value.length > 0
+                                  ? eventNames(field.value).join(", ")
+                                  : "Select Events"}
+                                <ChevronDown size={20} color="gray" />
+                              </PopoverTrigger>
+
+                              <PopoverContent className="p-4 w-[40rem] max-h-[50vh] overflow-auto">
+                                <Command>
+                                  <CommandGroup>
+                                    <div className="grid grid-cols-2">
+                                      {events.map((e) => (
+                                        <CommandItem
+                                          className="flex items-start"
+                                          key={e.event_id}
+                                          onSelect={() =>
+                                            onSelectEvent(e.event_id, field)
+                                          }
+                                        >
+                                          <Checkbox
+                                            checked={field.value.includes(
+                                              e.event_id,
+                                            )}
+                                          />
+                                          {/* <Check
+                                          className={`mr-2 h-4 w-4 ${
+                                            field.value.includes(e.event_id)
+                                              ? "opacity-100"
+                                              : "opacity-0"
+                                          }`}
+                                        /> */}
+                                          <div className="flex flex-col">
+                                            <span className="capitalize font-semibold text-md">
+                                              {e.event_name}
+                                            </span>
+                                            <span className="text-sm">
+                                              {e.description}
+                                            </span>
+                                          </div>
+                                        </CommandItem>
+                                      ))}
+                                    </div>
+                                  </CommandGroup>
+                                </Command>
+                              </PopoverContent>
+                            </Popover>
+                          </FormItem>
+                        );
+                      }}
                     />
                   </div>
                   <div className="flex justify-end mt-4">
