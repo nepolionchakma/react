@@ -71,6 +71,7 @@ import ManageApiEndpoints from "@/pages/Tools/SecurityConsole/ManageEndpoints/Ma
 import ManageApiEndpointsRoles from "@/pages/Tools/SecurityConsole/ManageApiEndpointRoles/ManageApiEndpointsRoles";
 import ManageWebhooks from "@/pages/Tools/EnterpriseSystemIntegrations/ManageWebhooks/ManageWebhooks";
 import WebhookDeliveryLog from "@/pages/Tools/EnterpriseSystemIntegrations/WebhookDeliveryLog/WebhookDeliveryLog";
+import ProcessExecutionLog from "@/pages/Tools/EnterpriseProcessModeler/ProcessExecutionLog/ProcessExecutionLog";
 
 const routes = createBrowserRouter([
   {
@@ -226,6 +227,10 @@ const routes = createBrowserRouter([
               {
                 path: "orchestration-studio",
                 element: <OrchestrationStudio2 />,
+              },
+              {
+                path: "workflow-execution-log",
+                element: <ProcessExecutionLog />,
               },
             ],
           },

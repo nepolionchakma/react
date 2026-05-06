@@ -1,15 +1,52 @@
-import { IWebhookDeliveryLog } from "@/types/interfaces/webhook.interface";
+import {
+  IOrchestrationDataTypes,
+  IProcessExecution,
+} from "@/types/interfaces/orchestration.interface";
+import { Users } from "@/types/interfaces/users.interface";
 import { convertDate } from "@/Utility/DateConverter";
+import { processName } from "@/Utility/general";
+import { renderUserName } from "@/Utility/NotificationUtils";
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, Eye, EyeOff } from "lucide-react";
 export const getColumns = (
-  viewPayload: any,
-  setViewPayload: React.Dispatch<any>,
+  workflows: IOrchestrationDataTypes[],
+  users: Users[],
+  viewInputData: any,
+  setViewInputData: React.Dispatch<any>,
+  viewOutputData: any,
+  setViewOutputData: React.Dispatch<any>,
   clickedRowId: string,
   setClickedRowId: React.Dispatch<React.SetStateAction<string>>,
-): ColumnDef<IWebhookDeliveryLog>[] => [
+): ColumnDef<IProcessExecution>[] => [
   {
-    accessorKey: "webhook_name",
+    accessorKey: "process_id",
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = processName(rowA.getValue(columnId), workflows) as string;
+      const b = processName(rowB.getValue(columnId), workflows) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          className="min-w-max"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Workflow Name
+          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
+        </div>
+      );
+    },
+
+    cell: ({ row }) => (
+      <div className="min-w-max py-1">
+        {processName(row.getValue("process_id"), workflows)}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "execution_status",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
       const a = rowA.getValue(columnId) as string;
@@ -23,50 +60,25 @@ export const getColumns = (
           className="min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Webhook Name
+          Status
           <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
         </div>
       );
     },
 
     cell: ({ row }) => (
-      <div className="min-w-max py-1">{row.getValue("webhook_name")}</div>
+      <div className="min-w-max">{row.getValue("execution_status")}</div>
     ),
   },
   {
-    accessorKey: "event_name",
-    enableResizing: true,
-    sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as string;
-      const b = rowB.getValue(columnId) as string;
-
-      return a.localeCompare(b, undefined, { sensitivity: "base" });
-    },
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Event Name
-          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
-        </div>
-      );
-    },
-
-    cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("event_name")}</div>
-    ),
-  },
-  {
-    accessorKey: "payload",
+    accessorKey: "input_data",
     enableResizing: true,
     header: () => {
-      return <div className="min-w-max">Payload</div>;
+      return <div className="min-w-max">Input Data</div>;
     },
 
     cell: ({ row }) => {
-      const length = Object.keys(row.getValue("payload") ?? {}).length === 0;
+      const length = Object.keys(row.getValue("input_data") ?? {}).length === 0;
 
       return (
         <div className="flex items-center justify-center gap-2">
@@ -74,11 +86,11 @@ export const getColumns = (
             disabled={length}
             className="disabled:cursor-not-allowed disabled:opacity-50"
             onClick={() => {
-              setViewPayload(row.original.payload.data.result);
+              setViewInputData(row.original.input_data);
               setClickedRowId(row.id);
             }}
           >
-            {viewPayload && clickedRowId === row.id ? (
+            {viewInputData && clickedRowId === row.id ? (
               <EyeOff className="w-5 h-5" />
             ) : (
               <Eye className="w-5 h-5" />
@@ -87,49 +99,40 @@ export const getColumns = (
         </div>
       );
     },
-
-    // cell: ({ row }) => {
-    //   const payload = row.getValue("payload") as any;
-    //   const data = payload?.data;
-
-    //   if (!data) return null;
-
-    //   return (
-    //     <pre className="min-w-max text-xs whitespace-pre-wrap">
-    //       {JSON.stringify(data.result, null, 2)}
-    //     </pre>
-    //   );
-    // },
   },
   {
-    accessorKey: "attempt_number",
+    accessorKey: "output_data",
     enableResizing: true,
-    sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as number;
-      const b = rowB.getValue(columnId) as number;
-
-      return a - b;
+    header: () => {
+      return <div className="min-w-max">Output Data</div>;
     },
-    header: ({ column }) => {
+
+    cell: ({ row }) => {
+      const length =
+        Object.keys(row.getValue("output_data") ?? {}).length === 0;
+
       return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Attempt Number
-          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
+        <div className="flex items-center justify-center gap-2">
+          <button
+            disabled={length}
+            className="disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={() => {
+              setViewOutputData(row.original.input_data);
+              setClickedRowId(row.id);
+            }}
+          >
+            {viewOutputData && clickedRowId === row.id ? (
+              <EyeOff className="w-5 h-5" />
+            ) : (
+              <Eye className="w-5 h-5" />
+            )}
+          </button>
         </div>
       );
     },
-
-    cell: ({ row }) => (
-      <div className="capitalize min-w-max">
-        {row.getValue("attempt_number")}
-      </div>
-    ),
   },
   {
-    accessorKey: "delivery_status",
+    accessorKey: "error_message",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
       const a = rowA.getValue(columnId) as string;
@@ -143,32 +146,34 @@ export const getColumns = (
           className="min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Delivery Status
+          Error Message
           <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
         </div>
       );
     },
 
     cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("delivery_status")}</div>
+      <div className="min-w-max">{row.getValue("error_message")}</div>
     ),
   },
+
   {
-    accessorKey: "http_status",
+    accessorKey: "execution_start_date",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as number;
-      const b = rowB.getValue(columnId) as number;
+      const a = rowA.getValue(columnId) as Date;
+      const b = rowB.getValue(columnId) as Date;
 
-      return a - b;
+      return a.getTime() - b.getTime();
     },
+    // header: "Username",
     header: ({ column }) => {
       return (
         <div
           className="min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          HTTP Status Code
+          Start Date
           <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
         </div>
       );
@@ -176,16 +181,44 @@ export const getColumns = (
 
     cell: ({ row }) => (
       <div className="capitalize min-w-max">
-        {row.getValue("http_status") || "Null"}
+        {convertDate(row.getValue("execution_start_date"))}
       </div>
     ),
   },
   {
-    accessorKey: "response_body",
+    accessorKey: "execution_end_date",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as string;
-      const b = rowB.getValue(columnId) as string;
+      const a = rowA.getValue(columnId) as Date;
+      const b = rowB.getValue(columnId) as Date;
+
+      return a.getTime() - b.getTime();
+    },
+    // header: "Username",
+    header: ({ column }) => {
+      return (
+        <div
+          className="min-w-max"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          End Date
+          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
+        </div>
+      );
+    },
+
+    cell: ({ row }) => (
+      <div className="capitalize min-w-max">
+        {convertDate(row.getValue("execution_end_date"))}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "created_by",
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = renderUserName(rowA.getValue(columnId), users) as string;
+      const b = renderUserName(rowB.getValue(columnId), users) as string;
 
       return a.localeCompare(b, undefined, { sensitivity: "base" });
     },
@@ -195,57 +228,7 @@ export const getColumns = (
           className="min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Response Body
-          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
-        </div>
-      );
-    },
-
-    cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("response_body") || "Null"}</div>
-    ),
-  },
-  // {
-  //   accessorKey: "error_message",
-  //   enableResizing: true,
-  //   sortingFn: (rowA, rowB, columnId) => {
-  //     const a = rowA.getValue(columnId) as string;
-  //     const b = rowB.getValue(columnId) as string;
-
-  //     return a.localeCompare(b, undefined, { sensitivity: "base" });
-  //   },
-  //   header: ({ column }) => {
-  //     return (
-  //       <div
-  //         className="min-w-max"
-  //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-  //       >
-  //         Error Message
-  //         <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
-  //       </div>
-  //     );
-  //   },
-
-  //   cell: ({ row }) => (
-  //     <div className="min-w-max">{row.getValue("error_message") || "Null"}</div>
-  //   ),
-  // },
-  {
-    accessorKey: "duration_ms",
-    enableResizing: true,
-    sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as number;
-      const b = rowB.getValue(columnId) as number;
-
-      return a - b;
-    },
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Duration (ms)
+          Created By
           <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
         </div>
       );
@@ -253,38 +236,10 @@ export const getColumns = (
 
     cell: ({ row }) => (
       <div className="capitalize min-w-max">
-        {row.getValue("duration_ms") || "Null"}
+        {renderUserName(row.getValue("created_by"), users)}
       </div>
     ),
   },
-  // {
-  //   accessorKey: "next_retry_date",
-  //   enableResizing: true,
-  //   sortingFn: (rowA, rowB, columnId) => {
-  //     const a = rowA.getValue(columnId) as Date;
-  //     const b = rowB.getValue(columnId) as Date;
-
-  //     return a.getTime() - b.getTime();
-  //   },
-  //   // header: "Username",
-  //   header: ({ column }) => {
-  //     return (
-  //       <div
-  //         className="min-w-max"
-  //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-  //       >
-  //         Next Ready Date
-  //         <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
-  //       </div>
-  //     );
-  //   },
-
-  //   cell: ({ row }) => (
-  //     <div className="capitalize min-w-max">
-  //       {convertDate(row.getValue("next_retry_date")) || "Null"}
-  //     </div>
-  //   ),
-  // },
   {
     accessorKey: "creation_date",
     enableResizing: true,
@@ -310,6 +265,61 @@ export const getColumns = (
     cell: ({ row }) => (
       <div className="capitalize min-w-max">
         {convertDate(row.getValue("creation_date"))}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "last_updated_by",
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = renderUserName(rowA.getValue(columnId), users) as string;
+      const b = renderUserName(rowB.getValue(columnId), users) as string;
+
+      return a.localeCompare(b, undefined, { sensitivity: "base" });
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          className="min-w-max"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Last Updated By
+          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
+        </div>
+      );
+    },
+
+    cell: ({ row }) => (
+      <div className="capitalize min-w-max">
+        {renderUserName(row.getValue("last_updated_by"), users)}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "last_update_date",
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as Date;
+      const b = rowB.getValue(columnId) as Date;
+
+      return a.getTime() - b.getTime();
+    },
+    // header: "Username",
+    header: ({ column }) => {
+      return (
+        <div
+          className="min-w-max"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Last Update Date
+          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
+        </div>
+      );
+    },
+
+    cell: ({ row }) => (
+      <div className="capitalize min-w-max">
+        {convertDate(row.getValue("last_update_date"))}
       </div>
     ),
   },

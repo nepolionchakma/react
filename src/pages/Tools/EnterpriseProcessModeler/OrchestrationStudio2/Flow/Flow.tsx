@@ -129,6 +129,7 @@ const ShapesProExampleApp = ({
   const [requiredAttributes, setRequiredAttributes] = useState<
     IRequiredAttributes[]
   >([]);
+  const [isConnectionCompleted, setIsConnectionCompleted] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -254,6 +255,7 @@ const ShapesProExampleApp = ({
         const response = await axios.post(
           `${FLASK_URL}/workflow/run_dynamic`,
           {
+            process_id: selectedFlowData?.process_id,
             process_structure: {
               nodes,
               edges,
@@ -549,7 +551,6 @@ const ShapesProExampleApp = ({
     }
   };
 
-  const [isConnectionCompleted, setIsConnectionCompleted] = useState(false);
   useEffect(() => {
     const checkIfAllNodesConnected = () => {
       const result = nodes.every((node) => {
@@ -641,11 +642,11 @@ const ShapesProExampleApp = ({
   });
 
   const onSubmit = async (data: IFormValues) => {
-    console.log({ context: data }, "required attributes data");
     try {
       const response = await axios.post(
         `${FLASK_URL}/workflow/run_dynamic`,
         {
+          process_id: selectedFlowData?.process_id,
           process_structure: {
             nodes,
             edges,

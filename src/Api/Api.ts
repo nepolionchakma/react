@@ -65,6 +65,7 @@ export const flaskApi = {
   RunFlow: "/workflow/run",
   RunFlowStream: "/workflow/execution_stream",
   RequiredParams: "/workflow/required_params",
+  WorkflowExecutionLog: "/workflow/executions",
   NodeStatusCheck: "/workflow/execution_steps",
   DataSourceMetadata: "/datasource/metadata",
   DecisionEdgePredecessorOutputs: "/workflow/predecessor_outputs",
