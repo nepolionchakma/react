@@ -6,7 +6,8 @@ interface IProps {
   data: any | undefined;
   setData: React.Dispatch<React.SetStateAction<any | undefined>>;
 }
-const PopUp = ({ action, data, setData }: IProps) => {
+
+const Modal = ({ action, data, setData }: IProps) => {
   return (
     <CustomModal4 className="w-[400px] h-auto">
       <div className=" ">
@@ -50,4 +51,4 @@ const PopUp = ({ action, data, setData }: IProps) => {
   );
 };
 
-export default PopUp;
+export default Modal;

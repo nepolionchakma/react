@@ -16,7 +16,7 @@ export const columns = (
   viewParameters: IParametersTypes | undefined,
   setViewParameters: (row: IParametersTypes | undefined) => void,
   clickedRowId: string,
-  setClickedRowId: (row: string) => void
+  setClickedRowId: (row: string) => void,
 ): ColumnDef<IAsynchronousRequestsAndTaskSchedulesTypes>[] => [
   {
     id: "select",

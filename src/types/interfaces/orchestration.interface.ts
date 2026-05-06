@@ -50,34 +50,17 @@ export interface IdecisionEdgeData {
   operators: [{ label: string; value: string }];
 }
 
-// // Node
-// export interface Node {
-//   id: number;
-//   type: string;
-//   position: position;
-//   data: data;
-//   measured: measured;
-// }
-
-// export interface position {
-//   x: number;
-//   y: number;
-// }
-// export interface data {
-//   label: string;
-// }
-// export interface measured {
-//   width: number;
-//   height: number;
-// }
-// // Edge
-// export interface Edge {
-//   source: string;
-//   target: string;
-//   id: string;
-//   type: string;
-//   markerEnd: markerEnd;
-// }
-// export interface markerEnd {
-//   type: string;
-// }
+export interface IProcessExecution {
+  def_process_execution_id: number;
+  process_id: number | null;
+  execution_status: string;
+  input_data: any;
+  output_data: any;
+  error_message: string | null;
+  execution_start_date: Date;
+  execution_end_date: Date;
+  created_by: number;
+  creation_date: Date;
+  last_updated_by: number;
+  last_update_date: Date;
+}

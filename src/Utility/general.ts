@@ -1,4 +1,5 @@
 import { IAPIEndpoint } from "@/types/interfaces/apiEndpoints.interface";
+import { IOrchestrationDataTypes } from "@/types/interfaces/orchestration.interface";
 import {
   IJobTitle,
   IPrivilege,
@@ -83,6 +84,19 @@ export const endpointName = (
     );
 
     return endpoint?.api_endpoint;
+  }
+};
+
+export const processName = (
+  processId: number | undefined,
+  processes: IOrchestrationDataTypes[],
+) => {
+  if (!processId) {
+    return;
+  } else {
+    const process = processes.find((item) => item.process_id === processId);
+
+    return process?.process_name;
   }
 };
 

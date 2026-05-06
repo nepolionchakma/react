@@ -34,30 +34,49 @@ import { convertToTitleCase } from "@/Utility/general";
 import { getColumns } from "./Columns";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import Spinner from "@/components/Spinner/Spinner";
-import { IWebhookDeliveryLog } from "@/types/interfaces/webhook.interface";
 import SearchInput from "@/components/SearchInput/SearchInput";
+import {
+  IOrchestrationDataTypes,
+  IProcessExecution,
+} from "@/types/interfaces/orchestration.interface";
 import Modal from "./Modal";
 
-const WebhookDeliveryLog = () => {
-  const { token, enterpriseSetting } = useGlobalContext();
+const ProcessExecutionLog = () => {
+  const { token, users } = useGlobalContext();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [data, setData] = useState<IWebhookDeliveryLog[] | []>([]);
+  const [data, setData] = useState<IProcessExecution[] | []>([]);
   const [limit, setLimit] = useState<number>(8);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [query, setQuery] = useState("");
-  const [viewPayload, setViewPayload] = useState<any | undefined>(undefined);
+  const [workflows, setWorkflows] = useState<IOrchestrationDataTypes[]>([]);
+  const [viewInputData, setViewInputData] = useState<any | undefined>(
+    undefined,
+  );
+  const [viewOutputData, setViewOutputData] = useState<any | undefined>(
+    undefined,
+  );
   const [clickedRowId, setClickedRowId] = useState("");
 
   const columns = useMemo(
     () =>
-      getColumns(viewPayload, setViewPayload, clickedRowId, setClickedRowId),
-    [clickedRowId, viewPayload],
+      getColumns(
+        workflows,
+        users,
+        viewInputData,
+        setViewInputData,
+        viewOutputData,
+        setViewOutputData,
+        clickedRowId,
+        setClickedRowId,
+      ),
+    [workflows, users, viewInputData, viewOutputData, clickedRowId],
   );
+
   const table = useReactTable({
     data,
     columns,
@@ -81,11 +100,12 @@ const WebhookDeliveryLog = () => {
       },
     },
   });
+
   const hiddenColumns = [
-    "next_retry_date",
-    "duration_ms",
-    "error_message",
-    "response_body",
+    "created_by",
+    "last_updated_by",
+    "creation_date",
+    "last_update_date",
   ];
 
   useEffect(() => {
@@ -99,7 +119,25 @@ const WebhookDeliveryLog = () => {
   useEffect(() => {
     const params = {
       baseURL: FLASK_URL,
-      url: `${flaskApi.WebhookDeliveryLog}?tenant_id=${enterpriseSetting?.tenant_id}&webhook_name=${query}&page=${currentPage}&limit=${limit}`,
+      url: `${flaskApi.WorkFlow}`,
+      accessToken: `${token.access_token}`,
+      setLoading: setIsLoading,
+    };
+
+    const fetchData = async () => {
+      const res = await loadData(params);
+      if (res) {
+        setWorkflows(res.result);
+      }
+    };
+
+    fetchData();
+  }, [token.access_token]);
+
+  useEffect(() => {
+    const params = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.WorkflowExecutionLog}?process_name=${query}&page=${currentPage}&limit=${limit}`,
       accessToken: `${token.access_token}`,
       setLoading: setIsLoading,
     };
@@ -121,19 +159,15 @@ const WebhookDeliveryLog = () => {
     }, 1000);
 
     return () => clearTimeout(delayDebounce);
-  }, [
-    token.access_token,
-    table,
-    query,
-    currentPage,
-    limit,
-    enterpriseSetting?.tenant_id,
-  ]);
-
+  }, [token.access_token, table, query, currentPage, limit]);
   return (
     <>
-      {viewPayload !== undefined && (
-        <Modal action={"Payload"} data={viewPayload} setData={setViewPayload} />
+      {(viewInputData !== undefined || viewOutputData !== undefined) && (
+        <Modal
+          action={viewInputData ? "Input Data" : "Output Data"}
+          data={viewInputData ? viewInputData : viewOutputData}
+          setData={viewInputData ? setViewInputData : setViewOutputData}
+        />
       )}
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-2">
@@ -294,4 +328,4 @@ const WebhookDeliveryLog = () => {
   );
 };
 
-export default WebhookDeliveryLog;
+export default ProcessExecutionLog;
