@@ -241,6 +241,7 @@ export function GlobalContextProvider({
   useEffect(() => {
     const fetchUser = async () => {
       try {
+        console.log(token);
         if (token?.user_id === 0) return;
 
         const combinedUser = await loadData({
@@ -249,6 +250,8 @@ export function GlobalContextProvider({
           setLoading: setIsCombinedUserLoading,
           accessToken: `${token.access_token}`,
         });
+
+        console.log(combinedUser);
         setCombinedUser(combinedUser.result);
         if (combinedUser.result) {
           const res = await loadData({

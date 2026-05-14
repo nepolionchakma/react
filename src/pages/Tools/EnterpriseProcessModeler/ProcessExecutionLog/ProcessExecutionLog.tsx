@@ -39,7 +39,7 @@ import {
   IOrchestrationDataTypes,
   IProcessExecution,
 } from "@/types/interfaces/orchestration.interface";
-import Modal from "./Modal";
+import { useNavigate } from "react-router-dom";
 
 const ProcessExecutionLog = () => {
   const { token, users } = useGlobalContext();
@@ -54,27 +54,12 @@ const ProcessExecutionLog = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [query, setQuery] = useState("");
   const [workflows, setWorkflows] = useState<IOrchestrationDataTypes[]>([]);
-  const [viewInputData, setViewInputData] = useState<any | undefined>(
-    undefined,
-  );
-  const [viewOutputData, setViewOutputData] = useState<any | undefined>(
-    undefined,
-  );
-  const [clickedRowId, setClickedRowId] = useState("");
+
+  const navigate = useNavigate();
 
   const columns = useMemo(
-    () =>
-      getColumns(
-        workflows,
-        users,
-        viewInputData,
-        setViewInputData,
-        viewOutputData,
-        setViewOutputData,
-        clickedRowId,
-        setClickedRowId,
-      ),
-    [workflows, users, viewInputData, viewOutputData, clickedRowId],
+    () => getColumns(workflows, users, navigate),
+    [workflows, users, navigate],
   );
 
   const table = useReactTable({
@@ -162,13 +147,6 @@ const ProcessExecutionLog = () => {
   }, [token.access_token, table, query, currentPage, limit]);
   return (
     <>
-      {(viewInputData !== undefined || viewOutputData !== undefined) && (
-        <Modal
-          action={viewInputData ? "Input Data" : "Output Data"}
-          data={viewInputData ? viewInputData : viewOutputData}
-          setData={viewInputData ? setViewInputData : setViewOutputData}
-        />
-      )}
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-2">
           {/* Search  */}
