@@ -52,10 +52,28 @@ export interface IdecisionEdgeData {
 
 export interface IProcessExecution {
   def_process_execution_id: number;
-  process_id: number | null;
+  process_id: number;
   execution_status: string;
   input_data: any;
   output_data: any;
+  error_message: string | null;
+  execution_start_date: Date;
+  execution_end_date: Date;
+  created_by: number;
+  creation_date: Date;
+  last_updated_by: number;
+  last_update_date: Date;
+}
+
+export interface IWorkflowExecutionStep {
+  def_execution_step_id: number;
+  def_process_execution_id: number;
+  node_id: string;
+  node_label: string;
+  task_name: string;
+  status: string;
+  input_data: Record<string, any>;
+  result: Record<string, any> | null;
   error_message: string | null;
   execution_start_date: Date;
   execution_end_date: Date;

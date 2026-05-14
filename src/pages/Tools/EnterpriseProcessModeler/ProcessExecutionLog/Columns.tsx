@@ -7,17 +7,47 @@ import { convertDate } from "@/Utility/DateConverter";
 import { processName } from "@/Utility/general";
 import { renderUserName } from "@/Utility/NotificationUtils";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Eye, EyeOff } from "lucide-react";
+import { ArrowUpDown, View } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { NavigateFunction } from "react-router-dom";
+
 export const getColumns = (
   workflows: IOrchestrationDataTypes[],
   users: Users[],
-  viewInputData: any,
-  setViewInputData: React.Dispatch<any>,
-  viewOutputData: any,
-  setViewOutputData: React.Dispatch<any>,
-  clickedRowId: string,
-  setClickedRowId: React.Dispatch<React.SetStateAction<string>>,
+  navigate: NavigateFunction,
 ): ColumnDef<IProcessExecution>[] => [
+  {
+    accessorKey: "def_process_execution_id",
+    enableResizing: true,
+    sortingFn: (rowA, rowB, columnId) => {
+      const a = rowA.getValue(columnId) as number;
+      const b = rowB.getValue(columnId) as number;
+
+      return a - b;
+    },
+    header: ({ column }) => {
+      return (
+        <div
+          className="flex justify-center min-w-max"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Execution Id
+          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
+        </div>
+      );
+    },
+
+    cell: ({ row }) => (
+      <div className="flex justify-center min-w-max py-1">
+        {row.getValue("def_process_execution_id")}
+      </div>
+    ),
+  },
   {
     accessorKey: "process_id",
     enableResizing: true,
@@ -30,7 +60,7 @@ export const getColumns = (
     header: ({ column }) => {
       return (
         <div
-          className="min-w-max"
+          className="flex justify-center min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Workflow Name
@@ -40,7 +70,7 @@ export const getColumns = (
     },
 
     cell: ({ row }) => (
-      <div className="min-w-max py-1">
+      <div className="flex justify-center min-w-max">
         {processName(row.getValue("process_id"), workflows)}
       </div>
     ),
@@ -57,7 +87,7 @@ export const getColumns = (
     header: ({ column }) => {
       return (
         <div
-          className="min-w-max"
+          className="flex justify-center min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Status
@@ -67,70 +97,12 @@ export const getColumns = (
     },
 
     cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("execution_status")}</div>
+      <div className={`flex justify-center min-w-max`}>
+        {row.getValue("execution_status")}
+      </div>
     ),
   },
-  {
-    accessorKey: "input_data",
-    enableResizing: true,
-    header: () => {
-      return <div className="min-w-max">Input Data</div>;
-    },
 
-    cell: ({ row }) => {
-      const length = Object.keys(row.getValue("input_data") ?? {}).length === 0;
-
-      return (
-        <div className="flex items-center justify-center gap-2">
-          <button
-            disabled={length}
-            className="disabled:cursor-not-allowed disabled:opacity-50"
-            onClick={() => {
-              setViewInputData(row.original.input_data);
-              setClickedRowId(row.id);
-            }}
-          >
-            {viewInputData && clickedRowId === row.id ? (
-              <EyeOff className="w-5 h-5" />
-            ) : (
-              <Eye className="w-5 h-5" />
-            )}
-          </button>
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "output_data",
-    enableResizing: true,
-    header: () => {
-      return <div className="min-w-max">Output Data</div>;
-    },
-
-    cell: ({ row }) => {
-      const length =
-        Object.keys(row.getValue("output_data") ?? {}).length === 0;
-
-      return (
-        <div className="flex items-center justify-center gap-2">
-          <button
-            disabled={length}
-            className="disabled:cursor-not-allowed disabled:opacity-50"
-            onClick={() => {
-              setViewOutputData(row.original.input_data);
-              setClickedRowId(row.id);
-            }}
-          >
-            {viewOutputData && clickedRowId === row.id ? (
-              <EyeOff className="w-5 h-5" />
-            ) : (
-              <Eye className="w-5 h-5" />
-            )}
-          </button>
-        </div>
-      );
-    },
-  },
   {
     accessorKey: "error_message",
     enableResizing: true,
@@ -143,7 +115,7 @@ export const getColumns = (
     header: ({ column }) => {
       return (
         <div
-          className="min-w-max"
+          className="flex justify-center min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Error Message
@@ -153,7 +125,9 @@ export const getColumns = (
     },
 
     cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("error_message")}</div>
+      <div className="flex justify-center min-w-max">
+        {row.getValue("error_message")}
+      </div>
     ),
   },
 
@@ -170,7 +144,7 @@ export const getColumns = (
     header: ({ column }) => {
       return (
         <div
-          className="min-w-max"
+          className="flex justify-center min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Start Date
@@ -180,7 +154,7 @@ export const getColumns = (
     },
 
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">
+      <div className="capitalize flex justify-center min-w-max">
         {convertDate(row.getValue("execution_start_date"))}
       </div>
     ),
@@ -198,7 +172,7 @@ export const getColumns = (
     header: ({ column }) => {
       return (
         <div
-          className="min-w-max"
+          className="flex justify-center min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           End Date
@@ -208,7 +182,7 @@ export const getColumns = (
     },
 
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">
+      <div className="capitalize flex justify-center min-w-max">
         {convertDate(row.getValue("execution_end_date"))}
       </div>
     ),
@@ -225,7 +199,7 @@ export const getColumns = (
     header: ({ column }) => {
       return (
         <div
-          className="min-w-max"
+          className="flex justify-center min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Created By
@@ -235,7 +209,7 @@ export const getColumns = (
     },
 
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">
+      <div className="capitalize flex justify-center min-w-max">
         {renderUserName(row.getValue("created_by"), users)}
       </div>
     ),
@@ -253,7 +227,7 @@ export const getColumns = (
     header: ({ column }) => {
       return (
         <div
-          className="min-w-max"
+          className="flex justify-center min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Creation Date
@@ -263,7 +237,7 @@ export const getColumns = (
     },
 
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">
+      <div className="capitalize flex justify-center min-w-max">
         {convertDate(row.getValue("creation_date"))}
       </div>
     ),
@@ -280,7 +254,7 @@ export const getColumns = (
     header: ({ column }) => {
       return (
         <div
-          className="min-w-max"
+          className="flex justify-center min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Last Updated By
@@ -290,7 +264,7 @@ export const getColumns = (
     },
 
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">
+      <div className="capitalize flex justify-center min-w-max">
         {renderUserName(row.getValue("last_updated_by"), users)}
       </div>
     ),
@@ -308,7 +282,7 @@ export const getColumns = (
     header: ({ column }) => {
       return (
         <div
-          className="min-w-max"
+          className="flex justify-center min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
           Last Update Date
@@ -318,8 +292,40 @@ export const getColumns = (
     },
 
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">
+      <div className="capitalize flex justify-center min-w-max">
         {convertDate(row.getValue("last_update_date"))}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "action",
+    enableResizing: false,
+
+    header: () => {
+      return <div className="flex justify-center min-w-max">Action</div>;
+    },
+
+    cell: ({ row }) => (
+      <div className="flex justify-center min-w-max">
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="relative">
+                <View
+                  onClick={() =>
+                    navigate(
+                      `/tools/enterprise-process-modeler/workflow-execution-log/${row.getValue("def_process_execution_id")}`,
+                    )
+                  }
+                  className="cursor-pointer"
+                />
+              </span>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>View</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
     ),
   },

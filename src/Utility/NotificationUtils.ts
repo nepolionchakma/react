@@ -1,6 +1,7 @@
 import { Users } from "@/types/interfaces/users.interface";
 
-export const renderUserName = (id: number, users: Users[]) => {
+export const renderUserName = (id: number | undefined, users: Users[]) => {
+  if (!id) return;
   const user = users.find((usr) => usr.user_id === id);
 
   return user?.user_name;
@@ -9,7 +10,7 @@ export const renderUserName = (id: number, users: Users[]) => {
 export const renderSlicedUsername = (
   id: number,
   users: Users[],
-  limit: number
+  limit: number,
 ) => {
   const user = users.find((usr) => usr.user_id === id);
 

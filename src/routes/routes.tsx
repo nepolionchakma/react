@@ -72,6 +72,7 @@ import ManageApiEndpointsRoles from "@/pages/Tools/SecurityConsole/ManageApiEndp
 import ManageWebhooks from "@/pages/Tools/EnterpriseSystemIntegrations/ManageWebhooks/ManageWebhooks";
 import WebhookDeliveryLog from "@/pages/Tools/EnterpriseSystemIntegrations/WebhookDeliveryLog/WebhookDeliveryLog";
 import ProcessExecutionLog from "@/pages/Tools/EnterpriseProcessModeler/ProcessExecutionLog/ProcessExecutionLog";
+import ExecutionDetails from "@/pages/Tools/EnterpriseProcessModeler/ProcessExecutionLog/ExecutionDetails";
 
 const routes = createBrowserRouter([
   {
@@ -231,6 +232,10 @@ const routes = createBrowserRouter([
               {
                 path: "workflow-execution-log",
                 element: <ProcessExecutionLog />,
+              },
+              {
+                path: "workflow-execution-log/:def_process_execution_id",
+                element: <ExecutionDetails />,
               },
             ],
           },
