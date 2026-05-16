@@ -202,11 +202,19 @@ export interface IJobTitle {
 export interface IRole {
   role_id: number;
   role_name: string;
+  created_by: number;
+  creation_date: Date;
+  last_updated_by: number;
+  last_update_date: Date;
 }
 
 export interface IPrivilege {
   privilege_id: number;
   privilege_name: string;
+  created_by: number;
+  creation_date: Date;
+  last_updated_by: number;
+  last_update_date: Date;
 }
 
 export interface IPrivilegeAndRole {

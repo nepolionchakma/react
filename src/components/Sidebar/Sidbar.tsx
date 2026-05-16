@@ -32,9 +32,7 @@ const Sidbar = () => {
   };
 
   const getSubMenuItemStyle = (paths: string[] = []) => {
-    return paths.includes(pathname)
-      ? "bg-[#F3F8FF]"
-      : "bg-[#F3F8FF]";
+    return paths.includes(pathname) ? "bg-[#F3F8FF]" : "bg-[#F3F8FF]";
   };
 
   return (
@@ -71,6 +69,18 @@ const Sidbar = () => {
             paddingRight: open ? 10 : 5,
             paddingLeft: open ? 20 : 5,
             backgroundColor: "#F3F8FF",
+
+            // scrollbar only when sidebar is collapsed
+            maxHeight: open ? "none" : "100vh",
+            overflowY: open ? "visible" : "auto",
+            overflowX: "hidden",
+          },
+          ["." + menuClasses.subMenuContent + "::-webkit-scrollbar"]: {
+            width: "6px",
+          },
+          ["." + menuClasses.subMenuContent + "::-webkit-scrollbar-thumb"]: {
+            backgroundColor: "#B4C4D9",
+            borderRadius: "10px",
           },
         }}
       >
@@ -109,7 +119,7 @@ const Sidbar = () => {
                     key={subMenuItem.path}
                     label={subMenuItem.name}
                     className={`my-1 ${getSubMenuItemStyle(
-                      subMenuItem.paths || []
+                      subMenuItem.paths || [],
                     )}`}
                     rootStyles={{
                       ["." + menuClasses.label]: {
@@ -124,9 +134,7 @@ const Sidbar = () => {
                       <MenuItem
                         key={subItem.path}
                         component={<Link to={subItem.path} />}
-                        className={`my-1 ${getMenuItemStyle(
-                          subItem.path
-                        )}`}
+                        className={`my-1 ${getMenuItemStyle(subItem.path)}`}
                         rootStyles={{
                           ["." + menuClasses.label]: {
                             paddingLeft: open ? 20 : 17,
@@ -147,9 +155,7 @@ const Sidbar = () => {
                   <MenuItem
                     key={subMenuItem.path}
                     component={<Link to={subMenuItem.path} />}
-                    className={`my-1 ${getMenuItemStyle(
-                      subMenuItem.path
-                    )}`}
+                    className={`my-1 ${getMenuItemStyle(subMenuItem.path)}`}
                     rootStyles={{
                       ["." + menuClasses.label]: {
                         paddingLeft: open ? 27 : 10,
@@ -163,7 +169,7 @@ const Sidbar = () => {
                       {subMenuItem.name}
                     </div>
                   </MenuItem>
-                )
+                ),
               )}
             </SubMenu>
           ) : (
@@ -175,7 +181,7 @@ const Sidbar = () => {
             >
               {menu.menu || menu.name}
             </MenuItem>
-          )
+          ),
         )}
       </Menu>
     </Sidebar>

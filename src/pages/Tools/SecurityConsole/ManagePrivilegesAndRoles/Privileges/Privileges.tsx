@@ -17,15 +17,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useEffect, useMemo, useState } from "react";
-import { FLASK_URL, flaskApi } from "@/Api/Api";
-import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import { deleteData, loadData } from "@/Utility/funtion";
+import { getColumns } from "./Columns";
+import { IPrivilege } from "@/types/interfaces/users.interface";
+import Pagination5 from "@/components/Pagination/Pagination5";
 import { Checkbox } from "@/components/ui/checkbox";
-import ActionButtons from "@/components/ActionButtons/ActionButtons";
-import CustomTooltip from "@/components/Tooltip/Tooltip";
-import { ChevronDown, FileEdit, Plus } from "lucide-react";
-import Rows from "@/components/Rows/Rows";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -33,25 +28,39 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import { ChevronDown, FileEdit, Plus } from "lucide-react";
+import Rows from "@/components/Rows/Rows";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import { deleteData, loadData } from "@/Utility/funtion";
 import { convertToTitleCase } from "@/Utility/general";
-import { getColumns } from "./Columns";
-import Modal from "./Modal";
-import Pagination5 from "@/components/Pagination/Pagination5";
+import { useEffect, useMemo, useState } from "react";
+import ActionButtons from "@/components/ActionButtons/ActionButtons";
+import CustomTooltip from "@/components/Tooltip/Tooltip";
 import Alert from "@/components/Alert/Alert";
 import Spinner from "@/components/Spinner/Spinner";
-import { IWebhook } from "@/types/interfaces/webhook.interface";
 import SearchInput from "@/components/SearchInput/SearchInput";
+import Modal from "./Modal";
 
-const ManageWebhooks = () => {
-  const { token, users, enterpriseSetting, grantedPrivlegeIds } =
-    useGlobalContext();
+interface Props {
+  privilegesLimit: number;
+  setPrivilegesLimit: React.Dispatch<React.SetStateAction<number>>;
+  selectedPrivilegeRows: IPrivilege[];
+  setSelectedPrivilegeRows: React.Dispatch<React.SetStateAction<IPrivilege[]>>;
+}
+
+const Privileges = ({
+  privilegesLimit,
+  setPrivilegesLimit,
+  selectedPrivilegeRows,
+  setSelectedPrivilegeRows,
+}: Props) => {
+  const { token, users, grantedPrivlegeIds } = useGlobalContext();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [data, setData] = useState<IWebhook[] | []>([]);
-  const [selectedWebhooks, setSelectedWebhooks] = useState<IWebhook[]>([]);
-  const [limit, setLimit] = useState<number>(8);
+  const [data, setData] = useState<IPrivilege[] | []>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPage, setTotalPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
@@ -63,7 +72,10 @@ const ManageWebhooks = () => {
   const [reloadController, setReloadController] = useState(1);
   const [query, setQuery] = useState("");
 
+  console.log(data);
+
   const columns = useMemo(() => getColumns(users), [users]);
+
   const table = useReactTable({
     data,
     columns,
@@ -83,16 +95,12 @@ const ManageWebhooks = () => {
       rowSelection,
       pagination: {
         pageIndex: 0,
-        pageSize: limit,
+        pageSize: privilegesLimit,
       },
     },
   });
-  const hiddenColumns = [
-    "created_by",
-    "last_updated_by",
-    "creation_date",
-    "last_update_date",
-  ];
+
+  const hiddenColumns: string[] = [];
 
   useEffect(() => {
     table.getAllColumns().forEach((column) => {
@@ -103,15 +111,15 @@ const ManageWebhooks = () => {
   }, [table]);
 
   useEffect(() => {
-    const webhookParams = {
+    const params = {
       baseURL: FLASK_URL,
-      url: `/def_webhook_subscriptions_v?tenant_id=${enterpriseSetting?.tenant_id}&webhook_name=${query}&page=${currentPage}&limit=${limit}`,
+      url: `${flaskApi.DefPrivileges}?page=${currentPage}&limit=${privilegesLimit}&privilege_name=${query}`,
       accessToken: `${token.access_token}`,
       setLoading: setIsLoading,
     };
-
-    const loadWebhooks = async () => {
-      const res = await loadData(webhookParams);
+    const loadPrivileges = async () => {
+      const res = await loadData(params);
+      console.log(res, "calling");
       if (res.result) {
         setData(res.result);
         setTotalPage(res.pages);
@@ -122,49 +130,32 @@ const ManageWebhooks = () => {
     };
 
     const delayDebounce = setTimeout(() => {
-      loadWebhooks();
+      loadPrivileges();
       //   setSelectedItem(null);
     }, 1000);
 
     return () => clearTimeout(delayDebounce);
   }, [
     token.access_token,
-    table,
     reloadController,
-    query,
     currentPage,
-    limit,
-    enterpriseSetting?.tenant_id,
+    privilegesLimit,
+    token,
+    table,
+    query,
   ]);
 
   useEffect(() => {
     if (data?.length > 0) {
-      if (selectedWebhooks.length !== data.length) {
+      if (selectedPrivilegeRows.length !== data.length) {
         setIsSelectAll(false);
       } else {
         setIsSelectAll(true);
       }
     }
-    const ids = selectedWebhooks?.map((item) => item.webhook_id);
+    const ids = selectedPrivilegeRows?.map((item) => item.privilege_id);
     setSelectedIds(ids);
-  }, [data?.length, selectedWebhooks]);
-
-  const handleRowSelection = (rowData: IWebhook) => {
-    setSelectedWebhooks((prev) => {
-      const webhook = prev.find(
-        (item) => item.webhook_id === rowData.webhook_id,
-      );
-
-      if (webhook) {
-        const filtered = prev.filter(
-          (item) => item.webhook_id !== rowData.webhook_id,
-        );
-        return filtered;
-      } else {
-        return [rowData, ...prev];
-      }
-    });
-  };
+  }, [data.length, selectedPrivilegeRows]);
 
   const handleAdd = () => {
     setAction("add");
@@ -178,19 +169,30 @@ const ManageWebhooks = () => {
   const handleSelectAll = () => {
     if (isSelectAll) {
       setIsSelectAll(false);
-      setSelectedWebhooks([]);
+      setSelectedPrivilegeRows([]);
     } else {
       setIsSelectAll(true);
-      setSelectedWebhooks(data);
+      setSelectedPrivilegeRows(data);
+    }
+  };
+
+  const handleRowSelection = (rowSelection: IPrivilege) => {
+    if (selectedIds.includes(rowSelection.privilege_id)) {
+      const newSelected = selectedPrivilegeRows.filter(
+        (row) => row.privilege_id !== rowSelection.privilege_id,
+      );
+      setSelectedPrivilegeRows(newSelected);
+    } else {
+      setSelectedPrivilegeRows((prev) => [...prev, rowSelection]);
     }
   };
 
   const handleDelete = async () => {
     const params = {
-      url: flaskApi.Webhook,
+      url: flaskApi.DefPrivileges,
       baseURL: FLASK_URL,
       payload: {
-        webhook_ids: selectedIds,
+        privilege_ids: selectedIds,
       },
       accessToken: token.access_token,
       isToast: true,
@@ -217,11 +219,11 @@ const ManageWebhooks = () => {
               </button>
             )}
             {grantedPrivlegeIds?.includes(11103) && (
-              <button disabled={selectedWebhooks.length !== 1}>
+              <button disabled={selectedPrivilegeRows.length !== 1}>
                 <CustomTooltip tooltipTitle="Edit">
                   <FileEdit
                     className={`${
-                      selectedWebhooks.length !== 1
+                      selectedPrivilegeRows.length !== 1
                         ? "text-slate-200 cursor-not-allowed"
                         : "cursor-pointer"
                     }`}
@@ -232,7 +234,7 @@ const ManageWebhooks = () => {
             )}
             {grantedPrivlegeIds?.includes(11104) && (
               <Alert
-                disabled={selectedWebhooks.length === 0 || isDeleteLoading}
+                disabled={selectedPrivilegeRows.length === 0 || isDeleteLoading}
                 actionName="delete"
                 onContinue={handleDelete}
                 tooltipTitle="Delete"
@@ -242,9 +244,9 @@ const ManageWebhooks = () => {
                     <Spinner size="40" color="black" />
                   ) : (
                     <span className="flex flex-col items-start">
-                      {selectedWebhooks.map((item, index) => (
-                        <span key={item.webhook_id}>
-                          {index + 1}. Webhook Name : {item.webhook_name}
+                      {selectedPrivilegeRows.map((item, index) => (
+                        <span key={item.privilege_id}>
+                          {index + 1}. Privilege : {item.privilege_name}
                         </span>
                       ))}
                     </span>
@@ -256,7 +258,7 @@ const ManageWebhooks = () => {
 
           {/* Search  */}
           <SearchInput
-            placeholder="Search Webhook Name"
+            placeholder="Search Privilege"
             query={query}
             setQuery={setQuery}
             setPage={setCurrentPage}
@@ -264,7 +266,7 @@ const ManageWebhooks = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          <Rows limit={limit} setLimit={setLimit} />
+          <Rows limit={privilegesLimit} setLimit={setPrivilegesLimit} />
           {/* Columns */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -382,7 +384,7 @@ const ManageWebhooks = () => {
                         <Checkbox
                           className="mt-1"
                           checked={selectedIds.includes(
-                            row.original.webhook_id,
+                            row.original.privilege_id,
                           )}
                           onClick={() => handleRowSelection(row.original)}
                         />
@@ -421,7 +423,7 @@ const ManageWebhooks = () => {
       {/* Start Pagination */}
       <div className="flex justify-between p-1">
         <div className="flex-1 text-sm text-gray-600">
-          {selectedWebhooks?.length} row(s) selected.
+          {selectedPrivilegeRows?.length} row(s) selected.
         </div>
         <Pagination5
           currentPage={currentPage}
@@ -436,11 +438,11 @@ const ManageWebhooks = () => {
         setAction={setAction}
         openModal={openModal}
         setOpenModal={setOpenModal}
-        selectedItems={selectedWebhooks}
+        selectedItems={selectedPrivilegeRows}
         setState={setReloadController}
       />
     </>
   );
 };
 
-export default ManageWebhooks;
+export default Privileges;

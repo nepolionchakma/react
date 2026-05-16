@@ -192,6 +192,11 @@
             "endpoint_id": 1171
           },
           {
+            "name": "Assigned Privileges and Roles",
+            "path": "/tools/security-console/assigned-privileges-and-roles",
+            "endpoint_id": 1171
+          },
+          {
             "name": "Manage API Endpoints",
             "path": "/tools/security-console/manage-api-endpoints",
             "endpoint_id": 1156
