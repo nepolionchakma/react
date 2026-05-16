@@ -43,7 +43,7 @@ import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { loadData } from "@/Utility/funtion";
 import EditPrivilegeAndRole from "./EditPrivilegeAndRole";
 
-const ManagePriviedgesAndRoles = () => {
+const AssignedPriviedgesAndRoles = () => {
   const { token, combinedUser, grantedPrivlegeIds } = useGlobalContext();
   const [data, setData] = useState<IPrivilegeAndRole[] | []>([]);
   const [page, setPage] = useState(1);
@@ -353,4 +353,4 @@ const ManagePriviedgesAndRoles = () => {
   );
 };
 
-export default ManagePriviedgesAndRoles;
+export default AssignedPriviedgesAndRoles;

@@ -51,7 +51,7 @@ import ContinuousMonitoring from "@/pages/ContinuousMonitoring/ContinuousMonitor
 import Finance from "@/pages/Finance/Finance";
 import { ViewEditScheduledTasksTable } from "@/pages/AsynchronousRequestsAndTaskSchedules/ViewEditScheduledTasks/ViewEditScheduledTasksTable";
 import ManageExecutionMethods from "@/pages/AsynchronousRequestManager/Development/ManageExecutionMethods/ManageExecutionMethods";
-import ManagePriviedgesAndRoles from "@/pages/Tools/SecurityConsole/ManagePrivilegesAndRoles/ManagePrivilegesAndRoles";
+import AssignedPriviedgesAndRoles from "@/pages/Tools/SecurityConsole/AssignedPrivilegesAndRoles/AssignedPrivilegesAndRoles";
 import EnterpriseProcessModeler from "@/pages/Tools/EnterpriseProcessModeler/EnterpriseProcessModeler";
 import EnterpriseSystemIntegrations from "@/pages/Tools/EnterpriseSystemIntegrations/EnterpriseSystemIntegrations";
 import OrchestrationStudio2 from "@/pages/Tools/EnterpriseProcessModeler/OrchestrationStudio2/OrchestrationStudio2";
@@ -73,6 +73,7 @@ import ManageWebhooks from "@/pages/Tools/EnterpriseSystemIntegrations/ManageWeb
 import WebhookDeliveryLog from "@/pages/Tools/EnterpriseSystemIntegrations/WebhookDeliveryLog/WebhookDeliveryLog";
 import ProcessExecutionLog from "@/pages/Tools/EnterpriseProcessModeler/ProcessExecutionLog/ProcessExecutionLog";
 import ExecutionDetails from "@/pages/Tools/EnterpriseProcessModeler/ProcessExecutionLog/ExecutionDetails";
+import ManagePriviedgesAndRoles from "@/pages/Tools/SecurityConsole/ManagePrivilegesAndRoles/ManagePrivelegesAndRoles";
 
 const routes = createBrowserRouter([
   {
@@ -203,6 +204,10 @@ const routes = createBrowserRouter([
               {
                 path: "manage-privileges-and-roles",
                 element: <ManagePriviedgesAndRoles />,
+              },
+              {
+                path: "assigned-privileges-and-roles",
+                element: <AssignedPriviedgesAndRoles />,
               },
               {
                 path: "manage-api-endpoints",
