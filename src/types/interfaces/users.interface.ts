@@ -124,6 +124,10 @@ export interface IAddUserTypes {
 export interface ITenantsTypes {
   tenant_id: number;
   tenant_name: string;
+  created_by?: number;
+  creation_date: Date;
+  last_updated_by?: number;
+  last_update_date: Date;
 }
 export interface IEnterprisesTypes {
   tenant_id: number;

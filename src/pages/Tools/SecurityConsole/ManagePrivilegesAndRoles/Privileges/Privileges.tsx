@@ -126,7 +126,7 @@ const Privileges = ({
       } else {
         setTotalPage(1);
       }
-      table.toggleAllRowsSelected(false);
+      setSelectedPrivilegeRows([]);
     };
 
     const delayDebounce = setTimeout(() => {
@@ -143,6 +143,7 @@ const Privileges = ({
     token,
     table,
     query,
+    setSelectedPrivilegeRows,
   ]);
 
   useEffect(() => {

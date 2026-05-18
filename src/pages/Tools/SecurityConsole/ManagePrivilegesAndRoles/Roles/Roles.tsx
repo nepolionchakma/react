@@ -124,7 +124,7 @@ const Roles = ({
       } else {
         setTotalPage(1);
       }
-      table.toggleAllRowsSelected(false);
+      setSelectedRoleRows([]);
     };
 
     const delayDebounce = setTimeout(() => {
@@ -140,6 +140,7 @@ const Roles = ({
     query,
     currentPage,
     rolesLimit,
+    setSelectedRoleRows,
   ]);
 
   useEffect(() => {

@@ -21,10 +21,9 @@ import {
 } from "@/components/ui/table";
 import { columns as getColumns } from "./Columns";
 import useAxiosPrivate from "@/hooks/useAxiosPrivate";
-import { IJobTitle, ITenantsTypes } from "@/types/interfaces/users.interface";
+import { IJobTitle } from "@/types/interfaces/users.interface";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { Checkbox } from "@/components/ui/checkbox";
-import ActionItems from "./ActionItems";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -32,18 +31,19 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, FileEdit, Plus } from "lucide-react";
 import Rows from "@/components/Rows/Rows";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import { loadData } from "@/Utility/funtion";
-import JobTitleCreateAndEditModal from "../Modal/JobTitleCreateAndEditModal";
+import { deleteData, loadData } from "@/Utility/funtion";
 import { convertToTitleCase } from "@/Utility/general";
+import ActionButtons from "@/components/ActionButtons/ActionButtons";
+import CustomTooltip from "@/components/Tooltip/Tooltip";
+import Alert from "@/components/Alert/Alert";
+import Spinner from "@/components/Spinner/Spinner";
+import Modal from "./Modal";
 
 interface IJobTitlesDataProps {
-  tabName: string;
-  action: string;
-  setAction: React.Dispatch<React.SetStateAction<string>>;
   selectedJobTitlesRows: IJobTitle[];
   setSelectedJobTitlesRows: React.Dispatch<React.SetStateAction<IJobTitle[]>>;
   jobTitlesLimit: number;
@@ -51,21 +51,18 @@ interface IJobTitlesDataProps {
 }
 
 export function JobTitlesDataTable({
-  tabName,
-  action,
-  setAction,
   selectedJobTitlesRows,
   setSelectedJobTitlesRows,
   jobTitlesLimit,
   setJobTitlesLimit,
 }: IJobTitlesDataProps) {
   const api = useAxiosPrivate();
-  const { token, combinedUser, users } = useGlobalContext();
+  const { token, combinedUser, users, grantedPrivlegeIds } = useGlobalContext();
   const [isLoading, setIsLoading] = React.useState<boolean>(false);
   const [data, setData] = React.useState<IJobTitle[]>([]);
-  const [page, setPage] = React.useState<number>(1);
+  const [currentPage, setCurrentPage] = React.useState(1);
   const [totalPage, setTotalPage] = React.useState<number>(1);
-  const [stateChanged, setStateChanged] = React.useState<number>(0);
+  const [reloadController, setReloadController] = React.useState(1);
   const [isSelectAll, setIsSelectAll] = React.useState(false);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [selectedIds, setSelectedIds] = React.useState<number[]>([]);
@@ -76,7 +73,12 @@ export function JobTitlesDataTable({
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
   const [colSizing, setColSizing] = React.useState<ColumnSizingState>({});
-  const [tenants, setTenants] = React.useState<ITenantsTypes[]>([]);
+  const [openModal, setOpenModal] = React.useState(false);
+  const [isDeleteLoading, setIsDeleteLoading] = React.useState(false);
+  const [action, setAction] = React.useState("");
+  // const [tenants, setTenants] = React.useState<ITenantsTypes[]>([]);
+
+  const columns = React.useMemo(() => getColumns(users), [users]);
 
   React.useEffect(() => {
     if (selectedJobTitlesRows?.length !== data?.length || data?.length === 0) {
@@ -91,7 +93,7 @@ export function JobTitlesDataTable({
 
   const table = useReactTable({
     data,
-    columns: React.useMemo(() => getColumns(users), [users]),
+    columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -116,6 +118,64 @@ export function JobTitlesDataTable({
     },
   });
 
+  React.useEffect(() => {
+    const jobTitlesParams = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.JobTitles}?page=${currentPage}&limit=${jobTitlesLimit}&tenant_id=${combinedUser?.tenant_id}`,
+      setLoading: setIsLoading,
+      accessToken: `${token.access_token}`,
+      isToast: true,
+    };
+
+    const fetch = async () => {
+      const res = await loadData(jobTitlesParams);
+
+      if (res.items) {
+        setData(res.items);
+        setTotalPage(res.pages);
+      } else {
+        setTotalPage(1);
+      }
+
+      setSelectedJobTitlesRows([]);
+    };
+    fetch();
+  }, [
+    api,
+    token.access_token,
+    jobTitlesLimit,
+    combinedUser?.tenant_id,
+    currentPage,
+    reloadController,
+    setSelectedJobTitlesRows,
+  ]);
+
+  /** get tentants */
+  // React.useEffect(() => {
+  //   const tenantDataParams = {
+  //     baseURL: FLASK_URL,
+  //     url: `${flaskApi.DefTenants}`,
+  //     accessToken: `${token.access_token}`,
+  //   };
+
+  //   const loadTenantData = async () => {
+  //     const res = await loadData(tenantDataParams);
+  //     if (res) {
+  //       setTenants(res.result);
+  //     }
+  //   };
+  //   loadTenantData();
+  // }, [token.access_token]);
+
+  const handleAdd = () => {
+    setAction("add");
+    setOpenModal(true);
+  };
+  const handleEdit = () => {
+    setAction("edit");
+    setOpenModal(true);
+  };
+
   const handleSelectAll = () => {
     if (isSelectAll) {
       setIsSelectAll(false);
@@ -137,89 +197,84 @@ export function JobTitlesDataTable({
     }
   };
 
-  const handleCloseModal = React.useCallback(() => {
-    setAction("");
-  }, [setAction]);
-
-  React.useEffect(() => {
-    handleCloseModal();
-  }, [page, stateChanged, jobTitlesLimit, handleCloseModal]);
-
-  React.useEffect(() => {
-    const jobTitlesParams = {
+  const handleDelete = async () => {
+    const params = {
+      url: flaskApi.JobTitles,
       baseURL: FLASK_URL,
-      url: `${flaskApi.JobTitles}?page=${page}&limit=${jobTitlesLimit}&tenant_id=${combinedUser?.tenant_id}`,
-      setLoading: setIsLoading,
-      accessToken: `${token.access_token}`,
+      payload: {
+        job_title_ids: selectedIds,
+      },
+      accessToken: token.access_token,
       isToast: true,
+      setLoading: setIsDeleteLoading,
     };
 
-    const fetch = async () => {
-      const res = await loadData(jobTitlesParams);
+    console.log(params);
 
-      if (res.items) {
-        setData(res.items);
-        setTotalPage(res.pages);
-      } else {
-        setTotalPage(1);
-      }
-    };
-    fetch();
-  }, [
-    api,
-    page,
-    stateChanged,
-    token.access_token,
-    jobTitlesLimit,
-    combinedUser?.tenant_id,
-  ]);
-
-  /** get tentants */
-  React.useEffect(() => {
-    const tenantDataParams = {
-      baseURL: FLASK_URL,
-      url: `${flaskApi.DefTenants}`,
-      accessToken: `${token.access_token}`,
-    };
-
-    const loadTenantData = async () => {
-      const res = await loadData(tenantDataParams);
-      if (res) {
-        setTenants(res.result);
-      }
-    };
-    loadTenantData();
-  }, [token.access_token]);
+    const res = await deleteData(params);
+    if (res.status === 200) {
+      setReloadController((prev) => prev + 1);
+    }
+  };
 
   return (
-    <div className="w-full">
-      <>
-        {tabName && tabName === "Job Titles" && action && (
-          <JobTitleCreateAndEditModal
-            action={action}
-            tabName={tabName}
-            tenants={tenants}
-            selectedJobTitlesRows={selectedJobTitlesRows}
-            setSelectedJobTitlesRows={setSelectedJobTitlesRows}
-            setStateChanged={setStateChanged}
-            handleCloseModal={handleCloseModal}
-          />
-        )}
-      </>
-      {/* Action Items */}
-      <div className="flex items-center justify-between py-1">
-        <ActionItems
-          selectedJobTitlesRows={selectedJobTitlesRows}
-          setAction={setAction}
-          setStateChanged={setStateChanged}
-          setSelectedJobTitlesRows={setSelectedJobTitlesRows}
-        />
+    <>
+      {/* Action Item */}
+      <div className="flex items-center justify-between py-2">
+        <div className="flex items-center gap-2">
+          <ActionButtons>
+            {grantedPrivlegeIds?.includes(11102) && (
+              <button>
+                <CustomTooltip tooltipTitle="Add">
+                  <Plus className="cursor-pointer" onClick={handleAdd} />
+                </CustomTooltip>
+              </button>
+            )}
+            {grantedPrivlegeIds?.includes(11103) && (
+              <button disabled={selectedJobTitlesRows.length !== 1}>
+                <CustomTooltip tooltipTitle="Edit">
+                  <FileEdit
+                    className={`${
+                      selectedJobTitlesRows.length !== 1
+                        ? "text-slate-200 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                    onClick={handleEdit}
+                  />
+                </CustomTooltip>
+              </button>
+            )}
+            {grantedPrivlegeIds?.includes(11104) && (
+              <Alert
+                disabled={selectedJobTitlesRows.length === 0 || isDeleteLoading}
+                actionName="delete"
+                onContinue={handleDelete}
+                tooltipTitle="Delete"
+              >
+                <>
+                  {isDeleteLoading ? (
+                    <Spinner size="40" color="black" />
+                  ) : (
+                    <span className="flex flex-col items-start">
+                      {selectedJobTitlesRows.map((item, index) => (
+                        <span key={item.job_title_id}>
+                          {index + 1}. Job Title : {item.job_title_name}
+                        </span>
+                      ))}
+                    </span>
+                  )}
+                </>
+              </Alert>
+            )}
+          </ActionButtons>
+        </div>
+
         <div className="flex items-center gap-2">
           <Rows limit={jobTitlesLimit} setLimit={setJobTitlesLimit} />
-
+          {/* Columns */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
+              <Button variant={"outline"} className="ml-auto">
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -248,7 +303,8 @@ export function JobTitlesDataTable({
           </DropdownMenu>
         </div>
       </div>
-      {/* Table  */}
+
+      {/* Table */}
       <div className="rounded-md border">
         <Table
           style={{
@@ -258,16 +314,15 @@ export function JobTitlesDataTable({
           }}
         >
           <TableHeader>
-            {table.getHeaderGroups()?.map((headerGroup) => (
+            {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers?.map((header) => {
+                {headerGroup.headers.map((header) => {
                   return (
                     <TableHead
                       key={header.id}
-                      className={`relative border h-9 py-0 px-1 border-slate-400 bg-slate-200`}
+                      className="relative border h-9 py-0 px-1 border-slate-400 bg-slate-200"
                       style={{
-                        width: `10px`,
-                        // maxWidth: header.id === "select" ? "10px" : undefined,
+                        width: `${header.getSize()}px`,
                       }}
                     >
                       {header.isPlaceholder
@@ -278,6 +333,7 @@ export function JobTitlesDataTable({
                           )}
                       {header.id === "select" && (
                         <Checkbox
+                          disabled={!data?.length}
                           checked={isSelectAll}
                           onClick={handleSelectAll}
                           aria-label="Select all"
@@ -307,27 +363,22 @@ export function JobTitlesDataTable({
             {isLoading ? (
               <TableRow>
                 <TableCell
-                  colSpan={table.getAllColumns()?.length}
+                  colSpan={columns.length}
                   className="h-[16rem] text-center"
                 >
-                  <l-tailspin
-                    size="40"
-                    stroke="5"
-                    speed="0.9"
-                    color="black"
-                  ></l-tailspin>
+                  <Spinner size="40" color="black" />
                 </TableCell>
               </TableRow>
             ) : table.getRowModel().rows?.length ? (
-              table.getRowModel().rows?.map((row) => (
+              table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
-                  {row.getVisibleCells()?.map((cell, index) => (
+                  {row.getVisibleCells().map((cell, index) => (
                     <TableCell
                       key={cell.id}
-                      className={`border py-0 px-1 ${index === 0 && "w-7"}`}
+                      className="border py-0 px-1"
                       style={{
                         width: cell.column.getSize(),
                         minWidth: cell.column.columnDef.minSize,
@@ -354,21 +405,16 @@ export function JobTitlesDataTable({
             ) : isLoading ? (
               <TableRow>
                 <TableCell
-                  colSpan={table.getAllColumns()?.length}
+                  colSpan={columns.length}
                   className="h-[16rem] text-center"
                 >
-                  <l-tailspin
-                    size="40"
-                    stroke="5"
-                    speed="0.9"
-                    color="black"
-                  ></l-tailspin>
+                  <Spinner size="40" color="black" />
                 </TableCell>
               </TableRow>
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={table.getAllColumns()?.length}
+                  colSpan={columns.length}
                   className="h-[16rem] text-center"
                 >
                   No results.
@@ -377,19 +423,28 @@ export function JobTitlesDataTable({
             )}
           </TableBody>
         </Table>
-
-        <div className="flex justify-between p-1">
-          <div className="flex-1 text-sm text-gray-600">
-            {selectedJobTitlesRows?.length} of{" "}
-            {table.getFilteredRowModel().rows?.length} row(s) selected.
-          </div>
-          <Pagination5
-            currentPage={page}
-            setCurrentPage={setPage}
-            totalPageNumbers={totalPage as number}
-          />
-        </div>
       </div>
-    </div>
+      {/* Start Pagination */}
+      <div className="flex justify-between p-1">
+        <div className="flex-1 text-sm text-gray-600">
+          {selectedJobTitlesRows?.length} row(s) selected.
+        </div>
+        <Pagination5
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          totalPageNumbers={totalPage}
+        />
+      </div>
+
+      {/* Modal */}
+      <Modal
+        action={action}
+        setAction={setAction}
+        openModal={openModal}
+        setOpenModal={setOpenModal}
+        selectedItems={selectedJobTitlesRows}
+        setState={setReloadController}
+      />
+    </>
   );
 }

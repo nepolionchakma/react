@@ -114,6 +114,7 @@ interface GlobalContex {
   setUserLocation: Dispatch<SetStateAction<string | null>>;
   grantendEndpoints: IAPIEndpointRole[];
   grantedPrivlegeIds: number[];
+  grantedRoleIds: number[];
 }
 
 export const userExample = {
@@ -175,6 +176,7 @@ export function GlobalContextProvider({
     IAPIEndpointRole[]
   >([]);
   const [grantedPrivlegeIds, setGrantedPrivlegeIds] = useState<number[]>([]);
+  const [grantedRoleIds, setGrantedRoleIds] = useState<number[]>([]);
 
   useEffect(() => {
     const storedValue = localStorage.getItem("signonId");
@@ -251,7 +253,6 @@ export function GlobalContextProvider({
           accessToken: `${token.access_token}`,
         });
 
-        console.log(combinedUser);
         setCombinedUser(combinedUser.result);
         if (combinedUser.result) {
           const res = await loadData({
@@ -280,6 +281,7 @@ export function GlobalContextProvider({
 
           if (grnatedRoles.result) {
             const roles = grnatedRoles.result?.map((item: any) => item.role_id);
+            setGrantedRoleIds(roles);
             const endpoints = await loadData({
               baseURL: FLASK_URL,
               url: `${flaskApi.APIEndpointRoles}?role_id=${roles}`,
@@ -311,7 +313,7 @@ export function GlobalContextProvider({
     };
 
     fetchUser();
-  }, [api, token.access_token, token?.user_id, updateProfileImage]);
+  }, [api, token, token.access_token, token?.user_id, updateProfileImage]);
 
   const fetchUserEnterprise = async () => {
     try {
@@ -596,6 +598,7 @@ export function GlobalContextProvider({
         setUserLocation,
         grantendEndpoints,
         grantedPrivlegeIds,
+        grantedRoleIds,
       }}
     >
       <SocketContextProvider>

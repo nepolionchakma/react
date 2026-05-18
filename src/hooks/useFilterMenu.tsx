@@ -28,10 +28,7 @@ const filterMenuByEndpoints = (
 
         // ❗ STRICT RULE:
         // keep only if ALL children are allowed
-        if (
-          filteredSubMenus.length === menu.subMenus.length &&
-          filteredSubMenus.length > 0
-        ) {
+        if (filteredSubMenus.length > 0) {
           return {
             ...menu,
             subMenus: filteredSubMenus,
@@ -58,6 +55,8 @@ export const useFilteredMenu = (): MenuItem[] => {
   return useMemo(() => {
     const endpointIds =
       grantendEndpoints?.map((item) => item.api_endpoint_id) || [];
+
+    console.log(endpointIds);
 
     return filterMenuByEndpoints(menuData as MenuItem[], endpointIds);
   }, [grantendEndpoints]);
