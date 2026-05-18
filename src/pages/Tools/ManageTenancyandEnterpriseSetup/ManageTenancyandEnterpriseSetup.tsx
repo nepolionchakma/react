@@ -57,9 +57,6 @@ const ManageTenancyandEnterpriseSetup = () => {
 
         <TabsContent value="tenancy">
           <TenancyDataTable
-            tabName={tabName}
-            action={action}
-            setAction={setAction}
             selectedTenancyRows={selectedTenancyRows}
             setSelectedTenancyRows={setSelectedTenancyRows}
             tenancyLimit={tenancyLimit}
@@ -84,9 +81,6 @@ const ManageTenancyandEnterpriseSetup = () => {
         {endpointIds?.includes(1266) && (
           <TabsContent value="job_titles">
             <JobTitlesDataTable
-              tabName={tabName}
-              action={action}
-              setAction={setAction}
               selectedJobTitlesRows={selectedJobTitlesRows}
               setSelectedJobTitlesRows={setSelectedJobTitlesRows}
               jobTitlesLimit={jobTitlesLimit}

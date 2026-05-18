@@ -17,6 +17,7 @@ const Sidbar = () => {
 
   // ✅ single source of truth
   const menuData = useFilteredMenu();
+  console.log(menuData);
 
   // 🔹 Active styles
   const getMenuItemStyle = (path: string) => {
