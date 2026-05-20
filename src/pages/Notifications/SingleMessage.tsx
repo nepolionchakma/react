@@ -56,7 +56,6 @@ const SingleMessage = () => {
         };
         const response = await loadData(loadParams);
 
-        console.log(response);
         if (response) {
           const result = response.result;
 
@@ -83,7 +82,7 @@ const SingleMessage = () => {
     const fetchMessage = async () => {
       try {
         const response = await api.get(
-          `/notifications/unique?notification_id=${id}&user_id=${userId}`
+          `/notifications/unique?notification_id=${id}&user_id=${userId}`,
         );
         const result = response.data.result;
         setParrentMessage(result);
@@ -113,12 +112,12 @@ const SingleMessage = () => {
   const handleDelete = async (msgId: string) => {
     try {
       const response = await api.put(
-        `/notifications/move-to-recyclebin?notification_id=${msgId}&user_id=${userId}`
+        `/notifications/move-to-recyclebin?notification_id=${msgId}&user_id=${userId}`,
       );
       if (response.status === 200) {
         handleDeleteMessage(msgId as string, "Inbox");
         setTotalMessages((prev) =>
-          prev.filter((msg) => msg.notification_id !== msgId)
+          prev.filter((msg) => msg.notification_id !== msgId),
         );
         toast({
           title: `${response.data.message}`,
@@ -238,7 +237,7 @@ const SingleMessage = () => {
                                       <AvatarImage
                                         src={`${url}/${renderProfilePicture(
                                           rcvr,
-                                          users
+                                          users,
                                         )}`}
                                       />
                                       <AvatarFallback>

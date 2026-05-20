@@ -24,11 +24,10 @@ const Profile = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!combinedUser) {
+      if (!combinedUser?.user_id) {
         return;
       } else if (combinedUser.user_id) {
-        setIsLoading(true);
-        const postDataParams = {
+        const params = {
           baseURL: FLASK_URL,
           url: `${flaskApi.AccessProfiles}/${combinedUser?.user_id}`,
           setLoading: setIsLoading,
@@ -36,9 +35,9 @@ const Profile = () => {
           isToast: true,
           accessToken: token.access_token,
         };
-        const resData = await loadData(postDataParams);
+        const resData = await loadData(params);
         // is primary available
-        if (resData.legth) {
+        if (resData) {
           const filterPrimaryData = resData.find(
             (item: IProfilesType) => item.primary_yn === "Y",
           );
@@ -49,7 +48,7 @@ const Profile = () => {
       }
     };
     fetchData();
-  }, [combinedUser?.user_id, isUpdated]);
+  }, [combinedUser?.user_id, isUpdated, token.access_token]);
 
   useEffect(() => {
     (async () => {

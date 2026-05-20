@@ -26,20 +26,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { toTitleCase } from "@/Utility/general";
 
 interface Props {
   action: string;
-  setShowModal: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedEndPoints: IAPIEndpoint[];
-  setReloadController: React.Dispatch<React.SetStateAction<number>>;
+  openModal: boolean;
+  setOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
+  selectedItems: IAPIEndpoint[];
+  setState: React.Dispatch<React.SetStateAction<number>>;
   privileges: IPrivilege[];
 }
 
 const Modal = ({
+  openModal,
   action,
-  selectedEndPoints,
-  setShowModal,
-  setReloadController,
+  selectedItems,
+  setOpenModal,
+  setState,
   privileges,
 }: Props) => {
   const { token } = useGlobalContext();
@@ -59,17 +62,17 @@ const Modal = ({
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      api_endpoint: action === "Edit" ? selectedEndPoints[0]?.api_endpoint : "",
-      parameter1: action === "Edit" ? selectedEndPoints[0]?.parameter1 : "",
-      parameter2: action === "Edit" ? selectedEndPoints[0]?.parameter2 : "",
-      method: action === "Edit" ? selectedEndPoints[0]?.method : "",
+      api_endpoint: action === "Edit" ? selectedItems[0]?.api_endpoint : "",
+      parameter1: action === "Edit" ? selectedItems[0]?.parameter1 : "",
+      parameter2: action === "Edit" ? selectedItems[0]?.parameter2 : "",
+      method: action === "Edit" ? selectedItems[0]?.method : "",
       privilege_id:
-        action === "Edit" ? selectedEndPoints[0]?.privilege_id.toString() : "",
+        action === "Edit" ? selectedItems[0]?.privilege_id.toString() : "",
     },
   });
 
   const handleClose = () => {
-    setShowModal(false);
+    setOpenModal(false);
   };
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
@@ -93,12 +96,12 @@ const Modal = ({
       const res = await postData(postParams);
       if (res.status === 201) {
         form.reset();
-        setReloadController((prev) => prev + 1);
+        setState((prev) => prev + 1);
       }
     } else {
       const putParams = {
         baseURL: FLASK_URL,
-        url: `${flaskApi.APIEndpoints}?api_endpoint_id=${selectedEndPoints[0].api_endpoint_id}`,
+        url: `${flaskApi.APIEndpoints}?api_endpoint_id=${selectedItems[0].api_endpoint_id}`,
         setLoading: setIsLoading,
         payload: {
           api_endpoint: data.api_endpoint,
@@ -114,160 +117,172 @@ const Modal = ({
 
       const res = await putData(putParams);
       if (res.status === 200) {
-        setReloadController((prev) => prev + 1);
+        setState((prev) => prev + 1);
       }
     }
   };
   return (
-    <CustomModal4 className="w-[400px] h-auto">
-      <div className="flex justify-between bg-[#CEDEF2] p-2">
-        <h3 className="font-semibold capitalize">{action} Endpoint</h3>
-        <X onClick={handleClose} className="cursor-pointer" />
-      </div>
+    <>
+      {openModal && (
+        <CustomModal4 className="w-[400px] h-auto">
+          <div className="flex justify-between bg-[#CEDEF2] p-4">
+            <h3 className="font-semibold capitalize">
+              {toTitleCase(action)} API Endpoint
+            </h3>
+            <X onClick={handleClose} className="cursor-pointer" />
+          </div>
 
-      <div>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="px-4 mt-4">
-              <FormField
-                control={form.control}
-                name="api_endpoint"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-normal">Endpoint Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        autoFocus
-                        type="text"
-                        placeholder="Endpoint Name"
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-            </div>
+          <div>
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                <div className="px-4 mt-4">
+                  <FormField
+                    control={form.control}
+                    name="api_endpoint"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-normal">
+                          Endpoint Name
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            autoFocus
+                            type="text"
+                            placeholder="Endpoint Name"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-            <div className="grid grid-cols-2 p-4 gap-4 max-h-[70vh] overflow-auto">
-              <FormField
-                control={form.control}
-                name="parameter1"
-                render={({ field }) => {
-                  return (
-                    <FormItem>
-                      <FormLabel className="font-normal">Parameter 1</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          autoFocus
-                          type="text"
-                          placeholder="Parameter 1"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  );
-                }}
-              />
-              <FormField
-                control={form.control}
-                name="parameter2"
-                render={({ field }) => {
-                  return (
-                    <FormItem>
-                      <FormLabel className="font-normal">Parameter 2</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          autoFocus
-                          type="text"
-                          placeholder="Parameter 2"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  );
-                }}
-              />
+                <div className="grid grid-cols-2 p-4 gap-4 max-h-[70vh] overflow-auto">
+                  <FormField
+                    control={form.control}
+                    name="parameter1"
+                    render={({ field }) => {
+                      return (
+                        <FormItem>
+                          <FormLabel className="font-normal">
+                            Parameter 1
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              autoFocus
+                              type="text"
+                              placeholder="Parameter 1"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="parameter2"
+                    render={({ field }) => {
+                      return (
+                        <FormItem>
+                          <FormLabel className="font-normal">
+                            Parameter 2
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              autoFocus
+                              type="text"
+                              placeholder="Parameter 2"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      );
+                    }}
+                  />
 
-              <FormField
-                control={form.control}
-                name="method"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-normal">Method</FormLabel>
+                  <FormField
+                    control={form.control}
+                    name="method"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-normal">Method</FormLabel>
 
-                    <Select
-                      value={field.value}
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                      }}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select method" />
-                        </SelectTrigger>
-                      </FormControl>
+                        <Select
+                          value={field.value}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                          }}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select method" />
+                            </SelectTrigger>
+                          </FormControl>
 
-                      <SelectContent>
-                        {methods.map((item) => (
-                          <SelectItem key={item} value={item}>
-                            {item}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
+                          <SelectContent>
+                            {methods.map((item) => (
+                              <SelectItem key={item} value={item}>
+                                {item}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={form.control}
-                name="privilege_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-normal">Privilege</FormLabel>
+                  <FormField
+                    control={form.control}
+                    name="privilege_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-normal">Privilege</FormLabel>
 
-                    <Select
-                      value={field.value.toString()}
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                      }}
-                    >
-                      <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select Privilege" />
-                        </SelectTrigger>
-                      </FormControl>
+                        <Select
+                          value={field.value.toString()}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                          }}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Privilege" />
+                            </SelectTrigger>
+                          </FormControl>
 
-                      <SelectContent>
-                        {privileges.map((item) => (
-                          <SelectItem
-                            key={item.privilege_id}
-                            value={item.privilege_id.toString()}
-                            className="capitalize"
-                          >
-                            {item.privilege_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-            </div>
+                          <SelectContent>
+                            {privileges.map((item) => (
+                              <SelectItem
+                                key={item.privilege_id}
+                                value={item.privilege_id.toString()}
+                                className="capitalize"
+                              >
+                                {item.privilege_name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-            <div className="flex gap-4 p-4 justify-end">
-              <Button
-                disabled={isLoading}
-                type="submit"
-                className="hover:shadow disabled:cursor-not-allowed"
-              >
-                {isLoading ? <Spinner size="30" color="white" /> : "Submit"}
-              </Button>
-            </div>
-          </form>
-        </Form>
-      </div>
-    </CustomModal4>
+                <div className="flex gap-4 p-4 justify-end">
+                  <Button
+                    disabled={isLoading}
+                    type="submit"
+                    className="hover:shadow disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? <Spinner size="30" color="white" /> : "Submit"}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </div>
+        </CustomModal4>
+      )}
+    </>
   );
 };
 

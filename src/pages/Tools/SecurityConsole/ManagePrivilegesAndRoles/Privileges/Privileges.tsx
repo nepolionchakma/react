@@ -119,7 +119,6 @@ const Privileges = ({
     };
     const loadPrivileges = async () => {
       const res = await loadData(params);
-      console.log(res, "calling");
       if (res.result) {
         setData(res.result);
         setTotalPage(res.pages);

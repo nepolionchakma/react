@@ -209,8 +209,6 @@ export function JobTitlesDataTable({
       setLoading: setIsDeleteLoading,
     };
 
-    console.log(params);
-
     const res = await deleteData(params);
     if (res.status === 200) {
       setReloadController((prev) => prev + 1);

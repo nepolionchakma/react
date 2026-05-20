@@ -178,7 +178,7 @@ export function TenancyDataTable({
 
     const fetchTenancy = async () => {
       const res = await loadData(tenancyDataParams);
-      console.log(res);
+
       if (!grantedRoleIds.includes(3)) {
         setSelectedTenancyRows([res]);
       }

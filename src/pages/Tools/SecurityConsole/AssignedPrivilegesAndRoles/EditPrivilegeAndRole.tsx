@@ -29,6 +29,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
+import Spinner from "@/components/Spinner/Spinner";
 interface IAddPrivilegeAndRoleProps {
   selected: IPrivilegeAndRole;
   setStateChange: React.Dispatch<React.SetStateAction<number>>;
@@ -41,8 +42,10 @@ const EditPrivilegeAndRole: FC<IAddPrivilegeAndRoleProps> = ({
 }) => {
   const { token } = useGlobalContext();
   const [isLoading, setIsLoading] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [roles, setRoles] = useState<IRole[]>([]);
   const [privileges, setPrivileges] = useState<IPrivilege[]>([]);
+  const [allPrivileges, setAllPrivileges] = useState<IPrivilege[]>([]);
 
   const FormSchema = z.object({
     user_name: z.string(),
@@ -64,7 +67,34 @@ const EditPrivilegeAndRole: FC<IAddPrivilegeAndRoleProps> = ({
   });
 
   const grantedRoles = form.watch("granted_roles");
+  console.log(grantedRoles);
   const grantedPrivileges = form.watch("granted_privileges");
+
+  useEffect(() => {
+    const params = {
+      baseURL: FLASK_URL,
+      url: `${flaskApi.DefPrivileges}`,
+      accessToken: `${token.access_token}`,
+      setLoading: setIsLoading,
+    };
+    const loadPrivileges = async () => {
+      const res = await loadData(params);
+      if (res.result) {
+        setAllPrivileges(res.result);
+      }
+    };
+
+    loadPrivileges();
+  }, [token.access_token]);
+
+  useEffect(() => {
+    if (grantedRoles.includes("Super Admin")) {
+      form.setValue(
+        "granted_privileges",
+        allPrivileges.map((p) => p.privilege_name),
+      );
+    }
+  }, [grantedRoles, form, allPrivileges]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -84,7 +114,6 @@ const EditPrivilegeAndRole: FC<IAddPrivilegeAndRoleProps> = ({
         loadData(rolesParams),
         loadData(privilegesParams),
       ]);
-      console.log(rolesRes, privilegesRes);
 
       if (rolesRes) setRoles(rolesRes.result);
       if (privilegesRes) setPrivileges(privilegesRes.result);
@@ -114,7 +143,7 @@ const EditPrivilegeAndRole: FC<IAddPrivilegeAndRoleProps> = ({
     const putPrivilegeParams = {
       baseURL: FLASK_URL,
       url: `${flaskApi.DefUserGrantedPrivileges}?user_id=${selected.user_id}`,
-      setLoading: setIsLoading,
+      setLoading: setIsSubmitting,
       payload: putPrivilegePayload,
       isToast: true,
       accessToken: token.access_token,
@@ -122,7 +151,7 @@ const EditPrivilegeAndRole: FC<IAddPrivilegeAndRoleProps> = ({
     const putRoleParams = {
       baseURL: FLASK_URL,
       url: `${flaskApi.DefUserGrantedRoles}?user_id=${selected.user_id}`,
-      setLoading: setIsLoading,
+      setLoading: setIsSubmitting,
       payload: putRolePayload,
       isToast: true,
       accessToken: token.access_token,
@@ -168,155 +197,172 @@ const EditPrivilegeAndRole: FC<IAddPrivilegeAndRoleProps> = ({
   hourglass.register();
   return (
     <div className="max-h-96">
-      <div className="p-2 bg-slate-300 rounded-t mx-auto text-center font-bold flex justify-between">
-        <h1>Edit Privileges and Roles</h1>
+      <div>
+        <div className="p-2 bg-slate-300 rounded-t mx-auto text-center font-bold flex justify-between">
+          <h1>Edit Privileges and Roles</h1>
 
-        <X onClick={() => handleCloseModal()} className="cursor-pointer" />
-      </div>
-      <div className="px-11 py-3">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)}>
-            <div className="grid grid-cols-2 gap-4">
-              <FormField
-                control={form.control}
-                name="user_name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="font-normal">Username</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        autoFocus
-                        type="text"
-                        placeholder="Username"
-                        disabled
-                      />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
+          <X onClick={() => handleCloseModal()} className="cursor-pointer" />
+        </div>
+        {isLoading ? (
+          <div className="flex justify-center">
+            <Spinner color="black" size="40" />
+          </div>
+        ) : (
+          <div className="px-11 py-3">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)}>
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="user_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="font-normal">Username</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            autoFocus
+                            type="text"
+                            placeholder="Username"
+                            disabled
+                            className="disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-100"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
 
-              <FormField
-                control={form.control}
-                name="granted_roles"
-                render={({ field }) => {
-                  return (
-                    <FormItem>
-                      <FormLabel className="font-normal">
-                        Granted Roles
-                      </FormLabel>
-                      <Popover>
-                        <PopoverTrigger className="border rounded px-3 py-2 text-left w-64 flex justify-between">
-                          {field.value.length > 0
-                            ? field.value.join(", ")
-                            : "Select Roles"}
-                          <ChevronDown size={20} color="gray" />
-                        </PopoverTrigger>
+                  <FormField
+                    control={form.control}
+                    name="granted_roles"
+                    render={({ field }) => {
+                      return (
+                        <FormItem>
+                          <FormLabel className="font-normal">
+                            Granted Roles
+                          </FormLabel>
+                          <Popover>
+                            <PopoverTrigger
+                              className={`border rounded px-3 py-2 text-left w-64 flex justify-between`}
+                            >
+                              {field.value.length > 0
+                                ? field.value.join(", ")
+                                : "Select Roles"}
+                              <ChevronDown size={20} color="gray" />
+                            </PopoverTrigger>
 
-                        <PopoverContent className="p-0 w-64">
-                          <Command>
-                            <CommandGroup>
-                              {roles.map((r) => (
-                                <CommandItem
-                                  key={r.role_id}
-                                  onSelect={() =>
-                                    onSelectRole(r.role_name, field)
-                                  }
-                                >
-                                  <Check
-                                    className={`mr-2 h-4 w-4 ${
-                                      field.value.includes(r.role_name)
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    }`}
-                                  />
-                                  <span className="capitalize">
-                                    {r.role_name}
-                                  </span>
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    </FormItem>
-                  );
-                }}
-              />
-              <FormField
-                control={form.control}
-                name="granted_privileges"
-                render={({ field }) => {
-                  return (
-                    <FormItem>
-                      <FormLabel className="font-normal">
-                        Granted Privileges
-                      </FormLabel>
-                      <Popover>
-                        <PopoverTrigger className="capitalize border rounded px-3 py-2 text-left w-64 flex justify-between">
-                          {field.value.length > 0
-                            ? field.value.join(", ")
-                            : "Select Privieges"}
-                          <ChevronDown size={20} color="gray" />
-                        </PopoverTrigger>
+                            <PopoverContent className="p-0 w-64">
+                              <Command>
+                                <CommandGroup>
+                                  {roles.map((r) => (
+                                    <CommandItem
+                                      key={r.role_id}
+                                      onSelect={() =>
+                                        onSelectRole(r.role_name, field)
+                                      }
+                                    >
+                                      <Check
+                                        className={`mr-2 h-4 w-4 ${
+                                          field.value.includes(r.role_name)
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        }`}
+                                      />
+                                      <span className="capitalize">
+                                        {r.role_name}
+                                      </span>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="granted_privileges"
+                    render={({ field }) => {
+                      return (
+                        <FormItem>
+                          <FormLabel className="font-normal">
+                            Granted Privileges
+                          </FormLabel>
+                          <Popover>
+                            <PopoverTrigger
+                              disabled={grantedRoles.includes("Super Admin")}
+                              className="capitalize border rounded px-3 py-2 text-left w-64 flex justify-between disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-100"
+                            >
+                              {field.value.length > 0
+                                ? field.value.join(", ")
+                                : "Select Privieges"}
+                              <ChevronDown size={20} color="gray" />
+                            </PopoverTrigger>
 
-                        <PopoverContent className="p-0 w-64">
-                          <Command>
-                            <CommandGroup>
-                              {privileges.map((p) => (
-                                <CommandItem
-                                  className="capitalize"
-                                  key={p.privilege_id}
-                                  onSelect={() =>
-                                    onSelectPrivilege(p.privilege_name, field)
-                                  }
-                                >
-                                  <Check
-                                    className={`mr-2 h-4 w-4 ${
-                                      field.value.includes(p.privilege_name)
-                                        ? "opacity-100"
-                                        : "opacity-0"
-                                    }`}
-                                  />
-                                  <span className="capitalize">
-                                    {p.privilege_name}
-                                  </span>
-                                </CommandItem>
-                              ))}
-                            </CommandGroup>
-                          </Command>
-                        </PopoverContent>
-                      </Popover>
-                    </FormItem>
-                  );
-                }}
-              />
-            </div>
+                            <PopoverContent className="p-0 w-64">
+                              <Command>
+                                <CommandGroup>
+                                  {privileges.map((p) => (
+                                    <CommandItem
+                                      className="capitalize"
+                                      key={p.privilege_id}
+                                      onSelect={() =>
+                                        onSelectPrivilege(
+                                          p.privilege_name,
+                                          field,
+                                        )
+                                      }
+                                    >
+                                      <Check
+                                        className={`mr-2 h-4 w-4 ${
+                                          field.value.includes(p.privilege_name)
+                                            ? "opacity-100"
+                                            : "opacity-0"
+                                        }`}
+                                      />
+                                      <span className="capitalize">
+                                        {p.privilege_name}
+                                      </span>
+                                    </CommandItem>
+                                  ))}
+                                </CommandGroup>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                        </FormItem>
+                      );
+                    }}
+                  />
+                </div>
 
-            <div className="flex gap-4 pt-4 justify-end">
-              <Button
-                disabled={
-                  isLoading ||
-                  grantedPrivileges.length === 0 ||
-                  grantedRoles.length === 0
-                }
-                type="submit"
-                className="hover:shadow disabled:cursor-not-allowed"
-              >
-                {isLoading ? (
-                  <l-tailspin
-                    size="30"
-                    stroke="5"
-                    speed="0.9"
-                    color="white"
-                  ></l-tailspin>
-                ) : (
-                  "Submit"
-                )}
-              </Button>
-            </div>
-          </form>
-        </Form>
+                <div className="flex gap-4 pt-4 justify-end">
+                  <Button
+                    disabled={
+                      isLoading ||
+                      grantedPrivileges.length === 0 ||
+                      grantedRoles.length === 0
+                    }
+                    type="submit"
+                    className="hover:shadow disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? (
+                      <l-tailspin
+                        size="30"
+                        stroke="5"
+                        speed="0.9"
+                        color="white"
+                      ></l-tailspin>
+                    ) : (
+                      "Submit"
+                    )}
+                  </Button>
+                </div>
+              </form>
+            </Form>
+          </div>
+        )}
       </div>
     </div>
   );

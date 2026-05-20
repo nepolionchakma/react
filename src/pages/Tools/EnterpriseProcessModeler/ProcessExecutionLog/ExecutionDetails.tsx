@@ -33,8 +33,6 @@ const ExecutionDetails = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [detail, setDetail] = useState<Detail>(undefined);
 
-  console.log(executionSteps);
-
   //Fetch Process Execution
   useEffect(() => {
     const loadExecution = async () => {

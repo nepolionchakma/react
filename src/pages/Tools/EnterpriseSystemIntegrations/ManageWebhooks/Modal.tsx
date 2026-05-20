@@ -59,8 +59,6 @@ const Modal = ({
   // const [showEvents, setShowEvents] = useState(false);
   const activeOptions = ["Y", "N"];
 
-  console.log(selectedItems);
-
   const weebhookSchema = z.object({
     webhook_name: z.string(),
     webhook_url: z.string(),

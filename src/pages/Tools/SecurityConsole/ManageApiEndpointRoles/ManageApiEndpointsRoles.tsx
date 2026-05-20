@@ -122,7 +122,7 @@ const ManageApiEndpointsRoles = () => {
       } else {
         setTotalPage(1);
       }
-      table.toggleAllRowsSelected(false);
+      setSelectedEndPointRoles([]);
     };
 
     const delayDebounce = setTimeout(() => {

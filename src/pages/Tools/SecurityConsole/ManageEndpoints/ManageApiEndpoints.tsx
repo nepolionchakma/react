@@ -26,7 +26,7 @@ import { deleteData, loadData } from "@/Utility/funtion";
 import { Checkbox } from "@/components/ui/checkbox";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
-import { ChevronDown, Edit, Plus } from "lucide-react";
+import { ChevronDown, FileEdit, Plus } from "lucide-react";
 import Alert from "@/components/Alert/Alert";
 import Rows from "@/components/Rows/Rows";
 import {
@@ -40,20 +40,20 @@ import { convertToTitleCase } from "@/Utility/general";
 import Pagination5 from "@/components/Pagination/Pagination5";
 // import Spinner from "@/components/Spinner/Spinner";
 import Modal from "./Modal";
-import { Input } from "@/components/ui/input";
 import Spinner from "@/components/Spinner/Spinner";
 import { IPrivilege } from "@/types/interfaces/users.interface";
+import SearchInput from "@/components/SearchInput/SearchInput";
 
 const ManageApiEndpoints = () => {
-  const { token, users } = useGlobalContext();
+  const { token, users, grantedPrivlegeIds } = useGlobalContext();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
   const [data, setData] = useState<IAPIEndpoint[] | []>([]);
   const [limit, setLimit] = useState<number>(8);
-  const [page, setPage] = useState(1);
-  const [query, setQuery] = useState({ isEmpty: true, value: "" });
+  const [currentPage, setCurrentPage] = useState(1);
+  const [query, setQuery] = useState("");
   const [totalPage, setTotalPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
@@ -61,7 +61,7 @@ const ManageApiEndpoints = () => {
     [],
   );
   const [isSelectAll, setIsSelectAll] = useState(false);
-  const [showModal, setShowModal] = useState<boolean>(false);
+  const [openModal, setOpenModal] = useState(false);
   const [action, setAction] = useState("");
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [reloadController, setReloadController] = useState(1);
@@ -109,7 +109,7 @@ const ManageApiEndpoints = () => {
   useEffect(() => {
     const apiEndpointsParams = {
       baseURL: FLASK_URL,
-      url: `${flaskApi.APIEndpoints}?api_endpoint=${query.value}&page=${page}&limit=${limit}`,
+      url: `${flaskApi.APIEndpoints}?api_endpoint=${query}&page=${currentPage}&limit=${limit}`,
       accessToken: `${token.access_token}`,
       setLoading: setIsLoading,
     };
@@ -123,7 +123,7 @@ const ManageApiEndpoints = () => {
       } else {
         setTotalPage(1);
       }
-      table.toggleAllRowsSelected(false);
+      setSelectedEndPoints([]);
     };
 
     const delayDebounce = setTimeout(() => {
@@ -132,7 +132,7 @@ const ManageApiEndpoints = () => {
     }, 1000);
 
     return () => clearTimeout(delayDebounce);
-  }, [limit, page, token.access_token, table, reloadController, query.value]);
+  }, [limit, currentPage, token.access_token, table, reloadController, query]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -197,24 +197,13 @@ const ManageApiEndpoints = () => {
     }
   };
 
-  const handleQuery = (e: string) => {
-    if (e === "") {
-      setQuery({ isEmpty: true, value: e });
-      setPage(1);
-    } else {
-      setQuery({ isEmpty: false, value: e });
-      setPage(1);
-    }
+  const handleAdd = () => {
+    setAction("add");
+    setOpenModal(true);
   };
-
-  const handleAddClick = () => {
-    setAction("Add");
-    setShowModal(true);
-  };
-
-  const handleEditClick = () => {
-    setAction("Edit");
-    setShowModal(true);
+  const handleEdit = () => {
+    setAction("edit");
+    setOpenModal(true);
   };
 
   const handleDelete = async () => {
@@ -236,71 +225,71 @@ const ManageApiEndpoints = () => {
   };
 
   return (
-    <div>
-      {/* Modal */}
-      {showModal && (
-        <Modal
-          setShowModal={setShowModal}
-          action={action}
-          selectedEndPoints={selectedEndPoints}
-          setReloadController={setReloadController}
-          privileges={privileges}
-        />
-      )}
-      {/* Action Buttons */}
-      <div className="flex items-center justify-between py-4 ">
-        {/* create, edit, delete and search by name  */}
-        <div className="flex gap-3">
+    <>
+      {/* Action Item */}
+      <div className="flex items-center justify-between py-2">
+        <div className="flex items-center gap-2">
           <ActionButtons>
-            <CustomTooltip tooltipTitle="Add">
-              <Plus onClick={handleAddClick} className=" cursor-pointer" />
-            </CustomTooltip>
-            <CustomTooltip tooltipTitle="Edit">
-              <button disabled={selectedEndPoints.length !== 1}>
-                <Edit
-                  onClick={handleEditClick}
-                  className={`${
-                    selectedEndPoints.length === 1
-                      ? "text-black cursor-pointer"
-                      : "text-slate-200 cursor-not-allowed"
-                  }`}
-                />
+            {grantedPrivlegeIds?.includes(11102) && (
+              <button>
+                <CustomTooltip tooltipTitle="Add">
+                  <Plus className="cursor-pointer" onClick={handleAdd} />
+                </CustomTooltip>
               </button>
-            </CustomTooltip>
-            <Alert
-              actionName="delete"
-              disabled={selectedEndPoints.length === 0}
-              onContinue={handleDelete} // Main delete function
-              tooltipTitle="Delete"
-            >
-              <span className="flex flex-col items-start gap-1">
-                {isDeleteLoading ? (
-                  <span className="block">
+            )}
+            {grantedPrivlegeIds?.includes(11103) && (
+              <button disabled={selectedEndPoints.length !== 1}>
+                <CustomTooltip tooltipTitle="Edit">
+                  <FileEdit
+                    className={`${
+                      selectedEndPoints.length !== 1
+                        ? "text-slate-200 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                    onClick={handleEdit}
+                  />
+                </CustomTooltip>
+              </button>
+            )}
+            {grantedPrivlegeIds?.includes(11104) && (
+              <Alert
+                disabled={selectedEndPoints.length === 0 || isDeleteLoading}
+                actionName="delete"
+                onContinue={handleDelete}
+                tooltipTitle="Delete"
+              >
+                <>
+                  {isDeleteLoading ? (
                     <Spinner size="40" color="black" />
-                  </span>
-                ) : (
-                  selectedEndPoints.map((item, index) => (
-                    <span key={item.api_endpoint_id}>
-                      {index + 1}. {item.api_endpoint}
+                  ) : (
+                    <span className="flex flex-col items-start">
+                      {selectedEndPoints.map((item, index) => (
+                        <span key={item.api_endpoint_id}>
+                          {index + 1}. API Endpoint : {item.api_endpoint}
+                        </span>
+                      ))}
                     </span>
-                  ))
-                )}
-              </span>
-            </Alert>
+                  )}
+                </>
+              </Alert>
+            )}
           </ActionButtons>
-          <Input
+
+          {/* Search  */}
+          <SearchInput
             placeholder="Search API Endpoint"
-            value={query.value}
-            onChange={(e) => handleQuery(e.target.value)}
-            className="w-[20rem] px-4 py-2 "
+            query={query}
+            setQuery={setQuery}
+            setPage={setCurrentPage}
           />
         </div>
-        {/* Rows and Column */}
+
         <div className="flex items-center gap-2">
           <Rows limit={limit} setLimit={setLimit} />
+          {/* Columns */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
+              <Button variant={"outline"} className="ml-auto">
                 Columns <ChevronDown className="ml-2 h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -329,145 +318,149 @@ const ManageApiEndpoints = () => {
           </DropdownMenu>
         </div>
       </div>
+
       {/* Table */}
       <div className="rounded-md border">
-        <div>
-          <Table
-            style={{
-              width: table.getTotalSize(),
-              minWidth: "100%",
-              // tableLayout: "fixed",
-            }}
-          >
-            <TableHeader>
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id}>
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead
-                        key={header.id}
-                        style={{
-                          width: `${header.getSize()}px`,
-                        }}
-                        className="relative border border-slate-400 bg-slate-200 p-1 h-9"
-                      >
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
-                        {header.id === "select" && (
-                          <Checkbox
-                            disabled={!data?.length}
-                            checked={isSelectAll}
-                            onClick={handleSelectAll}
-                            aria-label="Select all"
-                          />
-                        )}
-                        {header.id !== "select" && (
-                          <div
-                            {...{
-                              onDoubleClick: () => header.column.resetSize(),
-                              onMouseDown: header.getResizeHandler(),
-                              onTouchStart: header.getResizeHandler(),
-                              className: `absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2`,
-                              style: {
-                                userSelect: "none",
-                                touchAction: "none",
-                              },
-                            }}
-                          />
-                        )}
-                      </TableHead>
-                    );
-                  })}
+        <Table
+          style={{
+            width: table.getTotalSize(),
+            minWidth: "100%",
+            // tableLayout: "fixed",
+          }}
+        >
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => {
+                  return (
+                    <TableHead
+                      key={header.id}
+                      className="relative border h-9 py-0 px-1 border-slate-400 bg-slate-200"
+                      style={{
+                        width: `${header.getSize()}px`,
+                      }}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                      {header.id === "select" && (
+                        <Checkbox
+                          disabled={!data?.length}
+                          checked={isSelectAll}
+                          onClick={handleSelectAll}
+                          aria-label="Select all"
+                        />
+                      )}
+                      {header.id !== "select" && (
+                        <div
+                          {...{
+                            onDoubleClick: () => header.column.resetSize(),
+                            onMouseDown: header.getResizeHandler(),
+                            onTouchStart: header.getResizeHandler(),
+                            className: `absolute top-0 right-0 cursor-col-resize w-px h-full hover:w-2`,
+                            style: {
+                              userSelect: "none",
+                              touchAction: "none",
+                            },
+                          }}
+                        />
+                      )}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {isLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-[16rem] text-center"
+                >
+                  <Spinner size="40" color="black" />
+                </TableCell>
+              </TableRow>
+            ) : table.getRowModel().rows?.length ? (
+              table.getRowModel().rows.map((row) => (
+                <TableRow
+                  key={row.id}
+                  data-state={row.getIsSelected() && "selected"}
+                >
+                  {row.getVisibleCells().map((cell, index) => (
+                    <TableCell
+                      key={cell.id}
+                      className="border py-0 px-1"
+                      style={{
+                        width: cell.column.getSize(),
+                        minWidth: cell.column.columnDef.minSize,
+                      }}
+                    >
+                      {index === 0 ? (
+                        <Checkbox
+                          className="mt-1"
+                          checked={selectedIds.includes(
+                            row.original.api_endpoint_id,
+                          )}
+                          onClick={() => handleRowSelection(row.original)}
+                        />
+                      ) : (
+                        flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )
+                      )}
+                    </TableCell>
+                  ))}
                 </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {isLoading ? (
-                <TableRow>
-                  <TableCell
-                    colSpan={table.getAllColumns()?.length}
-                    className="h-[16rem] text-center"
-                  >
-                    <l-tailspin
-                      size="40"
-                      stroke="5"
-                      speed="0.9"
-                      color="black"
-                    ></l-tailspin>
-                  </TableCell>
-                </TableRow>
-              ) : table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                  >
-                    {row.getVisibleCells().map((cell, index) => (
-                      <TableCell
-                        key={cell.id}
-                        style={{
-                          width: cell.column.getSize(),
-                          minWidth: cell.column.columnDef.minSize,
-                        }}
-                        className={`border p-1 h-8 ${index === 0 && "w-6"}`}
-                      >
-                        {index === 0 ? (
-                          <Checkbox
-                            className=""
-                            checked={selectedIds.includes(
-                              row.original.api_endpoint_id,
-                            )}
-                            onCheckedChange={(value) => {
-                              if (value) {
-                                // Select only the current row (deselect others)
-                                // table.setRowSelection({ [row.id]: true });
-                                handleRowSelection(row.original);
-                              } else {
-                                // Deselect current row
-                                // table.setRowSelection({});
-                                handleRowSelection({} as IAPIEndpoint);
-                              }
-                            }}
-                          />
-                        ) : (
-                          flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext(),
-                          )
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={table.getAllColumns()?.length}
-                    className="h-[16rem] text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-        <div className="flex justify-between p-1">
-          <div className="flex-1 text-sm text-gray-600">
-            {selectedEndPoints.length} row(s) selected.
-          </div>
-          <Pagination5
-            currentPage={page}
-            setCurrentPage={setPage}
-            totalPageNumbers={totalPage as number}
-          />
-        </div>
+              ))
+            ) : isLoading ? (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-[16rem] text-center"
+                >
+                  <Spinner size="40" color="black" />
+                </TableCell>
+              </TableRow>
+            ) : (
+              <TableRow>
+                <TableCell
+                  colSpan={columns.length}
+                  className="h-[16rem] text-center"
+                >
+                  No results.
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
       </div>
-    </div>
+      {/* Start Pagination */}
+      <div className="flex justify-between p-1">
+        <div className="flex-1 text-sm text-gray-600">
+          {selectedEndPoints?.length} row(s) selected.
+        </div>
+        <Pagination5
+          currentPage={currentPage}
+          setCurrentPage={setCurrentPage}
+          totalPageNumbers={totalPage}
+        />
+      </div>
+
+      {/* Modal */}
+      <Modal
+        action={action}
+        setOpenModal={setOpenModal}
+        selectedItems={selectedEndPoints}
+        setState={setReloadController}
+        privileges={privileges}
+        openModal={openModal}
+      />
+    </>
   );
 };
 

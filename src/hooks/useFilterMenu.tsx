@@ -56,8 +56,6 @@ export const useFilteredMenu = (): MenuItem[] => {
     const endpointIds =
       grantendEndpoints?.map((item) => item.api_endpoint_id) || [];
 
-    console.log(endpointIds);
-
     return filterMenuByEndpoints(menuData as MenuItem[], endpointIds);
   }, [grantendEndpoints]);
 };
