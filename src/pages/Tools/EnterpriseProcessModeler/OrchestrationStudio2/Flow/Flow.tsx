@@ -388,6 +388,7 @@ const ShapesProExampleApp = ({
 
   const onNodeClick = useCallback(
     (event: React.MouseEvent, node: ShapeNode) => {
+      console.log(event, "Node event");
       setSelectedEdge(undefined);
       setSelectedNode({ ...node, selected: true });
       setEdgeConnectionPosition(node.data.edge_connection_position);
@@ -401,6 +402,7 @@ const ShapesProExampleApp = ({
   );
   const [isEdgeDataLoading, setIsEdgeDataLoading] = useState(false);
   const onEdgeClick = async (event: React.MouseEvent, edge: Edge) => {
+    console.log(event, "Edge event");
     setSelectedNode(undefined);
     setSelectedEdge(edge);
     const decisionNode = diamondNode();
@@ -488,7 +490,7 @@ const ShapesProExampleApp = ({
         url: `${flaskApi.WorkFlow}?process_id=${selectedFlowData?.process_id}`,
         accessToken: token.access_token,
       });
-
+      console.log(res, "delete");
       if (res) {
         closeAllProgress();
         setSelectedFlowData(undefined);
