@@ -133,7 +133,7 @@ export function ManageExecutionMethodsTable() {
 
     const fetchData = async () => {
       const res = await loadData(params);
-      console.log(res);
+
       if (res) {
         setData(res.items);
         setTotalPage(res.pages);

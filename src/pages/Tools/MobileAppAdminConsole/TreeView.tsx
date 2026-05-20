@@ -216,10 +216,7 @@ const TreeView = () => {
       accessToken: token.access_token,
     };
 
-    console.log(putParams);
-
-    const res = await putData(putParams);
-    console.log(res);
+    await putData(putParams);
   };
 
   const renderTree = (nodes: TreeNode[], parentPath = "", level = 0) => {

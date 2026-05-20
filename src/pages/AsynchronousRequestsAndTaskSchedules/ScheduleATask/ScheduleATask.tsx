@@ -88,7 +88,7 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
   // const [time, setTime] = useState("00:00:00");
 
   const [scheduleType, setScheduleType] = useState<string>(
-    selected?.schedule_type ?? ""
+    selected?.schedule_type ?? "",
   );
   const [schedule, setSchedule] = useState<
     | ISchedulePropsPeriodic
@@ -126,7 +126,7 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
     user_schedule_name: z.string(),
     task_name: z.string(),
     parameters: z.record(
-      z.union([z.string(), z.number(), z.boolean(), z.date()])
+      z.union([z.string(), z.number(), z.boolean(), z.date()]),
     ),
   });
 
@@ -165,18 +165,18 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
             schedule_type: scheduleType,
           }
         : scheduleType === "IMMEDIATE"
-        ? {
-            task_name: data.task_name,
-            parameters: data.parameters,
-            schedule_type: scheduleType,
-          }
-        : {
-            schedule,
-            schedule_type: scheduleType,
-            parameters: data.parameters,
-            redbeat_schedule_name: selected?.redbeat_schedule_name,
-          };
-    // console.log(payload, "payload");
+          ? {
+              task_name: data.task_name,
+              parameters: data.parameters,
+              schedule_type: scheduleType,
+            }
+          : {
+              schedule,
+              schedule_type: scheduleType,
+              parameters: data.parameters,
+              redbeat_schedule_name: selected?.redbeat_schedule_name,
+            };
+
     const postDataParams = {
       baseURL: FLASK_URL,
       url: flaskApi.CreateTaskSchedule,
@@ -492,8 +492,8 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
                                   val === "true"
                                     ? true
                                     : val === "false"
-                                    ? false
-                                    : val,
+                                      ? false
+                                      : val,
                               }));
                             }}
                           >
@@ -552,7 +552,7 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
                                   parameters[pm.parameter_name]
                                     ? format(
                                         parameters[pm.parameter_name] as Date,
-                                        "HH:mm"
+                                        "HH:mm",
                                       )
                                     : "00:00:00" //time
                                 }
@@ -566,7 +566,7 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
                                     updatedDate.setHours(
                                       parseInt(hours),
                                       parseInt(minutes),
-                                      parseInt(seconds)
+                                      parseInt(seconds),
                                     );
                                     setParameters((prev) => ({
                                       ...prev,

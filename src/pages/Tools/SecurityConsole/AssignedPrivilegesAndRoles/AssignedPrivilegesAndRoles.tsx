@@ -111,7 +111,6 @@ const AssignedPriviedgesAndRoles = () => {
       } else {
         setTotalPage(1);
       }
-      table.toggleAllRowsSelected(false);
     };
 
     const delayDebounce = setTimeout(() => {
@@ -300,15 +299,13 @@ const AssignedPriviedgesAndRoles = () => {
                         {index === 0 ? (
                           <Checkbox
                             className=""
-                            checked={row.getIsSelected()}
+                            checked={
+                              row.original.user_id === selectedItem?.user_id
+                            }
                             onCheckedChange={(value) => {
                               if (value) {
-                                // Select only the current row (deselect others)
-                                table.setRowSelection({ [row.id]: true });
                                 handleRowSelection(row.original);
                               } else {
-                                // Deselect current row
-                                table.setRowSelection({});
                                 handleRowSelection({} as IPrivilegeAndRole);
                               }
                             }}

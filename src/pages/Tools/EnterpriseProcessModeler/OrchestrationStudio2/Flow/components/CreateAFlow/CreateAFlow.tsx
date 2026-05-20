@@ -30,7 +30,7 @@ const CreateAFlow = ({
   closeAllProgress,
 }: ICreateAFlowProps) => {
   const { token } = useGlobalContext();
-  console.log(selectedFlowData, "selectedFlowData");
+
   const handleCreateNewFlow = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {

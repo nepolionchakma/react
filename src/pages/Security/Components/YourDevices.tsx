@@ -34,7 +34,7 @@ const YourDevices = () => {
     useState<IUserLinkedDevices | null>(null);
 
   const sortedDevices = linkedDevices?.sort(
-    (a, b) => b.is_active - a.is_active
+    (a, b) => b.is_active - a.is_active,
   );
 
   useEffect(() => {
@@ -63,11 +63,10 @@ const YourDevices = () => {
           `/devices/inactive-device/${token.user_id}/${data.id}`,
           {
             is_active: 0,
-          }
+          },
         );
 
         if (res.status === 200) {
-          console.log(res.data);
           inactiveDevice([res.data]);
           setSignonId("");
           localStorage.removeItem("signonId");
@@ -155,14 +154,14 @@ const YourDevices = () => {
                           device.os === "Windows"
                             ? Windows
                             : device.os === "Linux"
-                            ? Linux
-                            : device.os === "Mac"
-                            ? MacOS
-                            : device.os === "iOS"
-                            ? iOS
-                            : device.os === "Android"
-                            ? Android
-                            : Undefined
+                              ? Linux
+                              : device.os === "Mac"
+                                ? MacOS
+                                : device.os === "iOS"
+                                  ? iOS
+                                  : device.os === "Android"
+                                    ? Android
+                                    : Undefined
                         }
                         alt="image"
                         className="w-6"
@@ -181,16 +180,16 @@ const YourDevices = () => {
                             device.browser_name === "Microsoft Edge"
                               ? Edge
                               : device.browser_name === "Google Chrome"
-                              ? Chrome
-                              : device.browser_name === "Apple Safari"
-                              ? Safari
-                              : device.browser_name === "Mozilla Firefox"
-                              ? Firefox
-                              : device.browser_name === "Opera"
-                              ? Opera
-                              : device.browser_name === "App"
-                              ? App
-                              : Undefined
+                                ? Chrome
+                                : device.browser_name === "Apple Safari"
+                                  ? Safari
+                                  : device.browser_name === "Mozilla Firefox"
+                                    ? Firefox
+                                    : device.browser_name === "Opera"
+                                      ? Opera
+                                      : device.browser_name === "App"
+                                        ? App
+                                        : Undefined
                           }
                           alt="image"
                           className="w-4 h-4"

@@ -194,7 +194,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
             url: `${flaskApi.DefDataSources}?def_data_source_id=${selectedDataSourceItem.def_data_source_id}`,
             accessToken: token.access_token,
           });
-          console.log(response, "response");
+
           dataSourceForm.reset({
             datasource_name: response.result.datasource_name ?? "",
             description: response.result.description ?? "",
