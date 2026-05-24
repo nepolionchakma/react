@@ -167,9 +167,9 @@ const Modal = ({
             <X onClick={handleClose} className="cursor-pointer" />
           </div>
 
-          <div className="max-h-[90vh] p-4 overflow-auto scrollbar-thin">
+          <div className="max-h-[90vh] overflow-auto scrollbar-thin">
             {isLoading ? (
-              <div className="w-full flex justify-center">
+              <div className="w-full flex justify-center p-4">
                 <Spinner size="40" color="black" />
               </div>
             ) : (
