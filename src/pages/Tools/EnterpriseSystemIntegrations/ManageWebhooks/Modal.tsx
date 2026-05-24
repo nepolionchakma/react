@@ -59,6 +59,20 @@ const Modal = ({
   // const [showEvents, setShowEvents] = useState(false);
   const activeOptions = ["Y", "N"];
 
+  const groupedByEntityName = events.reduce<Record<string, IEvent[]>>(
+    (acc, item) => {
+      if (!acc[item.entity_name]) {
+        acc[item.entity_name] = [];
+      }
+
+      acc[item.entity_name].push(item);
+
+      return acc;
+    },
+    {},
+  );
+  console.log(groupedByEntityName);
+
   const weebhookSchema = z.object({
     webhook_name: z.string(),
     webhook_url: z.string(),
@@ -86,6 +100,7 @@ const Modal = ({
   });
 
   const selectedEvents = form.watch("event_ids");
+  console.log(selectedEvents);
 
   useEffect(() => {
     const fetchEvents = async () => {
@@ -209,14 +224,6 @@ const Modal = ({
         handleClose();
       }
     }
-  };
-
-  const eventNames = (eventIds: number[]) => {
-    if (!eventIds.length) return [];
-
-    return events
-      .filter((event) => eventIds.includes(event.event_id))
-      .map((event) => event.event_name);
   };
 
   return (
@@ -375,46 +382,54 @@ const Modal = ({
 
                             <Popover>
                               <PopoverTrigger className="border rounded px-3 py-2 text-left flex justify-between">
-                                {field.value.length > 0
-                                  ? eventNames(field.value).join(", ")
-                                  : "Select Events"}
+                                Select Events
                                 <ChevronDown size={20} color="gray" />
                               </PopoverTrigger>
 
-                              <PopoverContent className="p-4 w-[40rem] max-h-[50vh] overflow-auto">
+                              <PopoverContent className="p-4 w-[40rem] max-h-[50vh] overflow-auto scrollbar-thin">
                                 <Command>
                                   <CommandGroup>
-                                    <div className="grid grid-cols-2">
-                                      {events.map((e) => (
-                                        <CommandItem
-                                          className="flex items-start"
-                                          key={e.event_id}
-                                          onSelect={() =>
-                                            onSelectEvent(e.event_id, field)
-                                          }
-                                        >
-                                          <Checkbox
-                                            checked={field.value.includes(
-                                              e.event_id,
-                                            )}
-                                          />
-                                          {/* <Check
-                                          className={`mr-2 h-4 w-4 ${
-                                            field.value.includes(e.event_id)
-                                              ? "opacity-100"
-                                              : "opacity-0"
-                                          }`}
-                                        /> */}
-                                          <div className="flex flex-col">
-                                            <span className="capitalize font-semibold text-md">
-                                              {e.event_name}
-                                            </span>
-                                            <span className="text-sm">
-                                              {e.description}
-                                            </span>
+                                    <div className="space-y-4">
+                                      {Object.entries(groupedByEntityName).map(
+                                        ([entityName, events]) => (
+                                          <div key={entityName}>
+                                            <h2 className="font-bold text-lg mb-2">
+                                              {entityName}
+                                            </h2>
+
+                                            <div className="grid grid-cols-2 gap-2">
+                                              {events.map((e) => (
+                                                <CommandItem
+                                                  key={e.event_id}
+                                                  className="flex items-start gap-2"
+                                                  onSelect={() =>
+                                                    onSelectEvent(
+                                                      e.event_id,
+                                                      field,
+                                                    )
+                                                  }
+                                                >
+                                                  <Checkbox
+                                                    checked={field.value.includes(
+                                                      e.event_id,
+                                                    )}
+                                                  />
+
+                                                  <div className="flex flex-col">
+                                                    <span className="font-medium">
+                                                      {e.action_type}
+                                                    </span>
+
+                                                    <span className="text-sm text-muted-foreground">
+                                                      {e.description}
+                                                    </span>
+                                                  </div>
+                                                </CommandItem>
+                                              ))}
+                                            </div>
                                           </div>
-                                        </CommandItem>
-                                      ))}
+                                        ),
+                                      )}
                                     </div>
                                   </CommandGroup>
                                 </Command>

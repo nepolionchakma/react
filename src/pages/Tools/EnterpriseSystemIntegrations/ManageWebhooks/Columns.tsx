@@ -1,5 +1,5 @@
 import { Users } from "@/types/interfaces/users.interface";
-import { IEvent, IWebhook } from "@/types/interfaces/webhook.interface";
+import { IWebhook } from "@/types/interfaces/webhook.interface";
 import { convertDate } from "@/Utility/DateConverter";
 import { renderUserName } from "@/Utility/NotificationUtils";
 import { ColumnDef } from "@tanstack/react-table";
@@ -67,41 +67,41 @@ export const getColumns = (users: Users[]): ColumnDef<IWebhook>[] => [
     ),
   },
 
-  {
-    accessorKey: "events",
-    enableResizing: true,
-    sortingFn: (rowA, rowB, columnId) => {
-      const eventA = rowA.getValue(columnId) as IEvent[];
-      const eventB = rowB.getValue(columnId) as IEvent[];
+  // {
+  //   accessorKey: "events",
+  //   enableResizing: true,
+  //   sortingFn: (rowA, rowB, columnId) => {
+  //     const eventA = rowA.getValue(columnId) as IEvent[];
+  //     const eventB = rowB.getValue(columnId) as IEvent[];
 
-      const a = eventA[0].event_name || "";
-      const b = eventB[0].event_name || "";
+  //     const a = eventA[0].event_name || "";
+  //     const b = eventB[0].event_name || "";
 
-      return a.localeCompare(b, undefined, { sensitivity: "base" });
-    },
-    header: ({ column }) => {
-      return (
-        <div
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="min-w-max cursor-pointer"
-        >
-          Events
-          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
-        </div>
-      );
-    },
-    cell: ({ row }) => {
-      // const isExpanded = expandPrevilege === row.id;
-      const events: IEvent[] = row.getValue("events");
-      return (
-        <div className="flex items-center gap-2 min-w-max">
-          <div className="capitalize min-w-max">
-            <span>{events.map((e) => e.event_name).join(", ")}</span>
-          </div>
-        </div>
-      );
-    },
-  },
+  //     return a.localeCompare(b, undefined, { sensitivity: "base" });
+  //   },
+  //   header: ({ column }) => {
+  //     return (
+  //       <div
+  //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+  //         className="min-w-max cursor-pointer"
+  //       >
+  //         Events
+  //         <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
+  //       </div>
+  //     );
+  //   },
+  //   cell: ({ row }) => {
+  //     // const isExpanded = expandPrevilege === row.id;
+  //     const events: IEvent[] = row.getValue("events");
+  //     return (
+  //       <div className="flex items-center gap-2 min-w-max">
+  //         <div className="capitalize min-w-max">
+  //           <span>{events.map((e) => e.event_name).join(", ")}</span>
+  //         </div>
+  //       </div>
+  //     );
+  //   },
+  // },
   {
     accessorKey: "is_active",
     enableResizing: true,
