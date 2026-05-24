@@ -118,7 +118,7 @@ const ManageWebhooks = () => {
       } else {
         setTotalPage(1);
       }
-      table.toggleAllRowsSelected(false);
+      setSelectedWebhooks([]);
     };
 
     const delayDebounce = setTimeout(() => {

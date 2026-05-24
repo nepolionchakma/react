@@ -1,7 +1,20 @@
+interface TechnicalDetails {
+  path: string;
+  method: "POST" | "PUT" | "DELETE" | "GET" | "PATCH";
+}
+
 export interface IEvent {
   event_id: number;
-  event_name: string;
+  tenant_id: number;
+  api_endpoint_id: number;
+  entity_name: string;
+  action_type: "CREATE" | "UPDATE" | "DELETE";
   description: string;
+  created_by: number;
+  creation_date: string;
+  last_updated_by: number;
+  last_update_date: string;
+  technical_details: TechnicalDetails;
 }
 
 export interface IWebhook {
