@@ -386,7 +386,7 @@ const Modal = ({
                                 <ChevronDown size={20} color="gray" />
                               </PopoverTrigger>
 
-                              <PopoverContent className="p-4 w-[40rem] max-h-[50vh] overflow-auto scrollbar-thin">
+                              <PopoverContent className="p-4 w-[800px] max-h-[80vh] overflow-auto scrollbar-thin">
                                 <Command>
                                   <CommandGroup>
                                     <div className="space-y-4">
@@ -397,7 +397,7 @@ const Modal = ({
                                               {entityName}
                                             </h2>
 
-                                            <div className="grid grid-cols-2 gap-2">
+                                            <div className="grid grid-cols-3 gap-2">
                                               {events.map((e) => (
                                                 <CommandItem
                                                   key={e.event_id}
