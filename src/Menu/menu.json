@@ -220,6 +220,10 @@
         "paths": ["/tools/enterprise-process-modeler/orchestration-studio"],
         "subMenus": [
           {
+            "name": "Register a Lookup",
+            "path": "/tools/enterprise-process-modeler/register-a-lookup"
+          },
+          {
             "name": "Orchestration Studio",
             "path": "/tools/enterprise-process-modeler/orchestration-studio",
             "endpoint_id": 1307

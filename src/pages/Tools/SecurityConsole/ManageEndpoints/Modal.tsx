@@ -289,7 +289,10 @@ const Modal = ({
                           >
                             <FormControl>
                               <SelectTrigger>
-                                <SelectValue placeholder="Select Privilege" />
+                                <SelectValue
+                                  className="capitalize"
+                                  placeholder="Select Privilege"
+                                />
                               </SelectTrigger>
                             </FormControl>
 
@@ -298,9 +301,8 @@ const Modal = ({
                                 <SelectItem
                                   key={item.privilege_id}
                                   value={item.privilege_id.toString()}
-                                  className="capitalize"
                                 >
-                                  {item.privilege_name}
+                                  {item.privilege_name.toLocaleUpperCase()}
                                 </SelectItem>
                               ))}
                             </SelectContent>

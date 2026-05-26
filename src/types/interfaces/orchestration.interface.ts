@@ -82,3 +82,25 @@ export interface IWorkflowExecutionStep {
   last_updated_by: number;
   last_update_date: Date;
 }
+
+export interface ILookupValue {
+  active_yn: "Y" | "N";
+  sort_order: number;
+  value_code: string;
+  description: string;
+  value_label: string;
+  lookup_value_id: number;
+}
+
+export interface ILookup {
+  lookup_id: number;
+  lookup_code: string;
+  lookup_name: string;
+  description: string;
+  active_yn: "Y" | "N";
+  values: ILookupValue[];
+  created_by: number;
+  creation_date: string;
+  last_updated_by: number;
+  last_update_date: string;
+}

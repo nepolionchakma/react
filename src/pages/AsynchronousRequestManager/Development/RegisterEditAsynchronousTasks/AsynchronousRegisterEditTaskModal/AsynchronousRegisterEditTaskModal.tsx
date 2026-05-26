@@ -31,6 +31,10 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
+import Spinner from "@/components/Spinner/Spinner";
+import { ILookup } from "@/types/interfaces/orchestration.interface";
+import { FLASK_URL } from "@/Api/Api";
+import { loadData } from "@/Utility/funtion";
 
 interface ICreateTaskProps {
   task_name: string;
@@ -51,18 +55,65 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
   handleCloseModal,
 }) => {
   const api = useAxiosPrivate();
-  const { isOpenModal } = useGlobalContext();
+  const { isOpenModal, token } = useGlobalContext();
   const { setChangeState, getManageExecutionMethods } = useARMContext();
   const [executionMethods, setExecutionMethods] = useState<
     IExecutionMethodsTypes[]
   >([]);
   const [selectedExecutionMethod, setSelectedExecutionMethod] =
     useState<IExecutionMethodsTypes>(executionMethods[0]);
+  const [lookups, setLookups] = useState<ILookup[] | []>([]);
 
   const [checkboxSelected, setCheckboxSelected] = useState<IChackboxTypes>(
-    selected && { srs: selected.srs, sf: selected.sf }
+    selected && { srs: selected.srs, sf: selected.sf },
     // selected[0] && { srs: selected[0].srs, sf: selected[0].sf }
   );
+
+  const FormSchema = z.object({
+    user_task_name: z.string(),
+    task_name: z.string(),
+    execution_method: z.string(),
+    script_name: z.string(),
+    script_path: z.string(),
+    description: z.string(),
+    srs: z.string().optional(),
+    sf: z.string().optional(),
+    sf_type: z.enum(["PREDICTABLE", "UNPREDICTABLE"]).optional(),
+    lookup_id: z.number().optional().nullable(),
+  });
+
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
+    defaultValues:
+      isOpenModal === "register_task"
+        ? {
+            user_task_name: "",
+            task_name: "",
+            execution_method: selectedExecutionMethod?.execution_method,
+            script_name: "",
+            description: "",
+            srs: "N",
+            sf: "N",
+            script_path: "",
+            sf_type: undefined,
+            lookup_id: null,
+          }
+        : {
+            user_task_name: selected?.user_task_name,
+            task_name: selected?.task_name,
+            execution_method: selected?.execution_method,
+            script_name: selected?.script_name,
+            description: selected?.description,
+            srs: selected?.srs,
+            sf: selected?.sf,
+            script_path: selected?.script_path,
+            sf_type: selected?.sf_type,
+            lookup_id: selected?.lookup_id,
+          },
+  });
+  const { reset } = form;
+
+  const stepFuntion = form.watch("sf");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -75,6 +126,24 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
     };
     fetchData();
   }, []);
+
+  useEffect(() => {
+    const params = {
+      baseURL: FLASK_URL,
+      url: `/lookup_with_values`,
+      accessToken: `${token.access_token}`,
+      setLoading: setIsLoading,
+    };
+
+    const fetchLookups = async () => {
+      const res = await loadData(params);
+      if (res.result) {
+        setLookups(res.result);
+      }
+    };
+
+    fetchLookups();
+  }, [setIsLoading, token.access_token]);
   // useEffect(() => {
   //   setSelectedExecutionMethod();
   // }, [selectedExecutionMethod]);
@@ -102,53 +171,6 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
       });
     }
   };
-
-  const FormSchema = z.object(
-    isOpenModal === "register_task"
-      ? {
-          user_task_name: z.string(),
-          task_name: z.string(),
-          execution_method: z.string(),
-          script_name: z.string(),
-          script_path: z.string(),
-          description: z.string(),
-          srs: z.string().optional(),
-          sf: z.string().optional(),
-        }
-      : {
-          user_task_name: z.string(),
-          execution_method: z.string(),
-          script_name: z.string(),
-          description: z.string(),
-          srs: z.string().optional(),
-          sf: z.string().optional(),
-        }
-  );
-
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
-    defaultValues:
-      isOpenModal === "register_task"
-        ? {
-            user_task_name: "",
-            task_name: "",
-            execution_method: selectedExecutionMethod?.execution_method,
-            script_name: "",
-            description: "",
-            srs: "N",
-            sf: "N",
-            script_path: "",
-          }
-        : {
-            user_task_name: selected?.user_task_name,
-            execution_method: selected?.execution_method,
-            script_name: selected?.script_name,
-            description: selected?.description,
-            srs: selected?.srs,
-            sf: selected?.sf,
-          },
-  });
-  const { reset } = form;
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     const postData = {
@@ -202,7 +224,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
       try {
         const res = await api.put(
           `/arm-tasks/edit-task/${selected?.task_name}`,
-          putData
+          putData,
         );
 
         if (res) {
@@ -246,54 +268,126 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
 
   return (
     <div>
-      <div className="p-2 bg-slate-300 rounded-t mx-auto text-center font-bold flex justify-between">
-        <h2>{task_name} Task</h2>
+      <div className="flex justify-between bg-[#CEDEF2] p-4">
+        <h2 className="font-semibold capitalize">{task_name} Task</h2>
         <X onClick={() => handleCloseModal()} className="cursor-pointer" />
       </div>
-      <div className="px-11 py-4">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
-            <div className="grid grid-cols-2 gap-10">
-              <div className="flex items-center gap-1">
-                <Checkbox
-                  checked={checkboxSelected?.srs === "Y"}
-                  onClick={() => handleCheckboxChange("srs")}
-                />
-                <FormLabel onClick={() => handleCheckboxChange("srs")}>
-                  Standard Request Submission (SRS)
-                </FormLabel>
-              </div>
-              <div className="flex items-center gap-1">
-                <Checkbox
-                  checked={checkboxSelected?.sf === "Y"}
-                  onClick={() => handleCheckboxChange("sf")}
-                />
-                <FormLabel onClick={() => handleCheckboxChange("sf")}>
-                  Step Function (SF)
-                </FormLabel>
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-10">
-              <FormField
-                control={form.control}
-                name="user_task_name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>User Task Name</FormLabel>
-                    <FormControl>
-                      <Input
-                        {...field}
-                        required
-                        autoFocus
-                        type="text"
-                        placeholder="User Task Name"
-                        className="px-2 h-8"
-                      />
-                    </FormControl>
-                  </FormItem>
+      <div className="max-h-[70vh] p-4 overflow-auto scrollbar-thin">
+        {isLoading ? (
+          <div className="w-full flex justify-center">
+            <Spinner size="40" color="black" />
+          </div>
+        ) : (
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+              {/* <div className="grid grid-cols-2 gap-4">
+                
+              </div> */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="flex items-center gap-1">
+                  <Checkbox
+                    checked={checkboxSelected?.srs === "Y"}
+                    onClick={() => handleCheckboxChange("srs")}
+                  />
+                  <FormLabel onClick={() => handleCheckboxChange("srs")}>
+                    Standard Request Submission (SRS)
+                  </FormLabel>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Checkbox
+                    checked={checkboxSelected?.sf === "Y"}
+                    onClick={() => handleCheckboxChange("sf")}
+                  />
+                  <FormLabel onClick={() => handleCheckboxChange("sf")}>
+                    Step Function (SF)
+                  </FormLabel>
+                </div>
+                {stepFuntion === "Y" && (
+                  <FormField
+                    control={form.control}
+                    name="sf_type"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Step Function Type</FormLabel>
+
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+
+                          <SelectContent>
+                            <SelectItem value="PREDICTABLE">
+                              Predictable
+                            </SelectItem>
+                            <SelectItem value="UNPREDICTABLE">
+                              Unpredictable
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
                 )}
-              />
-              {isOpenModal === "register_task" ? (
+
+                {stepFuntion === "Y" && (
+                  <FormField
+                    control={form.control}
+                    name="sf_type"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Lookup</FormLabel>
+
+                        <Select
+                          value={field.value}
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                          </FormControl>
+
+                          <SelectContent>
+                            {lookups.map((l) => (
+                              <SelectItem
+                                key={l.lookup_id}
+                                value={l.lookup_id.toString()}
+                              >
+                                {l.lookup_name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                <FormField
+                  control={form.control}
+                  name="user_task_name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>User Task Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          required
+                          autoFocus
+                          type="text"
+                          placeholder="User Task Name"
+                          className="px-2 h-8"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+
                 <FormField
                   control={form.control}
                   name="task_name"
@@ -312,7 +406,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                     </FormItem>
                   )}
                 />
-              ) : (
+
                 <FormField
                   control={form.control}
                   name="execution_method"
@@ -324,7 +418,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                           onValueChange={(value) => {
                             field.onChange(value);
                             const selectedItem = executionMethods.find(
-                              (item) => item.execution_method === value
+                              (item) => item.execution_method === value,
                             );
                             if (selectedItem) {
                               setSelectedExecutionMethod(selectedItem);
@@ -350,48 +444,18 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                     </FormItem>
                   )}
                 />
-              )}
-            </div>
-            <div className="grid grid-cols-2 gap-10">
-              {isOpenModal === "register_task" ? (
-                <FormField
-                  control={form.control}
-                  name="execution_method"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Execution Method</FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={(value) => {
-                            field.onChange(value);
-                            const selectedItem = executionMethods.find(
-                              (item) => item.execution_method === value
-                            );
-                            if (selectedItem) {
-                              setSelectedExecutionMethod(selectedItem);
-                            }
-                          }}
-                          value={field.value}
-                        >
-                          <SelectTrigger className="px-2 h-8">
-                            <SelectValue placeholder="Select Execution Method" />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-60">
-                            {executionMethods.map((item) => (
-                              <SelectItem
-                                key={item.execution_method}
-                                value={item.execution_method}
-                              >
-                                {item.execution_method}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-              ) : (
+
+                <div>
+                  <FormLabel htmlFor="Executor">Executor</FormLabel>
+                  <Input
+                    placeholder="Executor"
+                    readOnly
+                    disabled
+                    className="my-2 px-2 h-8"
+                    value={selectedExecutionMethod?.executor ?? "Executor"}
+                  />
+                </div>
+
                 <FormField
                   control={form.control}
                   name="script_name"
@@ -410,85 +474,56 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                     </FormItem>
                   )}
                 />
-              )}
-              {isOpenModal === "register_task" && (
-                <div>
-                  <FormLabel htmlFor="Executor">Executor</FormLabel>
-                  <Input
-                    placeholder="Executor"
-                    readOnly
-                    disabled
-                    className="my-2 px-2 h-8"
-                    value={selectedExecutionMethod?.executor ?? "Executor"}
-                  />
-                </div>
-              )}
-            </div>
-            <div className="grid grid-cols-2 gap-10">
-              {isOpenModal === "register_task" && (
-                <>
-                  <FormField
-                    control={form.control}
-                    name="script_name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Script Name</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            required
-                            type="text"
-                            placeholder="Script Name"
-                            className="px-2 h-8"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="script_path"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Script Path</FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            required
-                            type="text"
-                            placeholder="Script Path"
-                            className="px-2 h-8"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
-                </>
-              )}
-            </div>
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Description</FormLabel>
-                  <FormControl>
-                    <Textarea {...field} placeholder="Description" />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <div className="flex justify-end">
-              <Button type="submit" className=" mt-2">
-                {isLoading ? (
-                  <l-tailspin size="15" stroke="3" speed="0.9" color="white" />
-                ) : (
-                  "Submit"
-                )}
-              </Button>
-            </div>
-          </form>
-        </Form>
+
+                <FormField
+                  control={form.control}
+                  name="script_path"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Script Path</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          required
+                          type="text"
+                          placeholder="Script Path"
+                          className="px-2 h-8"
+                        />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="description"
+                  render={({ field }) => (
+                    <FormItem className="col-span-2">
+                      <FormLabel>Description</FormLabel>
+                      <FormControl>
+                        <Textarea {...field} placeholder="Description" />
+                      </FormControl>
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+              <div className="flex justify-end">
+                <Button type="submit" className=" mt-2">
+                  {isLoading ? (
+                    <l-tailspin
+                      size="15"
+                      stroke="3"
+                      speed="0.9"
+                      color="white"
+                    />
+                  ) : (
+                    "Submit"
+                  )}
+                </Button>
+              </div>
+            </form>
+          </Form>
+        )}
       </div>
     </div>
   );
