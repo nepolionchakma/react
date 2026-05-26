@@ -316,7 +316,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue />
+                              <SelectValue placeholder="Select Step Function Type" />
                             </SelectTrigger>
                           </FormControl>
 
@@ -337,18 +337,20 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                 {stepFuntion === "Y" && (
                   <FormField
                     control={form.control}
-                    name="sf_type"
+                    name="lookup_id"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Lookup</FormLabel>
 
                         <Select
-                          value={field.value}
-                          onValueChange={field.onChange}
+                          value={field.value?.toString()}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                          }}
                         >
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue />
+                              <SelectValue placeholder="Select Lookup" />
                             </SelectTrigger>
                           </FormControl>
 
