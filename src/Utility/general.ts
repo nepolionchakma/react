@@ -1,5 +1,8 @@
 import { IAPIEndpoint } from "@/types/interfaces/apiEndpoints.interface";
-import { IOrchestrationDataTypes } from "@/types/interfaces/orchestration.interface";
+import {
+  ILookup,
+  IOrchestrationDataTypes,
+} from "@/types/interfaces/orchestration.interface";
 import {
   IJobTitle,
   IPrivilege,
@@ -97,6 +100,19 @@ export const processName = (
     const process = processes.find((item) => item.process_id === processId);
 
     return process?.process_name;
+  }
+};
+
+export const lookupName = (
+  lookupId: number | undefined,
+  lookups: ILookup[],
+) => {
+  if (!lookupId) {
+    return;
+  } else {
+    const lookup = lookups.find((item) => item.lookup_id === lookupId);
+
+    return lookup?.lookup_name;
   }
 };
 

@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/table";
 
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import columns from "./Columns";
+import { getColumns } from "./Columns";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { IARMAsynchronousTasksTypes } from "@/types/interfaces/ARM.interface";
 import AsynchronousRegisterEditTaskModal from "../AsynchronousRegisterEditTaskModal/AsynchronousRegisterEditTaskModal";
@@ -41,6 +41,9 @@ import CustomTooltip from "@/components/Tooltip/Tooltip";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import Rows from "@/components/Rows/Rows";
 import { convertToTitleCase } from "@/Utility/general";
+import { loadData } from "@/Utility/funtion";
+import { FLASK_URL } from "@/Api/Api";
+import { ILookup } from "@/types/interfaces/orchestration.interface";
 
 export function TaskTable() {
   const {
@@ -52,12 +55,30 @@ export function TaskTable() {
     setIsLoading,
     changeState,
   } = useARMContext();
-  const { isOpenModal, setIsOpenModal, grantedPrivlegeIds } =
+  const { isOpenModal, setIsOpenModal, grantedPrivlegeIds, token, users } =
     useGlobalContext();
   const [page, setPage] = React.useState(1);
   const [limit, setLimit] = React.useState(8);
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
   const [data, setData] = React.useState<IARMAsynchronousTasksTypes[] | []>([]);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+
+  const [selected, setSelected] = React.useState<
+    IARMAsynchronousTasksTypes | undefined
+  >(undefined);
+  const [lookups, setLookups] = React.useState<ILookup[] | []>([]);
+
+  const columns = React.useMemo(
+    () => getColumns(users, lookups),
+    [users, lookups],
+  );
+
   const handleQuery = (e: string) => {
     if (e === "") {
       setQuery({ isEmpty: true, value: e });
@@ -104,17 +125,24 @@ export function TaskTable() {
     return () => clearTimeout(delayDebounce); // Cleanup timeout
   }, [query, page, changeState, limit]); // Run on query and page change
 
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
+  React.useEffect(() => {
+    const params = {
+      baseURL: FLASK_URL,
+      url: `/lookup_with_values`,
+      accessToken: `${token.access_token}`,
+      setLoading: setIsLoading,
+    };
 
-  const [selected, setSelected] = React.useState<
-    IARMAsynchronousTasksTypes | undefined
-  >(undefined);
+    const fetchLookups = async () => {
+      const res = await loadData(params);
+      if (res.result) {
+        setLookups(res.result);
+      }
+    };
+
+    fetchLookups();
+  }, [setIsLoading, token.access_token]);
+
   const handleRowSelection = (rowSelection: IARMAsynchronousTasksTypes) => {
     setSelected((prevSelected) => {
       if (prevSelected?.def_task_id === rowSelection.def_task_id) {

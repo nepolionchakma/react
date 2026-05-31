@@ -15,13 +15,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { X } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import { toast } from "@/components/ui/use-toast";
-import { AxiosError } from "axios";
 import {
   IARMAsynchronousTasksTypes,
   IExecutionMethodsTypes,
 } from "@/types/interfaces/ARM.interface";
-import useAxiosPrivate from "@/hooks/useAxiosPrivate";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import {
   Select,
@@ -34,7 +31,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import Spinner from "@/components/Spinner/Spinner";
 import { ILookup } from "@/types/interfaces/orchestration.interface";
 import { FLASK_URL } from "@/Api/Api";
-import { loadData } from "@/Utility/funtion";
+import { loadData, postData, putData } from "@/Utility/funtion";
 
 interface ICreateTaskProps {
   task_name: string;
@@ -54,7 +51,6 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
   setIsLoading,
   handleCloseModal,
 }) => {
-  const api = useAxiosPrivate();
   const { isOpenModal, token } = useGlobalContext();
   const { setChangeState, getManageExecutionMethods } = useARMContext();
   const [executionMethods, setExecutionMethods] = useState<
@@ -79,7 +75,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
     srs: z.string().optional(),
     sf: z.string().optional(),
     sf_type: z.enum(["PREDICTABLE", "UNPREDICTABLE"]).optional(),
-    lookup_id: z.number().optional().nullable(),
+    lookup_id: z.string().optional().nullable(),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -108,9 +104,11 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
             sf: selected?.sf,
             script_path: selected?.script_path,
             sf_type: selected?.sf_type,
-            lookup_id: selected?.lookup_id,
+            lookup_id: selected?.lookup_id?.toString(),
           },
   });
+
+  console.log(form.formState.errors);
   const { reset } = form;
 
   const stepFuntion = form.watch("sf");
@@ -119,7 +117,10 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
     const fetchData = async () => {
       try {
         const res = await getManageExecutionMethods();
-        if (res) setExecutionMethods(res);
+        if (res) {
+          console.log(res);
+          setExecutionMethods(res);
+        }
       } catch (error) {
         console.log(error);
       }
@@ -144,9 +145,6 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
 
     fetchLookups();
   }, [setIsLoading, token.access_token]);
-  // useEffect(() => {
-  //   setSelectedExecutionMethod();
-  // }, [selectedExecutionMethod]);
 
   const handleCheckboxChange = (name: string) => {
     if (name === "srs") {
@@ -173,7 +171,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
   };
 
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
-    const postData = {
+    const postPayload = {
       user_task_name: data.user_task_name,
       task_name: data.task_name,
       executor: selectedExecutionMethod?.executor,
@@ -185,84 +183,56 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
       description: data.description,
       srs: data.srs,
       sf: data.sf,
+      sf_type: stepFuntion === "Y" ? data.sf_type : null,
+      lookup_id: stepFuntion === "Y" ? Number(data.lookup_id) : null,
     };
-    const putData = {
+    const putPayload = {
       user_task_name: data.user_task_name,
       execution_method: data.execution_method,
       script_name: data.script_name,
       description: data.description,
       srs: data.srs,
       sf: data.sf,
+      sf_type: stepFuntion === "Y" ? data.sf_type : null,
+      lookup_id: stepFuntion === "Y" ? Number(data.lookup_id) : null,
     };
 
-    const registerTask = async () => {
-      try {
-        setIsLoading(true);
-        const res = await api.post(`/arm-tasks/register-task`, postData);
+    if (isOpenModal === "register_task") {
+      const params = {
+        baseURL: FLASK_URL,
+        url: "Create_Task",
+        setLoading: setIsLoading,
+        payload: postPayload,
+        // isConsole?: boolean;
+        isToast: true,
+        accessToken: token.access_token,
+      };
 
-        if (res) {
-          toast({
-            description: `${res.data.message}`,
-          });
-          handleCloseModal();
-          reset();
-          setChangeState(Math.random() + 23 * 3000);
-        }
-      } catch (error) {
-        if (error instanceof AxiosError) {
-          toast({
-            variant: "destructive",
-            description: `Error : ${error.message}`,
-          });
-        }
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    const editTask = async () => {
-      setIsLoading(true);
-      try {
-        const res = await api.put(
-          `/arm-tasks/edit-task/${selected?.task_name}`,
-          putData,
-        );
+      const res = await postData(params);
 
-        if (res) {
-          toast({
-            description: `${res.data.message}`,
-          });
-          handleCloseModal();
-          reset();
-          setChangeState(Math.random() + 23 * 3000);
-        }
-      } catch (error) {
-        if (error instanceof AxiosError) {
-          toast({
-            variant: "destructive",
-            description: `Error : ${error.message}`,
-          });
-        }
-      } finally {
-        setIsLoading(false);
+      if (res.status === 201) {
+        handleCloseModal();
+        reset();
+        setChangeState(Math.random() + 23 * 3000);
       }
-    };
+    } else {
+      const params = {
+        baseURL: FLASK_URL,
+        url: `Update_Task/${selected.task_name}`,
+        setLoading: setIsLoading,
+        payload: putPayload,
+        // isConsole?: boolean;
+        isToast: true,
+        accessToken: token.access_token,
+      };
 
-    try {
-      if (isOpenModal === "register_task") {
-        registerTask();
-      } else if (isOpenModal === "edit_task") {
-        editTask();
+      const res = await putData(params);
+
+      if (res.status === 200) {
+        handleCloseModal();
+        reset();
+        setChangeState(Math.random() + 23 * 3000);
       }
-    } catch (error) {
-      console.log(error);
-      if (error instanceof AxiosError) {
-        toast({
-          variant: "destructive",
-          description: `Error : ${error.message}`,
-        });
-      }
-    } finally {
-      reset();
     }
   };
 
@@ -409,92 +379,101 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                   )}
                 />
 
-                <FormField
-                  control={form.control}
-                  name="execution_method"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Execution Method</FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={(value) => {
-                            field.onChange(value);
-                            const selectedItem = executionMethods.find(
-                              (item) => item.execution_method === value,
-                            );
-                            if (selectedItem) {
-                              setSelectedExecutionMethod(selectedItem);
-                            }
-                          }}
-                          value={field.value}
-                        >
-                          <SelectTrigger className="px-2 h-8">
-                            <SelectValue placeholder="Select Execution Method" />
-                          </SelectTrigger>
-                          <SelectContent className="max-h-60">
-                            {executionMethods.map((item) => (
-                              <SelectItem
-                                key={item.execution_method}
-                                value={item.execution_method}
-                              >
-                                {item.execution_method}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-
-                <div>
-                  <FormLabel htmlFor="Executor">Executor</FormLabel>
-                  <Input
-                    placeholder="Executor"
-                    readOnly
-                    disabled
-                    className="my-2 px-2 h-8"
-                    value={selectedExecutionMethod?.executor ?? "Executor"}
+                {isOpenModal !== "edit_task" && (
+                  <FormField
+                    control={form.control}
+                    name="execution_method"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Execution Method</FormLabel>
+                        <FormControl>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              const selectedItem = executionMethods.find(
+                                (item) => item.execution_method === value,
+                              );
+                              if (selectedItem) {
+                                setSelectedExecutionMethod(selectedItem);
+                              }
+                            }}
+                            value={field.value}
+                          >
+                            <SelectTrigger className="px-2 h-8">
+                              <SelectValue placeholder="Select Execution Method" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-60">
+                              {executionMethods.map((item) => (
+                                <SelectItem
+                                  key={item.execution_method}
+                                  value={item.execution_method}
+                                >
+                                  {item.execution_method}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                      </FormItem>
+                    )}
                   />
-                </div>
+                )}
 
-                <FormField
-                  control={form.control}
-                  name="script_name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Script Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          required
-                          type="text"
-                          placeholder="Script Name"
-                          className="px-2 h-8"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                {isOpenModal !== "edit_task" && (
+                  <div>
+                    <FormLabel htmlFor="Executor">Executor</FormLabel>
+                    <Input
+                      placeholder="Executor"
+                      readOnly
+                      disabled
+                      className="my-2 px-2 h-8"
+                      value={selectedExecutionMethod?.executor ?? "Executor"}
+                    />
+                  </div>
+                )}
 
-                <FormField
-                  control={form.control}
-                  name="script_path"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Script Path</FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          required
-                          type="text"
-                          placeholder="Script Path"
-                          className="px-2 h-8"
-                        />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
+                {isOpenModal !== "edit_task" && (
+                  <FormField
+                    control={form.control}
+                    name="script_name"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Script Name</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            required
+                            type="text"
+                            placeholder="Script Name"
+                            className="px-2 h-8"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                )}
+
+                {isOpenModal !== "edit_task" && (
+                  <FormField
+                    control={form.control}
+                    name="script_path"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Script Path</FormLabel>
+                        <FormControl>
+                          <Input
+                            {...field}
+                            required
+                            type="text"
+                            placeholder="Script Path"
+                            className="px-2 h-8"
+                          />
+                        </FormControl>
+                      </FormItem>
+                    )}
+                  />
+                )}
+
                 <FormField
                   control={form.control}
                   name="description"
