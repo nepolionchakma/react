@@ -100,15 +100,15 @@ export function TaskNameTable() {
   const {
     totalPage,
     setSelectedTask,
-    getAsyncTasksLazyLoading,
     setSelectedTaskParameters,
     getSearchAsyncTasksLazyLoading,
+    isLoading,
   } = useARMContext();
 
   const [data, setData] = React.useState<IARMAsynchronousTasksTypes[] | []>([]);
   const [page, setPage] = React.useState<number>(1);
   const [limit, setLimit] = React.useState<number>(4);
-  const [isLoading, setIsLoading] = React.useState<boolean>(false);
+  // const [isLoading, setIsLoading] = React.useState<boolean>(false);
   // const [selectedRowId, setSelectedRowId] = React.useState<string>("");
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -155,42 +155,29 @@ export function TaskNameTable() {
 
   React.useEffect(() => {
     const fetchData = async () => {
-      try {
-        setIsLoading(true);
-        if (!query.isEmpty) {
-          const res = await getSearchAsyncTasksLazyLoading(
-            page,
-            limit,
-            query.value,
-          );
-          if (res) {
-            // setSelectedRowId("");
-            setData(res);
-          }
-        } else {
-          const res = await getAsyncTasksLazyLoading(page, limit);
-          if (res) {
-            // setSelectedRowId("");
-            setData(res);
-          }
-        }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setSelectedTask({} as IARMAsynchronousTasksTypes);
-        setSelectedTaskParameters([]);
-        // uncheck checkbox
-        table.getRowModel().rows.map((row) => row.toggleSelected(false));
-        setIsLoading(false);
+      const res = await getSearchAsyncTasksLazyLoading(
+        page,
+        limit,
+        query.value,
+      );
+      if (res) {
+        console.log(res);
+        setData(res);
       }
+
+      setSelectedTask({} as IARMAsynchronousTasksTypes);
+      setSelectedTaskParameters([]);
+      // uncheck checkbox
+      table.getRowModel().rows.map((row) => row.toggleSelected(false));
     };
-    setIsLoading(true);
+
+    // setIsLoading(true);
     // Debounce only when query changes
     const delayDebounce = setTimeout(() => {
       fetchData();
     }, 1000);
 
-    return () => clearTimeout(delayDebounce);
+    return () => clearTimeout(delayDebounce); // Cleanup timeout
   }, [query, page, limit]);
 
   const handleRowSelection = (task: IARMAsynchronousTasksTypes) => {
