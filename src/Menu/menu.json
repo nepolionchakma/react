@@ -226,7 +226,7 @@
           {
             "name": "Orchestration Studio",
             "path": "/tools/enterprise-process-modeler/orchestration-studio",
-            "endpoint_id": 1307
+            "endpoint_id": 1320
           },
           {
             "name": "Workflow Execution Log",

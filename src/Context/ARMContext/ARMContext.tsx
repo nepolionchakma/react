@@ -114,6 +114,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       accessToken: token.access_token,
     });
     if (res?.length) {
+      console.log(res, "Arm Context");
       return res;
     } else {
       return [];

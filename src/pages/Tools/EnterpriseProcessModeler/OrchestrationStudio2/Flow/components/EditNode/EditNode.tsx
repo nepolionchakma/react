@@ -66,11 +66,15 @@ const EditNode: FC<EditNodeProps> = ({
 }) => {
   console.log(workFlowId, "workflow ID");
   const { getAsyncTasks } = useARMContext();
-  const [stepFunctionTasks, setStepFunctionTasks] = useState<
+  const [unpredictableStepFunction, setUnpredictableStepFunctionTasks] =
+    useState<IARMAsynchronousTasksTypes[]>([]);
+  const [predictableStepFunction, setpredictableStepFunction] = useState<
     IARMAsynchronousTasksTypes[]
   >([]);
   const { edgeConnectionPosition, setEdgeConnectionPosition } =
     useGlobalContext();
+
+  console.log(selectedNode);
 
   const updateNodeInternals = useUpdateNodeInternals(); // Updating node internals dynamically
 
@@ -88,7 +92,14 @@ const EditNode: FC<EditNodeProps> = ({
       try {
         const res = await getAsyncTasks();
         if (res) {
-          setStepFunctionTasks(res.filter((task) => task.sf === "Y"));
+          setUnpredictableStepFunctionTasks(
+            res.filter((task) => task.sf === "Y"),
+          );
+          setpredictableStepFunction(
+            res.filter(
+              (task) => task.sf === "Y" && task.sf_type === "PREDICTABLE",
+            ),
+          );
         }
       } catch (error) {
         console.log(error, "error");
@@ -439,16 +450,31 @@ const EditNode: FC<EditNodeProps> = ({
                                     <SelectValue placeholder="Select an option" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectGroup>
-                                      {stepFunctionTasks.map((task) => (
-                                        <SelectItem
-                                          key={task.def_task_id}
-                                          value={task.task_name}
-                                        >
-                                          {task.user_task_name}
-                                        </SelectItem>
-                                      ))}
-                                    </SelectGroup>
+                                    {selectedNode.data.type === "diamond" ? (
+                                      <SelectGroup>
+                                        {predictableStepFunction.map((task) => (
+                                          <SelectItem
+                                            key={task.def_task_id}
+                                            value={task.task_name}
+                                          >
+                                            {task.user_task_name}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectGroup>
+                                    ) : (
+                                      <SelectGroup>
+                                        {unpredictableStepFunction.map(
+                                          (task) => (
+                                            <SelectItem
+                                              key={task.def_task_id}
+                                              value={task.task_name}
+                                            >
+                                              {task.user_task_name}
+                                            </SelectItem>
+                                          ),
+                                        )}
+                                      </SelectGroup>
+                                    )}
                                   </SelectContent>
                                 </Select>
                               </FormControl>

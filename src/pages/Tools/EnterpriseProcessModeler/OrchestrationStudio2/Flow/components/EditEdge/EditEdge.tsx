@@ -16,13 +16,28 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Edge } from "@xyflow/react";
 import { X } from "lucide-react";
-import { Dispatch, FC, SetStateAction, useCallback, useEffect } from "react";
+import {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ShapeNode } from "../../shape/types";
-import { Checkbox } from "@/components/ui/checkbox";
 import { IdecisionEdgeData } from "@/types/interfaces/orchestration.interface";
 import Spinner from "@/components/Spinner/Spinner";
+import { FLASK_URL } from "@/Api/Api";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import { loadData } from "@/Utility/funtion";
+
+interface LookupValue {
+  value_code: string;
+  value_label: string;
+  sort_order: number;
+}
 
 interface EditNodeProps {
   theme: string;
@@ -35,6 +50,7 @@ interface EditNodeProps {
   setSelectedEdge: Dispatch<SetStateAction<Edge | undefined>>;
   decisionEdgeData: IdecisionEdgeData;
   isLoading: boolean;
+  setIsEdgeDataLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const EditEdge: FC<EditNodeProps> = ({
@@ -44,16 +60,19 @@ const EditEdge: FC<EditNodeProps> = ({
   setEdges,
   selectedEdge,
   setSelectedEdge,
-  decisionEdgeData,
   isLoading,
+  setIsEdgeDataLoading,
 }) => {
+  const { token } = useGlobalContext();
+  const [lookupValues, setLookupValues] = useState<LookupValue[]>([]);
+
+  console.log(lookupValues, "lookupValues");
+  console.log(selectedEdge, "selectedEdge");
+
   const FormSchema = z.object({
     label: z.string().optional(),
     data: z.object({
-      field: z.string().optional(),
-      operator: z.string().optional(),
-      value: z.string().optional(),
-      is_default: z.boolean().optional(),
+      lookup_value: z.string().optional(),
     }),
     animated: z.string().optional(),
   });
@@ -63,24 +82,48 @@ const EditEdge: FC<EditNodeProps> = ({
     defaultValues: {
       label: selectedEdge.label ?? "",
       data: {
-        field: selectedEdge.data?.field ?? "",
-        operator: selectedEdge.data?.operator ?? "",
-        value: selectedEdge.data?.value ?? "",
-        is_default: selectedEdge.data?.is_default ?? false,
+        lookup_value: selectedEdge.data?.lookup_value ?? "",
       },
       animated: String(selectedEdge.animated) ?? "false",
     },
   });
 
+  console.log("lookup_value:", form.watch("data.lookup_value"));
+
+  useEffect(() => {
+    const fetchLookup = async () => {
+      if (selectedEdge) {
+        const node = selectedEdge.source;
+
+        const stepFuntion = nodes.find((item) => item.id === node)?.data
+          .step_function;
+
+        const params = {
+          baseURL: FLASK_URL,
+          url: `/def_async_tasks/sf_lookup_values/${stepFuntion}`,
+          setLoading: setIsEdgeDataLoading,
+          accessToken: token.access_token,
+          // isToast?: boolean;
+        };
+
+        const res = await loadData(params);
+
+        if (res) {
+          setLookupValues(res.values);
+        }
+      }
+    };
+
+    fetchLookup();
+  }, [nodes, selectedEdge, setIsEdgeDataLoading, token.access_token]);
+
   useEffect(() => {
     if (selectedEdge) {
+      console.log("selectedEdge changed");
       form.reset({
         label: selectedEdge.label ?? "",
         data: {
-          field: selectedEdge.data?.field ?? "",
-          operator: selectedEdge.data?.operator ?? "",
-          value: selectedEdge.data?.value ?? "",
-          is_default: selectedEdge.data?.is_default ?? false,
+          lookup_value: selectedEdge.data?.lookup_value ?? "",
         },
         animated: selectedEdge.animated ?? "false",
       });
@@ -102,10 +145,7 @@ const EditEdge: FC<EditNodeProps> = ({
               label: data.label,
               data: {
                 ...edge.data,
-                field: data.data.field,
-                operator: data.data.operator,
-                value: data.data.value,
-                is_default: data.data.is_default,
+                lookup_value: data.data.lookup_value,
               },
               animated: data.animated === "true" ? true : false,
             };
@@ -196,105 +236,33 @@ const EditEdge: FC<EditNodeProps> = ({
                       <>
                         <FormField
                           control={form.control}
-                          name="data.field"
+                          name="data.lookup_value"
                           render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Field</FormLabel>
-                              <FormControl>
-                                <Select
-                                  onValueChange={(value) => {
-                                    field.onChange(value);
-                                    // handleGetParameters(value);
-                                  }}
-                                  defaultValue={field.value}
-                                >
-                                  <SelectTrigger
-                                    disabled={form.getValues("data.is_default")}
+                            <Select
+                              onValueChange={field.onChange}
+                              value={field.value}
+                            >
+                              <FormLabel>Values</FormLabel>
+                              <SelectTrigger
+                                className={`${
+                                  theme === "dark"
+                                    ? "border-white"
+                                    : "border-gray-400"
+                                }`}
+                              >
+                                <SelectValue placeholder="Values" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {lookupValues.map((v) => (
+                                  <SelectItem
+                                    key={v.value_code}
+                                    value={v.value_code}
                                   >
-                                    <SelectValue placeholder="Select a Field" />
-                                  </SelectTrigger>
-                                  <SelectContent className="max-h-60">
-                                    {decisionEdgeData?.fields?.length > 0 ? (
-                                      decisionEdgeData?.fields?.map((item) => (
-                                        <SelectItem
-                                          key={item.value}
-                                          value={item.value}
-                                        >
-                                          {item.label} ({item.NodeSourceLabel})
-                                        </SelectItem>
-                                      ))
-                                    ) : (
-                                      <span className="text-gray-500 text-sm">
-                                        No Fields Found
-                                      </span>
-                                    )}
-                                  </SelectContent>
-                                </Select>
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="data.operator"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Operator</FormLabel>
-                              <FormControl>
-                                <Select
-                                  onValueChange={(value) => {
-                                    field.onChange(value);
-                                    // handleGetParameters(value);
-                                  }}
-                                  defaultValue={field.value}
-                                >
-                                  <SelectTrigger
-                                    disabled={form.getValues("data.is_default")}
-                                  >
-                                    <SelectValue placeholder="Select a Operator" />
-                                  </SelectTrigger>
-                                  <SelectContent className="max-h-60">
-                                    {decisionEdgeData?.operators?.length > 0 ? (
-                                      decisionEdgeData?.operators?.map(
-                                        (item) => (
-                                          <SelectItem
-                                            key={item.value}
-                                            value={item.value}
-                                          >
-                                            {item.label}
-                                          </SelectItem>
-                                        ),
-                                      )
-                                    ) : (
-                                      <span className="text-gray-500 text-sm">
-                                        No Operators Found
-                                      </span>
-                                    )}
-                                  </SelectContent>
-                                </Select>
-                              </FormControl>
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={form.control}
-                          name="data.value"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Value</FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  placeholder="Value"
-                                  disabled={form.getValues("data.is_default")}
-                                  className={`${
-                                    theme === "dark"
-                                      ? "border-white"
-                                      : "border-gray-400"
-                                  }`}
-                                />
-                              </FormControl>
-                            </FormItem>
+                                    {v.value_label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
                           )}
                         />
                       </>
@@ -324,23 +292,6 @@ const EditEdge: FC<EditNodeProps> = ({
                         </Select>
                       )}
                     />
-                    {isDiamond && (
-                      <FormField
-                        control={form.control}
-                        name="data.is_default"
-                        render={({ field }) => (
-                          <span className="flex gap-2">
-                            <Checkbox
-                              checked={field.value}
-                              onCheckedChange={(checked) =>
-                                field.onChange(checked)
-                              }
-                            />
-                            <FormLabel>Default</FormLabel>
-                          </span>
-                        )}
-                      />
-                    )}
                   </div>
                   <hr className="my-2" />
                   <div className="flex justify-between gap-1">
