@@ -333,17 +333,17 @@
           {
             "name": "Manage Execution Methods",
             "path": "/asynchronous-request-manager/development/manage-execution-methods",
-            "endpoint_id": 1214
+            "endpoint_id": 1474
           },
           {
             "name": "Register/Edit Asynchronous Tasks",
             "path": "/asynchronous-request-manager/development/register-edit-asynchronous-tasks",
-            "endpoint_id": 1236
+            "endpoint_id": 1486
           },
           {
             "name": "Manage Task Parameters",
             "path": "/asynchronous-request-manager/development/manage-task-parameters",
-            "endpoint_id": 1219
+            "endpoint_id": 1486
           }
         ]
       }

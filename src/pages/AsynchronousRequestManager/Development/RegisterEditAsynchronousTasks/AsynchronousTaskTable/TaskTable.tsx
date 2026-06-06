@@ -48,7 +48,6 @@ import { ILookup } from "@/types/interfaces/orchestration.interface";
 export function TaskTable() {
   const {
     totalPage,
-    getAsyncTasksLazyLoading,
     getSearchAsyncTasksLazyLoading,
     cancelAsyncTasks,
     isLoading,
@@ -88,35 +87,23 @@ export function TaskTable() {
     }
     setPage(1);
   };
+
   React.useEffect(() => {
     const fetchData = async () => {
-      try {
-        if (!query.isEmpty) {
-          const res = await getSearchAsyncTasksLazyLoading(
-            page,
-            limit,
-            query.value,
-          );
-          if (res) {
-            setData(res);
-          }
-        } else {
-          const res = await getAsyncTasksLazyLoading(page, limit);
-          if (res) {
-            setData(res);
-          }
-        }
-      } catch (error) {
-        console.log(error);
-      } finally {
-        setIsLoading(false);
-        //table toggle false
-        table.toggleAllRowsSelected(false);
-        setSelected(undefined);
+      const res = await getSearchAsyncTasksLazyLoading(
+        page,
+        limit,
+        query.value,
+      );
+      if (res) {
+        setData(res);
       }
+
+      table.toggleAllRowsSelected(false);
+      setSelected(undefined);
     };
 
-    setIsLoading(true);
+    // setIsLoading(true);
     // Debounce only when query changes
     const delayDebounce = setTimeout(() => {
       fetchData();

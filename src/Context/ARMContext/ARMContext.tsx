@@ -19,10 +19,10 @@ interface ARMContext {
   totalPage: number;
   setTotalPage: React.Dispatch<React.SetStateAction<number>>;
   getAsyncTasks: () => Promise<IARMAsynchronousTasksTypes[] | undefined>;
-  getAsyncTasksLazyLoading: (
-    page: number,
-    limit: number,
-  ) => Promise<IARMAsynchronousTasksTypes[] | undefined>;
+  // getAsyncTasksLazyLoading: (
+  //   page: number,
+  //   limit: number,
+  // ) => Promise<IARMAsynchronousTasksTypes[] | undefined>;
   getSearchAsyncTasksLazyLoading: (
     page: number,
     limit: number,
@@ -120,21 +120,21 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       return [];
     }
   };
-  const getAsyncTasksLazyLoading = async (page: number, limit: number) => {
-    const resultLazyLoading = await loadData({
-      baseURL: FLASK_URL,
-      url: `${flaskApi.ShowAsyncTasks}/${page}/${limit}`,
-      setLoading: setIsLoading,
-      accessToken: token.access_token,
-    });
-    if (resultLazyLoading.items?.length) {
-      setTotalPage(resultLazyLoading.pages);
-      return resultLazyLoading.items;
-    } else {
-      setTotalPage(1);
-      return [];
-    }
-  };
+  // const getAsyncTasksLazyLoading = async (page: number, limit: number) => {
+  //   const resultLazyLoading = await loadData({
+  //     baseURL: FLASK_URL,
+  //     url: `${flaskApi.ShowAsyncTasks}/${page}/${limit}`,
+  //     setLoading: setIsLoading,
+  //     accessToken: token.access_token,
+  //   });
+  //   if (resultLazyLoading.items?.length) {
+  //     setTotalPage(resultLazyLoading.pages);
+  //     return resultLazyLoading.items;
+  //   } else {
+  //     setTotalPage(1);
+  //     return [];
+  //   }
+  // };
   const getSearchAsyncTasksLazyLoading = async (
     page: number,
     limit: number,
@@ -142,13 +142,15 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   ) => {
     const resultLazyLoading = await loadData({
       baseURL: FLASK_URL,
-      url: `${flaskApi.ShowAsyncTasks}/search/${page}/${limit}?user_task_name=${userTaskName}`,
+      url: `${flaskApi.ShowAsyncTasks}?page=${page}&limit=${limit}&user_task_name=${userTaskName}`,
       setLoading: setIsLoading,
       accessToken: token.access_token,
     });
-    if (resultLazyLoading?.items?.length) {
+
+    console.log(resultLazyLoading);
+    if (resultLazyLoading?.result?.length) {
       setTotalPage(resultLazyLoading.pages);
-      return resultLazyLoading.items;
+      return resultLazyLoading.result;
     } else {
       setTotalPage(1);
       return [];
@@ -209,6 +211,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
       accessToken: token.access_token,
     };
     const response = await loadData(params);
+    console.log(response);
     if (response.length) {
       return response;
     } else {
@@ -355,7 +358,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
     getManageExecutionMethods,
     deleteExecutionMethod,
     getAsyncTasks,
-    getAsyncTasksLazyLoading,
+    // getAsyncTasksLazyLoading,
     isLoading,
     setIsLoading,
     selectedTask,
