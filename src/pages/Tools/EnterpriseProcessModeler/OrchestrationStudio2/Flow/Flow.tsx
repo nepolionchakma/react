@@ -1058,6 +1058,7 @@ const ShapesProExampleApp = ({
                     setSelectedEdge={setSelectedEdge}
                     decisionEdgeData={decisionEdgeData}
                     isLoading={isEdgeDataLoading}
+                    setIsEdgeDataLoading={setIsEdgeDataLoading}
                   />
                 </>
               )}

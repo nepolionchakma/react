@@ -19,7 +19,10 @@ import {
 } from "@/components/ui/table";
 import { columns } from "./Columns";
 import { useEffect, useMemo, useState } from "react";
-import { IAPIEndpoint } from "@/types/interfaces/apiEndpoints.interface";
+import {
+  ApiParameter,
+  IAPIEndpoint,
+} from "@/types/interfaces/apiEndpoints.interface";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { deleteData, loadData } from "@/Utility/funtion";
@@ -43,6 +46,7 @@ import Modal from "./Modal";
 import Spinner from "@/components/Spinner/Spinner";
 import { IPrivilege } from "@/types/interfaces/users.interface";
 import SearchInput from "@/components/SearchInput/SearchInput";
+import ParametersModal from "./ParametersModal";
 
 const ManageApiEndpoints = () => {
   const { token, users, grantedPrivlegeIds } = useGlobalContext();
@@ -66,10 +70,22 @@ const ManageApiEndpoints = () => {
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [reloadController, setReloadController] = useState(1);
   const [privileges, setPrivileges] = useState<IPrivilege[]>([]);
+  const [viewParameters, setViewParameters] = useState<ApiParameter[]>([]);
+  const [clickedRowId, setClickedRowId] = useState("");
 
   const table = useReactTable({
     data,
-    columns: useMemo(() => columns(users), [users]),
+    columns: useMemo(
+      () =>
+        columns(
+          users,
+          viewParameters,
+          setViewParameters,
+          clickedRowId,
+          setClickedRowId,
+        ),
+      [users, viewParameters, clickedRowId],
+    ),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -117,6 +133,7 @@ const ManageApiEndpoints = () => {
     const loadAPIEndpoints = async () => {
       const res = await loadData(apiEndpointsParams);
 
+      console.log(res);
       if (res.result) {
         setData(res.result);
         setTotalPage(res.pages);
@@ -226,6 +243,13 @@ const ManageApiEndpoints = () => {
 
   return (
     <>
+      {viewParameters.length !== 0 && (
+        <ParametersModal
+          action={"Parameters"}
+          data={viewParameters}
+          setData={setViewParameters}
+        />
+      )}
       {/* Action Item */}
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-2">

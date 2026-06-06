@@ -3,7 +3,7 @@ import { IAPIEndpoint } from "@/types/interfaces/apiEndpoints.interface";
 import { X } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import {
   Form,
@@ -48,12 +48,18 @@ const Modal = ({
   const { token } = useGlobalContext();
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const methods = ["GET", "POST", "DELETE", "PUT"];
+  const methods = ["GET", "POST", "PUT", "PATCH", "DELETE"];
+
+  const ApiParameterSchema = z.object({
+    name: z.string(),
+    type: z.string(),
+    location: z.enum(["path", "query", "body"]),
+    required: z.boolean(),
+  });
 
   const FormSchema = z.object({
     api_endpoint: z.string(),
-    parameter1: z.string(),
-    parameter2: z.string(),
+    parameters: z.array(ApiParameterSchema),
     method: z.string(),
     privilege_id: z.string(),
   });
@@ -62,12 +68,16 @@ const Modal = ({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       api_endpoint: action === "Edit" ? selectedItems[0]?.api_endpoint : "",
-      parameter1: action === "Edit" ? selectedItems[0]?.parameter1 : "",
-      parameter2: action === "Edit" ? selectedItems[0]?.parameter2 : "",
+      parameters: action === "Edit" ? selectedItems[0]?.parameters : [],
       method: action === "Edit" ? selectedItems[0]?.method : "",
       privilege_id:
         action === "Edit" ? selectedItems[0]?.privilege_id.toString() : "",
     },
+  });
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "parameters",
   });
 
   const handleClose = () => {
@@ -88,8 +98,7 @@ const Modal = ({
 
         form.reset({
           api_endpoint: res.result.api_endpoint,
-          parameter1: res.result.parameter1 || "",
-          parameter2: res.result.parameter2 || "",
+          parameters: res.result.parameters || [],
           method: res.result.method,
           privilege_id: res.result.privilege_id,
         });
@@ -101,8 +110,7 @@ const Modal = ({
     if (action === "add") {
       form.reset({
         api_endpoint: "",
-        parameter1: "",
-        parameter2: "",
+        parameters: [],
         method: "",
         privilege_id: "",
       });
@@ -117,8 +125,7 @@ const Modal = ({
         setLoading: setIsSubmitting,
         payload: {
           api_endpoint: data.api_endpoint,
-          parameter1: data.parameter1,
-          parameter2: data.parameter2,
+          parameters: data.parameters,
           method: data.method,
           privilege_id: Number(data.privilege_id),
         },
@@ -140,8 +147,7 @@ const Modal = ({
         setLoading: setIsSubmitting,
         payload: {
           api_endpoint: data.api_endpoint,
-          parameter1: data.parameter1,
-          parameter2: data.parameter2,
+          parameters: data.parameters,
           method: data.method,
           privilege_id: Number(data.privilege_id),
         },
@@ -159,7 +165,7 @@ const Modal = ({
   return (
     <>
       {openModal && (
-        <CustomModal4 className="w-[400px] h-auto">
+        <CustomModal4 className="w-[700px] h-auto">
           <div className="flex justify-between bg-[#CEDEF2] p-4">
             <h3 className="font-semibold capitalize">
               {toTitleCase(action)} API Endpoint
@@ -198,49 +204,6 @@ const Modal = ({
                   </div>
 
                   <div className="grid grid-cols-2 p-4 gap-4 max-h-[70vh] overflow-auto">
-                    <FormField
-                      control={form.control}
-                      name="parameter1"
-                      render={({ field }) => {
-                        return (
-                          <FormItem>
-                            <FormLabel className="font-normal">
-                              Parameter 1
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                autoFocus
-                                type="text"
-                                placeholder="Parameter 1"
-                              />
-                            </FormControl>
-                          </FormItem>
-                        );
-                      }}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="parameter2"
-                      render={({ field }) => {
-                        return (
-                          <FormItem>
-                            <FormLabel className="font-normal">
-                              Parameter 2
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                {...field}
-                                autoFocus
-                                type="text"
-                                placeholder="Parameter 2"
-                              />
-                            </FormControl>
-                          </FormItem>
-                        );
-                      }}
-                    />
-
                     <FormField
                       control={form.control}
                       name="method"
@@ -310,6 +273,142 @@ const Modal = ({
                         </FormItem>
                       )}
                     />
+                  </div>
+
+                  <div className="mt-4 px-4 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <h2 className="font-semibold text-lg">Parameters</h2>
+
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() =>
+                          append({
+                            name: "",
+                            type: "",
+                            location: "query",
+                            required: false,
+                          })
+                        }
+                      >
+                        Add Parameter
+                      </Button>
+                    </div>
+
+                    <div className="border rounded-md">
+                      {fields.map((field, index) => (
+                        <div
+                          key={field.id}
+                          className="col-span-2 p-4 space-y-4"
+                        >
+                          <div className="flex justify-between items-center">
+                            <h3 className="font-medium">
+                              Parameter {index + 1}
+                            </h3>
+
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              onClick={() => remove(index)}
+                            >
+                              Delete
+                            </Button>
+                          </div>
+
+                          <div className="grid grid-cols-4 gap-4">
+                            {/* Name */}
+                            <FormField
+                              control={form.control}
+                              name={`parameters.${index}.name`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Name</FormLabel>
+                                  <FormControl>
+                                    <Input
+                                      {...field}
+                                      placeholder="execution_id"
+                                    />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+
+                            {/* Type */}
+                            <FormField
+                              control={form.control}
+                              name={`parameters.${index}.type`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Type</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} placeholder="integer" />
+                                  </FormControl>
+                                </FormItem>
+                              )}
+                            />
+
+                            {/* Location */}
+                            <FormField
+                              control={form.control}
+                              name={`parameters.${index}.location`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Location</FormLabel>
+
+                                  <Select
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                    </FormControl>
+
+                                    <SelectContent>
+                                      <SelectItem value="path">Path</SelectItem>
+                                      <SelectItem value="query">
+                                        Query
+                                      </SelectItem>
+                                      <SelectItem value="body">Body</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </FormItem>
+                              )}
+                            />
+
+                            {/* Required */}
+                            <FormField
+                              control={form.control}
+                              name={`parameters.${index}.required`}
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Required</FormLabel>
+
+                                  <Select
+                                    value={field.value ? "true" : "false"}
+                                    onValueChange={(value) =>
+                                      field.onChange(value === "true")
+                                    }
+                                  >
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                    </FormControl>
+
+                                    <SelectContent>
+                                      <SelectItem value="true">Yes</SelectItem>
+                                      <SelectItem value="false">No</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
 
                   <div className="flex gap-4 p-4 justify-end">

@@ -250,9 +250,9 @@ export function GlobalContextProvider({
           baseURL: FLASK_URL,
           url: `${flaskApi.Users}?user_id=${token?.user_id}`,
           setLoading: setIsCombinedUserLoading,
-          accessToken: `${token.access_token}`,
+          accessToken: token.access_token,
         });
-
+        console.log(combinedUser);
         setCombinedUser(combinedUser.result);
         if (combinedUser.result) {
           const res = await loadData({
