@@ -246,6 +246,7 @@ function InvitationRedirectPage() {
                                 placeholder="Username"
                               />
                             </FormControl>
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
@@ -335,6 +336,7 @@ function InvitationRedirectPage() {
                                 ))}
                               </SelectContent>
                             </Select>
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
@@ -354,6 +356,7 @@ function InvitationRedirectPage() {
                                 placeholder="First Name"
                               />
                             </FormControl>
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
@@ -373,6 +376,7 @@ function InvitationRedirectPage() {
                                 placeholder="Middle Name"
                               />
                             </FormControl>
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
@@ -392,6 +396,7 @@ function InvitationRedirectPage() {
                                 placeholder="Last Name"
                               />
                             </FormControl>
+                            <FormMessage />
                           </FormItem>
                         )}
                       />

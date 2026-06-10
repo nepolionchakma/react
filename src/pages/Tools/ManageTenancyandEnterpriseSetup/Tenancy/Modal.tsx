@@ -7,6 +7,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toTitleCase } from "@/Utility/general";
@@ -165,6 +166,7 @@ const Modal = ({
                               placeholder="Tenant Name"
                             />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />

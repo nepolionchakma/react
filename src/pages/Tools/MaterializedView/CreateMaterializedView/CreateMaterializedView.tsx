@@ -1337,39 +1337,6 @@ const CreateMaterializedView = () => {
                                   ))}
                                 </select>
 
-                                {/* <Select
-                                  disabled={
-                                    !rightTableName[field.id] ||
-                                    isRightColumnLoading[field.id]
-                                  }
-                                  onValueChange={(value) => {
-                                    const alias = form.getValues(
-                                      `joins.${index}.alias`
-                                    );
-                                    const right = `${alias}.${value}`;
-
-                                    formField.onChange(right);
-                                  }}
-                                  value={formField.value?.split(".")[1]}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select a column name" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectGroup>
-                                      <SelectLabel>Column Name</SelectLabel>
-                                      {rightColumns[field.id]?.map(
-                                        (item, i) => (
-                                          <SelectItem key={i} value={item.name}>
-                                            {item.name}
-                                          </SelectItem>
-                                        )
-                                      )}
-                                    </SelectGroup>
-                                  </SelectContent>
-                                </Select> */}
                                 <FormMessage />
                               </FormItem>
                             )}
@@ -1454,30 +1421,6 @@ const CreateMaterializedView = () => {
                                 ))}
                               </select>
 
-                              {/* <Select
-                                disabled={selectedTables.length < 1}
-                                onValueChange={(value) => {
-                                  formField.onChange(value);
-                                  handleFetchSelectColumns(field.id, value);
-                                }}
-                                value={formField.value}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select a Table" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectGroup>
-                                    <SelectLabel>Table Name</SelectLabel>
-                                    {selectedTables?.map((item, i) => (
-                                      <SelectItem key={i} value={item.name}>
-                                        {item.name}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectGroup>
-                                </SelectContent>
-                              </Select> */}
                               <FormMessage />
                             </FormItem>
                           )}
@@ -1522,38 +1465,7 @@ const CreateMaterializedView = () => {
                                     ))}
                                 </select>
 
-                                {/* <Select
-                                  disabled={
-                                    !tableName ||
-                                    isSelectColumnLoading[field.id]
-                                  }
-                                  value={formField.value?.split(".")[1] ?? ""}
-                                  onValueChange={(value) => {
-                                    formField.onChange(
-                                      `${table?.alias}.${value}`
-                                    );
-                                  }}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select a column name" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectGroup>
-                                      <SelectLabel>Column Name</SelectLabel>
-                                      {tableName &&
-                                        selectColumns[tableName]?.map((col) => (
-                                          <SelectItem
-                                            key={col.name}
-                                            value={col.name}
-                                          >
-                                            {col.name}
-                                          </SelectItem>
-                                        ))}
-                                    </SelectGroup>
-                                  </SelectContent>
-                                </Select> */}
+                                <FormMessage />
                               </FormItem>
                             );
                           }}
@@ -1584,32 +1496,8 @@ const CreateMaterializedView = () => {
                                   <option value="MIN">MIN</option>
                                   <option value="MAX">MAX</option>
                                 </select>
-
-                                {/* <Select
-                                  onValueChange={(value) => {
-                                    field.onChange(value);
-                                  }}
-                                  value={field.value}
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select an Aggregate" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectGroup>
-                                      <SelectLabel>Aggregate Name</SelectLabel>
-                                      <SelectItem value="COUNT">
-                                        COUNT
-                                      </SelectItem>
-                                      <SelectItem value="SUM">SUM</SelectItem>
-                                      <SelectItem value="AVG">AVG</SelectItem>
-                                      <SelectItem value="MIN">MIN</SelectItem>
-                                      <SelectItem value="MAX">MAX</SelectItem>
-                                    </SelectGroup>
-                                  </SelectContent>
-                                </Select> */}
                               </FormControl>
+                              <FormMessage />
                             </FormItem>
                           )}
                         />
@@ -1624,6 +1512,7 @@ const CreateMaterializedView = () => {
                               <FormControl>
                                 <Input placeholder="alias" {...field} />
                               </FormControl>
+                              <FormMessage />
                             </FormItem>
                           )}
                         />
@@ -1650,27 +1539,6 @@ const CreateMaterializedView = () => {
                                 <option value="false">false</option>
                               </select>
 
-                              {/* <Select
-                                onValueChange={(value) => {
-                                  field.onChange(
-                                    value === "true" ? true : false
-                                  );
-                                }}
-                                value={field.value?.toString()}
-                              >
-                                <FormControl>
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select a distinct" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  {["true", "false"].map((item, i) => (
-                                    <SelectItem key={i} value={item}>
-                                      {item}
-                                    </SelectItem>
-                                  ))}
-                                </SelectContent>
-                              </Select> */}
                               <FormMessage />
                             </FormItem>
                           )}
@@ -1844,35 +1712,6 @@ const CreateMaterializedView = () => {
                                   ))}
                                 </select>
 
-                                {/* <Select
-                                  value={formField.value?.split(".")[1] || ""}
-                                  onValueChange={(value) => {
-                                    const column = `${table?.alias}.${value}`;
-                                    formField.onChange(column);
-                                  }}
-                                  disabled={
-                                    !selectedTableName ||
-                                    isGroupByColumnLoading[field.id]
-                                  }
-                                >
-                                  <FormControl>
-                                    <SelectTrigger>
-                                      <SelectValue placeholder="Select a column" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent>
-                                    <SelectGroup>
-                                      <SelectLabel>Column Name</SelectLabel>
-                                      {groupByColumns[field.id]?.map(
-                                        (item, i) => (
-                                          <SelectItem key={i} value={item.name}>
-                                            {item.name}
-                                          </SelectItem>
-                                        )
-                                      )}
-                                    </SelectGroup>
-                                  </SelectContent>
-                                </Select> */}
                                 <FormMessage />
                               </FormItem>
                             );

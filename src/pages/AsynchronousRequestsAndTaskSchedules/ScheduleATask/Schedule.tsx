@@ -85,7 +85,7 @@ const Schedule: FC<IScheduleProps> = ({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       schedule_type:
-        selected?.schedule_type ?? scheduleType !== ""
+        (selected?.schedule_type ?? scheduleType !== "")
           ? scheduleType
           : "IMMEDIATE",
       schedule,
@@ -100,7 +100,7 @@ const Schedule: FC<IScheduleProps> = ({
         : dates.map((day) => day.value);
 
     const sortedDays = items.sort(
-      (a, b) => weekOrder.indexOf(a) - weekOrder.indexOf(b)
+      (a, b) => weekOrder.indexOf(a) - weekOrder.indexOf(b),
     );
 
     form.setValue("schedule", {
@@ -116,7 +116,7 @@ const Schedule: FC<IScheduleProps> = ({
           schedule?.VALUES.includes(time)
             ? setSchedule({
                 VALUES: sequenceRecords(
-                  schedule.VALUES.filter((d) => d !== time)
+                  schedule.VALUES.filter((d) => d !== time),
                 ),
               })
             : setSchedule({
@@ -190,6 +190,7 @@ const Schedule: FC<IScheduleProps> = ({
                               onClick={() => setScheduleType(s.value)}
                             />
                           </FormControl>
+
                           <FormLabel className={`font-normal`}>
                             {s.name}
                           </FormLabel>
@@ -352,13 +353,13 @@ const Schedule: FC<IScheduleProps> = ({
                 scheduleType === "IMMEDIATE" || scheduleType === "ONCE"
                   ? "bg-[#64748B] hover:bg-[#4B5563]"
                   : schedule &&
-                    "VALUES" in schedule &&
-                    schedule?.["VALUES"].length > 0
-                  ? "bg-[#64748B] hover:bg-[#4B5563]"
-                  : schedule &&
-                    "FREQUENCY" in schedule &&
-                    schedule?.["FREQUENCY"] > 0 &&
-                    "bg-[#64748B] hover:bg-[#4B5563]"
+                      "VALUES" in schedule &&
+                      schedule?.["VALUES"].length > 0
+                    ? "bg-[#64748B] hover:bg-[#4B5563]"
+                    : schedule &&
+                      "FREQUENCY" in schedule &&
+                      schedule?.["FREQUENCY"] > 0 &&
+                      "bg-[#64748B] hover:bg-[#4B5563]"
               } h-9`}
             >
               OK

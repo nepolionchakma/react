@@ -97,7 +97,7 @@ const AccessPointsEntitleModal = () => {
           description: `Added successfully.`,
         });
         fetchAccessPointsByEntitlementId(
-          selectedManageAccessEntitlements?.def_entitlement_id
+          selectedManageAccessEntitlements?.def_entitlement_id,
         );
         form.reset();
         setIsOpenModal("");
@@ -172,6 +172,7 @@ const AccessPointsEntitleModal = () => {
                     )}
                   </SelectContent>
                 </Select>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -222,6 +223,7 @@ const AccessPointsEntitleModal = () => {
                     <SelectItem value="false">False</SelectItem>
                   </SelectContent>
                 </Select>
+                <FormMessage />
               </FormItem>
             )}
           />

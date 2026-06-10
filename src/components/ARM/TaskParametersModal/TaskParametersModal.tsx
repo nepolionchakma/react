@@ -9,6 +9,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -93,7 +94,7 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
             headers: {
               Authorization: `Bearer ${token.access_token}`,
             },
-          }
+          },
         );
 
         if (res.status === 201) {
@@ -126,7 +127,7 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
             headers: {
               Authorization: `Bearer ${token.access_token}`,
             },
-          }
+          },
         );
 
         if (res.status === 200) {
@@ -188,6 +189,7 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
                         }
                       />
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />
@@ -209,6 +211,7 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
                               <SelectValue placeholder="Select Data Type" />
                             </SelectTrigger>
                           </FormControl>
+                          <FormMessage />
                           <SelectContent className="max-h-[10rem] overflow-auto scrollbar-thin">
                             <SelectItem value="varchar">Text</SelectItem>
                             {/* <SelectItem value="string">{`Text (String)`}</SelectItem> */}
@@ -221,6 +224,7 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
                           </SelectContent>
                         </Select>
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   );
                 }}
@@ -235,6 +239,7 @@ const TaskParametersModal: FC<ITaskParametersModalProps> = ({
                   <FormControl>
                     <Textarea {...field} placeholder="Description" />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />

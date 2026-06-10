@@ -8,6 +8,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { IApplicationType } from "@/types/interfaces/datasource.interface";
@@ -48,7 +49,7 @@ const Modal = ({
       .array(
         z.object({
           value: z.string().min(1, "Version is required"),
-        })
+        }),
       )
       .min(1, "At least one version is required"),
     description: z
@@ -185,6 +186,7 @@ const Modal = ({
                               placeholder="application type"
                             />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -218,7 +220,7 @@ const Modal = ({
                                 <Input
                                   placeholder={`Version ${index + 1}`}
                                   {...form.register(
-                                    `versions.${index}.value` as const
+                                    `versions.${index}.value` as const,
                                   )}
                                 />
 
@@ -248,6 +250,7 @@ const Modal = ({
                           <FormControl>
                             <Textarea {...field} />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />

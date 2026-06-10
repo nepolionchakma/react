@@ -88,6 +88,7 @@ const EditForm: FC<AddFormProps> = ({
                     placeholder="Username"
                   />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -110,6 +111,7 @@ const EditForm: FC<AddFormProps> = ({
                         </SelectValue>
                       </SelectTrigger>
                     </FormControl>
+                    <FormMessage />
                     <SelectContent>
                       {jobTitles.map((item) => (
                         <SelectItem
@@ -134,6 +136,7 @@ const EditForm: FC<AddFormProps> = ({
                 <FormControl>
                   <Input {...field} type="text" placeholder="First Name" />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -146,6 +149,7 @@ const EditForm: FC<AddFormProps> = ({
                 <FormControl>
                   <Input {...field} type="text" placeholder="Middle Name" />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -158,6 +162,7 @@ const EditForm: FC<AddFormProps> = ({
                 <FormControl>
                   <Input {...field} type="text" placeholder="Last Name" />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -170,6 +175,7 @@ const EditForm: FC<AddFormProps> = ({
                 <FormControl>
                   <Input {...field} type="date" />
                 </FormControl>
+                <FormMessage />
                 <FormMessage />
               </FormItem>
             )}
@@ -191,6 +197,7 @@ const EditForm: FC<AddFormProps> = ({
                     multiple={true}
                   />
                 </FormControl>
+                <FormMessage />
                 <FormMessage />
               </FormItem>
             )}

@@ -16,6 +16,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useEffect, useState } from "react";
@@ -178,6 +179,7 @@ const RunARequest = () => {
                       </SelectContent>
                     </Select>
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />

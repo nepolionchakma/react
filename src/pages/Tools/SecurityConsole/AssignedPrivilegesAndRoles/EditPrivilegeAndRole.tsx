@@ -20,6 +20,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -228,6 +229,7 @@ const EditPrivilegeAndRole: FC<IAddPrivilegeAndRoleProps> = ({
                             className="disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-gray-100"
                           />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
