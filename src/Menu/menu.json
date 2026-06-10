@@ -327,7 +327,8 @@
           "/asynchronous-request-manager/development",
           "/asynchronous-request-manager/development/manage-execution-methods",
           "/asynchronous-request-manager/development/register-edit-asynchronous-tasks",
-          "/asynchronous-request-manager/development/manage-task-parameters"
+          "/asynchronous-request-manager/development/manage-task-parameters",
+          "/asynchronous-request-manager/development/manage-task-groups"
         ],
         "subMenus": [
           {
@@ -339,6 +340,11 @@
             "name": "Register/Edit Asynchronous Tasks",
             "path": "/asynchronous-request-manager/development/register-edit-asynchronous-tasks",
             "endpoint_id": 1486
+          },
+          {
+            "name": "Register/Manage Task Groups",
+            "path": "/asynchronous-request-manager/development/manage-task-groups",
+            "endpoint_id": 1487
           },
           {
             "name": "Manage Task Parameters",

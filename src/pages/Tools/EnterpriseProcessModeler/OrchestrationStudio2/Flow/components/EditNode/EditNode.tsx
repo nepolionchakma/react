@@ -91,6 +91,7 @@ const EditNode: FC<EditNodeProps> = ({
     const fetchAsyncTasks = async () => {
       try {
         const res = await getAsyncTasks();
+
         if (res) {
           setUnpredictableStepFunctionTasks(
             res.filter((task) => task.sf === "Y"),

@@ -75,6 +75,7 @@ import ProcessExecutionLog from "@/pages/Tools/EnterpriseProcessModeler/ProcessE
 import ExecutionDetails from "@/pages/Tools/EnterpriseProcessModeler/ProcessExecutionLog/ExecutionDetails";
 import ManagePriviedgesAndRoles from "@/pages/Tools/SecurityConsole/ManagePrivilegesAndRoles/ManagePrivelegesAndRoles";
 import RegisterLookups from "@/pages/Tools/EnterpriseProcessModeler/RegisterLookups/RegisterLookups";
+import ManageTaskGroups from "@/pages/AsynchronousRequestManager/Development/ManageTaskGroups/ManageTaskGroups";
 
 const routes = createBrowserRouter([
   {
@@ -387,6 +388,10 @@ const routes = createBrowserRouter([
               {
                 path: "register-edit-asynchronous-tasks",
                 element: <RegisterEditAsynchronousTasks />,
+              },
+              {
+                path: "manage-task-groups",
+                element: <ManageTaskGroups />,
               },
               {
                 path: "manage-task-parameters",

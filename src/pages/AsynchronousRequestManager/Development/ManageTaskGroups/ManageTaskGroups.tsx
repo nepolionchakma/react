@@ -19,10 +19,6 @@ import {
 } from "@/components/ui/table";
 import { columns } from "./Columns";
 import { useEffect, useMemo, useState } from "react";
-import {
-  ApiParameter,
-  IAPIEndpoint,
-} from "@/types/interfaces/apiEndpoints.interface";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { deleteData, loadData } from "@/Utility/funtion";
@@ -44,24 +40,23 @@ import Pagination5 from "@/components/Pagination/Pagination5";
 // import Spinner from "@/components/Spinner/Spinner";
 import Modal from "./Modal";
 import Spinner from "@/components/Spinner/Spinner";
-import { IPrivilege } from "@/types/interfaces/users.interface";
 import SearchInput from "@/components/SearchInput/SearchInput";
-import ParametersModal from "./ParametersModal";
+import { ITaskGroup } from "@/types/interfaces/ARM.interface";
 
-const ManageApiEndpoints = () => {
+const ManageTaskGroups = () => {
   const { token, users, grantedPrivlegeIds } = useGlobalContext();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [data, setData] = useState<IAPIEndpoint[] | []>([]);
+  const [data, setData] = useState<ITaskGroup[] | []>([]);
   const [limit, setLimit] = useState<number>(8);
   const [currentPage, setCurrentPage] = useState(1);
   const [query, setQuery] = useState("");
   const [totalPage, setTotalPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [selectedEndPoints, setSelectedEndPoints] = useState<IAPIEndpoint[]>(
+  const [selectedTaskGroups, setSelectedTaskGroups] = useState<ITaskGroup[]>(
     [],
   );
   const [isSelectAll, setIsSelectAll] = useState(false);
@@ -69,25 +64,10 @@ const ManageApiEndpoints = () => {
   const [action, setAction] = useState("");
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [reloadController, setReloadController] = useState(1);
-  const [privileges, setPrivileges] = useState<IPrivilege[]>([]);
-  const [viewParameters, setViewParameters] = useState<ApiParameter[]>([]);
-  const [clickedRow, setClickedRow] = useState<IAPIEndpoint | undefined>(
-    undefined,
-  );
 
   const table = useReactTable({
     data,
-    columns: useMemo(
-      () =>
-        columns(
-          users,
-          viewParameters,
-          setViewParameters,
-          clickedRow,
-          setClickedRow,
-        ),
-      [users, viewParameters, clickedRow],
-    ),
+    columns: useMemo(() => columns(users), [users]),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -109,12 +89,7 @@ const ManageApiEndpoints = () => {
     },
   });
 
-  const hiddenColumns = [
-    "created_by",
-    "creation_date",
-    "last_updated_by",
-    "last_update_date",
-  ];
+  const hiddenColumns = [""];
 
   useEffect(() => {
     table.getAllColumns().forEach((column) => {
@@ -127,12 +102,12 @@ const ManageApiEndpoints = () => {
   useEffect(() => {
     const apiEndpointsParams = {
       baseURL: FLASK_URL,
-      url: `${flaskApi.APIEndpoints}?api_endpoint=${query}&page=${currentPage}&limit=${limit}`,
+      url: `${flaskApi.TaskGroups}?group_name=${query}&page=${currentPage}&limit=${limit}`,
       accessToken: `${token.access_token}`,
       setLoading: setIsLoading,
     };
 
-    const loadAPIEndpoints = async () => {
+    const loadTaskGroups = async () => {
       const res = await loadData(apiEndpointsParams);
 
       console.log(res);
@@ -142,11 +117,11 @@ const ManageApiEndpoints = () => {
       } else {
         setTotalPage(1);
       }
-      setSelectedEndPoints([]);
+      setSelectedTaskGroups([]);
     };
 
     const delayDebounce = setTimeout(() => {
-      loadAPIEndpoints();
+      loadTaskGroups();
       //   setSelectedItem(null);
     }, 1000);
 
@@ -154,43 +129,26 @@ const ManageApiEndpoints = () => {
   }, [limit, currentPage, token.access_token, table, reloadController, query]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      const privilegesParams = {
-        baseURL: FLASK_URL,
-        url: flaskApi.DefPrivileges,
-        accessToken: token.access_token as string,
-      };
-      const privilegesRes = await loadData(privilegesParams);
-
-      if (privilegesRes) {
-        setPrivileges(privilegesRes.result);
-      }
-    };
-
-    fetchData();
-  }, [token.access_token]);
-
-  useEffect(() => {
     if (data?.length > 0) {
-      if (selectedEndPoints.length !== data?.length) {
+      if (selectedTaskGroups.length !== data?.length) {
         setIsSelectAll(false);
       } else {
         setIsSelectAll(true);
       }
     }
-    const ids = selectedEndPoints.map((item) => item.api_endpoint_id);
+    const ids = selectedTaskGroups.map((item) => item.group_id);
     setSelectedIds(ids);
-  }, [data?.length, selectedEndPoints]);
+  }, [data?.length, selectedTaskGroups]);
 
-  const handleRowSelection = (rowData: IAPIEndpoint) => {
-    setSelectedEndPoints((prev) => {
-      const endpoint = prev.find(
-        (item) => item.api_endpoint_id === rowData.api_endpoint_id,
+  const handleRowSelection = (rowData: ITaskGroup) => {
+    setSelectedTaskGroups((prev) => {
+      const taskGroups = prev.find(
+        (item) => item.group_id === rowData.group_id,
       );
 
-      if (endpoint) {
+      if (taskGroups) {
         const filtered = prev.filter(
-          (item) => item.api_endpoint_id !== rowData.api_endpoint_id,
+          (item) => item.group_id !== rowData.group_id,
         );
         return filtered;
       } else {
@@ -202,10 +160,10 @@ const ManageApiEndpoints = () => {
   const handleSelectAll = () => {
     if (isSelectAll) {
       setIsSelectAll(false);
-      setSelectedEndPoints([]);
+      setSelectedTaskGroups([]);
     } else {
       setIsSelectAll(true);
-      setSelectedEndPoints(data);
+      setSelectedTaskGroups(data);
     }
   };
 
@@ -220,10 +178,10 @@ const ManageApiEndpoints = () => {
 
   const handleDelete = async () => {
     const params = {
-      url: flaskApi.APIEndpoints,
+      url: flaskApi.TaskGroups,
       baseURL: FLASK_URL,
       payload: {
-        api_endpoint_ids: selectedIds,
+        group_ids: selectedIds,
       },
       accessToken: token.access_token,
       isToast: true,
@@ -235,18 +193,8 @@ const ManageApiEndpoints = () => {
       setReloadController((prev) => prev + 1);
     }
   };
-
   return (
     <>
-      {viewParameters.length !== 0 && (
-        <ParametersModal
-          action={"Parameters"}
-          data={viewParameters}
-          setData={setViewParameters}
-          setClickedRow={setClickedRow}
-          clickedRow={clickedRow}
-        />
-      )}
       {/* Action Item */}
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-2">
@@ -259,11 +207,11 @@ const ManageApiEndpoints = () => {
               </button>
             )}
             {grantedPrivlegeIds?.includes(11103) && (
-              <button disabled={selectedEndPoints.length !== 1}>
+              <button disabled={selectedTaskGroups.length !== 1}>
                 <CustomTooltip tooltipTitle="Edit">
                   <FileEdit
                     className={`${
-                      selectedEndPoints.length !== 1
+                      selectedTaskGroups.length !== 1
                         ? "text-slate-200 cursor-not-allowed"
                         : "cursor-pointer"
                     }`}
@@ -274,7 +222,7 @@ const ManageApiEndpoints = () => {
             )}
             {grantedPrivlegeIds?.includes(11104) && (
               <Alert
-                disabled={selectedEndPoints.length === 0 || isDeleteLoading}
+                disabled={selectedTaskGroups.length === 0 || isDeleteLoading}
                 actionName="delete"
                 onContinue={handleDelete}
                 tooltipTitle="Delete"
@@ -284,9 +232,9 @@ const ManageApiEndpoints = () => {
                     <Spinner size="40" color="black" />
                   ) : (
                     <span className="flex flex-col items-start">
-                      {selectedEndPoints.map((item, index) => (
-                        <span key={item.api_endpoint_id}>
-                          {index + 1}. API Endpoint : {item.api_endpoint}
+                      {selectedTaskGroups.map((item, index) => (
+                        <span key={item.group_id}>
+                          {index + 1}. Task Group Name : {item.group_name}
                         </span>
                       ))}
                     </span>
@@ -423,9 +371,7 @@ const ManageApiEndpoints = () => {
                       {index === 0 ? (
                         <Checkbox
                           className="mt-1"
-                          checked={selectedIds.includes(
-                            row.original.api_endpoint_id,
-                          )}
+                          checked={selectedIds.includes(row.original.group_id)}
                           onClick={() => handleRowSelection(row.original)}
                         />
                       ) : (
@@ -463,7 +409,7 @@ const ManageApiEndpoints = () => {
       {/* Start Pagination */}
       <div className="flex justify-between p-1">
         <div className="flex-1 text-sm text-gray-600">
-          {selectedEndPoints?.length} row(s) selected.
+          {selectedTaskGroups?.length} row(s) selected.
         </div>
         <Pagination5
           currentPage={currentPage}
@@ -476,13 +422,12 @@ const ManageApiEndpoints = () => {
       <Modal
         action={action}
         setOpenModal={setOpenModal}
-        selectedItems={selectedEndPoints}
+        selectedItems={selectedTaskGroups}
         setState={setReloadController}
-        privileges={privileges}
         openModal={openModal}
       />
     </>
   );
 };
 
-export default ManageApiEndpoints;
+export default ManageTaskGroups;

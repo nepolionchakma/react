@@ -25,6 +25,7 @@ export interface IARMAsynchronousTasksTypes {
   sf: "Y" | "N";
   sf_type?: "PREDICTABLE" | "UNPREDICTABLE";
   lookup_id?: number;
+  group_id?: number;
   created_by?: number;
   creation_date: Date;
   last_updated_by?: number;
@@ -139,4 +140,14 @@ export interface IARMViewRequestsTypes {
   parameters: string;
   result: string;
   timestamp: string;
+}
+
+export interface ITaskGroup {
+  group_id: number;
+  group_name: string;
+  description: string;
+  created_by: number;
+  creation_date: Date;
+  last_updated_by: number;
+  last_update_date: Date;
 }
