@@ -77,6 +77,7 @@ export const flaskApi = {
   Invitation: "/invitation",
   Webhook: "/def_webhooks",
   WebhookDeliveryLog: "/log_webhook_deliveries",
+  TaskGroups: "/def_task_groups",
 };
 
 // All Node api

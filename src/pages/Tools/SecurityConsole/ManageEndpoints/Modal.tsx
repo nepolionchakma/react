@@ -11,6 +11,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -59,6 +60,7 @@ const Modal = ({
 
   const FormSchema = z.object({
     api_endpoint: z.string(),
+    api_name: z.string(),
     parameters: z.array(ApiParameterSchema),
     method: z.string(),
     privilege_id: z.string(),
@@ -68,6 +70,7 @@ const Modal = ({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       api_endpoint: action === "Edit" ? selectedItems[0]?.api_endpoint : "",
+      api_name: action === "Edit" ? selectedItems[0]?.api_name : "",
       parameters: action === "Edit" ? selectedItems[0]?.parameters : [],
       method: action === "Edit" ? selectedItems[0]?.method : "",
       privilege_id:
@@ -98,9 +101,10 @@ const Modal = ({
 
         form.reset({
           api_endpoint: res.result.api_endpoint,
+          api_name: res.result.api_name,
           parameters: res.result.parameters || [],
           method: res.result.method,
-          privilege_id: res.result.privilege_id,
+          privilege_id: String(res.result.privilege_id),
         });
       };
 
@@ -110,6 +114,7 @@ const Modal = ({
     if (action === "add") {
       form.reset({
         api_endpoint: "",
+        api_name: "",
         parameters: [],
         method: "",
         privilege_id: "",
@@ -125,6 +130,7 @@ const Modal = ({
         setLoading: setIsSubmitting,
         payload: {
           api_endpoint: data.api_endpoint,
+          api_name: data.api_name,
           parameters: data.parameters,
           method: data.method,
           privilege_id: Number(data.privilege_id),
@@ -147,6 +153,7 @@ const Modal = ({
         setLoading: setIsSubmitting,
         payload: {
           api_endpoint: data.api_endpoint,
+          api_name: data.api_name,
           parameters: data.parameters,
           method: data.method,
           privilege_id: Number(data.privilege_id),
@@ -181,10 +188,30 @@ const Modal = ({
             ) : (
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)}>
-                  <div className="px-4 mt-4">
+                  <div className="grid grid-cols-2 p-4 gap-4">
                     <FormField
                       control={form.control}
                       name="api_endpoint"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="font-normal">
+                            Endpoint
+                          </FormLabel>
+                          <FormControl>
+                            <Input
+                              {...field}
+                              autoFocus
+                              type="text"
+                              placeholder="Endpoint"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="api_name"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="font-normal">
@@ -198,12 +225,11 @@ const Modal = ({
                               placeholder="Endpoint Name"
                             />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
-                  </div>
 
-                  <div className="grid grid-cols-2 p-4 gap-4 max-h-[70vh] overflow-auto">
                     <FormField
                       control={form.control}
                       name="method"
@@ -222,6 +248,7 @@ const Modal = ({
                                 <SelectValue placeholder="Select method" />
                               </SelectTrigger>
                             </FormControl>
+                            <FormMessage />
 
                             <SelectContent>
                               {methods.map((item) => (
@@ -258,6 +285,7 @@ const Modal = ({
                                 />
                               </SelectTrigger>
                             </FormControl>
+                            <FormMessage />
 
                             <SelectContent>
                               {privileges.map((item) => (
@@ -274,6 +302,10 @@ const Modal = ({
                       )}
                     />
                   </div>
+
+                  {/* <div className="grid grid-cols-2 p-4 gap-4">
+                    
+                  </div> */}
 
                   <div className="mt-4 px-4 space-y-4">
                     <div className="flex items-center justify-between">
@@ -329,6 +361,7 @@ const Modal = ({
                                       placeholder="execution_id"
                                     />
                                   </FormControl>
+                                  <FormMessage />
                                 </FormItem>
                               )}
                             />
@@ -343,6 +376,7 @@ const Modal = ({
                                   <FormControl>
                                     <Input {...field} placeholder="integer" />
                                   </FormControl>
+                                  <FormMessage />
                                 </FormItem>
                               )}
                             />
@@ -364,6 +398,7 @@ const Modal = ({
                                         <SelectValue />
                                       </SelectTrigger>
                                     </FormControl>
+                                    <FormMessage />
 
                                     <SelectContent>
                                       <SelectItem value="path">Path</SelectItem>
@@ -396,6 +431,7 @@ const Modal = ({
                                         <SelectValue />
                                       </SelectTrigger>
                                     </FormControl>
+                                    <FormMessage />
 
                                     <SelectContent>
                                       <SelectItem value="true">Yes</SelectItem>

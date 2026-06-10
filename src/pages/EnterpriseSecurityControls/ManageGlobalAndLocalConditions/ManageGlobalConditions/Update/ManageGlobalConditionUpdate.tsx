@@ -116,6 +116,7 @@ const ManageGlobalConditionUpdate: FC<IManageGlobalConditionProps> = ({
                     <SelectItem value="Inactive">Inactive</SelectItem>
                   </SelectContent>
                 </Select>
+                <FormMessage />
               </FormItem>
             )}
           />

@@ -94,6 +94,7 @@ const AddForm: FC<AddFormProps> = ({
                       <SelectValue placeholder="Select a User" />
                     </SelectTrigger>
                   </FormControl>
+                  <FormMessage />
                   <SelectContent>
                     {UserTypes.map((user) => (
                       <SelectItem
@@ -125,6 +126,7 @@ const AddForm: FC<AddFormProps> = ({
                     placeholder="Username"
                   />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -149,6 +151,7 @@ const AddForm: FC<AddFormProps> = ({
                       <SelectValue placeholder="Select a Tenant" />
                     </SelectTrigger>
                   </FormControl>
+                  <FormMessage />
                   <SelectContent>
                     {tenants?.map((tenant) => (
                       <SelectItem
@@ -181,6 +184,7 @@ const AddForm: FC<AddFormProps> = ({
                       <SelectValue placeholder="Select a Job Title" />
                     </SelectTrigger>
                   </FormControl>
+                  <FormMessage />
                   <SelectContent>
                     {jobTitles?.map((job) => (
                       <SelectItem
@@ -211,6 +215,7 @@ const AddForm: FC<AddFormProps> = ({
                       placeholder="First Name"
                     />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -225,6 +230,7 @@ const AddForm: FC<AddFormProps> = ({
                   <FormControl>
                     <Input {...field} type="text" placeholder="Middle Name" />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />
@@ -239,6 +245,7 @@ const AddForm: FC<AddFormProps> = ({
                   <FormControl>
                     <Input {...field} type="text" placeholder="Last Name" />
                   </FormControl>
+                  <FormMessage />
                 </FormItem>
               )}
             />

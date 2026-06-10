@@ -16,6 +16,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
@@ -354,6 +355,7 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
                           placeholder="User Schedule Name"
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -392,6 +394,7 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
                         </SelectContent>
                       </Select>
                     </FormControl>
+                    <FormMessage />
                   </FormItem>
                 )}
               />

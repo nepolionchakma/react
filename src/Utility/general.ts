@@ -10,7 +10,9 @@ import {
   ITenantsTypes,
 } from "@/types/interfaces/users.interface";
 
-export const toTitleCase = (str: string) => {
+export const toTitleCase = (str: string | undefined) => {
+  if (!str) return;
+
   return str
     .toLowerCase() // first make everything lowercase
     .replace(/\b\w/g, (char) => char.toUpperCase()); // capitalize first letter of each word

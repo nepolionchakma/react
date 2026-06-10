@@ -5,6 +5,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
@@ -47,6 +48,7 @@ const AddForm: FC<AddFormProps> = ({
                     placeholder="Control Name"
                   />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -59,6 +61,7 @@ const AddForm: FC<AddFormProps> = ({
                 <FormControl>
                   <Input {...field} type="text" placeholder="Description" />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -76,6 +79,7 @@ const AddForm: FC<AddFormProps> = ({
                     placeholder="Pending Results Count"
                   />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -100,6 +104,7 @@ const AddForm: FC<AddFormProps> = ({
                     <SelectItem value="access">Access</SelectItem>
                   </SelectContent>
                 </Select>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -117,6 +122,7 @@ const AddForm: FC<AddFormProps> = ({
                     placeholder="Priority"
                   />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -129,6 +135,7 @@ const AddForm: FC<AddFormProps> = ({
                 <FormControl>
                   <Input {...field} type="text" placeholder="Datasources" />
                 </FormControl>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -149,6 +156,7 @@ const AddForm: FC<AddFormProps> = ({
                     <SelectItem value="assigned">ASSIGNED</SelectItem>
                   </SelectContent>
                 </Select>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -170,6 +178,7 @@ const AddForm: FC<AddFormProps> = ({
                     </SelectItem>
                   </SelectContent>
                 </Select>
+                <FormMessage />
               </FormItem>
             )}
           />
@@ -191,6 +200,7 @@ const AddForm: FC<AddFormProps> = ({
                     </SelectItem>
                   </SelectContent>
                 </Select>
+                <FormMessage />
               </FormItem>
             )}
           />

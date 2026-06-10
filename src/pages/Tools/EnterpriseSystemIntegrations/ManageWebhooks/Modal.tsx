@@ -7,6 +7,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toTitleCase } from "@/Utility/general";
@@ -263,6 +264,7 @@ const Modal = ({
                               placeholder="Webhook Name"
                             />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -284,6 +286,7 @@ const Modal = ({
                               placeholder="Webhook URL"
                             />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -311,6 +314,7 @@ const Modal = ({
                                 type="password"
                               />
                             </FormControl>
+                            <FormMessage />
                           </FormItem>
                         )}
                       />
@@ -345,6 +349,7 @@ const Modal = ({
                               </SelectContent>
                             </Select>
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -366,6 +371,7 @@ const Modal = ({
                               placeholder="Max Retries"
                             />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />

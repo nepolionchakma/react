@@ -1,5 +1,8 @@
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
+import { X } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
 import {
   Form,
@@ -10,171 +13,185 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { toTitleCase } from "@/Utility/general";
-import { X } from "lucide-react";
-import { useEffect, useState } from "react";
-import { FLASK_URL, flaskApi } from "@/Api/Api";
-import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
-import { loadData, postData, putData } from "@/Utility/funtion";
-import Spinner from "@/components/Spinner/Spinner";
 import { Button } from "@/components/ui/button";
-import { IPrivilege } from "@/types/interfaces/users.interface";
-import { useForm } from "react-hook-form";
+import Spinner from "@/components/Spinner/Spinner";
+import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { loadData, postData, putData } from "@/Utility/funtion";
+import { toTitleCase } from "@/Utility/general";
+import { ITaskGroup } from "@/types/interfaces/ARM.interface";
+import { Textarea } from "@/components/ui/textarea";
 
 interface Props {
   action: string;
-  setAction: React.Dispatch<React.SetStateAction<string>>;
   openModal: boolean;
   setOpenModal: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedItems: IPrivilege[];
+  selectedItems: ITaskGroup[];
   setState: React.Dispatch<React.SetStateAction<number>>;
 }
 
 const Modal = ({
-  action,
-  setAction,
   openModal,
-  setOpenModal,
+  action,
   selectedItems,
+  setOpenModal,
   setState,
 }: Props) => {
   const { token } = useGlobalContext();
   const [isLoading, setIsLoading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const weebhookSchema = z.object({
-    privilege_name: z.string(),
+  const FormSchema = z.object({
+    group_name: z.string(),
+    description: z.string(),
   });
 
-  type privilegeForm = z.infer<typeof weebhookSchema>;
-
-  const form = useForm<privilegeForm>({
-    resolver: zodResolver(weebhookSchema),
+  const form = useForm<z.infer<typeof FormSchema>>({
+    resolver: zodResolver(FormSchema),
     defaultValues: {
-      privilege_name: action === "edit" ? selectedItems[0].privilege_name : "",
+      group_name: action === "Edit" ? selectedItems[0]?.group_name : "",
+      description: action === "Edit" ? selectedItems[0]?.description : "",
     },
   });
+
+  const handleClose = () => {
+    setOpenModal(false);
+  };
 
   useEffect(() => {
     if (!openModal) return; // 🔥 KEY FIX
 
     if (action === "edit" && selectedItems[0]) {
-      const fetchRole = async () => {
+      const fetchTaskGroup = async () => {
         const res = await loadData({
           baseURL: FLASK_URL,
-          url: `${flaskApi.DefPrivileges}?privilege_id=${selectedItems[0].privilege_id}`,
+          url: `${flaskApi.TaskGroups}?group_id=${selectedItems[0].group_id}`,
           setLoading: setIsLoading,
           accessToken: token.access_token,
         });
 
         form.reset({
-          privilege_name: res.result.privilege_name,
+          group_name: res.result[0].group_name,
+          description: res.result[0].description,
         });
       };
 
-      fetchRole();
+      fetchTaskGroup();
     }
 
     if (action === "add") {
       form.reset({
-        privilege_name: "",
+        group_name: "",
+        description: "",
       });
     }
   }, [action, selectedItems, token.access_token, openModal, form]);
 
-  const handleClose = () => {
-    setOpenModal(false);
-    setAction("");
-  };
-
-  const onSubmit = async (data: privilegeForm) => {
+  const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     if (action === "add") {
-      const payload = {
-        privilege_name: data.privilege_name,
-      };
-
-      const params = {
+      const postParams = {
         baseURL: FLASK_URL,
-        url: `${flaskApi.DefPrivileges}`,
+        url: flaskApi.TaskGroups,
         setLoading: setIsSubmitting,
-        payload,
+        payload: {
+          group_name: data.group_name,
+          description: data.description,
+        },
+        //   isConsole?: boolean;
         isToast: true,
         accessToken: token.access_token,
       };
-      const res = await postData(params);
+
+      const res = await postData(postParams);
       if (res.status === 201) {
-        setState((prev) => prev + 1);
         form.reset();
-        handleClose();
+        setState((prev) => prev + 1);
       }
     } else {
-      const payload = {
-        privilege_name: data.privilege_name,
-      };
-
-      const params = {
+      const putParams = {
         baseURL: FLASK_URL,
-        url: `${flaskApi.DefPrivileges}?privilege_id=${selectedItems[0].privilege_id}`,
+        url: `${flaskApi.TaskGroups}?group_id=${selectedItems[0].group_id}`,
         setLoading: setIsSubmitting,
-        payload,
+        payload: {
+          group_name: data.group_name,
+          description: data.description,
+        },
+        //   isConsole?: boolean;
         isToast: true,
         accessToken: token.access_token,
       };
-      const res = await putData(params);
+
+      const res = await putData(putParams);
       if (res.status === 200) {
         setState((prev) => prev + 1);
-        form.reset();
-        handleClose();
       }
     }
   };
-
   return (
     <>
-      {action && openModal && (
-        <CustomModal4 className="w-[400px] h-auto">
+      {openModal && (
+        <CustomModal4 className="w-[700px] h-auto">
           <div className="flex justify-between bg-[#CEDEF2] p-4">
             <h3 className="font-semibold capitalize">
-              {toTitleCase(action)} Privilege
+              {toTitleCase(action)} Task Group
             </h3>
             <X onClick={handleClose} className="cursor-pointer" />
           </div>
 
-          <div className="max-h-[90vh] p-4 overflow-auto scrollbar-thin">
+          <div className="max-h-[90vh] overflow-auto scrollbar-thin">
             {isLoading ? (
-              <div className="w-full flex justify-center">
+              <div className="w-full flex justify-center p-4">
                 <Spinner size="40" color="black" />
               </div>
             ) : (
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)}>
-                  <div>
+                  <div className="p-4 space-y-4">
                     <FormField
                       control={form.control}
-                      name="privilege_name"
+                      name="group_name"
                       render={({ field }) => (
                         <FormItem>
                           <FormLabel className="font-normal">
-                            Privilege Name
+                            Task Group Name
                           </FormLabel>
                           <FormControl>
                             <Input
                               {...field}
-                              required
                               autoFocus
                               type="text"
-                              placeholder="Privilege Name"
+                              placeholder="Task Group Name"
                             />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+                    <FormField
+                      control={form.control}
+                      name="description"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="font-normal">
+                            Description
+                          </FormLabel>
+                          <FormControl>
+                            <Textarea {...field} placeholder="Description" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
-                  <div className="flex justify-end mt-4">
-                    <Button type="submit" disabled={isSubmitting}>
+
+                  <div className="flex gap-4 p-4 justify-end">
+                    <Button
+                      disabled={isSubmitting}
+                      type="submit"
+                      className="hover:shadow disabled:cursor-not-allowed"
+                    >
                       {isSubmitting ? (
-                        <Spinner size="20" color="white" />
+                        <Spinner size="30" color="white" />
                       ) : (
                         "Submit"
                       )}

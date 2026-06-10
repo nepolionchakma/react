@@ -212,6 +212,7 @@ const ResetPassword = () => {
                             />
                           </div>
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />

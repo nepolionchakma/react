@@ -1,19 +1,10 @@
-import {
-  ApiParameter,
-  IAPIEndpoint,
-} from "@/types/interfaces/apiEndpoints.interface";
+import { ITaskGroup } from "@/types/interfaces/ARM.interface";
 import { Users } from "@/types/interfaces/users.interface";
 import { convertDate } from "@/Utility/DateConverter";
 import { renderUserName } from "@/Utility/NotificationUtils";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, Eye, EyeOff } from "lucide-react";
-export const columns = (
-  users: Users[],
-  viewParameters: ApiParameter[],
-  setViewParameters: React.Dispatch<ApiParameter[]>,
-  clickedRow: IAPIEndpoint | undefined,
-  setClickedRow: React.Dispatch<React.SetStateAction<IAPIEndpoint | undefined>>,
-): ColumnDef<IAPIEndpoint>[] => [
+import { ArrowUpDown } from "lucide-react";
+export const columns = (users: Users[]): ColumnDef<ITaskGroup>[] => [
   {
     id: "select",
     size: 24,
@@ -23,61 +14,33 @@ export const columns = (
     enableHiding: false,
     enableResizing: false,
   },
+  //   {
+  //     accessorKey: "group_id",
+  //     enableResizing: true,
+  //     sortingFn: (rowA, rowB, columnId) => {
+  //       const a = rowA.getValue(columnId) as number;
+  //       const b = rowB.getValue(columnId) as number;
+
+  //       return a - b;
+  //     },
+  //     header: ({ column }) => {
+  //       return (
+  //         <div
+  //           className="min-w-max"
+  //           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+  //         >
+  //           Task Group Id
+  //           <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
+  //         </div>
+  //       );
+  //     },
+
+  //     cell: ({ row }) => (
+  //       <div className="capitalize min-w-max">{row.getValue("group_id")}</div>
+  //     ),
+  //   },
   {
-    accessorKey: "api_endpoint_id",
-    enableResizing: true,
-    sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as number;
-      const b = rowB.getValue(columnId) as number;
-
-      return a - b;
-    },
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          API Endpoint Id
-          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
-        </div>
-      );
-    },
-
-    cell: ({ row }) => (
-      <div className="capitalize min-w-max">
-        {row.getValue("api_endpoint_id")}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "api_name",
-    enableResizing: true,
-    sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as string;
-      const b = rowB.getValue(columnId) as string;
-
-      return a.localeCompare(b, undefined, { sensitivity: "base" });
-    },
-    // header: "Username",
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Endpoint Name
-          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
-        </div>
-      );
-    },
-
-    cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("api_name")}</div>
-    ),
-  },
-  {
-    accessorKey: "api_endpoint",
+    accessorKey: "group_name",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
       const a = rowA.getValue(columnId) as string;
@@ -92,62 +55,18 @@ export const columns = (
           className="min-w-max"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Endpoint
+          Task Group Name
           <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
         </div>
       );
     },
 
     cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("api_endpoint")}</div>
+      <div className="min-w-max">{row.getValue("group_name")}</div>
     ),
   },
   {
-    accessorKey: "parameters",
-    enableResizing: true,
-    header: () => {
-      return <div className="min-w-max">Parameters</div>;
-    },
-
-    cell: ({ row }) => {
-      const length = Object.keys(row.getValue("parameters") ?? {}).length === 0;
-
-      return (
-        <div className="flex items-center justify-center gap-2">
-          <button
-            disabled={length}
-            className="disabled:cursor-not-allowed disabled:opacity-50"
-            onClick={() => {
-              setViewParameters(row.original.parameters);
-              setClickedRow(row.original);
-            }}
-          >
-            {viewParameters.length > 0 &&
-            clickedRow?.api_endpoint_id === row.original.api_endpoint_id ? (
-              <EyeOff className="w-5 h-5" />
-            ) : (
-              <Eye className="w-5 h-5" />
-            )}
-          </button>
-        </div>
-      );
-    },
-
-    // cell: ({ row }) => {
-    //   const payload = row.getValue("payload") as any;
-    //   const data = payload?.data;
-
-    //   if (!data) return null;
-
-    //   return (
-    //     <pre className="min-w-max text-xs whitespace-pre-wrap">
-    //       {JSON.stringify(data.result, null, 2)}
-    //     </pre>
-    //   );
-    // },
-  },
-  {
-    accessorKey: "method",
+    accessorKey: "description",
     enableResizing: true,
     sortingFn: (rowA, rowB, columnId) => {
       const a = rowA.getValue(columnId) as string;
@@ -155,45 +74,21 @@ export const columns = (
 
       return a.localeCompare(b, undefined, { sensitivity: "base" });
     },
+    // header: "Username",
     header: ({ column }) => {
       return (
         <div
-          className="min-w-max"
+          className="min-w-20 max-w-40"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Method
+          Description
           <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
         </div>
       );
     },
 
     cell: ({ row }) => (
-      <div className="capitalize min-w-max">{row.getValue("method")}</div>
-    ),
-  },
-  {
-    accessorKey: "privilege_id",
-    enableResizing: true,
-    sortingFn: (rowA, rowB, columnId) => {
-      const a = rowA.getValue(columnId) as number;
-      const b = rowB.getValue(columnId) as number;
-
-      return a - b;
-    },
-    header: ({ column }) => {
-      return (
-        <div
-          className="min-w-max"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Privilege Id
-          <ArrowUpDown className="ml-2 h-4 w-4 cursor-pointer inline-block" />
-        </div>
-      );
-    },
-
-    cell: ({ row }) => (
-      <div className="capitalize min-w-max">{row.getValue("privilege_id")}</div>
+      <div className="min-w-[24rem]">{row.getValue("description")}</div>
     ),
   },
   {

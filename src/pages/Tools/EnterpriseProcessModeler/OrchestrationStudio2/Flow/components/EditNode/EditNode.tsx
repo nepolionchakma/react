@@ -4,6 +4,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import {
@@ -91,6 +92,7 @@ const EditNode: FC<EditNodeProps> = ({
     const fetchAsyncTasks = async () => {
       try {
         const res = await getAsyncTasks();
+
         if (res) {
           setUnpredictableStepFunctionTasks(
             res.filter((task) => task.sf === "Y"),
@@ -364,6 +366,7 @@ const EditNode: FC<EditNodeProps> = ({
                                   )}
                                 </div>
                               </FormControl>
+                              <FormMessage />
                             </FormItem>
                           )}
                         />
@@ -406,6 +409,7 @@ const EditNode: FC<EditNodeProps> = ({
                                   }`}
                                 />
                               </FormControl>
+                              <FormMessage />
                             </FormItem>
                           )}
                         />
@@ -478,6 +482,7 @@ const EditNode: FC<EditNodeProps> = ({
                                   </SelectContent>
                                 </Select>
                               </FormControl>
+                              <FormMessage />
                             </FormItem>
                           )}
                         />
@@ -541,6 +546,7 @@ const EditNode: FC<EditNodeProps> = ({
                                     }`}
                                   />
                                 </FormControl>
+                                <FormMessage />
                               </FormItem>
                             )}
                           />

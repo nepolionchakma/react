@@ -9,6 +9,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -76,6 +77,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
     sf: z.string().optional(),
     sf_type: z.enum(["PREDICTABLE", "UNPREDICTABLE"]).optional(),
     lookup_id: z.string().optional().nullable(),
+    // group_ids: z.array(number()).optional(),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -93,6 +95,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
             script_path: "",
             sf_type: undefined,
             lookup_id: null,
+            // group_ids: [],
           }
         : {
             user_task_name: selected?.user_task_name,
@@ -105,13 +108,14 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
             script_path: selected?.script_path,
             sf_type: selected?.sf_type,
             lookup_id: selected?.lookup_id?.toString(),
+            // group_ids: selected?.group_id,
           },
   });
 
-  console.log(form.formState.errors);
   const { reset } = form;
 
   const stepFuntion = form.watch("sf");
+  const stepFuntionType = form.watch("sf_type");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -256,15 +260,6 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
               <div className="grid grid-cols-2 gap-4">
                 <div className="flex items-center gap-1">
                   <Checkbox
-                    checked={checkboxSelected?.srs === "Y"}
-                    onClick={() => handleCheckboxChange("srs")}
-                  />
-                  <FormLabel onClick={() => handleCheckboxChange("srs")}>
-                    Standard Request Submission (SRS)
-                  </FormLabel>
-                </div>
-                <div className="flex items-center gap-1">
-                  <Checkbox
                     checked={checkboxSelected?.sf === "Y"}
                     onClick={() => handleCheckboxChange("sf")}
                   />
@@ -272,6 +267,16 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                     Step Function (SF)
                   </FormLabel>
                 </div>
+                <div className="flex items-center gap-1">
+                  <Checkbox
+                    checked={checkboxSelected?.srs === "Y"}
+                    onClick={() => handleCheckboxChange("srs")}
+                  />
+                  <FormLabel onClick={() => handleCheckboxChange("srs")}>
+                    Standard Request Submission (SRS)
+                  </FormLabel>
+                </div>
+
                 {stepFuntion === "Y" && (
                   <FormField
                     control={form.control}
@@ -289,6 +294,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                               <SelectValue placeholder="Select Step Function Type" />
                             </SelectTrigger>
                           </FormControl>
+                          <FormMessage />
 
                           <SelectContent>
                             <SelectItem value="PREDICTABLE">
@@ -317,12 +323,14 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                           onValueChange={(value) => {
                             field.onChange(value);
                           }}
+                          disabled={stepFuntionType !== "PREDICTABLE"}
                         >
                           <FormControl>
                             <SelectTrigger>
                               <SelectValue placeholder="Select Lookup" />
                             </SelectTrigger>
                           </FormControl>
+                          <FormMessage />
 
                           <SelectContent>
                             {lookups.map((l) => (
@@ -356,6 +364,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                           className="px-2 h-8"
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -375,6 +384,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                           className="px-2 h-8"
                         />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -414,6 +424,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                             </SelectContent>
                           </Select>
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -448,6 +459,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                             className="px-2 h-8"
                           />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -469,6 +481,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                             className="px-2 h-8"
                           />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -483,6 +496,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                       <FormControl>
                         <Textarea {...field} placeholder="Description" />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />

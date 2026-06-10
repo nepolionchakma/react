@@ -1,20 +1,38 @@
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
-import { ApiParameter } from "@/types/interfaces/apiEndpoints.interface";
+import {
+  ApiParameter,
+  IAPIEndpoint,
+} from "@/types/interfaces/apiEndpoints.interface";
+import { toTitleCase } from "@/Utility/general";
 import { X } from "lucide-react";
 
 interface IProps {
   action: string;
   data: ApiParameter[];
   setData: React.Dispatch<React.SetStateAction<ApiParameter[]>>;
+  clickedRow: IAPIEndpoint | undefined;
+  setClickedRow: React.Dispatch<React.SetStateAction<IAPIEndpoint | undefined>>;
 }
 
-const ParametersModal = ({ action, data, setData }: IProps) => {
+const ParametersModal = ({
+  action,
+  data,
+  setData,
+  clickedRow,
+  setClickedRow,
+}: IProps) => {
+  const handleClose = () => {
+    setData([]);
+    setClickedRow(undefined);
+  };
   return (
     <CustomModal4 className="w-[700px] h-auto">
       <div>
         <div className="flex items-center justify-between bg-[#CEDEF2] p-3">
-          <h3 className="font-semibold">{action}</h3>
-          <X onClick={() => setData([])} className="cursor-pointer" />
+          <h3 className="font-semibold">
+            {toTitleCase(clickedRow?.api_name)} {action}
+          </h3>
+          <X onClick={handleClose} className="cursor-pointer" />
         </div>
 
         <div className="p-4">

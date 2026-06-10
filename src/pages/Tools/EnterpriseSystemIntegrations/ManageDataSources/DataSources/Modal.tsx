@@ -2,7 +2,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useFieldArray, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormMessage,
+} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { X } from "lucide-react";
 import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
@@ -422,6 +428,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
                           <FormControl>
                             <Input {...field} required type="text" autoFocus />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -434,6 +441,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
                           <FormControl>
                             <Textarea {...field} required />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -469,6 +477,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
                               </SelectContent>
                             </Select>
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -501,6 +510,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
                               </SelectContent>
                             </Select>
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -524,6 +534,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
                               className="h-4 w-4 mt-0"
                             />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -551,6 +562,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
                           <FormControl>
                             <Input {...field} type="text" />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -563,6 +575,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
                           <FormControl>
                             <Input {...field} type="text" />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -575,6 +588,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
                           <FormControl>
                             <Input {...field} type="text" />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -587,6 +601,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
                           <FormControl>
                             <Input {...field} type="text" />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -599,6 +614,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
                           <FormControl>
                             <Input {...field} type="text" />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -612,6 +628,7 @@ const Modal: FC<IDataSourceAddDataTypes> = ({
                           <FormControl>
                             <Input {...field} type="password" />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
