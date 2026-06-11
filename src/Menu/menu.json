@@ -342,7 +342,7 @@
             "endpoint_id": 1486
           },
           {
-            "name": "Register/Manage Task Groups",
+            "name": "Manage Task Groups",
             "path": "/asynchronous-request-manager/development/manage-task-groups",
             "endpoint_id": 1487
           },
