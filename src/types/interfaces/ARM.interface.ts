@@ -25,7 +25,7 @@ export interface IARMAsynchronousTasksTypes {
   sf: "Y" | "N";
   sf_type?: "PREDICTABLE" | "UNPREDICTABLE";
   lookup_id?: number;
-  group_id?: number;
+  group_ids?: number[];
   created_by?: number;
   creation_date: Date;
   last_updated_by?: number;

@@ -1,4 +1,5 @@
 import { IAPIEndpoint } from "@/types/interfaces/apiEndpoints.interface";
+import { ITaskGroup } from "@/types/interfaces/ARM.interface";
 import {
   ILookup,
   IOrchestrationDataTypes,
@@ -115,6 +116,19 @@ export const lookupName = (
     const lookup = lookups.find((item) => item.lookup_id === lookupId);
 
     return lookup?.lookup_name;
+  }
+};
+
+export const taskGroupName = (
+  groupId: number | undefined,
+  taskGroups: ITaskGroup[],
+) => {
+  if (!groupId) {
+    return;
+  } else {
+    const group = taskGroups.find((item) => item.group_id === groupId);
+
+    return group?.group_name;
   }
 };
 

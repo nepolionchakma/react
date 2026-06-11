@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
+import { ControllerRenderProps, useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -13,12 +13,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { X } from "lucide-react";
+import { Check, ChevronDown, X } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import {
   IARMAsynchronousTasksTypes,
   IExecutionMethodsTypes,
+  ITaskGroup,
 } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import {
@@ -31,8 +32,14 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import Spinner from "@/components/Spinner/Spinner";
 import { ILookup } from "@/types/interfaces/orchestration.interface";
-import { FLASK_URL } from "@/Api/Api";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { loadData, postData, putData } from "@/Utility/funtion";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 
 interface ICreateTaskProps {
   task_name: string;
@@ -60,6 +67,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
   const [selectedExecutionMethod, setSelectedExecutionMethod] =
     useState<IExecutionMethodsTypes>(executionMethods[0]);
   const [lookups, setLookups] = useState<ILookup[] | []>([]);
+  const [taskGroups, setTaskGroups] = useState<ITaskGroup[] | []>([]);
 
   const [checkboxSelected, setCheckboxSelected] = useState<IChackboxTypes>(
     selected && { srs: selected.srs, sf: selected.sf },
@@ -77,7 +85,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
     sf: z.string().optional(),
     sf_type: z.enum(["PREDICTABLE", "UNPREDICTABLE"]).optional(),
     lookup_id: z.string().optional().nullable(),
-    // group_ids: z.array(number()).optional(),
+    group_ids: z.array(z.number()),
   });
 
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -95,7 +103,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
             script_path: "",
             sf_type: undefined,
             lookup_id: null,
-            // group_ids: [],
+            group_ids: [],
           }
         : {
             user_task_name: selected?.user_task_name,
@@ -108,7 +116,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
             script_path: selected?.script_path,
             sf_type: selected?.sf_type,
             lookup_id: selected?.lookup_id?.toString(),
-            // group_ids: selected?.group_id,
+            group_ids: selected?.group_ids,
           },
   });
 
@@ -116,6 +124,8 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
 
   const stepFuntion = form.watch("sf");
   const stepFuntionType = form.watch("sf_type");
+  const groupIds = form.watch("group_ids");
+  console.log(groupIds);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -148,6 +158,24 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
     };
 
     fetchLookups();
+  }, [setIsLoading, token.access_token]);
+
+  useEffect(() => {
+    const params = {
+      baseURL: FLASK_URL,
+      url: flaskApi.TaskGroups,
+      accessToken: `${token.access_token}`,
+      setLoading: setIsLoading,
+    };
+
+    const fetchTaskGroups = async () => {
+      const res = await loadData(params);
+      if (res.result) {
+        setTaskGroups(res.result);
+      }
+    };
+
+    fetchTaskGroups();
   }, [setIsLoading, token.access_token]);
 
   const handleCheckboxChange = (name: string) => {
@@ -189,6 +217,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
       sf: data.sf,
       sf_type: stepFuntion === "Y" ? data.sf_type : null,
       lookup_id: stepFuntion === "Y" ? Number(data.lookup_id) : null,
+      group_ids: stepFuntion === "Y" ? data.group_ids : [],
     };
     const putPayload = {
       user_task_name: data.user_task_name,
@@ -199,6 +228,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
       sf: data.sf,
       sf_type: stepFuntion === "Y" ? data.sf_type : null,
       lookup_id: stepFuntion === "Y" ? Number(data.lookup_id) : null,
+      group_ids: stepFuntion === "Y" ? data.group_ids : [],
     };
 
     if (isOpenModal === "register_task") {
@@ -240,6 +270,19 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
     }
   };
 
+  const onSelectTaskGroup = (
+    groupId: number,
+    field: ControllerRenderProps<z.infer<typeof FormSchema>, "group_ids">,
+  ) => {
+    const current = field.value ?? [];
+
+    if (current.includes(groupId)) {
+      field.onChange(current.filter((id) => id !== groupId));
+    } else {
+      field.onChange([...current, groupId]);
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between bg-[#CEDEF2] p-4">
@@ -253,7 +296,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
           </div>
         ) : (
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               {/* <div className="grid grid-cols-2 gap-4">
                 
               </div> */}
@@ -276,8 +319,9 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                     Standard Request Submission (SRS)
                   </FormLabel>
                 </div>
-
-                {stepFuntion === "Y" && (
+              </div>
+              {stepFuntion === "Y" && (
+                <div className="grid grid-cols-3 gap-4 border p-4 rounded-md">
                   <FormField
                     control={form.control}
                     name="sf_type"
@@ -294,7 +338,6 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                               <SelectValue placeholder="Select Step Function Type" />
                             </SelectTrigger>
                           </FormControl>
-                          <FormMessage />
 
                           <SelectContent>
                             <SelectItem value="PREDICTABLE">
@@ -305,12 +348,64 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                             </SelectItem>
                           </SelectContent>
                         </Select>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
-                )}
 
-                {stepFuntion === "Y" && (
+                  <FormField
+                    control={form.control}
+                    name="group_ids"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Task Groups</FormLabel>
+
+                        <Popover>
+                          <PopoverTrigger className="border rounded px-3 py-2 text-left flex justify-between w-full">
+                            {field.value?.length > 0
+                              ? field.value
+                                  .map(
+                                    (id) =>
+                                      taskGroups.find(
+                                        (task) => task.group_id === id,
+                                      )?.group_name,
+                                  )
+                                  .join(", ")
+                              : "Select Task Groups"}
+                            <ChevronDown size={20} color="gray" />
+                          </PopoverTrigger>
+
+                          <PopoverContent className="p-0 w-full">
+                            <Command>
+                              <CommandGroup>
+                                {taskGroups.map((task) => (
+                                  <CommandItem
+                                    key={task.group_id}
+                                    onSelect={() =>
+                                      onSelectTaskGroup(task.group_id, field)
+                                    } // ✅ use ID
+                                  >
+                                    <Check
+                                      className={`mr-2 h-4 w-4 ${
+                                        field.value.includes(task.group_id)
+                                          ? "opacity-100"
+                                          : "opacity-0"
+                                      }`}
+                                    />
+                                    <span className="capitalize">
+                                      {task.group_name}
+                                    </span>
+                                  </CommandItem>
+                                ))}
+                              </CommandGroup>
+                            </Command>
+                          </PopoverContent>
+                        </Popover>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
                   <FormField
                     control={form.control}
                     name="lookup_id"
@@ -330,7 +425,6 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                               <SelectValue placeholder="Select Lookup" />
                             </SelectTrigger>
                           </FormControl>
-                          <FormMessage />
 
                           <SelectContent>
                             {lookups.map((l) => (
@@ -343,11 +437,14 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                             ))}
                           </SelectContent>
                         </Select>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
-                )}
+                </div>
+              )}
 
+              <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
                   name="user_task_name"
