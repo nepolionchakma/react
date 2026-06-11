@@ -12,20 +12,28 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 
-import { IARMAsynchronousTasksTypes } from "@/types/interfaces/ARM.interface";
+import {
+  IARMAsynchronousTasksTypes,
+  ITaskGroup,
+} from "@/types/interfaces/ARM.interface";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { EllipsisVertical, X } from "lucide-react";
-import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
+import {
+  Check,
+  ChevronDown,
+  ChevronRight,
+  EllipsisVertical,
+  X,
+} from "lucide-react";
+import {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { ShapeNode } from "../../shape/types";
@@ -38,6 +46,16 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { IRequiredAttributes } from "../../Flow";
+import {
+  Command,
+  CommandGroup,
+  // CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
+import { FLASK_URL, flaskApi } from "@/Api/Api";
+import { loadData } from "@/Utility/funtion";
+import { taskGroupName } from "@/Utility/general";
 
 interface EditNodeProps {
   theme: string;
@@ -67,26 +85,19 @@ const EditNode: FC<EditNodeProps> = ({
 }) => {
   console.log(workFlowId, "workflow ID");
   const { getAsyncTasks } = useARMContext();
-  const [unpredictableStepFunction, setUnpredictableStepFunctionTasks] =
-    useState<IARMAsynchronousTasksTypes[]>([]);
-  const [predictableStepFunction, setpredictableStepFunction] = useState<
+  const [stepFunction, setStepFunctionTasks] = useState<
     IARMAsynchronousTasksTypes[]
   >([]);
-  const { edgeConnectionPosition, setEdgeConnectionPosition } =
+
+  const { edgeConnectionPosition, setEdgeConnectionPosition, token } =
     useGlobalContext();
+  const [open, setOpen] = useState(false);
+  const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
+  const [taskGroups, setTaskGroups] = useState<ITaskGroup[] | []>([]);
 
   console.log(selectedNode);
 
   const updateNodeInternals = useUpdateNodeInternals(); // Updating node internals dynamically
-
-  // {
-  //           "name": "EMPLOYEE_ID",
-  //           "required": true,
-  //           "source_label": "get employee name",
-  //           "source_task": "get_employee_name",
-  //           "type": "string",
-  //           "value": ""
-  //       }
 
   useEffect(() => {
     const fetchAsyncTasks = async () => {
@@ -94,14 +105,7 @@ const EditNode: FC<EditNodeProps> = ({
         const res = await getAsyncTasks();
 
         if (res) {
-          setUnpredictableStepFunctionTasks(
-            res.filter((task) => task.sf === "Y"),
-          );
-          setpredictableStepFunction(
-            res.filter(
-              (task) => task.sf === "Y" && task.sf_type === "PREDICTABLE",
-            ),
-          );
+          setStepFunctionTasks(res.filter((task) => task.sf === "Y"));
         }
       } catch (error) {
         console.log(error, "error");
@@ -109,6 +113,47 @@ const EditNode: FC<EditNodeProps> = ({
     };
     fetchAsyncTasks();
   }, []);
+
+  useEffect(() => {
+    const params = {
+      baseURL: FLASK_URL,
+      url: flaskApi.TaskGroups,
+      accessToken: `${token.access_token}`,
+      // setLoading: setIsLoading,
+    };
+
+    const fetchTaskGroups = async () => {
+      const res = await loadData(params);
+      if (res.result) {
+        setTaskGroups(res.result);
+      }
+    };
+
+    fetchTaskGroups();
+  }, [token.access_token]);
+
+  const groupedTasks = useMemo(() => {
+    const filteredTasks = stepFunction.filter((task) =>
+      selectedNode?.data?.type === "diamond"
+        ? task.sf_type === "PREDICTABLE"
+        : task.sf_type === "UNPREDICTABLE",
+    );
+
+    return filteredTasks.reduce<Record<number, IARMAsynchronousTasksTypes[]>>(
+      (acc, task) => {
+        task.group_ids?.forEach((groupId) => {
+          if (!acc[groupId]) {
+            acc[groupId] = [];
+          }
+
+          acc[groupId].push(task);
+        });
+
+        return acc;
+      },
+      {},
+    );
+  }, [stepFunction, selectedNode?.data?.type]);
 
   const FormSchema = z.object(
     selectedNode
@@ -419,69 +464,118 @@ const EditNode: FC<EditNodeProps> = ({
                     if (key === "step_function") {
                       return (
                         <FormField
-                          key={key}
                           control={form.control}
                           name={key}
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Step Function</FormLabel>
-                              <FormControl>
-                                <Select
-                                  onValueChange={(value) => {
-                                    field.onChange(value);
-                                    setSelectedNode((prev) => {
-                                      if (prev) {
-                                        return {
-                                          ...prev,
-                                          data: {
-                                            ...prev.data,
-                                            [key]: value,
-                                          },
-                                        };
-                                      }
-                                      return prev;
-                                    });
-                                  }}
-                                  value={field.value}
-                                >
-                                  <SelectTrigger
-                                    className={`${
-                                      theme === "dark"
-                                        ? "border-white"
-                                        : "border-gray-400"
-                                    }`}
-                                  >
-                                    <SelectValue placeholder="Select an option" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {selectedNode.data.type === "diamond" ? (
-                                      <SelectGroup>
-                                        {predictableStepFunction.map((task) => (
-                                          <SelectItem
-                                            key={task.def_task_id}
-                                            value={task.task_name}
-                                          >
-                                            {task.user_task_name}
-                                          </SelectItem>
-                                        ))}
-                                      </SelectGroup>
-                                    ) : (
-                                      <SelectGroup>
-                                        {unpredictableStepFunction.map(
-                                          (task) => (
-                                            <SelectItem
-                                              key={task.def_task_id}
-                                              value={task.task_name}
-                                            >
-                                              {task.user_task_name}
-                                            </SelectItem>
+
+                              <Popover open={open} onOpenChange={setOpen}>
+                                <PopoverTrigger asChild>
+                                  <FormControl>
+                                    <button
+                                      type="button"
+                                      className="flex h-10 w-full items-center justify-between rounded-md border px-3 py-2 text-sm"
+                                    >
+                                      <span>
+                                        {field.value
+                                          ? Object.values(groupedTasks)
+                                              .flat()
+                                              .find(
+                                                (task) =>
+                                                  task.task_name ===
+                                                  field.value,
+                                              )?.user_task_name
+                                          : "Select a task"}
+                                      </span>
+
+                                      <ChevronDown className="h-4 w-4 opacity-50" />
+                                    </button>
+                                  </FormControl>
+                                </PopoverTrigger>
+
+                                <PopoverContent className="min-w-max p-0 max-h-[80vh] overflow-auto scollbar-thin">
+                                  <Command>
+                                    {/* <CommandInput placeholder="Search task..." /> */}
+
+                                    <CommandList>
+                                      <CommandGroup>
+                                        {Object.entries(groupedTasks).map(
+                                          ([groupId, tasks]) => (
+                                            <div key={groupId}>
+                                              <CommandItem
+                                                className="font-semibold"
+                                                onSelect={() =>
+                                                  setExpandedGroup((prev) =>
+                                                    prev === groupId
+                                                      ? null
+                                                      : groupId,
+                                                  )
+                                                }
+                                              >
+                                                {expandedGroup === groupId ? (
+                                                  <ChevronDown className="mr-2 h-4 w-4" />
+                                                ) : (
+                                                  <ChevronRight className="mr-2 h-4 w-4" />
+                                                )}
+                                                Group{" "}
+                                                {taskGroupName(
+                                                  Number(groupId),
+                                                  taskGroups,
+                                                )}
+                                              </CommandItem>
+
+                                              {expandedGroup === groupId &&
+                                                tasks.map((task) => (
+                                                  <CommandItem
+                                                    key={task.def_task_id}
+                                                    value={task.user_task_name}
+                                                    className="pl-8"
+                                                    onSelect={() => {
+                                                      field.onChange(
+                                                        task.task_name,
+                                                      );
+
+                                                      setSelectedNode(
+                                                        (prev) => {
+                                                          if (!prev)
+                                                            return prev;
+
+                                                          return {
+                                                            ...prev,
+                                                            data: {
+                                                              ...prev.data,
+                                                              [key]:
+                                                                task.task_name,
+                                                            },
+                                                          };
+                                                        },
+                                                      );
+
+                                                      setOpen(false);
+                                                    }}
+                                                  >
+                                                    <Check
+                                                      className={`mr-2 h-4 w-4 ${
+                                                        field.value ===
+                                                        task.task_name
+                                                          ? "opacity-100"
+                                                          : "opacity-0"
+                                                      }`}
+                                                    />
+
+                                                    {task.user_task_name}
+                                                  </CommandItem>
+                                                ))}
+                                            </div>
                                           ),
                                         )}
-                                      </SelectGroup>
-                                    )}
-                                  </SelectContent>
-                                </Select>
-                              </FormControl>
+                                      </CommandGroup>
+                                    </CommandList>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
+
                               <FormMessage />
                             </FormItem>
                           )}
