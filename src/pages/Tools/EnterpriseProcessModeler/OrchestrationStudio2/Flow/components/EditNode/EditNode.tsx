@@ -15,7 +15,7 @@ import {
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 
 import {
-  IARMAsynchronousTasksTypes,
+  IARMAsynchronousTask,
   ITaskGroup,
 } from "@/types/interfaces/ARM.interface";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -85,17 +85,15 @@ const EditNode: FC<EditNodeProps> = ({
 }) => {
   console.log(workFlowId, "workflow ID");
   const { getAsyncTasks } = useARMContext();
-  const [stepFunction, setStepFunctionTasks] = useState<
-    IARMAsynchronousTasksTypes[]
-  >([]);
+  const [stepFunction, setStepFunctionTasks] = useState<IARMAsynchronousTask[]>(
+    [],
+  );
 
   const { edgeConnectionPosition, setEdgeConnectionPosition, token } =
     useGlobalContext();
   const [open, setOpen] = useState(false);
   const [expandedGroup, setExpandedGroup] = useState<string | null>(null);
   const [taskGroups, setTaskGroups] = useState<ITaskGroup[] | []>([]);
-
-  console.log(selectedNode);
 
   const updateNodeInternals = useUpdateNodeInternals(); // Updating node internals dynamically
 
@@ -139,7 +137,7 @@ const EditNode: FC<EditNodeProps> = ({
         : task.sf_type === "UNPREDICTABLE",
     );
 
-    return filteredTasks.reduce<Record<number, IARMAsynchronousTasksTypes[]>>(
+    return filteredTasks.reduce<Record<number, IARMAsynchronousTask[]>>(
       (acc, task) => {
         task.group_ids?.forEach((groupId) => {
           if (!acc[groupId]) {

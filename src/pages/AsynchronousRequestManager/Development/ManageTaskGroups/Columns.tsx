@@ -3,8 +3,12 @@ import { Users } from "@/types/interfaces/users.interface";
 import { convertDate } from "@/Utility/DateConverter";
 import { renderUserName } from "@/Utility/NotificationUtils";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
-export const columns = (users: Users[]): ColumnDef<ITaskGroup>[] => [
+import { ArrowUpDown, Eye, EyeOff } from "lucide-react";
+export const columns = (
+  users: Users[],
+  clickedRow: ITaskGroup | undefined,
+  setClickedRow: React.Dispatch<React.SetStateAction<ITaskGroup | undefined>>,
+): ColumnDef<ITaskGroup>[] => [
   {
     id: "select",
     size: 24,
@@ -90,6 +94,32 @@ export const columns = (users: Users[]): ColumnDef<ITaskGroup>[] => [
     cell: ({ row }) => (
       <div className="min-w-[24rem]">{row.getValue("description")}</div>
     ),
+  },
+  {
+    accessorKey: "async_tasks",
+    enableResizing: true,
+    header: () => {
+      return <div className="min-w-max">Asycn Tasks</div>;
+    },
+
+    cell: ({ row }) => {
+      return (
+        <div className="flex items-center justify-center gap-2">
+          <button
+            className="disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={() => {
+              setClickedRow(row.original);
+            }}
+          >
+            {clickedRow?.group_id === row.original.group_id ? (
+              <EyeOff className="w-5 h-5" />
+            ) : (
+              <Eye className="w-5 h-5" />
+            )}
+          </button>
+        </div>
+      );
+    },
   },
   {
     accessorKey: "created_by",

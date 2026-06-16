@@ -26,7 +26,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { IARMAsynchronousTasksTypes } from "@/types/interfaces/ARM.interface";
+import { IARMAsynchronousTask } from "@/types/interfaces/ARM.interface";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import Pagination5 from "@/components/Pagination/Pagination5";
 import { Input } from "@/components/ui/input";
@@ -35,7 +35,7 @@ import { ArrowUpDown, ChevronDown } from "lucide-react";
 import Rows from "@/components/Rows/Rows";
 import { convertToTitleCase } from "@/Utility/general";
 
-export const columns: ColumnDef<IARMAsynchronousTasksTypes>[] = [
+export const columns: ColumnDef<IARMAsynchronousTask>[] = [
   {
     id: "select",
     size: 24,
@@ -105,7 +105,7 @@ export function TaskNameTable() {
     isLoading,
   } = useARMContext();
 
-  const [data, setData] = React.useState<IARMAsynchronousTasksTypes[] | []>([]);
+  const [data, setData] = React.useState<IARMAsynchronousTask[] | []>([]);
   const [page, setPage] = React.useState<number>(1);
   const [limit, setLimit] = React.useState<number>(4);
   // const [isLoading, setIsLoading] = React.useState<boolean>(false);
@@ -165,7 +165,7 @@ export function TaskNameTable() {
         setData(res);
       }
 
-      setSelectedTask({} as IARMAsynchronousTasksTypes);
+      setSelectedTask({} as IARMAsynchronousTask);
       setSelectedTaskParameters([]);
       // uncheck checkbox
       table.getRowModel().rows.map((row) => row.toggleSelected(false));
@@ -180,7 +180,7 @@ export function TaskNameTable() {
     return () => clearTimeout(delayDebounce); // Cleanup timeout
   }, [query, page, limit]);
 
-  const handleRowSelection = (task: IARMAsynchronousTasksTypes) => {
+  const handleRowSelection = (task: IARMAsynchronousTask) => {
     setSelectedTask((prev) => {
       if (prev?.def_task_id === task.def_task_id) {
         return undefined;

@@ -1,6 +1,6 @@
 import {
   IARMAsynchronousTasksParametersTypes,
-  IARMAsynchronousTasksTypes,
+  IARMAsynchronousTask,
   IARMTaskParametersTypes,
   IARMViewRequestsTypes,
   IAsynchronousRequestsAndTaskSchedulesTypes,
@@ -18,16 +18,13 @@ interface ARMContextProviderProps {
 interface ARMContext {
   totalPage: number;
   setTotalPage: React.Dispatch<React.SetStateAction<number>>;
-  getAsyncTasks: () => Promise<IARMAsynchronousTasksTypes[] | undefined>;
-  // getAsyncTasksLazyLoading: (
-  //   page: number,
-  //   limit: number,
-  // ) => Promise<IARMAsynchronousTasksTypes[] | undefined>;
+  getAsyncTasks: () => Promise<IARMAsynchronousTask[] | undefined>;
+
   getSearchAsyncTasksLazyLoading: (
     page: number,
     limit: number,
     userTaskName: string,
-  ) => Promise<IARMAsynchronousTasksTypes[] | undefined>;
+  ) => Promise<IARMAsynchronousTask[] | undefined>;
   cancelAsyncTasks: (task_name: string) => Promise<void>;
   getManageExecutionMethods: () => Promise<
     IExecutionMethodsTypes[] | undefined
@@ -37,9 +34,9 @@ interface ARMContext {
 
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
-  selectedTask: IARMAsynchronousTasksTypes | undefined;
+  selectedTask: IARMAsynchronousTask | undefined;
   setSelectedTask: React.Dispatch<
-    React.SetStateAction<IARMAsynchronousTasksTypes | undefined>
+    React.SetStateAction<IARMAsynchronousTask | undefined>
   >;
   selectedTaskParameters: IARMTaskParametersTypes[];
   setSelectedTaskParameters: React.Dispatch<
@@ -97,7 +94,7 @@ export function ARMContextProvider({ children }: ARMContextProviderProps) {
   const [changeState, setChangeState] = useState<number>(0);
   const [isLoading, setIsLoading] = React.useState(false);
   const [selectedTask, setSelectedTask] = useState<
-    IARMAsynchronousTasksTypes | undefined
+    IARMAsynchronousTask | undefined
   >(undefined);
   const [selectedTaskParameters, setSelectedTaskParameters] = useState<
     IARMTaskParametersTypes[]

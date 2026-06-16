@@ -32,7 +32,7 @@ import {
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { getColumns } from "./Columns";
 import Pagination5 from "@/components/Pagination/Pagination5";
-import { IARMAsynchronousTasksTypes } from "@/types/interfaces/ARM.interface";
+import { IARMAsynchronousTask } from "@/types/interfaces/ARM.interface";
 import AsynchronousRegisterEditTaskModal from "../AsynchronousRegisterEditTaskModal/AsynchronousRegisterEditTaskModal";
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import CustomModal4 from "@/components/CustomModal/CustomModal4";
@@ -59,7 +59,7 @@ export function TaskTable() {
   const [page, setPage] = React.useState(1);
   const [limit, setLimit] = React.useState(8);
   const [query, setQuery] = React.useState({ isEmpty: true, value: "" });
-  const [data, setData] = React.useState<IARMAsynchronousTasksTypes[] | []>([]);
+  const [data, setData] = React.useState<IARMAsynchronousTask[] | []>([]);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     [],
@@ -69,7 +69,7 @@ export function TaskTable() {
   const [rowSelection, setRowSelection] = React.useState({});
 
   const [selected, setSelected] = React.useState<
-    IARMAsynchronousTasksTypes | undefined
+    IARMAsynchronousTask | undefined
   >(undefined);
   const [lookups, setLookups] = React.useState<ILookup[] | []>([]);
 
@@ -130,7 +130,7 @@ export function TaskTable() {
     fetchLookups();
   }, [setIsLoading, token.access_token]);
 
-  const handleRowSelection = (rowSelection: IARMAsynchronousTasksTypes) => {
+  const handleRowSelection = (rowSelection: IARMAsynchronousTask) => {
     setSelected((prevSelected) => {
       if (prevSelected?.def_task_id === rowSelection.def_task_id) {
         return undefined;
@@ -199,7 +199,7 @@ export function TaskTable() {
     // table.toggleAllRowsSelected(false);
   };
 
-  const handleCancel = async (selected: IARMAsynchronousTasksTypes) => {
+  const handleCancel = async (selected: IARMAsynchronousTask) => {
     try {
       await cancelAsyncTasks(selected.task_name);
       // selected.forEach(async (task) => {

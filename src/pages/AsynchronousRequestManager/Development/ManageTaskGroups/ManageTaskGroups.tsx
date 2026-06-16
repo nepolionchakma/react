@@ -42,6 +42,7 @@ import Modal from "./Modal";
 import Spinner from "@/components/Spinner/Spinner";
 import SearchInput from "@/components/SearchInput/SearchInput";
 import { ITaskGroup } from "@/types/interfaces/ARM.interface";
+import AsyncTasksModal from "./AsyncTasksModal";
 
 const ManageTaskGroups = () => {
   const { token, users, grantedPrivlegeIds } = useGlobalContext();
@@ -64,10 +65,16 @@ const ManageTaskGroups = () => {
   const [action, setAction] = useState("");
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [reloadController, setReloadController] = useState(1);
+  const [clickedRow, setClickedRow] = useState<ITaskGroup | undefined>(
+    undefined,
+  );
 
   const table = useReactTable({
     data,
-    columns: useMemo(() => columns(users), [users]),
+    columns: useMemo(
+      () => columns(users, clickedRow, setClickedRow),
+      [users, clickedRow],
+    ),
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -110,7 +117,6 @@ const ManageTaskGroups = () => {
     const loadTaskGroups = async () => {
       const res = await loadData(apiEndpointsParams);
 
-      console.log(res);
       if (res.result) {
         setData(res.result);
         setTotalPage(res.pages);
@@ -195,6 +201,13 @@ const ManageTaskGroups = () => {
   };
   return (
     <>
+      {clickedRow && (
+        <AsyncTasksModal
+          action={"Tasks List"}
+          setClickedRow={setClickedRow}
+          clickedRow={clickedRow}
+        />
+      )}
       {/* Action Item */}
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-2">

@@ -30,7 +30,7 @@ import {
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import {
   IARMAsynchronousTasksParametersTypes,
-  IARMAsynchronousTasksTypes,
+  IARMAsynchronousTask,
 } from "@/types/interfaces/ARM.interface";
 import { ChevronDownIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
@@ -49,7 +49,7 @@ const RunARequest = () => {
     useARMContext();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [asyncTaskNames, setAsyncTaskNames] = useState<
-    IARMAsynchronousTasksTypes[] | undefined
+    IARMAsynchronousTask[] | undefined
   >(undefined);
   const [parameters, setParameters] = useState<
     Record<string, string | number | boolean | Date | undefined>

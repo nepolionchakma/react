@@ -17,7 +17,7 @@ import { Check, ChevronDown, X } from "lucide-react";
 import { FC, useEffect, useState } from "react";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import {
-  IARMAsynchronousTasksTypes,
+  IARMAsynchronousTask,
   IExecutionMethodsTypes,
   ITaskGroup,
 } from "@/types/interfaces/ARM.interface";
@@ -43,7 +43,7 @@ import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
 
 interface ICreateTaskProps {
   task_name: string;
-  selected: IARMAsynchronousTasksTypes;
+  selected: IARMAsynchronousTask;
   isLoading: boolean;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
   handleCloseModal: () => void;
@@ -289,7 +289,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
         <h2 className="font-semibold capitalize">{task_name} Task</h2>
         <X onClick={() => handleCloseModal()} className="cursor-pointer" />
       </div>
-      <div className="max-h-[70vh] p-4 overflow-auto scrollbar-thin">
+      <div className="max-h-[80vh] p-4 overflow-auto scrollbar-thin">
         {isLoading ? (
           <div className="w-full flex justify-center">
             <Spinner size="40" color="black" />
@@ -327,7 +327,7 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                     name="sf_type"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Step Function Type</FormLabel>
+                        <FormLabel>Type</FormLabel>
 
                         <Select
                           value={field.value}
@@ -346,6 +346,42 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                             <SelectItem value="UNPREDICTABLE">
                               Unpredictable
                             </SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="lookup_id"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Lookup</FormLabel>
+
+                        <Select
+                          value={field.value?.toString()}
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                          }}
+                          disabled={stepFuntionType !== "PREDICTABLE"}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select Lookup" />
+                            </SelectTrigger>
+                          </FormControl>
+
+                          <SelectContent>
+                            {lookups.map((l) => (
+                              <SelectItem
+                                key={l.lookup_id}
+                                value={l.lookup_id.toString()}
+                              >
+                                {l.lookup_name}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                         <FormMessage />
@@ -401,42 +437,6 @@ const AsynchronousRegisterEditTaskModal: FC<ICreateTaskProps> = ({
                             </Command>
                           </PopoverContent>
                         </Popover>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    control={form.control}
-                    name="lookup_id"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Lookup</FormLabel>
-
-                        <Select
-                          value={field.value?.toString()}
-                          onValueChange={(value) => {
-                            field.onChange(value);
-                          }}
-                          disabled={stepFuntionType !== "PREDICTABLE"}
-                        >
-                          <FormControl>
-                            <SelectTrigger>
-                              <SelectValue placeholder="Select Lookup" />
-                            </SelectTrigger>
-                          </FormControl>
-
-                          <SelectContent>
-                            {lookups.map((l) => (
-                              <SelectItem
-                                key={l.lookup_id}
-                                value={l.lookup_id.toString()}
-                              >
-                                {l.lookup_name}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}

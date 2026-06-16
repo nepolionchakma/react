@@ -33,6 +33,7 @@ const ManageDataSource = () => {
       });
       // console.log(response);
       if (response) {
+        console.log(response);
         setTableSchema(response.result);
         const schemas = response?.result?.map((item: any) => item.schema);
         setSchemas(schemas);
