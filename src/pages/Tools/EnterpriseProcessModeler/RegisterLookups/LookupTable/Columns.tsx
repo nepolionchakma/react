@@ -1,7 +1,4 @@
-import {
-  ILookup,
-  ILookupValue,
-} from "@/types/interfaces/orchestration.interface";
+import { ILookup } from "@/types/interfaces/orchestration.interface";
 import { Users } from "@/types/interfaces/users.interface";
 import { convertDate } from "@/Utility/DateConverter";
 import { renderUserName } from "@/Utility/NotificationUtils";
@@ -120,42 +117,6 @@ export const getColumns = (users: Users[]): ColumnDef<ILookup>[] => [
     cell: ({ row }) => (
       <div className="min-w-max">{row.getValue("active_yn")}</div>
     ),
-  },
-
-  {
-    accessorKey: "values",
-    enableResizing: true,
-    sortingFn: (rowA, rowB, columnId) => {
-      const valueA = rowA.getValue(columnId) as ILookupValue[];
-      const valueB = rowB.getValue(columnId) as ILookupValue[];
-
-      const a = valueA[0].value_label || "";
-      const b = valueB[0].value_label || "";
-
-      return a.localeCompare(b, undefined, { sensitivity: "base" });
-    },
-    header: ({ column }) => {
-      return (
-        <div
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="min-w-max cursor-pointer"
-        >
-          Values
-          <ArrowUpDown className="ml-2 h-4 w-4 inline-block" />
-        </div>
-      );
-    },
-    cell: ({ row }) => {
-      // const isExpanded = expandPrevilege === row.id;
-      const values: ILookupValue[] = row.getValue("values");
-      return (
-        <div className="flex items-center gap-2 min-w-max">
-          <div className="capitalize min-w-max">
-            <span>{values.map((e) => e.value_label).join(", ")}</span>
-          </div>
-        </div>
-      );
-    },
   },
 
   {

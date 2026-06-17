@@ -98,7 +98,6 @@ export interface ILookup {
   lookup_name: string;
   description: string;
   active_yn: "Y" | "N";
-  values: ILookupValue[];
   created_by: number;
   creation_date: string;
   last_updated_by: number;

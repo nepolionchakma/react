@@ -29,12 +29,13 @@ const SetupAndAdministration = () => {
           baseURL: FLASK_URL,
           url: `${flaskApi.AccessProfiles}/${selectedUser.user_id}`,
           setLoading: setIsLoading,
-          payload: { user_id: selectedUser.user_id },
           isConsole: true,
           isToast: true,
           accessToken: token.access_token,
         };
         const resData = await loadData(getDataParams);
+
+        // console.log(resData);
         if (resData.length > 0) {
           // is primary available
           const filterPrimaryData = resData?.find(
