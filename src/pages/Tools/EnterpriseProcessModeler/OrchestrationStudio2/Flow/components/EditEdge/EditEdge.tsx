@@ -23,6 +23,7 @@ import {
   SetStateAction,
   useCallback,
   useEffect,
+  useMemo,
   useState,
 } from "react";
 import { useForm } from "react-hook-form";
@@ -52,6 +53,7 @@ interface EditNodeProps {
   decisionEdgeData: IdecisionEdgeData;
   isLoading: boolean;
   setIsEdgeDataLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  edges: Edge[];
 }
 
 const EditEdge: FC<EditNodeProps> = ({
@@ -63,12 +65,18 @@ const EditEdge: FC<EditNodeProps> = ({
   setSelectedEdge,
   isLoading,
   setIsEdgeDataLoading,
+  edges,
 }) => {
   const { token } = useGlobalContext();
   const [lookupValues, setLookupValues] = useState<LookupValue[]>([]);
 
+  const sourceEdges = useMemo(() => {
+    return edges.filter((item) => item.source === selectedEdge.source);
+  }, [edges, selectedEdge.source]);
+
+  console.log(sourceEdges, "sourceEdges");
+
   console.log(lookupValues, "lookupValues");
-  console.log(selectedEdge, "selectedEdge");
 
   const FormSchema = z.object({
     label: z.string().optional(),
@@ -257,6 +265,11 @@ const EditEdge: FC<EditNodeProps> = ({
                               <SelectContent>
                                 {lookupValues.map((v) => (
                                   <SelectItem
+                                    disabled={sourceEdges.some(
+                                      (edge) =>
+                                        edge?.data?.lookup_value ===
+                                        v.value_code,
+                                    )}
                                     key={v.value_code}
                                     value={v.value_code}
                                   >

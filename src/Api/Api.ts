@@ -78,6 +78,8 @@ export const flaskApi = {
   Webhook: "/def_webhooks",
   WebhookDeliveryLog: "/log_webhook_deliveries",
   TaskGroups: "/def_task_groups",
+  Lookup: "/def_lookup",
+  LookupValue: "/def_lookup_values",
 };
 
 // All Node api

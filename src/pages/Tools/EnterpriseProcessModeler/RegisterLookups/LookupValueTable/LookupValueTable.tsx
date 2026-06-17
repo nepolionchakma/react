@@ -17,7 +17,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { columns } from "./Columns";
 import { useEffect, useMemo, useState } from "react";
 import { FLASK_URL, flaskApi } from "@/Api/Api";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
@@ -26,8 +25,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import ActionButtons from "@/components/ActionButtons/ActionButtons";
 import CustomTooltip from "@/components/Tooltip/Tooltip";
 import { ChevronDown, FileEdit, Plus } from "lucide-react";
-import Alert from "@/components/Alert/Alert";
-import Rows from "@/components/Rows/Rows";
+// import Rows from "@/components/Rows/Rows";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -36,45 +34,44 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { convertToTitleCase } from "@/Utility/general";
-import Pagination5 from "@/components/Pagination/Pagination5";
-// import Spinner from "@/components/Spinner/Spinner";
+import { getColumns } from "./Columns";
 import Modal from "./Modal";
+// import Pagination5 from "@/components/Pagination/Pagination5";
+import Alert from "@/components/Alert/Alert";
 import Spinner from "@/components/Spinner/Spinner";
-import SearchInput from "@/components/SearchInput/SearchInput";
-import { ITaskGroup } from "@/types/interfaces/ARM.interface";
-import AsyncTasksModal from "./AsyncTasksModal";
+// import SearchInput from "@/components/SearchInput/SearchInput";
+import {
+  ILookup,
+  ILookupValue,
+} from "@/types/interfaces/orchestration.interface";
 
-const ManageTaskGroups = () => {
-  const { token, users, grantedPrivlegeIds } = useGlobalContext();
+interface Props {
+  selectedLookup: ILookup | undefined;
+}
+
+const LookupValueTable = ({ selectedLookup }: Props) => {
+  const { token, grantedPrivlegeIds } = useGlobalContext();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  const [data, setData] = useState<ITaskGroup[] | []>([]);
-  const [limit, setLimit] = useState<number>(8);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [query, setQuery] = useState("");
-  const [totalPage, setTotalPage] = useState(1);
+  const [data, setData] = useState<ILookupValue[] | []>([]);
+  const [selectedLookupValues, setSelectedLookupValues] = useState<
+    ILookupValue[]
+  >([]);
   const [isLoading, setIsLoading] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [selectedTaskGroups, setSelectedTaskGroups] = useState<ITaskGroup[]>(
-    [],
-  );
   const [isSelectAll, setIsSelectAll] = useState(false);
   const [openModal, setOpenModal] = useState(false);
   const [action, setAction] = useState("");
   const [isDeleteLoading, setIsDeleteLoading] = useState(false);
   const [reloadController, setReloadController] = useState(1);
-  const [clickedRow, setClickedRow] = useState<ITaskGroup | undefined>(
-    undefined,
-  );
+  //   const [query, setQuery] = useState("");
 
+  const columns = useMemo(() => getColumns(), []);
   const table = useReactTable({
     data,
-    columns: useMemo(
-      () => columns(users, clickedRow, setClickedRow),
-      [users, clickedRow],
-    ),
+    columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     getCoreRowModel: getCoreRowModel(),
@@ -89,14 +86,14 @@ const ManageTaskGroups = () => {
       columnFilters,
       columnVisibility,
       rowSelection,
-      pagination: {
-        pageIndex: 0,
-        pageSize: limit,
-      },
     },
   });
-
-  const hiddenColumns = [""];
+  const hiddenColumns = [
+    "created_by",
+    "last_updated_by",
+    "creation_date",
+    "last_update_date",
+  ];
 
   useEffect(() => {
     table.getAllColumns().forEach((column) => {
@@ -107,70 +104,59 @@ const ManageTaskGroups = () => {
   }, [table]);
 
   useEffect(() => {
-    const apiEndpointsParams = {
+    const params = {
       baseURL: FLASK_URL,
-      url: `${flaskApi.TaskGroups}?group_name=${query}&page=${currentPage}&limit=${limit}`,
+      url: `${flaskApi.LookupValue}?lookup_id=${selectedLookup?.lookup_id}`,
       accessToken: `${token.access_token}`,
       setLoading: setIsLoading,
     };
 
-    const loadTaskGroups = async () => {
-      const res = await loadData(apiEndpointsParams);
-
-      if (res.result) {
-        setData(res.result);
-        setTotalPage(res.pages);
-      } else {
-        setTotalPage(1);
+    const fetchLookups = async () => {
+      if (selectedLookup) {
+        const res = await loadData(params);
+        if (res.result) {
+          setData(res.result);
+          // setTotalPage(res.pages);
+        }
       }
-      setSelectedTaskGroups([]);
+      setSelectedLookupValues([]);
     };
 
     const delayDebounce = setTimeout(() => {
-      loadTaskGroups();
+      fetchLookups();
       //   setSelectedItem(null);
     }, 1000);
 
     return () => clearTimeout(delayDebounce);
-  }, [limit, currentPage, token.access_token, table, reloadController, query]);
+  }, [token.access_token, table, reloadController, selectedLookup]);
 
   useEffect(() => {
     if (data?.length > 0) {
-      if (selectedTaskGroups.length !== data?.length) {
+      if (selectedLookupValues.length !== data.length) {
         setIsSelectAll(false);
       } else {
         setIsSelectAll(true);
       }
     }
-    const ids = selectedTaskGroups.map((item) => item.group_id);
+    const ids = selectedLookupValues?.map((item) => item.lookup_value_id);
     setSelectedIds(ids);
-  }, [data?.length, selectedTaskGroups]);
+  }, [data.length, selectedLookupValues]);
 
-  const handleRowSelection = (rowData: ITaskGroup) => {
-    setSelectedTaskGroups((prev) => {
-      const taskGroups = prev.find(
-        (item) => item.group_id === rowData.group_id,
+  const handleRowSelection = (rowData: ILookupValue) => {
+    setSelectedLookupValues((prev) => {
+      const lookupValue = prev.find(
+        (item) => item.lookup_value_id === rowData.lookup_value_id,
       );
 
-      if (taskGroups) {
+      if (lookupValue) {
         const filtered = prev.filter(
-          (item) => item.group_id !== rowData.group_id,
+          (item) => item.lookup_value_id !== rowData.lookup_value_id,
         );
         return filtered;
       } else {
         return [rowData, ...prev];
       }
     });
-  };
-
-  const handleSelectAll = () => {
-    if (isSelectAll) {
-      setIsSelectAll(false);
-      setSelectedTaskGroups([]);
-    } else {
-      setIsSelectAll(true);
-      setSelectedTaskGroups(data);
-    }
   };
 
   const handleAdd = () => {
@@ -182,12 +168,22 @@ const ManageTaskGroups = () => {
     setOpenModal(true);
   };
 
+  const handleSelectAll = () => {
+    if (isSelectAll) {
+      setIsSelectAll(false);
+      setSelectedLookupValues([]);
+    } else {
+      setIsSelectAll(true);
+      setSelectedLookupValues(data);
+    }
+  };
+
   const handleDelete = async () => {
     const params = {
-      url: flaskApi.TaskGroups,
+      url: flaskApi.LookupValue,
       baseURL: FLASK_URL,
       payload: {
-        group_ids: selectedIds,
+        lookup_value_ids: selectedIds,
       },
       accessToken: token.access_token,
       isToast: true,
@@ -201,30 +197,30 @@ const ManageTaskGroups = () => {
   };
   return (
     <>
-      {clickedRow && (
-        <AsyncTasksModal
-          action={"Tasks List"}
-          setClickedRow={setClickedRow}
-          clickedRow={clickedRow}
-        />
-      )}
       {/* Action Item */}
       <div className="flex items-center justify-between py-2">
         <div className="flex items-center gap-2">
           <ActionButtons>
             {grantedPrivlegeIds?.includes(11102) && (
-              <button>
+              <button disabled={data.length >= 3}>
                 <CustomTooltip tooltipTitle="Add">
-                  <Plus className="cursor-pointer" onClick={handleAdd} />
+                  <Plus
+                    className={`${
+                      data.length >= 3
+                        ? "text-slate-200 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                    onClick={handleAdd}
+                  />
                 </CustomTooltip>
               </button>
             )}
             {grantedPrivlegeIds?.includes(11103) && (
-              <button disabled={selectedTaskGroups.length !== 1}>
+              <button disabled={selectedLookupValues.length !== 1}>
                 <CustomTooltip tooltipTitle="Edit">
                   <FileEdit
                     className={`${
-                      selectedTaskGroups.length !== 1
+                      selectedLookupValues.length !== 1
                         ? "text-slate-200 cursor-not-allowed"
                         : "cursor-pointer"
                     }`}
@@ -235,7 +231,7 @@ const ManageTaskGroups = () => {
             )}
             {grantedPrivlegeIds?.includes(11104) && (
               <Alert
-                disabled={selectedTaskGroups.length === 0 || isDeleteLoading}
+                disabled={selectedLookupValues.length === 0 || isDeleteLoading}
                 actionName="delete"
                 onContinue={handleDelete}
                 tooltipTitle="Delete"
@@ -245,9 +241,9 @@ const ManageTaskGroups = () => {
                     <Spinner size="40" color="black" />
                   ) : (
                     <span className="flex flex-col items-start">
-                      {selectedTaskGroups.map((item, index) => (
-                        <span key={item.group_id}>
-                          {index + 1}. Task Group Name : {item.group_name}
+                      {selectedLookupValues.map((item, index) => (
+                        <span key={item.lookup_value_id}>
+                          {index + 1}. Lookup Value : {item.value_label}
                         </span>
                       ))}
                     </span>
@@ -256,18 +252,10 @@ const ManageTaskGroups = () => {
               </Alert>
             )}
           </ActionButtons>
-
-          {/* Search  */}
-          <SearchInput
-            placeholder="Search API Endpoint"
-            query={query}
-            setQuery={setQuery}
-            setPage={setCurrentPage}
-          />
         </div>
 
         <div className="flex items-center gap-2">
-          <Rows limit={limit} setLimit={setLimit} />
+          {/* <Rows limit={lookupLimit} setLimit={setLookupLimit} /> */}
           {/* Columns */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -384,7 +372,9 @@ const ManageTaskGroups = () => {
                       {index === 0 ? (
                         <Checkbox
                           className="mt-1"
-                          checked={selectedIds.includes(row.original.group_id)}
+                          checked={selectedIds.includes(
+                            row.original.lookup_value_id,
+                          )}
                           onClick={() => handleRowSelection(row.original)}
                         />
                       ) : (
@@ -422,25 +412,27 @@ const ManageTaskGroups = () => {
       {/* Start Pagination */}
       <div className="flex justify-between p-1">
         <div className="flex-1 text-sm text-gray-600">
-          {selectedTaskGroups?.length} row(s) selected.
+          {selectedLookupValues?.length} row(s) selected.
         </div>
-        <Pagination5
+        {/* <Pagination5
           currentPage={currentPage}
           setCurrentPage={setCurrentPage}
           totalPageNumbers={totalPage}
-        />
+        /> */}
       </div>
 
       {/* Modal */}
       <Modal
         action={action}
-        setOpenModal={setOpenModal}
-        selectedItems={selectedTaskGroups}
-        setState={setReloadController}
+        setAction={setAction}
         openModal={openModal}
+        setOpenModal={setOpenModal}
+        selectedItems={selectedLookupValues}
+        setState={setReloadController}
+        selectedLookup={selectedLookup}
       />
     </>
   );
 };
 
-export default ManageTaskGroups;
+export default LookupValueTable;

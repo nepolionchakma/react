@@ -1,4 +1,4 @@
-import { IARMAsynchronousTasksTypes } from "@/types/interfaces/ARM.interface";
+import { IARMAsynchronousTask } from "@/types/interfaces/ARM.interface";
 import { ILookup } from "@/types/interfaces/orchestration.interface";
 import { Users } from "@/types/interfaces/users.interface";
 import { convertDate } from "@/Utility/DateConverter";
@@ -10,7 +10,7 @@ import { ArrowUpDown } from "lucide-react";
 export const getColumns = (
   users: Users[],
   lookups: [] | ILookup[],
-): ColumnDef<IARMAsynchronousTasksTypes>[] => [
+): ColumnDef<IARMAsynchronousTask>[] => [
   {
     id: "select",
     size: 24,

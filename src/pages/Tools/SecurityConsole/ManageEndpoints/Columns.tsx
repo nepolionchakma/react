@@ -132,19 +132,6 @@ export const columns = (
         </div>
       );
     },
-
-    // cell: ({ row }) => {
-    //   const payload = row.getValue("payload") as any;
-    //   const data = payload?.data;
-
-    //   if (!data) return null;
-
-    //   return (
-    //     <pre className="min-w-max text-xs whitespace-pre-wrap">
-    //       {JSON.stringify(data.result, null, 2)}
-    //     </pre>
-    //   );
-    // },
   },
   {
     accessorKey: "method",

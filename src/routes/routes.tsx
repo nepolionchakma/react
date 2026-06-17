@@ -74,8 +74,8 @@ import WebhookDeliveryLog from "@/pages/Tools/EnterpriseSystemIntegrations/Webho
 import ProcessExecutionLog from "@/pages/Tools/EnterpriseProcessModeler/ProcessExecutionLog/ProcessExecutionLog";
 import ExecutionDetails from "@/pages/Tools/EnterpriseProcessModeler/ProcessExecutionLog/ExecutionDetails";
 import ManagePriviedgesAndRoles from "@/pages/Tools/SecurityConsole/ManagePrivilegesAndRoles/ManagePrivelegesAndRoles";
-import RegisterLookups from "@/pages/Tools/EnterpriseProcessModeler/RegisterLookups/RegisterLookups";
 import ManageTaskGroups from "@/pages/AsynchronousRequestManager/Development/ManageTaskGroups/ManageTaskGroups";
+import RegisterLookups from "@/pages/Tools/EnterpriseProcessModeler/RegisterLookups/RegisterLookups";
 
 const routes = createBrowserRouter([
   {

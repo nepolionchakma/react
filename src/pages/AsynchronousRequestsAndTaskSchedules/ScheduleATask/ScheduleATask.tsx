@@ -31,7 +31,7 @@ import {
 import { useARMContext } from "@/Context/ARMContext/ARMContext";
 import {
   IARMAsynchronousTasksParametersTypes,
-  IARMAsynchronousTasksTypes,
+  IARMAsynchronousTask,
   IAsynchronousRequestsAndTaskSchedulesTypes,
   IParametersTypes,
   IScheduleOnce,
@@ -76,7 +76,7 @@ const ScheduleATaskComponent: FC<ITaskRequestProps> = ({
     useGlobalContext();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [asyncTaskNames, setAsyncTaskNames] = useState<
-    IARMAsynchronousTasksTypes[] | undefined
+    IARMAsynchronousTask[] | undefined
   >(undefined);
   const [parameters, setParameters] = useState<IParametersTypes>({});
   // Record<string, string | number | boolean | Date | undefined>

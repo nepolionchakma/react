@@ -4,7 +4,7 @@ interface SearchInputProps {
   query: string;
   setQuery: React.Dispatch<React.SetStateAction<string>>;
   placeholder: string;
-  setPage: React.Dispatch<React.SetStateAction<number>>;
+  setPage?: React.Dispatch<React.SetStateAction<number>>;
 }
 
 export default function SearchInput({
@@ -15,7 +15,9 @@ export default function SearchInput({
 }: SearchInputProps) {
   const handleQuery = (e: string) => {
     setQuery(e);
-    setPage(1);
+    if (setPage) {
+      setPage(1);
+    }
   };
 
   return (
