@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Edge } from "@xyflow/react";
-import { X } from "lucide-react";
+import { Check, ChevronsUpDown, X } from "lucide-react";
 import {
   Dispatch,
   FC,
@@ -34,6 +34,13 @@ import Spinner from "@/components/Spinner/Spinner";
 import { FLASK_URL } from "@/Api/Api";
 import { useGlobalContext } from "@/Context/GlobalContext/GlobalContext";
 import { loadData } from "@/Utility/funtion";
+import { Button } from "@/components/ui/button";
+import { Command, CommandGroup, CommandItem } from "@/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface LookupValue {
   value_code: string;
@@ -69,14 +76,11 @@ const EditEdge: FC<EditNodeProps> = ({
 }) => {
   const { token } = useGlobalContext();
   const [lookupValues, setLookupValues] = useState<LookupValue[]>([]);
+  const [open, setOpen] = useState(false);
 
   const sourceEdges = useMemo(() => {
-    return edges.filter((item) => item.source === selectedEdge.source);
+    return edges.filter((item) => item.source === selectedEdge.source) || [];
   }, [edges, selectedEdge.source]);
-
-  console.log(sourceEdges, "sourceEdges");
-
-  console.log(lookupValues, "lookupValues");
 
   const FormSchema = z.object({
     label: z.string().optional(),
@@ -97,7 +101,8 @@ const EditEdge: FC<EditNodeProps> = ({
     },
   });
 
-  console.log("lookup_value:", form.watch("data.lookup_value"));
+  const lookupValue = form.watch("data.lookup_value");
+  console.log(lookupValue, "lookupValue");
 
   useEffect(() => {
     const fetchLookup = async () => {
@@ -248,36 +253,71 @@ const EditEdge: FC<EditNodeProps> = ({
                           control={form.control}
                           name="data.lookup_value"
                           render={({ field }) => (
-                            <Select
-                              onValueChange={field.onChange}
-                              value={field.value}
-                            >
+                            <FormItem>
                               <FormLabel>Values</FormLabel>
-                              <SelectTrigger
-                                className={`${
-                                  theme === "dark"
-                                    ? "border-white"
-                                    : "border-gray-400"
-                                }`}
-                              >
-                                <SelectValue placeholder="Values" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {lookupValues.map((v) => (
-                                  <SelectItem
-                                    disabled={sourceEdges.some(
-                                      (edge) =>
-                                        edge?.data?.lookup_value ===
-                                        v.value_code,
-                                    )}
-                                    key={v.value_code}
-                                    value={v.value_code}
+
+                              <Popover open={open} onOpenChange={setOpen}>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    aria-expanded={open}
+                                    className="w-full justify-between"
                                   >
-                                    {v.value_label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
+                                    {lookupValue
+                                      ? lookupValues.find(
+                                          (v) => v.value_code === lookupValue,
+                                        )?.value_label
+                                      : "Select a value"}
+                                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                                  </Button>
+                                </PopoverTrigger>
+
+                                <PopoverContent className="w-full p-0">
+                                  <Command>
+                                    <CommandGroup>
+                                      {lookupValues.map((v) => {
+                                        const disabled =
+                                          sourceEdges.some(
+                                            (edge) =>
+                                              edge?.data?.lookup_value ===
+                                              v.value_code,
+                                          ) &&
+                                          selectedEdge.data.lookup_value !==
+                                            v.value_code;
+
+                                        return (
+                                          <CommandItem
+                                            value={v.value_code}
+                                            key={v.value_code}
+                                            disabled={disabled}
+                                            onSelect={(value) => {
+                                              field.onChange(
+                                                lookupValue === value
+                                                  ? undefined // deselect
+                                                  : value, // select
+                                              );
+
+                                              setOpen(false);
+                                            }}
+                                          >
+                                            <Check
+                                              className={`mr-2 h-4 w-4 ${
+                                                lookupValue === v.value_code
+                                                  ? "opacity-100"
+                                                  : "opacity-0"
+                                              }`}
+                                            />
+
+                                            {v.value_label}
+                                          </CommandItem>
+                                        );
+                                      })}
+                                    </CommandGroup>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
+                            </FormItem>
                           )}
                         />
                       </>
