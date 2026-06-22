@@ -42,6 +42,8 @@ function ShapeNode({
   const { width, height } = useNodeDimensions(id);
   const shiftKeyPressed = useKeyPress("Shift");
   tailspin.register();
+
+  console.log(status, "status");
   // const handleStyle = { backgroundColor: color };
 
   const onColorChange = (color: string) => {
@@ -200,6 +202,23 @@ function ShapeNode({
               {formatResult(status.result)}
             </div>
           )}
+
+          {status.error_message && (
+            <div
+              style={{
+                color: "#212529",
+                fontSize: "10px",
+                wordBreak: "break-word",
+                maxWidth: "100px",
+                maxHeight: "80px",
+                overflow: "auto",
+                textOverflow: "ellipsis",
+                padding: "2px 3px",
+              }}
+            >
+              {status.error_message}
+            </div>
+          )}
         </div>
       )}
       <Shape
@@ -210,7 +229,7 @@ function ShapeNode({
         strokeWidth={2}
         stroke={color}
         fillOpacity={0.8}
-        status={{ status: status?.status }}
+        status={{ ...status }}
       />
       {type === "Start" ? (
         <Handle
