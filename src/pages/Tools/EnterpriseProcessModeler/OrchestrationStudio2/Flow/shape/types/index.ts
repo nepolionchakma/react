@@ -36,7 +36,8 @@ export type AttributesProps = {
 };
 export type NodeStatus = {
   status: string;
-  result?: string;
+  result: string;
+  error_message: string;
 };
 
 export type ShapeNode = Node<{

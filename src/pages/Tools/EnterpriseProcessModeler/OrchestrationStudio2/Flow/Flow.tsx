@@ -131,6 +131,8 @@ const ShapesProExampleApp = ({
   >([]);
   const [isConnectionCompleted, setIsConnectionCompleted] = useState(false);
 
+  console.log(selectedNode, "selectedNode");
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -150,7 +152,7 @@ const ShapesProExampleApp = ({
       }
     };
     fetchData();
-  }, [isNewFlowCreated, selectedFlowName]);
+  }, [isNewFlowCreated, selectedFlowName, token.access_token]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -173,54 +175,57 @@ const ShapesProExampleApp = ({
       }
     };
     fetchData();
-  }, [selectedFlowName]);
+  }, [selectedFlowName, setEdges, setNodes, token.access_token]);
 
   useEffect(() => {
     setToolsOpen(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!selectedFlowData]);
-  console.log(edges, "edges");
-  console.log(nodes, "nodes");
+
   const edgeTypes = {
     animatedEdge: AnimatedSVGEdge,
   };
 
-  const onConnect = useCallback((params: Connection) => {
-    const edge: Edge = {
-      ...params,
-      id: `edge-${params.source}-${params.target}`,
-      type: "animatedEdge",
-      data: {
-        field: "",
-        operator: "",
-        value: "",
-        is_default: false,
-      },
-      animated: false,
-    };
-    setEdges((eds) => addEdge(edge, eds));
-    setNodes((nds) => {
-      return nds.map((node) => {
-        if (node.id === params.source) {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              edges: [...node.data.edges, edge.id],
-            },
-          };
-        } else if (node.id === params.target) {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              edges: [...node.data.edges, edge.id],
-            },
-          };
-        }
-        return node;
+  const onConnect = useCallback(
+    (params: Connection) => {
+      const edge: Edge = {
+        ...params,
+        id: `edge-${params.source}-${params.target}`,
+        type: "animatedEdge",
+        data: {
+          field: "",
+          operator: "",
+          value: "",
+          is_default: false,
+        },
+        animated: false,
+      };
+      setEdges((eds) => addEdge(edge, eds));
+      setNodes((nds) => {
+        return nds.map((node) => {
+          if (node.id === params.source) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                edges: [...node.data.edges, edge.id],
+              },
+            };
+          } else if (node.id === params.target) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                edges: [...node.data.edges, edge.id],
+              },
+            };
+          }
+          return node;
+        });
       });
-    });
-  }, []);
+    },
+    [setEdges, setNodes],
+  );
 
   const handleStartWorkflow = async () => {
     try {
@@ -233,6 +238,7 @@ const ShapesProExampleApp = ({
               status: {
                 result: "",
                 status: "",
+                error_message: "",
               },
             },
           };
@@ -366,6 +372,7 @@ const ShapesProExampleApp = ({
         status: {
           status: "",
           result: "",
+          error_message: "",
         },
       },
       selected: true,
@@ -388,12 +395,12 @@ const ShapesProExampleApp = ({
 
   const onNodeClick = useCallback(
     (event: React.MouseEvent, node: ShapeNode) => {
-      console.log(event, "Node event");
+      console.log(event, "Node event", node, "node");
       setSelectedEdge(undefined);
       setSelectedNode({ ...node, selected: true });
       setEdgeConnectionPosition(node.data.edge_connection_position);
     },
-    [],
+    [setEdgeConnectionPosition],
   );
 
   const diamondNode = () => nodes.find((node) => node.data.type === "diamond");
@@ -592,6 +599,8 @@ const ShapesProExampleApp = ({
           accessToken: token.access_token,
         });
 
+        console.log(loadNodeRes, "loadNodeRes");
+
         // Update the node with the status information
         if (loadNodeRes && loadNodeRes.result) {
           setNodes((nds) =>
@@ -604,6 +613,7 @@ const ShapesProExampleApp = ({
                     status: {
                       result: loadNodeRes.result?.result ?? "",
                       status: loadNodeRes.result?.status ?? "",
+                      error_message: loadNodeRes.result.error_message ?? "",
                     },
                   },
                 };
@@ -622,6 +632,7 @@ const ShapesProExampleApp = ({
                     status: {
                       result: loadNodeRes.result?.result ?? "",
                       status: loadNodeRes.result?.status ?? "",
+                      error_message: loadNodeRes.result.error_message ?? "",
                     },
                   },
                 }
@@ -663,14 +674,7 @@ const ShapesProExampleApp = ({
       if (response.status === 202) {
         setRequiredAttributes([]);
       }
-      // const res = await postData({
-      //   baseURL: FLASK_URL,
-      //   url: `${FLASK_URL}/workflow/run/${selectedFlowData?.process_id}?access_token=${token.access_token}`,
-      //   setLoading: setIsLoading,
-      //   payload: { context: data },
-      //   accessToken: token.access_token,
-      // });
-      // console.log(res, "res");
+
       const executionId = response.data.def_process_execution_id;
       setProcessExecutionId(executionId);
     } catch (error) {
@@ -684,29 +688,11 @@ const ShapesProExampleApp = ({
       `${FLASK_URL}/workflow/execution_stream/${processExecutionId}?access_token=${token.access_token}`,
     );
 
-    // 1. Connection opened
-    // eventSource.onopen = () => {
-    //   console.log("SSE connection opened");
-    // };
-
     // 2. Listen specifically for 'heartbeat' events
     eventSource.addEventListener("heartbeat", (event) => {
       const data = JSON.parse(event.data);
       console.log("💓 Heartbeat received:", data);
-
-      // You can update state here if needed
-      // setStatus(data.status);
     });
-
-    // eventSource.onmessage = (event) => {
-    //   const payload = JSON.parse(event.data);
-
-    //   console.log("Workflow Update:", event);
-
-    //   if (payload.type === "step") {
-    //     // handle step update
-    //   }
-    // };
 
     eventSource.addEventListener("step", (event) => {
       const step = JSON.parse(event.data);
@@ -721,6 +707,7 @@ const ShapesProExampleApp = ({
                 status: {
                   result: step.result || "",
                   status: step.status || "",
+                  error_message: step.error_message || "",
                 },
               },
             };
@@ -791,7 +778,7 @@ const ShapesProExampleApp = ({
     //   console.log("SSE connection closed");
     // };
   }, [processExecutionId, setNodes, setEdges, token.access_token]);
-  console.log(newProcessName, "newProcessName");
+
   return (
     <div className="dndflow h-[calc(100vh-6rem)]">
       <div className="reactflow-wrapper" ref={reactFlowWrapper}>
