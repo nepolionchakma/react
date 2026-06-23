@@ -226,7 +226,7 @@ function ShapeNode({
         width={width}
         height={height}
         fill={color}
-        strokeWidth={2}
+        strokeWidth={3}
         stroke={color}
         fillOpacity={0.8}
         status={{ ...status }}
