@@ -38,6 +38,8 @@ function Shape({
 }: ShapeComponentProps & { status?: NodeStatus }) {
   const shapeRef = useRef<SVGGElement>(null);
 
+  console.log(status?.status, "status");
+
   // Add styles to the document head on component mount
   useEffect(() => {
     addStyles();
@@ -59,37 +61,56 @@ function Shape({
   const innerHeight = height - 2 * strokeWidth;
 
   // Set up the stroke color and class based on status
-  const getStatusStyles = () => {
-    if (!status) return {};
+  // const getStrokeStyle = () => {
+  //   if (!status) return {};
 
-    switch (status.status) {
-      case "RUNNING":
-        return {
-          className: "shape-loading",
-          stroke: svgAttributes.stroke || svgAttributes.fill || "#000000",
-          strokeWidth: svgAttributes.strokeWidth || 2,
-        };
+  //   switch (status.status.toLowerCase()) {
+  //     case "running":
+  //       return {
+  //         className: "shape-loading",
+  //         stroke: svgAttributes.stroke || svgAttributes.fill || "#000000",
+  //         strokeWidth: svgAttributes.strokeWidth || 2,
+  //       };
+  //     case "passed":
+  //       return {
+  //         stroke: "#10B981", // green-500
+  //         strokeWidth: svgAttributes.strokeWidth || 2,
+  //       };
+  //     case "completed":
+  //       return {
+  //         stroke: "#10B981", // green-500
+  //         strokeWidth: svgAttributes.strokeWidth || 2,
+  //       };
+  //     case "failed":
+  //       return {
+  //         stroke: "#EF4444", // red-500
+  //         strokeWidth: svgAttributes.strokeWidth || 2,
+  //       };
+  //     default:
+  //       return {};
+  //   }
+  // };
+
+  const getStrokeStyle = () => {
+    if (!status) {
+      return svgAttributes.stroke || "#000000";
+    }
+
+    switch (status.status.toLowerCase()) {
+      case "running":
+        return svgAttributes.stroke || svgAttributes.fill || "#000000";
+
       case "passed":
-        return {
-          stroke: "#10B981", // green-500
-          strokeWidth: svgAttributes.strokeWidth || 2,
-        };
       case "completed":
-        return {
-          stroke: "#10B981", // green-500
-          strokeWidth: svgAttributes.strokeWidth || 2,
-        };
+        return "#10B981";
+
       case "failed":
-        return {
-          stroke: "#EF4444", // red-500
-          strokeWidth: svgAttributes.strokeWidth || 2,
-        };
+        return "#EF4444";
+
       default:
-        return {};
+        return svgAttributes.stroke || "#000000";
     }
   };
-
-  const statusStyles = getStatusStyles();
 
   return (
     <svg width={width} height={height} className="shape-svg">
@@ -104,7 +125,8 @@ function Shape({
           width={innerWidth}
           height={innerHeight}
           {...svgAttributes}
-          {...statusStyles}
+          stroke={getStrokeStyle()}
+          className={`${status?.status.toLowerCase() === "running" ? "shape-loading" : ""}`}
         />
       </g>
     </svg>
