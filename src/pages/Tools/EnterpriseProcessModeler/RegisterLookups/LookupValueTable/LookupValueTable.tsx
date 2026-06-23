@@ -202,16 +202,9 @@ const LookupValueTable = ({ selectedLookup }: Props) => {
         <div className="flex items-center gap-2">
           <ActionButtons>
             {grantedPrivlegeIds?.includes(11102) && (
-              <button disabled={data.length >= 3}>
+              <button>
                 <CustomTooltip tooltipTitle="Add">
-                  <Plus
-                    className={`${
-                      data.length >= 3
-                        ? "text-slate-200 cursor-not-allowed"
-                        : "cursor-pointer"
-                    }`}
-                    onClick={handleAdd}
-                  />
+                  <Plus className="cursor-pointer" onClick={handleAdd} />
                 </CustomTooltip>
               </button>
             )}

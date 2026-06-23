@@ -101,7 +101,6 @@ export const getColumns = (users: Users[]): ColumnDef<ILookup>[] => [
 
       return a.localeCompare(b, undefined, { sensitivity: "base" });
     },
-    // header: "Username",
     header: ({ column }) => {
       return (
         <div
@@ -114,9 +113,19 @@ export const getColumns = (users: Users[]): ColumnDef<ILookup>[] => [
       );
     },
 
-    cell: ({ row }) => (
-      <div className="min-w-max">{row.getValue("active_yn")}</div>
-    ),
+    cell: ({ row }) => {
+      const isActive = row.getValue("active_yn") === "Y";
+
+      return (
+        <div
+          className={`rounded px-2 text-sm inline-flex ${
+            isActive ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+          }`}
+        >
+          {isActive ? "Yes" : "No"}
+        </div>
+      );
+    },
   },
 
   {
