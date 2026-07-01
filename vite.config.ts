@@ -14,7 +14,10 @@ export default defineConfig({
   },
   plugins: [
     react(),
-    VitePWA({
+    VitePWA({devOptions: {
+    enabled: true,       // dev mode e service worker enable kore
+    type: 'module',
+  },
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon-180x180.png', 'logo.svg'],
       manifest: {
